@@ -1,0 +1,173 @@
+@model IEnumerable<EZ_Rent.Models.RentalPost>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Title)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Price)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Area)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Address)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.City)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.District)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Ward)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.MapLocation)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AmenitiesJson)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RoomType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RoomStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ApprovalStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ApprovalNote)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ApprovedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ApprovedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ElectricityUnitPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WaterUnitPrice)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ServiceFee)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AvailableFrom)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PostedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Owner)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Price)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Area)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.City)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.District)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ward)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MapLocation)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AmenitiesJson)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RoomType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RoomStatus)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ApprovalStatus)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ApprovalNote)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ApprovedBy.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ApprovedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ElectricityUnitPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.WaterUnitPrice)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ServiceFee)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AvailableFrom)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PostedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Owner.Id)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.RentalPostId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.RentalPostId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.RentalPostId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

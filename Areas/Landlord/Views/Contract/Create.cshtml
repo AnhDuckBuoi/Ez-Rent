@@ -1,0 +1,100 @@
+@model EZ_Rent.Models.RentalContract
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>RentalContract</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="RentalPostId" class="control-label"></label>
+                <select asp-for="RentalPostId" class ="form-control" asp-items="ViewBag.RentalPostId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="TenantId" class="control-label"></label>
+                <select asp-for="TenantId" class ="form-control" asp-items="ViewBag.TenantId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="LandlordId" class="control-label"></label>
+                <select asp-for="LandlordId" class ="form-control" asp-items="ViewBag.LandlordId"></select>
+            </div>
+            <div class="form-group">
+                <label asp-for="StartDate" class="control-label"></label>
+                <input asp-for="StartDate" class="form-control" />
+                <span asp-validation-for="StartDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EndDate" class="control-label"></label>
+                <input asp-for="EndDate" class="form-control" />
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MonthlyRent" class="control-label"></label>
+                <input asp-for="MonthlyRent" class="form-control" />
+                <span asp-validation-for="MonthlyRent" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="DepositAmount" class="control-label"></label>
+                <input asp-for="DepositAmount" class="form-control" />
+                <span asp-validation-for="DepositAmount" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AgreedElectricityPrice" class="control-label"></label>
+                <input asp-for="AgreedElectricityPrice" class="form-control" />
+                <span asp-validation-for="AgreedElectricityPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="AgreedWaterPrice" class="control-label"></label>
+                <input asp-for="AgreedWaterPrice" class="form-control" />
+                <span asp-validation-for="AgreedWaterPrice" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Terms" class="control-label"></label>
+                <input asp-for="Terms" class="form-control" />
+                <span asp-validation-for="Terms" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label"></label>
+                <select asp-for="Status" class="form-control"></select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="TenantConfirmedAt" class="control-label"></label>
+                <input asp-for="TenantConfirmedAt" class="form-control" />
+                <span asp-validation-for="TenantConfirmedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="LandlordConfirmedAt" class="control-label"></label>
+                <input asp-for="LandlordConfirmedAt" class="form-control" />
+                <span asp-validation-for="LandlordConfirmedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAt" class="control-label"></label>
+                <input asp-for="CreatedAt" class="form-control" />
+                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="UpdatedAt" class="control-label"></label>
+                <input asp-for="UpdatedAt" class="form-control" />
+                <span asp-validation-for="UpdatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

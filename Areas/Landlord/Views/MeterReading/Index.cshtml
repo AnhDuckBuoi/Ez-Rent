@@ -1,0 +1,107 @@
+@model IEnumerable<EZ_Rent.Models.MeterReading>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.RentalPost)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Period)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ReadingDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PrevElectricIndex)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CurrElectricIndex)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ElectricUsage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ElectricMeterImageUrl)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PrevWaterIndex)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CurrWaterIndex)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WaterUsage)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.WaterMeterImageUrl)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RecordedBy)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Note)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.RentalPost.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Period)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ReadingDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PrevElectricIndex)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CurrElectricIndex)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ElectricUsage)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ElectricMeterImageUrl)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.PrevWaterIndex)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CurrWaterIndex)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.WaterUsage)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.WaterMeterImageUrl)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RecordedBy.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Note)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.MeterReadingId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.MeterReadingId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.MeterReadingId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

@@ -1,0 +1,95 @@
+@model IEnumerable<EZ_Rent.Models.RepairRequest>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.RentalPost)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tenant)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ProblemType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Priority)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ImageUrl)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ResolutionNote)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UpdatedAt)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ResolvedAt)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.RentalPost.Address)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Tenant.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProblemType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Priority)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ImageUrl)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ResolutionNote)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.CreatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UpdatedAt)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ResolvedAt)
+            </td>
+            <td>
+                <a asp-action="Edit" asp-route-id="@item.RepairRequestId">Edit</a> |
+                <a asp-action="Details" asp-route-id="@item.RepairRequestId">Details</a> |
+                <a asp-action="Delete" asp-route-id="@item.RepairRequestId">Delete</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

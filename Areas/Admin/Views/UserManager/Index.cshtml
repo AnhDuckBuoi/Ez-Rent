@@ -1,0 +1,130 @@
+@model IEnumerable<EZ_Rent.Models.ApplicationUser>
+
+@using Microsoft.AspNetCore.Identity
+@using EZ_Rent.Models
+
+@inject UserManager<ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+<partial name="_StatusMessage" />
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.UserName)
+            </th>
+            <th>
+                Vai trò
+            </th>
+            <th>
+                Thao tác
+            </th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            var roles = await UserManager.GetRolesAsync(item);
+
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+
+                <td>
+                    @string.Join(", ", roles)
+                </td>
+
+
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
+
+                    @if (item.Status == EZ_Rent.Models.Enums.UserStatus.Active && (item.LockoutEnd == null || item.LockoutEnd
+                <= DateTimeOffset.Now))
+                    {
+                        <form asp-action="Lock" asp-route-id="@item.Id" method="post" class="d-inline lock-form">
+                            <button type="submit" onclick="return confirm('Khóa tài khoản @item.FullName?');"
+                                    style="background:none;border:none;color:#0d6efd;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit;font-family:inherit;">
+                                Lock
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <form asp-action="Unlock" asp-route-id="@item.Id" method="post" class="d-inline lock-form">
+                            <button type="submit"
+                                    style="background:none;border:none;color:#0d6efd;text-decoration:underline;cursor:pointer;padding:0;font-size:inherit;font-family:inherit;">
+                                Unlock
+                            </button>
+                        </form>
+                    }
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.lock-form').forEach(form => {
+                form.addEventListener('submit', async function (e) {
+                    e.preventDefault();   // 🔥 CHẶN form tự submit
+
+                    const button = form.querySelector('button[type="submit"]');
+
+                    // Lấy token ẩn mà form asp-action tự sinh
+                    const token = form.querySelector(
+                        'input[name="__RequestVerificationToken"]').value;
+
+                    // Lấy URL + thông tin từ form
+                    const url = form.getAttribute('action');
+
+                    button.disabled = true;
+
+                    try {
+                        const response = await fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'RequestVerificationToken': token
+                            }
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            // Reload để cập nhật UI — đơn giản nhất
+                            location.reload();
+                        } else {
+                            alert(data.message);
+                            button.disabled = false;
+                        }
+                    } catch (err) {
+                        alert('Lỗi kết nối!');
+                        button.disabled = false;
+                    }
+                });
+            });
+        });
+    </script>
+}

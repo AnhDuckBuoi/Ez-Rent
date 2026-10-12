@@ -1,0 +1,58 @@
+@using EZ_Rent.Data
+@using Microsoft.EntityFrameworkCore
+@using System.Data.Common
+
+@inject AppDbContext dbContext
+
+@{
+    var connect = dbContext.Database.GetDbConnection();
+
+    var DbName = connect.Database;
+    var state = connect.State;
+    var CanConnect = dbContext.Database.CanConnect();
+}
+<partial name="_StatusMessage" />
+<h2>Thông tin</h2>
+
+<p>Database: @DbName</p>
+<p>Source: @connect.DataSource</p>
+<p>State: @state</p>
+<hr>
+<h2>Migrations</h2>
+@foreach (var migration in dbContext.Database.GetAppliedMigrations())
+{
+    <p>@migration</p>
+}
+@foreach (var migration in dbContext.Database.GetPendingMigrations())
+{
+    <p>@migration (Pending)</p>
+}
+@if (dbContext.Database.GetPendingMigrations().Any())
+{
+    <form asp-controller="DbManage" asp-action="Migrate" method="post">
+
+        <button type="submit" class="btn btn-success">
+            Tạo hoặc cập nhật Database
+        </button>
+
+    </form>
+    <p></p>
+}
+@if (!CanConnect)
+{
+    <p class="alert alert-danger">Không thể kết nối tới Database</p>
+    <br />
+}
+else
+{
+    <h2>Cac table</h2>
+    await dbContext.Database.OpenConnectionAsync();
+    System.Data.DataTable? table = dbContext.Database.GetDbConnection().GetSchema("Tables");
+    <ul>
+        @foreach (System.Data.DataRow row in table.Rows)
+        {
+            <li>(@row["TABLE_NAME"])</li>
+        }
+    </ul>
+    <a class="btn btn-danger" asp-action="DeleteDb">Xóa Database: @DbName</a>
+}

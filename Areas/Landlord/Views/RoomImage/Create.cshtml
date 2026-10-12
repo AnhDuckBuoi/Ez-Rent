@@ -1,0 +1,57 @@
+@model EZ_Rent.Models.RoomImage
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>RoomImage</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="MediaUrl" class="control-label"></label>
+                <input asp-for="MediaUrl" class="form-control" />
+                <span asp-validation-for="MediaUrl" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MediaType" class="control-label"></label>
+                <select asp-for="MediaType" class="form-control"></select>
+                <span asp-validation-for="MediaType" class="text-danger"></span>
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="IsPrimary" /> @Html.DisplayNameFor(model => model.IsPrimary)
+                </label>
+            </div>
+            <div class="form-group">
+                <label asp-for="DisplayOrder" class="control-label"></label>
+                <input asp-for="DisplayOrder" class="form-control" />
+                <span asp-validation-for="DisplayOrder" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="CreatedAt" class="control-label"></label>
+                <input asp-for="CreatedAt" class="form-control" />
+                <span asp-validation-for="CreatedAt" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="RentalPostId" class="control-label"></label>
+                <select asp-for="RentalPostId" class ="form-control" asp-items="ViewBag.RentalPostId"></select>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
