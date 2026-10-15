@@ -9,5 +9,6 @@ public enum ApprovalStatus
     Pending = 1,
     Approved = 2,
     Rejected = 3,
-    NeedRevision = 4
+    NeedRevision = 4,
+    Removed = 5
 }

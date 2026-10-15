@@ -1,171 +1,156 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using EZ_Rent.Data;
+using EZ_Rent.Helpers;
 using EZ_Rent.Models;
+using EZ_Rent.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace EZ_Rent.Areas_Admin_Controllers
+namespace EZ_Rent.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
     public class SupportController : Controller
     {
         private readonly AppDbContext _context;
+
+        private const int PAGE_SIZE = 10;
 
         public SupportController(AppDbContext context)
         {
             _context = context;
         }
 
-        // GET: Support
-        public async Task<IActionResult> Index()
+        // ============================================================
+        // GET: /Admin/Support?status=Pending&page=1
+        // ============================================================
+        public async Task<IActionResult> Index(string? status, int page = 1)
         {
-            var appDbContext = _context.RepairRequests.Include(r => r.RentalPost).Include(r => r.Tenant);
-            return View(await appDbContext.ToListAsync());
+            if (page < 1) page = 1;
+
+            var query = _context.RepairRequests
+                .Include(r => r.RentalPost)
+                .Include(r => r.Tenant)
+                .AsQueryable();
+
+            // Filter theo status
+            if (Enum.TryParse<RepairRequestStatus>(status, out var st))
+                query = query.Where(r => r.Status == st);
+
+            query = query.OrderByDescending(r => r.CreatedAt);
+
+            var paginatedRepairs = await PaginatedList<RepairRequest>.CreateAsync(
+                query, page, PAGE_SIZE);
+
+            ViewBag.StatusFilter = status;
+            return View(paginatedRepairs);
         }
 
-        // GET: Support/Details/5
+        // ============================================================
+        // GET: /Admin/Support/Details/5
+        // ============================================================
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var repairRequest = await _context.RepairRequests
+            var repair = await _context.RepairRequests
                 .Include(r => r.RentalPost)
                 .Include(r => r.Tenant)
                 .FirstOrDefaultAsync(m => m.RepairRequestId == id);
-            if (repairRequest == null)
-            {
-                return NotFound();
-            }
 
-            return View(repairRequest);
+            if (repair == null) return NotFound();
+
+            return View(repair);
         }
 
-        // GET: Support/Create
-        public IActionResult Create()
-        {
-            ViewData["RentalPostId"] = new SelectList(_context.RentalPosts, "RentalPostId", "Address");
-            ViewData["TenantId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
-        }
-
-        // POST: Support/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // ============================================================
+        // POST: /Admin/Support/InProgress/5
+        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RepairRequestId,RentalPostId,TenantId,ProblemType,Description,Priority,ImageUrl,Status,ResolutionNote,CreatedAt,UpdatedAt,ResolvedAt")] RepairRequest repairRequest)
+        public async Task<IActionResult> InProgress(int id)
         {
-            if (ModelState.IsValid)
-            {
-                _context.Add(repairRequest);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["RentalPostId"] = new SelectList(_context.RentalPosts, "RentalPostId", "Address", repairRequest.RentalPostId);
-            ViewData["TenantId"] = new SelectList(_context.Users, "Id", "Id", repairRequest.TenantId);
-            return View(repairRequest);
-        }
+            var repair = await _context.RepairRequests.FindAsync(id);
+            if (repair == null)
+                return Json(new { success = false, message = "Không tìm thấy khiếu nại" });
 
-        // GET: Support/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (repair.Status != RepairRequestStatus.Pending)
+                return Json(new { success = false, message = "Chỉ có thể xử lý khiếu nại đang chờ" });
 
-            var repairRequest = await _context.RepairRequests.FindAsync(id);
-            if (repairRequest == null)
-            {
-                return NotFound();
-            }
-            ViewData["RentalPostId"] = new SelectList(_context.RentalPosts, "RentalPostId", "Address", repairRequest.RentalPostId);
-            ViewData["TenantId"] = new SelectList(_context.Users, "Id", "Id", repairRequest.TenantId);
-            return View(repairRequest);
-        }
-
-        // POST: Support/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("RepairRequestId,RentalPostId,TenantId,ProblemType,Description,Priority,ImageUrl,Status,ResolutionNote,CreatedAt,UpdatedAt,ResolvedAt")] RepairRequest repairRequest)
-        {
-            if (id != repairRequest.RepairRequestId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(repairRequest);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RepairRequestExists(repairRequest.RepairRequestId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["RentalPostId"] = new SelectList(_context.RentalPosts, "RentalPostId", "Address", repairRequest.RentalPostId);
-            ViewData["TenantId"] = new SelectList(_context.Users, "Id", "Id", repairRequest.TenantId);
-            return View(repairRequest);
-        }
-
-        // GET: Support/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var repairRequest = await _context.RepairRequests
-                .Include(r => r.RentalPost)
-                .Include(r => r.Tenant)
-                .FirstOrDefaultAsync(m => m.RepairRequestId == id);
-            if (repairRequest == null)
-            {
-                return NotFound();
-            }
-
-            return View(repairRequest);
-        }
-
-        // POST: Support/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var repairRequest = await _context.RepairRequests.FindAsync(id);
-            if (repairRequest != null)
-            {
-                _context.RepairRequests.Remove(repairRequest);
-            }
+            repair.Status    = RepairRequestStatus.InProgress;
+            repair.UpdatedAt = DateTime.UtcNow;
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            return Json(new
+            {
+                success   = true,
+                message   = "Đã chuyển khiếu nại sang trạng thái Đang xử lý",
+                newStatus = "InProgress"
+            });
         }
 
-        private bool RepairRequestExists(int id)
+        // ============================================================
+        // POST: /Admin/Support/Resolve/5
+        // ============================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Resolve(int id, string? note)
         {
-            return _context.RepairRequests.Any(e => e.RepairRequestId == id);
+            if (string.IsNullOrWhiteSpace(note))
+                return Json(new { success = false, message = "Vui lòng nhập ghi chú giải quyết" });
+
+            var repair = await _context.RepairRequests.FindAsync(id);
+            if (repair == null)
+                return Json(new { success = false, message = "Không tìm thấy khiếu nại" });
+
+            if (repair.Status == RepairRequestStatus.Resolved)
+                return Json(new { success = false, message = "Khiếu nại đã được giải quyết rồi" });
+
+            repair.Status         = RepairRequestStatus.Resolved;
+            repair.ResolutionNote = note;
+            repair.ResolvedAt     = DateTime.UtcNow;
+            repair.UpdatedAt      = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success   = true,
+                message   = "Đã đánh dấu khiếu nại đã giải quyết",
+                newStatus = "Resolved"
+            });
+        }
+
+        // ============================================================
+        // POST: /Admin/Support/Cancel/5
+        // ============================================================
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Cancel(int id, string? note)
+        {
+            if (string.IsNullOrWhiteSpace(note))
+                return Json(new { success = false, message = "Vui lòng nhập lý do hủy" });
+
+            var repair = await _context.RepairRequests.FindAsync(id);
+            if (repair == null)
+                return Json(new { success = false, message = "Không tìm thấy khiếu nại" });
+
+            if (repair.Status == RepairRequestStatus.Resolved)
+                return Json(new { success = false, message = "Không thể hủy khiếu nại đã giải quyết" });
+
+            repair.Status         = RepairRequestStatus.Cancelled;
+            repair.ResolutionNote = note;
+            repair.UpdatedAt      = DateTime.UtcNow;
+
+            await _context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success   = true,
+                message   = "Đã hủy khiếu nại",
+                newStatus = "Cancelled"
+            });
         }
     }
 }

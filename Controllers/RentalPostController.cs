@@ -1,170 +1,188 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using EZ_Rent.Data;
+using EZ_Rent.Helpers;
 using EZ_Rent.Models;
+using EZ_Rent.Models.Enums;
+using EZ_Rent.Services;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace EZ_Rent.Controllers
 {
     public class RentalPostController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly RecommendationService _recommender;
 
-        public RentalPostController(AppDbContext context)
+        private const int PAGE_SIZE = 9;   // 3x3 grid
+
+        public RentalPostController(
+            AppDbContext context,
+            RecommendationService recommender)
         {
             _context = context;
+            _recommender = recommender;
         }
 
-        // GET: RentalPost
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+    string? city,
+    string? district,
+    decimal? minPrice,
+    decimal? maxPrice,
+    RoomType? roomType,
+    double? minArea,
+    double? maxArea,
+    string[]? amenities,
+    string? sortBy,
+    int page = 1)
         {
-            var appDbContext = _context.RentalPosts.Include(r => r.ApprovedBy).Include(r => r.Owner);
-            return View(await appDbContext.ToListAsync());
+            if (page < 1) page = 1;
+
+            var query = _context.RentalPosts
+                .Include(p => p.Owner)
+                .Include(p => p.RoomImages)
+                .Where(p => p.ApprovalStatus == ApprovalStatus.Approved &&
+                            p.RoomStatus != RoomStatus.Hidden)
+                .AsQueryable();
+
+            // FILTER
+            if (!string.IsNullOrEmpty(city))
+                query = query.Where(p => p.City == city);
+
+            if (!string.IsNullOrEmpty(district))
+                query = query.Where(p => p.District == district);
+
+            if (minPrice.HasValue)
+                query = query.Where(p => p.Price >= minPrice.Value);
+
+            if (maxPrice.HasValue)
+                query = query.Where(p => p.Price <= maxPrice.Value);
+
+            if (roomType.HasValue)
+                query = query.Where(p => p.RoomType == roomType.Value);
+
+            if (minArea.HasValue)
+                query = query.Where(p => p.Area >= minArea.Value);
+
+            if (maxArea.HasValue)
+                query = query.Where(p => p.Area <= maxArea.Value);
+
+            if (amenities != null && amenities.Length > 0)
+            {
+                foreach (var a in amenities)
+                {
+                    var amenity = a;
+                    query = query.Where(p => p.AmenitiesJson != null &&
+                                             p.AmenitiesJson.Contains(amenity));
+                }
+            }
+
+            // SORT
+            query = sortBy switch
+            {
+                "price_asc" => query.OrderBy(p => p.Price),
+                "price_desc" => query.OrderByDescending(p => p.Price),
+                "area_asc" => query.OrderBy(p => p.Area),
+                "area_desc" => query.OrderByDescending(p => p.Area),
+                _ => query.OrderByDescending(p => p.PostedAt ?? p.CreatedAt)
+            };
+
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalCount / (double)PAGE_SIZE);
+            if (page > totalPages && totalPages > 0)
+                page = totalPages;
+
+            var paginatedPosts = await PaginatedList<RentalPost>.CreateAsync(
+                query, page, PAGE_SIZE);
+
+            // ⭐ LƯU SEARCH HISTORY — dùng method riêng
+            await SaveSearchHistoryAsync(city, district, minPrice, maxPrice, roomType);
+
+            // ViewBag
+            ViewBag.Cities = await _context.RentalPosts
+                .Where(p => p.ApprovalStatus == ApprovalStatus.Approved)
+                .Select(p => p.City).Distinct().OrderBy(c => c).ToListAsync();
+
+            ViewBag.Districts = await _context.RentalPosts
+                .Where(p => p.ApprovalStatus == ApprovalStatus.Approved)
+                .Select(p => p.District).Distinct().OrderBy(d => d).ToListAsync();
+
+            ViewBag.City = city;
+            ViewBag.District = district;
+            ViewBag.MinPrice = minPrice;
+            ViewBag.MaxPrice = maxPrice;
+            ViewBag.RoomType = roomType;
+            ViewBag.MinArea = minArea;
+            ViewBag.MaxArea = maxArea;
+            ViewBag.Amenities = amenities ?? Array.Empty<string>();
+            ViewBag.SortBy = sortBy;
+
+            return View(paginatedPosts);
         }
 
-        // GET: RentalPost/Details/5
+        // ============================================================
+        // ⭐ SAVE SEARCH HISTORY — dùng chung cho Home + RentalPost
+        // ============================================================
+        private async Task SaveSearchHistoryAsync(
+            string? city,
+            string? district,
+            decimal? minPrice,
+            decimal? maxPrice,
+            RoomType? roomType)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return;
+
+            // Nới điều kiện: chỉ cần 1 tiêu chí là lưu
+            bool hasFilter =
+                !string.IsNullOrWhiteSpace(city) ||
+                !string.IsNullOrWhiteSpace(district) ||
+                minPrice.HasValue ||
+                maxPrice.HasValue ||
+                roomType.HasValue;
+
+            if (!hasFilter) return;
+
+            try
+            {
+                _context.SearchHistories.Add(new SearchHistory
+                {
+                    UserId = userId,
+                    City = city,
+                    District = district,
+                    MinPrice = minPrice,
+                    MaxPrice = maxPrice,
+                    RoomType = roomType,
+                    SearchedAt = DateTime.UtcNow
+                });
+
+                await _context.SaveChangesAsync();
+
+                // ⭐ Invalidate cache để recommender rebuild với SearchHistory mới
+                _recommender.InvalidateModel();
+            }
+            catch (Exception ex)
+            {
+                // Không nên crash trang search nếu save history fail
+                Console.WriteLine($"[SearchHistory] Lỗi lưu: {ex.Message}");
+            }
+        }
+
+        // GET: /RentalPost/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var rentalPost = await _context.RentalPosts
-                .Include(r => r.ApprovedBy)
-                .Include(r => r.Owner)
-                .FirstOrDefaultAsync(m => m.RentalPostId == id);
-            if (rentalPost == null)
-            {
-                return NotFound();
-            }
+            var post = await _context.RentalPosts
+                .Include(p => p.Owner)
+                .Include(p => p.RoomImages)
+                .Include(p => p.Services)
+                .FirstOrDefaultAsync(m => m.RentalPostId == id &&
+                                          m.ApprovalStatus == ApprovalStatus.Approved);
 
-            return View(rentalPost);
-        }
+            if (post == null) return NotFound();
 
-        // GET: RentalPost/Create
-        public IActionResult Create()
-        {
-            ViewData["ApprovedById"] = new SelectList(_context.Users, "Id", "Id");
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
-        }
-
-        // POST: RentalPost/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("RentalPostId,Title,Description,Price,Area,Address,City,District,Ward,MapLocation,AmenitiesJson,RoomType,RoomStatus,ApprovalStatus,ApprovalNote,ApprovedById,ApprovedAt,ElectricityUnitPrice,WaterUnitPrice,ServiceFee,AvailableFrom,CreatedAt,UpdatedAt,PostedAt,OwnerId")] RentalPost rentalPost)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(rentalPost);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ApprovedById"] = new SelectList(_context.Users, "Id", "Id", rentalPost.ApprovedById);
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", rentalPost.OwnerId);
-            return View(rentalPost);
-        }
-
-        // GET: RentalPost/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var rentalPost = await _context.RentalPosts.FindAsync(id);
-            if (rentalPost == null)
-            {
-                return NotFound();
-            }
-            ViewData["ApprovedById"] = new SelectList(_context.Users, "Id", "Id", rentalPost.ApprovedById);
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", rentalPost.OwnerId);
-            return View(rentalPost);
-        }
-
-        // POST: RentalPost/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("RentalPostId,Title,Description,Price,Area,Address,City,District,Ward,MapLocation,AmenitiesJson,RoomType,RoomStatus,ApprovalStatus,ApprovalNote,ApprovedById,ApprovedAt,ElectricityUnitPrice,WaterUnitPrice,ServiceFee,AvailableFrom,CreatedAt,UpdatedAt,PostedAt,OwnerId")] RentalPost rentalPost)
-        {
-            if (id != rentalPost.RentalPostId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(rentalPost);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!RentalPostExists(rentalPost.RentalPostId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["ApprovedById"] = new SelectList(_context.Users, "Id", "Id", rentalPost.ApprovedById);
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", rentalPost.OwnerId);
-            return View(rentalPost);
-        }
-
-        // GET: RentalPost/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var rentalPost = await _context.RentalPosts
-                .Include(r => r.ApprovedBy)
-                .Include(r => r.Owner)
-                .FirstOrDefaultAsync(m => m.RentalPostId == id);
-            if (rentalPost == null)
-            {
-                return NotFound();
-            }
-
-            return View(rentalPost);
-        }
-
-        // POST: RentalPost/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var rentalPost = await _context.RentalPosts.FindAsync(id);
-            if (rentalPost != null)
-            {
-                _context.RentalPosts.Remove(rentalPost);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool RentalPostExists(int id)
-        {
-            return _context.RentalPosts.Any(e => e.RentalPostId == id);
+            return View(post);
         }
     }
 }

@@ -1,51 +1,101 @@
 @model EZ_Rent.Models.ApplicationUser
+@using EZ_Rent.Models.Enums
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Xóa người dùng";
+
+    var initial = !string.IsNullOrEmpty(Model.FullName)
+        ? Model.FullName.Trim().First().ToString().ToUpper()
+        : "?";
 }
 
-<h1>Delete</h1>
+<h1>🗑️ Xóa người dùng</h1>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>ApplicationUser</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FullName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FullName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UserName)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UserName)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Email)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Email)
-        </dd>
-        
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PhoneNumber)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PhoneNumber)
-        </dd>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+<div class="row">
+    <div class="col-md-8">
+        <div class="card border-danger shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <strong>⚠️ Xác nhận xóa</strong>
+            </div>
+            <div class="card-body">
+
+                <div class="alert alert-danger mb-4">
+                    <strong>Bạn có chắc chắn muốn xóa người dùng này?</strong>
+                    <p class="mb-0 mt-2">
+                        Hành động này <strong>không thể hoàn tác</strong>. Mọi dữ liệu liên quan
+                        (bài đăng, hợp đồng, khiếu nại, tin nhắn...) có thể bị ảnh hưởng.
+                    </p>
+                </div>
+
+                <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-light rounded">
+                    @* ⭐ Avatar chữ cái đầu *@
+                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
+                         style="width:80px; height:80px;
+                                background: linear-gradient(135deg, #667eea, #764ba2);
+                                color:white; font-size:32px; font-weight:bold;">
+                        @initial
+                    </div>
+                    <div>
+                        <h5 class="mb-1">@Model.FullName</h5>
+                        <p class="text-muted mb-0">📧 @Model.Email</p>
+                        @if (!string.IsNullOrEmpty(Model.PhoneNumber))
+                        {
+                            <p class="text-muted mb-0">📞 @Model.PhoneNumber</p>
+                        }
+                        <p class="text-muted small mb-0">
+                            Tham gia: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                        </p>
+                    </div>
+                </div>
+
+                <dl class="row mb-4">
+                    <dt class="col-sm-3">Username</dt>
+                    <dd class="col-sm-9"><code>@Model.UserName</code></dd>
+
+                    <dt class="col-sm-3">Trạng thái</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.Status == UserStatus.Locked)
+                        {
+                            <span class="badge bg-danger">🔒 Đã khóa</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">✅ Hoạt động</span>
+                        }
+                    </dd>
+                </dl>
+
+                <form asp-action="Delete">
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger"
+                                onclick="return confirm('XÓA VĨNH VIỄN người dùng @Model.FullName?\n\nHành động này không thể hoàn tác!');">
+                            🗑️ Xác nhận xóa
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            ← Hủy, quay lại
+                        </a>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card border-warning shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <strong>💡 Cân nhắc</strong>
+            </div>
+            <div class="card-body small">
+                <p class="mb-2">Trước khi xóa, hãy cân nhắc:</p>
+                <ul class="mb-0 ps-3">
+                    <li><strong>Khóa tài khoản</strong> thay vì xóa — giữ được dữ liệu.</li>
+                    <li>User có hợp đồng Active → không nên xóa.</li>
+                    <li>User là Admin → hệ thống sẽ chặn xóa.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
 </div>

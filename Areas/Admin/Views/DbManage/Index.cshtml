@@ -1,58 +1,160 @@
 @using EZ_Rent.Data
-@using Microsoft.EntityFrameworkCore
-@using System.Data.Common
-
 @inject AppDbContext dbContext
 
 @{
-    var connect = dbContext.Database.GetDbConnection();
+    ViewData["Title"] = "Quản lý Database";
 
-    var DbName = connect.Database;
-    var state = connect.State;
-    var CanConnect = dbContext.Database.CanConnect();
-}
-<partial name="_StatusMessage" />
-<h2>Thông tin</h2>
+    var canConnect = (bool)ViewBag.CanConnect;
+    var dbName = ViewBag.DbName as string ?? "—";
+    var dataSource = ViewBag.DataSource as string ?? "—";
+    var provider = ViewBag.Provider as string ?? "—";
 
-<p>Database: @DbName</p>
-<p>Source: @connect.DataSource</p>
-<p>State: @state</p>
-<hr>
-<h2>Migrations</h2>
-@foreach (var migration in dbContext.Database.GetAppliedMigrations())
-{
-    <p>@migration</p>
+    var applied = ViewBag.AppliedMigrations as List<string> ?? new List<string>();
+    var pending = ViewBag.PendingMigrations as List<string> ?? new List<string>();
+    var counts = ViewBag.TableCounts as Dictionary<string, int> ?? new Dictionary<string, int>();
 }
-@foreach (var migration in dbContext.Database.GetPendingMigrations())
-{
-    <p>@migration (Pending)</p>
-}
-@if (dbContext.Database.GetPendingMigrations().Any())
-{
-    <form asp-controller="DbManage" asp-action="Migrate" method="post">
 
-        <button type="submit" class="btn btn-success">
-            Tạo hoặc cập nhật Database
-        </button>
+<h1>🛠️ Quản lý Database</h1>
 
-    </form>
-    <p></p>
-}
-@if (!CanConnect)
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>⚠️ Cảnh báo:</strong> Trang này chỉ dùng cho Development. Các thao tác ở đây có thể <strong>XÓA TOÀN BỘ DỮ LIỆU</strong>.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+
+<div id="alertContainer">
+    <partial name="_StatusMessage" />
+</div>
+
+@* ============================================================ *@
+@*  THÔNG TIN KẾT NỐI                                            *@
+@* ============================================================ *@
+<div class="card mb-4">
+    <div class="card-header"><strong>📌 Thông tin kết nối</strong></div>
+    <div class="card-body">
+        <dl class="row mb-0">
+            <dt class="col-sm-3">Database</dt>
+            <dd class="col-sm-9"><code>@dbName</code></dd>
+
+            <dt class="col-sm-3">Data Source</dt>
+            <dd class="col-sm-9">@dataSource</dd>
+
+            <dt class="col-sm-3">Provider</dt>
+            <dd class="col-sm-9">@provider</dd>
+
+            <dt class="col-sm-3">Trạng thái kết nối</dt>
+            <dd class="col-sm-9">
+                @if (canConnect)
+                {
+                    <span class="badge bg-success">✅ Kết nối được</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">❌ Không kết nối được</span>
+                }
+            </dd>
+        </dl>
+    </div>
+</div>
+
+@if (canConnect)
 {
-    <p class="alert alert-danger">Không thể kết nối tới Database</p>
-    <br />
+    @* ============================================================ *@
+    @*  SỐ RECORD MỖI BẢNG                                           *@
+    @* ============================================================ *@
+    <div class="card mb-4">
+        <div class="card-header"><strong>📊 Số bản ghi trong các bảng chính</strong></div>
+        <div class="card-body">
+            <div class="row g-3">
+                @foreach (var kv in counts)
+                {
+                    <div class="col-md-4 col-lg-2">
+                        <div class="card border-0 bg-light text-center h-100">
+                            <div class="card-body py-3">
+                                <div class="fs-3 fw-bold">@kv.Value</div>
+                                <small class="text-muted">@kv.Key</small>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    @* ============================================================ *@
+    @*  MIGRATIONS                                                    *@
+    @* ============================================================ *@
+    <div class="card mb-4">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <strong>🔄 Migrations</strong>
+            @if (pending.Any())
+            {
+                <span class="badge bg-warning text-dark">@pending.Count migration đang chờ</span>
+            }
+            else
+            {
+                <span class="badge bg-success">Đã cập nhật</span>
+            }
+        </div>
+        <div class="card-body">
+            @if (!applied.Any() && !pending.Any())
+            {
+                <p class="text-muted mb-0">Chưa có migration nào.</p>
+            }
+            else
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var m in applied)
+                    {
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>✅ @m</span>
+                            <small class="text-muted">Đã áp dụng</small>
+                        </li>
+                    }
+                    @foreach (var m in pending)
+                    {
+                        <li class="list-group-item d-flex justify-content-between bg-warning bg-opacity-10">
+                            <span>⏳ @m</span>
+                            <small class="text-warning fw-bold">Đang chờ</small>
+                        </li>
+                    }
+                </ul>
+            }
+
+            @if (pending.Any())
+            {
+                <form asp-action="Migrate" method="post" class="mt-3">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn btn-success">
+                        ⚙️ Chạy migration (@pending.Count bản)
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+
+    @* ============================================================ *@
+    @*  DANGER ZONE                                                   *@
+    @* ============================================================ *@
+    <div class="card border-danger mb-4">
+        <div class="card-header bg-danger text-white">
+            <strong>🚨 DANGER ZONE</strong>
+        </div>
+        <div class="card-body">
+            <h6 class="text-danger">Xóa toàn bộ Database</h6>
+            <p class="text-muted small mb-3">
+                Hành động này sẽ <strong>xóa toàn bộ database</strong> và <strong>không thể hoàn tác</strong>.
+                Mọi dữ liệu (users, posts, contracts, invoices, ...) sẽ bị mất vĩnh viễn.
+            </p>
+            <a asp-action="DeleteDb" class="btn btn-danger">
+                🗑️ Xóa Database: @dbName
+            </a>
+        </div>
+    </div>
 }
 else
 {
-    <h2>Cac table</h2>
-    await dbContext.Database.OpenConnectionAsync();
-    System.Data.DataTable? table = dbContext.Database.GetDbConnection().GetSchema("Tables");
-    <ul>
-        @foreach (System.Data.DataRow row in table.Rows)
-        {
-            <li>(@row["TABLE_NAME"])</li>
-        }
-    </ul>
-    <a class="btn btn-danger" asp-action="DeleteDb">Xóa Database: @DbName</a>
+    <div class="alert alert-danger">
+        <strong>❌ Không thể kết nối tới Database.</strong>
+        Vui lòng kiểm tra connection string hoặc chạy migration để tạo database.
+    </div>
 }

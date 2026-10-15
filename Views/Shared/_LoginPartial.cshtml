@@ -4,25 +4,140 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @inject UserManager<ApplicationUser> UserManager
 
+@{
+    var user = SignInManager.IsSignedIn(User)
+        ? await UserManager.GetUserAsync(User)
+        : null;
+
+    var initial = !string.IsNullOrEmpty(user?.FullName)
+        ? user.FullName.Trim().First().ToString().ToUpper()
+        : "?";
+
+    // ⭐ Chỉ dùng avatar local — tránh ảnh external gây lag
+    var avatarUrl = (!string.IsNullOrEmpty(user?.AvatarUrl)
+                     && user.AvatarUrl.StartsWith("/uploads/"))
+        ? user.AvatarUrl
+        : null;
+}
+
 <ul class="navbar-nav">
-@if (SignInManager.IsSignedIn(User))
-{
-    <li class="nav-item">
-        <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
-    </li>
-    <li class="nav-item">
-        <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
-            <button id="logout" type="submit" class="nav-link btn btn-link text-dark border-0">Logout</button>
-        </form>
-    </li>
-}
-else
-{
-    <li class="nav-item">
-        <a class="nav-link text-dark" id="register" asp-area="Identity" asp-page="/Account/Register">Register</a>
-    </li>
-    <li class="nav-item">
-        <a class="nav-link text-dark" id="login" asp-area="Identity" asp-page="/Account/Login">Login</a>
-    </li>
-}
+    @if (SignInManager.IsSignedIn(User) && user != null)
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2"
+               href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+                @* ⭐ Avatar — chỉ dùng ảnh local *@
+                @if (avatarUrl != null)
+                {
+                    <img src="@avatarUrl"
+                         class="rounded-circle"
+                         width="32" height="32"
+                         style="object-fit:cover;border:2px solid #667eea;" />
+                }
+                else
+                {
+                    <div class="rounded-circle d-flex align-items-center justify-content-center"
+                         style="width:32px;height:32px;
+                                background: linear-gradient(135deg, #667eea, #764ba2);
+                                color:white;font-size:14px;font-weight:bold;">
+                        @initial
+                    </div>
+                }
+
+                <span>@user.FullName</span>
+            </a>
+
+            <ul class="dropdown-menu dropdown-menu-end shadow">
+                @* Hồ sơ *@
+                <li>
+                    <a class="dropdown-item"
+                       asp-area="Identity"
+                       asp-page="/Account/Manage/Index">
+                        👤 Hồ sơ cá nhân
+                    </a>
+                </li>
+
+                @* Landlord: Tin đăng *@
+                @if (User.IsInRole("Landlord"))
+                {
+                    <li>
+                        <a class="dropdown-item"
+                           asp-controller="My" asp-action="Posts" asp-area="">
+                            📝 Tin đăng của tôi
+                        </a>
+                    </li>
+                }
+
+                @* Tenant + Landlord: Hợp đồng, Hóa đơn *@
+                @if (User.IsInRole("Tenant") || User.IsInRole("Landlord"))
+                {
+                    <li>
+                        <a class="dropdown-item"
+                           asp-controller="My" asp-action="Contracts" asp-area="">
+                            📄 Hợp đồng của tôi
+                        </a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item"
+                           asp-controller="My" asp-action="Invoices" asp-area="">
+                            💰 Hóa đơn của tôi
+                        </a>
+                    </li>
+                }
+
+                @* Tenant: Yêu thích *@
+                @if (User.IsInRole("Tenant"))
+                {
+                    <li>
+                        <a class="dropdown-item"
+                           asp-area="Tenant" asp-controller="Favorite" asp-action="Index">
+                            ❤️ Phòng yêu thích
+                        </a>
+                    </li>
+                }
+
+                @* Admin: Quản trị *@
+                @if (User.IsInRole("Admin"))
+                {
+                    <li><hr class="dropdown-divider" /></li>
+                    <li>
+                        <a class="dropdown-item text-primary fw-bold"
+                           asp-area="Admin" asp-controller="Home" asp-action="Index">
+                            🔧 Trang quản trị
+                        </a>
+                    </li>
+                }
+
+                <li><hr class="dropdown-divider" /></li>
+
+                @* Logout *@
+                <li>
+                    <form class="form-inline"
+                          asp-area="Identity"
+                          asp-page="/Account/Logout"
+                          asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
+                        <button type="submit" class="dropdown-item text-danger">
+                            🚪 Đăng xuất
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark"
+               asp-area="Identity" asp-page="/Account/Register">
+                Đăng ký
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark"
+               asp-area="Identity" asp-page="/Account/Login">
+                Đăng nhập
+            </a>
+        </li>
+    }
 </ul>

@@ -1,47 +1,223 @@
 @model IEnumerable<EZ_Rent.Models.Favorite>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Phòng yêu thích";
 }
 
-<h1>Index</h1>
+<h1>❤️ Phòng yêu thích</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
+<div id="alertContainer">
+    <partial name="_StatusMessage" />
+</div>
+
+<p class="text-muted">
+    Bạn đang có <strong>@Model.Count()</strong> phòng trong danh sách yêu thích
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RentalPost)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RentalPost.Address)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.FavoriteId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.FavoriteId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.FavoriteId">Delete</a>
-            </td>
-        </tr>
+
+@if (!Model.Any())
+{
+    @* ============================================================ *@
+    @*  EMPTY STATE                                                  *@
+    @* ============================================================ *@
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center py-5">
+            <div class="display-1 mb-3">💔</div>
+            <h4 class="mb-2">Chưa có phòng yêu thích nào</h4>
+            <p class="text-muted mb-4">
+                Hãy khám phá và thêm những phòng bạn quan tâm vào đây
+            </p>
+            <a asp-controller="RentalPost" asp-action="Index"
+               class="btn btn-primary">
+                🔍 Tìm phòng ngay
+            </a>
+        </div>
+    </div>
 }
-    </tbody>
-</table>
+else
+{
+    <div class="row g-3">
+        @foreach (var fav in Model)
+        {
+            var post = fav.RentalPost;
+            if (post == null) continue;
+
+            var thumb = post.RoomImages?.FirstOrDefault(i => i.IsPrimary)?.MediaUrl
+                        ?? post.RoomImages?.FirstOrDefault()?.MediaUrl
+                        ?? "https://via.placeholder.com/300x200";
+
+            <div class="col-md-6 col-lg-4" id="fav-item-@post.RentalPostId">
+                <div class="card h-100 shadow-sm position-relative">
+
+                    @* ===== NÚT TIM GÓC PHẢI ===== *@
+                    <button type="button"
+                            class="btn btn-light btn-sm position-absolute top-0 end-0 m-2 btn-toggle-fav"
+                            style="z-index: 10; border-radius: 50%; width: 36px; height: 36px; padding: 0;"
+                            data-id="@post.RentalPostId"
+                            data-title="@post.Title"
+                            title="Bỏ yêu thích">
+                        ❤️
+                    </button>
+
+                    @* ===== ẢNH ===== *@
+                    <a asp-controller="RentalPost" asp-action="Details"
+                       asp-route-id="@post.RentalPostId">
+                        <img src="@thumb" class="card-img-top"
+                             style="height:180px; object-fit:cover;" />
+                    </a>
+
+                    @* ===== BODY ===== *@
+                    <div class="card-body">
+                        <h6 class="card-title mb-2">
+                            <a asp-controller="RentalPost" asp-action="Details"
+                               asp-route-id="@post.RentalPostId"
+                               class="text-decoration-none text-dark">
+                                @post.Title
+                            </a>
+                        </h6>
+
+                        <p class="text-danger fw-bold mb-1">
+                            @post.Price.ToString("N0")đ/tháng
+                        </p>
+
+                        <p class="text-muted small mb-1">
+                            📍 @post.District, @post.City
+                        </p>
+
+                        <p class="text-muted small mb-0">
+                            📐 @post.Area m² · @post.RoomType
+                        </p>
+
+                        <p class="text-muted small mb-0 mt-2">
+                            👤 @post.Owner?.FullName
+                        </p>
+                    </div>
+
+                    @* ===== FOOTER ===== *@
+                    <div class="card-footer bg-white d-flex gap-2">
+                        <a asp-controller="RentalPost" asp-action="Details"
+                           asp-route-id="@post.RentalPostId"
+                           class="btn btn-sm btn-outline-primary flex-fill">
+                            Xem chi tiết
+                        </a>
+
+                        <button type="button"
+                                class="btn btn-sm btn-outline-danger btn-remove-fav"
+                                data-id="@post.RentalPostId"
+                                data-title="@post.Title">
+                            🗑️ Bỏ
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@* Form ẩn — chứa AntiForgeryToken cho AJAX *@
+<form id="afForm" style="display:none">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const afInput = document.querySelector('#afForm input[name="__RequestVerificationToken"]');
+            const AF_TOKEN = afInput ? afInput.value : '';
+
+            const alertContainer = document.getElementById('alertContainer');
+
+            // ================= Alert =================
+            function showAlert(message, type = 'warning') {
+                const html = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`;
+                alertContainer.insertAdjacentHTML('afterbegin', html);
+
+                setTimeout(() => {
+                    const first = alertContainer.querySelector('.alert');
+                    if (first) bootstrap.Alert.getOrCreateInstance(first).close();
+                }, 4000);
+            }
+
+            // ================= POST helper =================
+            async function postToggle(rentalPostId) {
+                const body = new URLSearchParams({
+                    __RequestVerificationToken: AF_TOKEN,
+                    rentalPostId: rentalPostId
+                });
+
+                const res = await fetch(`/Tenant/Favorite/Toggle`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: body.toString()
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.json();
+            }
+
+            // ================= REMOVE FAV =================
+            async function doRemove(rentalPostId, title, btn) {
+                if (!confirm(`Bỏ yêu thích phòng "${title}"?`)) return;
+
+                btn.disabled = true;
+
+                try {
+                    const data = await postToggle(rentalPostId);
+
+                    if (data.success) {
+                        // ⭐ Fade out + remove card khỏi DOM
+                        const card = document.getElementById(`fav-item-${rentalPostId}`);
+                        if (card) {
+                            card.style.transition = 'opacity 0.4s, transform 0.4s';
+                            card.style.opacity = '0';
+                            card.style.transform = 'scale(0.9)';
+                            setTimeout(() => {
+                                card.remove();
+                                updateEmptyState();
+                            }, 400);
+                        }
+
+                        showAlert(data.message, 'success');
+                    } else {
+                        showAlert(data.message, 'danger');
+                        btn.disabled = false;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showAlert('Lỗi kết nối: ' + err.message, 'danger');
+                    btn.disabled = false;
+                }
+            }
+
+            // ================= UPDATE EMPTY STATE =================
+            function updateEmptyState() {
+                const grid = document.querySelector('.row.g-3');
+                if (!grid) return;
+
+                const remaining = grid.querySelectorAll('[id^="fav-item-"]').length;
+
+                if (remaining === 0) {
+                    // Reload để hiện empty state
+                    location.reload();
+                } else {
+                    // Cập nhật số lượng
+                    const counter = document.querySelector('p.text-muted strong');
+                    if (counter) counter.textContent = remaining;
+                }
+            }
+
+            // ================= BIND EVENTS =================
+            document.querySelectorAll('.btn-toggle-fav, .btn-remove-fav').forEach(function (btn) {
+                btn.addEventListener('click', function () {
+                    const id    = btn.dataset.id;
+                    const title = btn.dataset.title || 'này';
+                    doRemove(id, title, btn);
+                });
+            });
+        });
+    </script>
+}

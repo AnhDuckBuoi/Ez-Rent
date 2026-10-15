@@ -1,19 +1,84 @@
 ﻿@{
-    ViewData["Title"] = "Xóa Db";
+    ViewData["Title"] = "Xóa Database";
+    var dbName = ViewBag.DbName as string ?? "";
 }
 
-<h1>@ViewData["Title"]</h1>
+<h1>🗑️ Xóa Database</h1>
 
-<p class="alert alert-danger">
-    Có chắc xóa?
-</p>
+<div class="card border-danger">
+    <div class="card-header bg-danger text-white">
+        <strong>⚠️ CẢNH BÁO NGUY HIỂM</strong>
+    </div>
+    <div class="card-body">
 
-<form method="post">
-    <button type="submit" class="btn btn-danger">
-        Xóa Db
-    </button>
+        <div class="alert alert-danger mb-4">
+            <h5 class="mb-3">Bạn đang chuẩn bị xóa database:</h5>
+            <p class="fs-3 mb-3 text-center">
+                <code class="text-danger">@dbName</code>
+            </p>
+            <p class="mb-2">
+                <strong>Hành động này sẽ:</strong>
+            </p>
+            <ul class="mb-2">
+                <li>❌ Xóa toàn bộ users (landlord, tenant, admin)</li>
+                <li>❌ Xóa toàn bộ bài đăng, hợp đồng, hóa đơn</li>
+                <li>❌ Xóa toàn bộ khiếu nại, thông báo, tin nhắn</li>
+                <li>❌ <strong>KHÔNG THỂ HOÀN TÁC</strong></li>
+            </ul>
+        </div>
 
-    <a asp-action="Index">
-        Quản lý Db
-    </a>
-</form>
+        <form asp-action="DeleteDbAsync" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="mb-4">
+                <label for="confirmName" class="form-label">
+                    Để xác nhận, vui lòng nhập chính xác tên database:
+                    <code class="text-danger fs-5">@dbName</code>
+                </label>
+                <input type="text"
+                       id="confirmName"
+                       name="confirmName"
+                       class="form-control form-control-lg"
+                       placeholder="Nhập tên database..."
+                       autocomplete="off"
+                       required />
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit"
+                        class="btn btn-danger btn-lg"
+                        id="btnDelete"
+                        disabled>
+                    🗑️ Xóa vĩnh viễn
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                    ← Quay lại
+                </a>
+            </div>
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('confirmName');
+            const btn = document.getElementById('btnDelete');
+            const expected = '@dbName';
+
+            // Bật nút Xóa chỉ khi nhập đúng tên DB
+            input.addEventListener('input', function () {
+                const match = input.value.trim().toLowerCase() === expected.toLowerCase();
+                btn.disabled = !match;
+            });
+
+            // Confirm lần cuối
+            btn.addEventListener('click', function (e) {
+                if (!confirm(`XÓA VĨNH VIỄN database "${expected}"?\n\nHành động này KHÔNG THỂ HOÀN TÁC!`)) {
+                    e.preventDefault();
+                }
+            });
+        });
+    </script>
+}

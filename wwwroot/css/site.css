@@ -20,3 +20,35 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.avatar-box {
+    position: relative;
+    display: block;
+    width: 150px;
+    height: 150px;
+    cursor: pointer;
+    overflow: hidden;
+    border-radius: 50%;
+}
+
+.avatar-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.avatar-box:hover .avatar-overlay {
+    opacity: 1;
+}

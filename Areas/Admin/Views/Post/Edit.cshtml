@@ -1,149 +1,73 @@
-@model EZ_Rent.Models.RentalPost
-
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Tạo Role mới";
 }
 
-<h1>Edit</h1>
+<h1>➕ Tạo Role mới</h1>
 
-<h4>RentalPost</h4>
-<hr />
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="RentalPostId" />
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <strong>Thông tin Role</strong>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
+            <div class="card-body">
+
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <div class="mb-3">
+                        <label for="roleName" class="form-label">
+                            <strong>Tên Role</strong> <span class="text-danger">*</span>
+                        </label>
+                        <input type="text"
+                               id="roleName"
+                               name="roleName"
+                               class="form-control form-control-lg"
+                               placeholder="VD: Moderator, Accountant, Shipper..."
+                               maxlength="50"
+                               autocomplete="off"
+                               required />
+                        <small class="text-muted">
+                            Tên role nên viết bằng tiếng Anh, không dấu, không khoảng trắng.
+                            Tối đa 50 ký tự.
+                        </small>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                            💾 Tạo Role
+                        </button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            ← Quay lại danh sách
+                        </a>
+                    </div>
+                </form>
+
             </div>
-            <div class="form-group">
-                <label asp-for="Price" class="control-label"></label>
-                <input asp-for="Price" class="form-control" />
-                <span asp-validation-for="Price" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm border-info">
+            <div class="card-header bg-info text-white">
+                <strong>💡 Gợi ý</strong>
             </div>
-            <div class="form-group">
-                <label asp-for="Area" class="control-label"></label>
-                <input asp-for="Area" class="form-control" />
-                <span asp-validation-for="Area" class="text-danger"></span>
+            <div class="card-body small">
+                <p class="mb-2"><strong>Các role hệ thống hiện có:</strong></p>
+                <ul class="mb-3 ps-3">
+                    <li><code>Admin</code> — Quản trị viên (không thể xóa)</li>
+                    <li><code>Landlord</code> — Chủ trọ (không thể xóa)</li>
+                    <li><code>Tenant</code> — Người thuê (không thể xóa)</li>
+                </ul>
+
+                <p class="mb-2"><strong>Lưu ý khi tạo role mới:</strong></p>
+                <ul class="mb-0 ps-3">
+                    <li>Role mới chưa có user nào giữ.</li>
+                    <li>Cần gán role cho user qua trang <strong>Quản lý người dùng</strong>.</li>
+                    <li>Tên role không được trùng với role đã có.</li>
+                    <li>Role tùy chỉnh có thể xóa được (nếu rỗng).</li>
+                </ul>
             </div>
-            <div class="form-group">
-                <label asp-for="Address" class="control-label"></label>
-                <input asp-for="Address" class="form-control" />
-                <span asp-validation-for="Address" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="City" class="control-label"></label>
-                <input asp-for="City" class="form-control" />
-                <span asp-validation-for="City" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="District" class="control-label"></label>
-                <input asp-for="District" class="form-control" />
-                <span asp-validation-for="District" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Ward" class="control-label"></label>
-                <input asp-for="Ward" class="form-control" />
-                <span asp-validation-for="Ward" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="MapLocation" class="control-label"></label>
-                <input asp-for="MapLocation" class="form-control" />
-                <span asp-validation-for="MapLocation" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AmenitiesJson" class="control-label"></label>
-                <input asp-for="AmenitiesJson" class="form-control" />
-                <span asp-validation-for="AmenitiesJson" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="RoomType" class="control-label"></label>
-                <select asp-for="RoomType" class="form-control"></select>
-                <span asp-validation-for="RoomType" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="RoomStatus" class="control-label"></label>
-                <select asp-for="RoomStatus" class="form-control"></select>
-                <span asp-validation-for="RoomStatus" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ApprovalStatus" class="control-label"></label>
-                <select asp-for="ApprovalStatus" class="form-control"></select>
-                <span asp-validation-for="ApprovalStatus" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ApprovalNote" class="control-label"></label>
-                <input asp-for="ApprovalNote" class="form-control" />
-                <span asp-validation-for="ApprovalNote" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ApprovedById" class="control-label"></label>
-                <select asp-for="ApprovedById" class="form-control" asp-items="ViewBag.ApprovedById"></select>
-                <span asp-validation-for="ApprovedById" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ApprovedAt" class="control-label"></label>
-                <input asp-for="ApprovedAt" class="form-control" />
-                <span asp-validation-for="ApprovedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ElectricityUnitPrice" class="control-label"></label>
-                <input asp-for="ElectricityUnitPrice" class="form-control" />
-                <span asp-validation-for="ElectricityUnitPrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="WaterUnitPrice" class="control-label"></label>
-                <input asp-for="WaterUnitPrice" class="form-control" />
-                <span asp-validation-for="WaterUnitPrice" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ServiceFee" class="control-label"></label>
-                <input asp-for="ServiceFee" class="form-control" />
-                <span asp-validation-for="ServiceFee" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="AvailableFrom" class="control-label"></label>
-                <input asp-for="AvailableFrom" class="form-control" />
-                <span asp-validation-for="AvailableFrom" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UpdatedAt" class="control-label"></label>
-                <input asp-for="UpdatedAt" class="form-control" />
-                <span asp-validation-for="UpdatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PostedAt" class="control-label"></label>
-                <input asp-for="PostedAt" class="form-control" />
-                <span asp-validation-for="PostedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="OwnerId" class="control-label"></label>
-                <select asp-for="OwnerId" class="form-control" asp-items="ViewBag.OwnerId"></select>
-                <span asp-validation-for="OwnerId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
