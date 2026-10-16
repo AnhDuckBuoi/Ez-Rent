@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content" />
+    <meta name="theme-color" content="#356797" />
+    <title>@ViewData["Title"] · EZ Rent</title>
+    <link rel="preload" href="~/fonts/tenant/BeVietnamPro-Regular.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="preload" href="~/fonts/tenant/BeVietnamPro-SemiBold.ttf" as="font" type="font/ttf" crossorigin />
+    <link rel="stylesheet" href="~/css/tenant-shell.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tenant-messages.css" asp-append-version="true" />
+</head>
+<body class="messages-page @(ViewData["MobileChat"] as bool? == true ? "mobile-chat" : "")">
+    <a class="skip-link" href="#main">Đến nội dung</a>
+    @await Component.InvokeAsync("TenantDesktopHeader")
+    <header class="app-header message-mobile-header"><div class="header-inner">
+        <a asp-controller="Dashboard" asp-action="Index" class="brand"><span>@await Html.PartialAsync("_HomeIcon", "home")</span><strong>EZ Rent</strong></a>
+        <div class="header-tools"><a asp-controller="Notification" asp-action="Index" class="icon-button bell-link" aria-label="Thông báo">@await Html.PartialAsync("_HomeIcon", "bell")</a><a asp-area="Identity" asp-page="/Account/Manage/Index" class="icon-button" aria-label="Tài khoản của tôi">@await Html.PartialAsync("_HomeIcon", "user")</a></div>
+    </div></header>
+    <main id="main" class="main" tabindex="-1">
+        @await Html.PartialAsync("_TenantFeedback")
+        @RenderBody()
+    </main>
+    <nav class="mobile-nav" aria-label="Điều hướng người thuê trên điện thoại">
+        <a asp-controller="Dashboard" asp-action="Index">@await Html.PartialAsync("_HomeIcon", "home")<span>Trang chủ</span></a>
+        <a asp-controller="RentalPost" asp-action="Index">@await Html.PartialAsync("_HomeIcon", "search")<span>Tìm phòng</span></a>
+        <a asp-controller="ViewingAppointment" asp-action="Index">@await Html.PartialAsync("_HomeIcon", "calendar")<span>Lịch hẹn</span></a>
+        <a asp-controller="Favorite" asp-action="Index">@await Html.PartialAsync("_HomeIcon", "heart")<span>Đã lưu</span></a>
+        <a asp-controller="Dashboard" asp-action="Messages" aria-current="page">@await Html.PartialAsync("_HomeIcon", "chat")<span>Tin nhắn</span></a>
+    </nav>
+    <p class="sr-only" id="messages-live" role="status" aria-live="polite"></p>
+    <noscript><p class="no-script">Bật JavaScript để giữ bản nháp và mở biểu mẫu hỗ trợ. Bạn vẫn có thể tìm kiếm và mở các cuộc trò chuyện bằng đường dẫn.</p></noscript>
+    <script src="~/js/tenant-shell.js" asp-append-version="true" defer></script>
+    <script src="~/js/tenant-messages.js" asp-append-version="true" defer></script>
+</body>
+</html>

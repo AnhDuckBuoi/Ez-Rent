@@ -1,0 +1,78 @@
+@using System.Globalization
+@using EZ_Rent.Areas.Tenant.Services
+@using EZ_Rent.Areas.Tenant.ViewModels
+@model ViewingBookingModel
+@{
+    Layout = "_DiscoveryLayout";
+    ViewData["Title"] = "Đặt lịch xem phòng";
+    ViewData["BookingPage"] = true;
+    var room = Model.Detail.Room;
+    var money = CultureInfo.GetCultureInfo("vi-VN");
+    var listing = ViewData["ListingReturnUrl"] as string;
+    string DayUrl(DateOnly date) => Url.Action("Index", new { id = room.RentalPostId, date = ViewingBookingModel.IsoDate(date), returnUrl = listing })!;
+}
+<div id="tenant-booking-root" class="booking-page" data-room-id="@room.RentalPostId" data-date-label="@ViewingBookingModel.DateLabel(Model.Date)">
+    <a href="@Model.Detail.BackUrl" class="back-link">← Quay lại thông tin phòng</a>
+    <div class="booking-heading"><h1>Đặt lịch xem phòng</h1><p>Chọn ngày và giờ chủ nhà có thể đón bạn. Thời gian xem bao lâu do hai bên sắp xếp.</p></div>
+    @if (Model.IsDemo) { <p class="booking-demo" role="status">Lịch minh họa để thử giao diện. Bạn có thể chọn giờ và xem trước; yêu cầu chưa được gửi đến chủ nhà.</p> }
+    <div class="booking-columns">
+        <section class="booking-panel" aria-labelledby="booking-dates-title">
+            <div class="booking-section-head"><h2 id="booking-dates-title">Chọn ngày đến xem</h2><div class="booking-week-controls">
+                @if (Model.PreviousWeek is DateOnly previous) { <a href="@DayUrl(previous)" data-booking-date class="button" aria-label="7 ngày trước">‹</a> }
+                else { <span class="button booking-disabled" aria-disabled="true" aria-label="7 ngày trước">‹</span> }
+                @if (Model.NextWeek is DateOnly next) { <a href="@DayUrl(next)" data-booking-date class="button" aria-label="7 ngày tiếp theo">›</a> }
+            </div></div>
+            <p class="booking-date-caption">@Model.Date.ToString("MMMM, yyyy", money) · Giờ Việt Nam</p>
+            <nav class="booking-dates" aria-label="Ngày đến xem phòng">
+                @foreach (var day in Model.Dates)
+                {
+                    <a href="@DayUrl(day)" data-booking-date class="booking-day" aria-current="@(day == Model.Date ? "date" : null)" aria-label="@ViewingBookingModel.DateLabel(day)"><span>@(day.DayOfWeek == DayOfWeek.Sunday ? "CN" : "Thứ " + ((int)day.DayOfWeek + 1))</span><strong>@day.Day</strong><small>@(day == Model.Today ? "Hôm nay" : day.ToString("dd/MM"))</small></a>
+                }
+            </nav>
+            <h2 class="booking-arrival-heading">Giờ đến xem · @ViewingBookingModel.DateLabel(Model.Date)</h2>
+            <p class="booking-helper">Chỉ hiển thị các giờ cách hiện tại ít nhất 6 giờ.</p>
+            @if (Model.State == TenantScheduleState.Open)
+            {
+                <fieldset class="booking-slots"><legend class="sr-only">Chọn giờ đến xem</legend>
+                    @foreach (var slot in Model.Slots)
+                    {
+                        var available = slot.State == TenantSlotState.Available;
+                        var label = slot.State switch { TenantSlotState.Booked => "Đã có lịch", TenantSlotState.Held => "Đang được giữ", TenantSlotState.HeldByMe => "Bạn đang giữ", _ => "Có thể chọn" };
+                        <label class="booking-slot"><input type="radio" name="SlotId" value="@slot.Id" disabled="@(!available)" /><strong>@slot.ArrivalAt.ToOffset(TimeSpan.FromHours(7)).ToString("HH:mm")</strong><small>@label</small></label>
+                    }
+                </fieldset>
+                <p class="booking-helper">Giờ đã có lịch hoặc đang được giữ sẽ không chọn được.</p>
+            }
+            else
+            {
+                var title = Model.State switch { TenantScheduleState.Unopened => "Chủ nhà chưa mở lịch ngày này", TenantScheduleState.Full => "Không còn giờ trống phù hợp", TenantScheduleState.Error => "Chưa tải được lịch của chủ nhà", _ => "Lịch xem phòng đang được cập nhật" };
+                var copy = Model.State switch { TenantScheduleState.Unopened => "Bạn có thể chọn ngày khác đã có lịch đón khách.", TenantScheduleState.Full => "Hãy chọn một ngày khác để xem thêm giờ phù hợp.", TenantScheduleState.Error => "Hãy thử tải lại. Ghi chú của bạn sẽ được giữ khi thử lại trên trang này.", _ => "Hiện chưa có khung giờ để lựa chọn cho căn phòng này. Bạn có thể xem lại thông tin phòng và quay lại sau." };
+                <div class="booking-empty" role="@(Model.State == TenantScheduleState.Error ? "alert" : null)"><h3>@title</h3><p>@copy</p>
+                    @if (Model.State == TenantScheduleState.Error) { <a href="@DayUrl(Model.Date)" data-booking-date class="button">Thử tải lại</a> }
+                    else if (Model.NextWeek != null && Model.State != TenantScheduleState.NotConnected) { <a href="@DayUrl(Model.Date.AddDays(1))" data-booking-date class="button">Xem ngày tiếp theo</a> }
+                    else { <a href="@Model.Detail.BackUrl" class="button">Xem lại phòng</a> }
+                </div>
+            }
+            <label for="booking-note" class="booking-note-label">Ghi chú cho chủ nhà <span>Không bắt buộc</span></label>
+            <textarea id="booking-note" maxlength="500" placeholder="Ví dụ: Mình đi cùng một người bạn và muốn xem chỗ để xe."></textarea><p class="booking-note-count"><span data-note-count>0</span>/500 ký tự</p>
+            <div class="booking-policy"><p>Giờ đã chọn là giờ bạn đến xem phòng.</p><p>Chỉ đến xem khi lịch đã được xác nhận. Thời hạn chờ chủ nhà phản hồi là 2 giờ kể từ lúc gửi yêu cầu.</p></div>
+        </section>
+        <aside class="booking-panel booking-room" aria-label="Căn phòng bạn muốn xem">
+            <img src="@room.ImageUrl" alt="@room.Title" data-fallback="/images/room-placeholder.svg" />
+            <h2 data-booking-room-title>@room.Title</h2><p class="booking-room-address">@room.Address</p><p class="booking-helper">@RentalPresentation.RoomTypeName(room.RoomType) · @room.Area.ToString("0.##", money) m²</p><p class="booking-price">@room.Price.ToString("N0", money) đ <small>/ tháng</small></p>
+            <a href="@Model.Detail.BackUrl" class="booking-text-link">Xem lại thông tin phòng</a>
+            <div class="booking-host">@await Html.PartialAsync("_HomeIcon", "user")<div><strong>@Model.Detail.OwnerName</strong><span>Người đăng thông tin căn phòng</span></div></div>
+            <div class="booking-choice" aria-live="polite"><strong data-selected-time>Chưa chọn giờ đến xem</strong><p>@ViewingBookingModel.DateLabel(Model.Date)</p></div>
+            <button type="button" class="button primary full" data-booking-review disabled>Xem trước yêu cầu</button><p class="booking-submit-note">Bạn đang xem giao diện đặt lịch. Chức năng gửi yêu cầu thật hiện chưa khả dụng.</p>
+            <a asp-controller="ViewingAppointment" asp-action="Index" class="booking-text-link">Lịch hẹn của tôi</a>
+        </aside>
+    </div>
+    <noscript><p class="booking-demo">Bạn vẫn có thể chuyển ngày bằng các liên kết. Bật JavaScript để xem trước yêu cầu trên trang này.</p></noscript>
+    <dialog class="booking-preview-dialog" id="booking-preview-dialog" aria-labelledby="booking-preview-title">
+        <div class="booking-dialog-heading"><h2 id="booking-preview-title">Xem trước yêu cầu xem phòng</h2><form method="dialog"><button class="button" aria-label="Đóng xem trước">×</button></form></div>
+        <p class="booking-demo">Yêu cầu chưa được gửi. Bản xem trước này không tạo lịch hẹn.</p>
+        <dl><div><dt>Phòng</dt><dd data-review-room></dd></div><div><dt>Giờ đến xem</dt><dd><strong data-review-time></strong><span>@ViewingBookingModel.DateLabel(Model.Date) · Giờ Việt Nam</span></dd></div><div><dt>Địa chỉ</dt><dd>@room.Address</dd></div><div><dt>Ghi chú</dt><dd data-review-note></dd></div></dl>
+        <p class="booking-helper">Khi gửi lịch thật, vui lòng chờ chủ nhà xác nhận trước khi đến xem.</p><form method="dialog"><button class="button primary">Tiếp tục chọn lịch</button></form>
+    </dialog>
+</div>
+@section Scripts { <script src="~/js/tenant-booking.js" asp-append-version="true" defer></script> }

@@ -1,0 +1,11 @@
+@model EZ_Rent.Areas.Tenant.ViewModels.TenantNoticeModel
+@{
+    Layout = "_TenantHomeLayout";
+    ViewData["Title"] = "Nội dung thông báo";
+    ViewData["NotificationsPage"] = true;
+}
+<a asp-action="Index" class="back-link">Tất cả thông báo</a>
+<article class="notification-detail"><h1>@Model.Title</h1><p class="story-meta">@Model.CreatedLabel · Giờ Việt Nam · @(Model.IsRead ? "Đã đọc" : "Chưa đọc")</p><p class="notification-content">@Model.Content</p>
+    @if (Model.CanOpenTarget || !Model.IsRead) { <form asp-action="Open" asp-route-id="@Model.Id" method="post"><button class="button primary" type="submit">@(Model.CanOpenTarget ? "Mở nội dung liên quan" : "Đánh dấu đã đọc")</button></form> }
+    @if (!Model.CanOpenTarget) { <p class="home-empty">Thông báo này không có liên kết khả dụng. Bạn vẫn có thể đọc nội dung tại đây.</p> }
+</article>

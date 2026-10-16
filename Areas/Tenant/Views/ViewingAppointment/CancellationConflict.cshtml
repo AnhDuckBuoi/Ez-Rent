@@ -1,0 +1,2 @@
+@{ Layout = "_DiscoveryLayout"; ViewData["Title"] = "Lịch hẹn đã thay đổi"; ViewData["AppointmentsPage"] = true; }
+<section class="empty-state" role="alert"><span class="empty-symbol" aria-hidden="true">↻</span><h1>Lịch hẹn đã thay đổi</h1><p>Lịch đã được xử lý nên không thể hủy ở trạng thái hiện tại. Hãy xem lại thông tin mới nhất.</p><a asp-action="Details" asp-route-id="@ViewData["AppointmentId"]" class="button primary">Xem lại lịch hẹn</a></section>

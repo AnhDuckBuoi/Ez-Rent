@@ -1,0 +1,5 @@
+@{ Layout = "_TenantHomeLayout"; ViewData["Title"] = "Hỗ trợ người thuê"; }
+<a asp-action="Index" class="back-link">Quay lại Trang chủ</a>
+<div class="home-heading"><div><h1>EZ Rent có thể giúp gì cho bạn?</h1><p>Hướng dẫn dành cho hành trình tìm và thuê phòng.</p></div></div>
+<div class="home-help-actions"><a asp-controller="ViewingAppointment" asp-action="Index" class="button">Theo dõi lịch hẹn</a><a asp-controller="RepairRequest" asp-action="Index" class="button">Yêu cầu sửa chữa của tôi</a><button disabled class="button">Gửi hỗ trợ, phản ánh · Sắp có</button></div>
+@await Html.PartialAsync("_TenantGuides")

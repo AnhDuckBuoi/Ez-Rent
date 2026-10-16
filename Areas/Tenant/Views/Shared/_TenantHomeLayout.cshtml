@@ -1,0 +1,46 @@
+@{
+    var home = ViewData["HomePage"] as bool? == true;
+    var notifications = ViewData["NotificationsPage"] as bool? == true;
+    var messages = ViewData["MessagesPage"] as bool? == true;
+    var unread = ViewData["UnreadNotifications"] as int? ?? 0;
+}
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>@ViewData["Title"] · EZ Rent</title>
+    <link rel="stylesheet" href="~/css/tenant-discovery.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tenant-home.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tenant-shell.css" asp-append-version="true" />
+</head>
+<body>
+    <a class="skip-link" href="#main">Đến nội dung</a>
+    @await Component.InvokeAsync("TenantDesktopHeader")
+    <header class="app-header tenant-legacy-header"><div class="header-inner">
+        <a asp-area="Tenant" asp-controller="Dashboard" asp-action="Index" class="brand"><span class="logo">@await Html.PartialAsync("_HomeIcon", "home")</span><strong>EZ Rent</strong></a>
+        <nav class="header-nav" aria-label="Điều hướng người thuê">
+            <a asp-controller="Dashboard" asp-action="Index" class="nav-button @(home ? "active" : "")" aria-current="@(home ? "page" : null)">Trang chủ</a>
+            <a asp-controller="RentalPost" asp-action="Index" class="nav-button nav-search">Tìm phòng</a>
+            <a asp-controller="ViewingAppointment" asp-action="Index" class="nav-button">Lịch hẹn</a>
+            <a asp-controller="Favorite" asp-action="Index" class="nav-button nav-saved">Đã lưu</a>
+        </nav>
+        <a asp-controller="Notification" asp-action="Index" class="header-bell" aria-label="Thông báo, @unread chưa đọc" aria-current="@(notifications ? "page" : null)">@await Html.PartialAsync("_HomeIcon", "bell")@if (unread > 0) { <span class="unread-count">@(unread > 99 ? "99+" : unread.ToString())</span> }</a>
+        <a asp-area="Identity" asp-page="/Account/Manage/Index" class="home-account" aria-label="Tài khoản của tôi">@await Html.PartialAsync("_HomeIcon", "user")</a>
+    </div></header>
+    <main id="main" class="discovery-main home-page">
+        @await Html.PartialAsync("_TenantFeedback")
+        @RenderBody()
+    </main>
+    <nav class="bottom-nav" aria-label="Điều hướng mobile">
+        <a asp-controller="Dashboard" asp-action="Index" class="@(home ? "active" : "")" aria-current="@(home ? "page" : null)">@await Html.PartialAsync("_HomeIcon", "home")<span>Trang chủ</span></a>
+        <a asp-controller="RentalPost" asp-action="Index">@await Html.PartialAsync("_HomeIcon", "search")<span>Tìm phòng</span></a>
+        <button disabled>@await Html.PartialAsync("_HomeIcon", "room")<span>Phòng đang ở</span></button>
+        <a asp-controller="Dashboard" asp-action="Messages" class="@(messages ? "active" : "")">@await Html.PartialAsync("_HomeIcon", "chat")<span>Tin nhắn</span></a>
+        <a asp-area="Identity" asp-page="/Account/Manage/Index">@await Html.PartialAsync("_HomeIcon", "user")<span>Cá nhân</span></a>
+    </nav>
+    <script src="~/js/tenant-shell.js" asp-append-version="true" defer></script>
+    <script src="~/js/tenant-home.js" asp-append-version="true" defer></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

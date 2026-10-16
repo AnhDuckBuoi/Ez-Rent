@@ -1,0 +1,18 @@
+@using EZ_Rent.Areas.Tenant.ViewModels
+@using EZ_Rent.Areas.Tenant.Services
+@model TenantMessagesModel
+<div class="context-heading"><h2>Thông tin liên quan</h2><button type="button" class="icon-button close-context" data-action="close-context" aria-label="Đóng thông tin">@await Html.PartialAsync("_HomeIcon", "close")</button></div>
+@if (Model.Selected?.Room is { IsAvailable: true } room)
+{
+    <figure class="room-photo"><img src="@room.ImageUrl" width="256" height="150" alt="Ảnh phòng @room.Title" data-message-image />@if (room.ImageUrl.StartsWith("/images/tenant-preview/")) { <figcaption>Ảnh minh họa</figcaption> }</figure><h3>@room.Title</h3><p class="room-location">@await Html.PartialAsync("_HomeIcon", "pin")<span>@room.Address</span></p><p class="room-price">@room.Price.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) đ<small> / tháng</small></p><div class="room-facts"><span>@await Html.PartialAsync("_HomeIcon", "area") @room.Area.ToString("0.##", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) m²</span><span>@RentalPresentation.RoomTypeName(room.RoomType)</span></div><a asp-controller="RentalPost" asp-action="Details" asp-route-id="@room.RentalPostId" asp-route-returnUrl="@Url.Action("Messages", Model.Input.Routes(conversationId: Model.Selected.Id, view: "chat"))" class="button full">Xem chi tiết phòng</a>
+    <a asp-controller="ViewingBooking" asp-action="Index" asp-route-id="@room.RentalPostId" asp-route-returnUrl="@Url.Action("Messages", Model.Input.Routes(conversationId: Model.Selected.Id, view: "chat"))" class="context-booking">Đặt lịch xem phòng @await Html.PartialAsync("_HomeIcon", "arrow")</a>
+}
+else
+{
+    <div class="context-empty">@await Html.PartialAsync("_HomeIcon", Model.Selected?.IsSupport == true ? "support" : "room")<h3>@(Model.Selected?.IsSupport == true ? "Trao đổi với bộ phận hỗ trợ" : Model.Selected?.Room != null ? "Tin phòng không còn khả dụng" : "Thông tin đi cùng cuộc trò chuyện")</h3><p>@(Model.Selected?.Room != null && !Model.Selected.Room.IsAvailable ? "Thông tin phòng hiện không được công khai hoặc không còn trống. Nội dung trao đổi trước đó vẫn được giữ." : "Chọn cuộc trò chuyện để xem thông tin liên quan. Hỗ trợ và phản ánh được tách khỏi trao đổi với chủ nhà.")</p></div>
+}
+@if (Model.Appointment is { } appointment)
+{
+    <section class="context-visit"><h3>Lịch xem phòng</h3><span class="visit-status">@await Html.PartialAsync("_HomeIcon", "check") Đã xác nhận</span><div class="visit-date"><div class="calendar-tile"><strong>@appointment.ViewingDate.Day</strong><span>Tháng @appointment.ViewingDate.Month</span></div><div><strong>@appointment.TimeLabel</strong><span>@appointment.DateLabel</span></div></div><a asp-controller="ViewingAppointment" asp-action="Details" asp-route-id="@appointment.Id" class="context-booking">Xem chi tiết lịch hẹn</a></section>
+}
+<button type="button" class="button context-support" data-action="open-support">@await Html.PartialAsync("_HomeIcon", "support") Hỗ trợ &amp; phản ánh</button><a asp-action="Help" class="context-booking">Hướng dẫn dành cho người thuê</a><p class="context-footnote">Hộp thư hiện cho xem nội dung đã có. Gửi tin, gửi hỗ trợ và cập nhật đã đọc đang được hoàn thiện.</p>
