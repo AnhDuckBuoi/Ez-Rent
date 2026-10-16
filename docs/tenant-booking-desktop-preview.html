@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>EZ Rent · Đặt lịch xem phòng</title>
+    <link rel="stylesheet" href="tenant-booking-desktop-preview.css">
+    <script src="tenant-booking-desktop-preview.js" defer></script>
+</head>
+<body>
+    <div class="preview-tools">
+        <div><strong>Bản thử desktop</strong><span>Dữ liệu minh họa · Không gửi yêu cầu thật</span></div>
+        <div class="preview-options">
+            <label>Tình huống <select id="scenario"><option value="normal">Lịch thông thường</option><option value="full">Ngày đã kín</option><option value="unopened">Chưa mở lịch</option><option value="load-error">Lỗi tải lịch</option><option value="taken">Khung vừa có người đặt</option><option value="send-error">Lỗi gửi một lần</option></select></label>
+            <label>Giờ thử, 16/10/2026 <select id="clock"><option value="7">07:00</option><option value="9">09:00</option><option value="11">11:00</option></select></label>
+            <button type="button" id="reset">Làm lại</button>
+        </div>
+    </div>
+    <a href="#main" class="skip">Đến nội dung</a>
+    <header class="app-header"><div class="header-inner" id="header"></div></header>
+    <main id="main" tabindex="-1"></main>
+    <footer class="page-footer"><span>EZ Rent · Bản thử luồng đặt lịch xem phòng trên desktop</span><span>Giờ Việt Nam (UTC+7)</span></footer>
+    <p class="sr-only" id="live-status" role="status" aria-live="polite"></p>
+    <noscript><p class="no-script">Bản thử tương tác cần JavaScript. Đây là bản minh họa, không phải chức năng đặt lịch thật.</p></noscript>
+</body>
+</html>

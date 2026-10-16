@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>EZ Rent · Preview Tenant P3</title>
+  <style>
+    :root { color-scheme: light; --ink:#192330; --muted:#697586; --blue:#6c9ed4; --blue-dark:#356797; --blue-soft:#edf4fc; --line:#e6ebf1; --green:#338663; --red:#bb4851; --paper:#fff; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#f3f5f8; color:var(--ink); font:14px/1.5 "Segoe UI",Arial,sans-serif; }
+    button,input,textarea,select { font:inherit; }
+    button { cursor:pointer; }
+    button:disabled { cursor:default; }
+    button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible { outline:3px solid #357ab9; outline-offset:3px; }
+    [hidden] { display:none!important; }
+    button { color:inherit; }
+    svg { display:block; width:20px; height:20px; flex-shrink:0; }
+    .sprite { position:absolute; width:0; height:0; overflow:hidden; }
+    .topbar { background:var(--paper); border-bottom:1px solid var(--line); }
+    .topbar-inner { max-width:1340px; margin:auto; padding:18px 32px; display:flex; justify-content:space-between; align-items:center; gap:16px; }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .brand-mark { width:36px; height:36px; display:grid; place-items:center; background:var(--blue-soft); color:var(--blue-dark); border-radius:10px; }
+    .brand strong { font-size:17px; letter-spacing:-.3px; }
+    .brand small { display:block; color:var(--muted); font-size:11px; letter-spacing:1.5px; }
+    .top-label { color:var(--muted); font-size:12px; text-align:right; }
+    .top-label span { display:block; color:var(--ink); font-weight:600; }
+    .workspace { max-width:1340px; margin:auto; padding:28px 32px 44px; }
+    .intro { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:26px; }
+    .intro>div { min-width:0; max-width:100%; }
+    .eyebrow { color:var(--blue-dark); font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; }
+    .intro h1 { margin:5px 0 5px; font-size:29px; font-weight:650; letter-spacing:-.8px; line-height:1.25; }
+    .intro p { margin:0; color:var(--muted); max-width:620px; }
+    .reference-link { color:var(--blue-dark); text-decoration:none; display:flex; align-items:center; gap:6px; white-space:nowrap; padding-bottom:2px; }
+    .reference-link:hover { text-decoration:underline; }
+    .intro-actions { display:flex; gap:18px; align-items:center; flex-wrap:wrap; }
+    .focus-toolbar { max-width:620px; margin:12px auto 0; padding:0 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .focus-toolbar .button { font-size:12px; min-height:38px; }
+    .focus-toolbar span { color:var(--muted); font-size:12px; }
+    .focus-mode .topbar,.focus-mode .intro,.focus-mode .rail,.focus-mode .review,.focus-mode .flow-nav { display:none; }
+    .focus-mode .workspace { padding:18px 16px 24px; }
+    .focus-mode .board { display:block; }
+    .focus-mode .preview-column { max-width:390px; margin:auto; }
+    .board { display:grid; grid-template-columns:minmax(200px,250px) minmax(0,1fr) minmax(230px,270px); gap:34px; align-items:start; }
+    .rail { padding-top:6px; }
+    .rail-heading { margin:0 0 12px; font-size:11px; text-transform:uppercase; letter-spacing:1.3px; color:var(--muted); font-weight:650; }
+    .screen-link { display:flex; width:100%; gap:12px; text-align:left; align-items:center; padding:12px 13px; margin:4px 0; border:1px solid transparent; border-radius:10px; background:none; }
+    .screen-link:hover { background:#eaf0f7; }
+    .screen-link[aria-current="step"] { background:var(--paper); border-color:#cbdced; box-shadow:0 3px 12px #29405a06; }
+    .screen-number { color:#8492a1; font-size:12px; font-variant-numeric:tabular-nums; }
+    .screen-link[aria-current="step"] .screen-number { color:var(--blue-dark); }
+    .screen-link strong { display:block; font-size:13px; font-weight:600; }
+    .screen-link small { color:var(--muted); display:block; font-size:11px; }
+    .rail-section { margin-top:24px; }
+    .scope-note { color:var(--muted); font-size:12px; margin:24px 12px 0; padding-top:16px; border-top:1px solid var(--line); }
+    .preview-column { min-width:0; display:flex; flex-direction:column; align-items:center; }
+    .device-caption { width:min(100%,390px); display:flex; justify-content:space-between; color:var(--muted); font-size:11px; margin-bottom:10px; font-variant-numeric:tabular-nums; }
+    .phone { width:100%; max-width:390px; height:844px; position:relative; overflow:hidden; border:1px solid #d4dce6; border-radius:25px; background:var(--paper); box-shadow:0 12px 40px #263d5910; display:flex; flex-direction:column; }
+    .statusbar { display:flex; height:36px; flex-shrink:0; align-items:center; justify-content:space-between; padding:0 23px; font-size:12px; font-weight:650; }
+    .status-icons { display:flex; gap:7px; align-items:center; }
+    .status-icons svg { width:15px; height:15px; }
+    #phone-view { flex:1; min-height:0; display:flex; flex-direction:column; }
+    .phone-header { display:flex; align-items:center; padding:14px 20px 16px; gap:12px; flex-shrink:0; border-bottom:1px solid var(--line); background:white; }
+    .phone-header h2 { margin:0; font-size:21px; font-weight:700; letter-spacing:-.5px; line-height:1.3; }
+    .phone-header small { color:var(--muted); font-size:12px; }
+    .phone-header .header-copy { min-width:0; flex:1; }
+    .phone-header.compact { padding:12px 16px; }
+    .phone-header.compact h2 { font-size:16px; letter-spacing:-.2px; }
+    .icon-button { width:40px; height:40px; display:grid; place-items:center; border:0; border-radius:10px; background:transparent; flex-shrink:0; }
+    .icon-button:hover { background:var(--blue-soft); }
+    .unread-total { width:25px; height:25px; border-radius:50%; background:var(--blue-soft); color:var(--blue-dark); display:grid; place-items:center; font-size:12px; font-weight:650; }
+    .phone-content { flex:1; min-height:0; overflow:auto; overscroll-behavior:contain; padding:20px; }
+    .inbox-content { padding:16px 20px; }
+    .search-field { display:flex; gap:9px; align-items:center; background:#f4f6f9; border:1px solid var(--line); border-radius:10px; padding:0 12px; height:44px; color:var(--muted); }
+    .search-field svg { width:17px; height:17px; }
+    .search-field input { background:transparent; border:0; outline-offset:6px; width:100%; min-width:0; font-size:14px; color:var(--ink); }
+    .tabs { display:flex; border-bottom:1px solid var(--line); margin:17px 0 7px; }
+    .tab { flex:1; border:0; border-bottom:2px solid transparent; background:transparent; padding:11px 8px; color:var(--muted); font-weight:600; }
+    .tab[aria-selected="true"] { color:var(--blue-dark); border-bottom-color:var(--blue); }
+    .conversation { display:flex; gap:12px; width:100%; padding:17px 0; border:0; border-bottom:1px solid var(--line); background:none; text-align:left; }
+    .avatar { display:grid; place-items:center; border-radius:50%; width:44px; height:44px; background:#edf1f6; color:#53677d; font-size:16px; font-weight:650; flex-shrink:0; }
+    .avatar.support { background:var(--blue-soft); color:var(--blue-dark); }
+    .conversation-copy { flex:1; min-width:0; }
+    .conversation-top { display:flex; justify-content:space-between; gap:8px; margin-bottom:2px; }
+    .conversation-top strong { font-size:14px; font-weight:650; }
+    .conversation time { font-size:11px; color:var(--muted); white-space:nowrap; }
+    .conversation .room-label { font-size:11px; color:var(--blue-dark); display:block; margin-bottom:4px; }
+    .last-message { display:flex; align-items:center; gap:8px; }
+    .last-message p { flex:1; min-width:0; margin:0; color:var(--muted); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .unread-dot { width:19px; height:19px; display:grid; place-items:center; color:white; background:var(--blue); border-radius:50%; font-size:10px; }
+    .support-entry { margin-top:24px; padding:17px 16px; background:#f7faff; border:1px solid #e4edf7; border-radius:12px; }
+    .support-entry strong { font-size:14px; }
+    .support-entry p { margin:5px 0 13px; color:var(--muted); font-size:12px; }
+    .button { min-height:44px; border:1px solid var(--line); border-radius:9px; background:white; font-size:13px; font-weight:600; padding:10px 14px; display:inline-flex; justify-content:center; align-items:center; gap:8px; text-decoration:none; }
+    .button.primary { background:#4477aa; border-color:#4477aa; color:white; }
+    .button.primary:hover { background:var(--blue-dark); }
+    .button.secondary { border-color:#c9dcec; color:var(--blue-dark); }
+    .button.full { width:100%; }
+    .bottom-nav { display:flex; padding:10px 5px 17px; border-top:1px solid var(--line); background:white; flex-shrink:0; }
+    .bottom-nav button { display:flex; align-items:center; flex-direction:column; gap:5px; flex:1; min-width:0; border:0; background:none; font-size:10.5px; padding:4px 2px; color:#697586; }
+    .bottom-nav button span { max-width:100%; line-height:1.25; }
+    .bottom-nav button[aria-current="page"] { color:var(--blue-dark); font-weight:650; }
+    .bottom-nav svg { width:21px; height:21px; }
+    .bottom-nav button:disabled { opacity:.7; }
+    .empty-state { padding:64px 8px 36px; text-align:center; }
+    .empty-icon { margin:0 auto 18px; display:grid; place-items:center; width:64px; height:64px; border-radius:50%; background:var(--blue-soft); color:var(--blue-dark); }
+    .empty-icon svg { width:29px; height:29px; }
+    .empty-state h3 { margin:0 0 8px; font-size:17px; }
+    .empty-state p { margin:0; color:var(--muted); font-size:13px; }
+    .chat-context { display:flex; align-items:center; gap:10px; padding:12px 17px; background:#fafbfd; border-bottom:1px solid var(--line); flex-shrink:0; }
+    .room-sketch { width:43px; height:43px; border:1px solid #dbe5ef; background:var(--blue-soft); color:#6e91b5; border-radius:7px; display:grid; place-items:center; }
+    .chat-context strong { font-size:12px; display:block; font-weight:600; }
+    .chat-context small { color:var(--muted); font-size:11px; }
+    .chat-thread { padding:20px 16px; background:#fcfdff; }
+    .day-label { text-align:center; color:#8a95a4; font-size:11px; margin:0 0 22px; }
+    .message-row { display:flex; flex-direction:column; align-items:flex-start; margin:0 0 18px; }
+    .message-row.mine { align-items:flex-end; }
+    .bubble { max-width:86%; padding:11px 13px; border-radius:13px 13px 13px 3px; background:#f0f3f7; color:#35465a; font-size:13px; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .mine .bubble { border-radius:13px 13px 3px 13px; background:var(--blue-soft); color:#224f7a; }
+    .message-meta { font-size:10px; color:#8290a0; margin-top:5px; display:flex; align-items:center; gap:7px; }
+    .message-meta.failed { color:var(--red); }
+    .retry-link { color:var(--red); font-size:11px; border:0; background:none; padding:3px 2px; text-decoration:underline; }
+    .composer { border-top:1px solid var(--line); padding:11px 13px 19px; background:white; flex-shrink:0; }
+    .composer-row { display:flex; align-items:flex-end; gap:9px; }
+    .composer textarea { min-height:44px; height:44px; max-height:90px; flex:1; min-width:0; resize:none; border:1px solid var(--line); border-radius:12px; background:#f7f9fc; padding:10px 12px; font-size:14px; line-height:22px; }
+    .send-button { width:44px; height:44px; border:0; border-radius:12px; background:#4477aa; color:white; display:grid; place-items:center; }
+    .inline-error { margin:7px 1px 0; color:var(--red); font-size:12px; }
+    .form-intro { margin:0 0 24px; color:var(--muted); font-size:13px; }
+    .field { display:block; margin-bottom:22px; }
+    .field-label { display:block; font-size:13px; font-weight:600; margin-bottom:9px; }
+    .field input,.field select,.field textarea { width:100%; border:1px solid #dbe3ed; border-radius:9px; background:white; padding:12px; min-height:46px; color:var(--ink); font-size:14px; }
+    .field textarea { height:165px; resize:vertical; line-height:1.6; }
+    .field-note { color:var(--muted); font-size:11px; margin:7px 0 0; display:flex; justify-content:space-between; gap:10px; }
+    .choice-row { display:flex; gap:10px; }
+    .choice { display:flex; align-items:center; justify-content:center; gap:7px; flex:1; min-height:46px; padding:12px 8px; border:1px solid var(--line); border-radius:9px; cursor:pointer; }
+    .choice:has(input:checked) { background:var(--blue-soft); border-color:#b6cce4; color:var(--blue-dark); }
+    .field .choice input { accent-color:var(--blue-dark); width:16px; min-height:16px; height:16px; margin:0; padding:0; flex-shrink:0; }
+    .form-footer { padding:17px 20px 22px; border-top:1px solid var(--line); flex-shrink:0; }
+    .payment-header { border:0; padding:9px 16px 5px; }
+    .payment-header h2 { font-size:18px; text-align:center; padding-right:40px; flex:1; }
+    .payment-content { padding:13px 24px 23px; text-align:center; }
+    .amount-label { color:var(--muted); margin:0 0 1px; font-size:13px; }
+    .amount { font-size:30px; font-weight:750; letter-spacing:-.8px; color:var(--blue); margin:0; font-variant-numeric:tabular-nums; }
+    .payment-caption { margin:24px 0 14px; font-weight:650; font-size:14px; }
+    .qr-card { margin:0 auto; width:228px; max-width:100%; padding:15px; border:1px solid var(--line); border-radius:19px; background:#fbfcfe; }
+    .qr-grid { width:100%; aspect-ratio:1; display:grid; grid-template-columns:repeat(21,1fr); grid-template-rows:repeat(21,1fr); gap:1px; position:relative; background:white; padding:3px; }
+    .qr-cell { background:var(--ink); }
+    .qr-label { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:85px; background:white; padding:6px; border:3px solid white; color:var(--blue-dark); font-size:10px; font-weight:700; border-radius:7px; line-height:1.3; }
+    .qr-caption { display:block; font-size:10px; color:var(--muted); margin-top:10px; }
+    .qr-save { margin:14px auto 0; border-radius:24px; min-height:38px; font-size:12px; padding:8px 16px; font-weight:500; }
+    .payment-wait { display:flex; align-items:center; justify-content:center; gap:7px; color:var(--blue-dark); background:var(--blue-soft); border-radius:8px; padding:10px; margin:20px 0; font-size:12px; }
+    .pulse-dot { width:7px; height:7px; background:var(--blue); border-radius:50%; flex-shrink:0; }
+    .bank-details { padding:14px; background:#f8fafd; border:1px solid var(--line); border-radius:11px; text-align:left; }
+    .detail-row { display:flex; justify-content:space-between; gap:15px; font-size:12px; margin:0 0 10px; align-items:flex-start; }
+    .detail-row:last-child { margin:0; }
+    .detail-row span { color:var(--muted); }
+    .detail-row strong { font-weight:600; text-align:right; overflow-wrap:anywhere; }
+    .copy-value { border:0; background:transparent; color:var(--blue-dark); display:flex; align-items:center; gap:5px; font-size:12px; padding:0; font-weight:600; }
+    .copy-value svg { width:13px; height:13px; }
+    .payment-help { color:var(--muted); font-size:11px; margin:15px 0 0; }
+    .result-content { display:flex; flex-direction:column; text-align:center; padding:32px 24px 24px; }
+    .result-icon { margin:20px auto 24px; width:75px; height:75px; border-radius:50%; display:grid; place-items:center; background:#e8f5ed; color:var(--green); }
+    .result-icon svg { width:34px; height:34px; }
+    .result-content h3 { margin:0 0 8px; font-size:22px; letter-spacing:-.5px; line-height:1.3; }
+    .result-content>p { margin:0 auto; color:var(--muted); font-size:13px; max-width:280px; }
+    .receipt { background:white; border:1px solid #e0ebe4; border-radius:16px; padding:23px 19px; margin:28px 0 22px; text-align:left; }
+    .receipt-amount { text-align:center; padding-bottom:22px; margin-bottom:20px; border-bottom:1px dashed #d9e2dc; }
+    .receipt-amount span { display:block; color:var(--muted); font-size:12px; }
+    .receipt-amount strong { display:block; font-size:28px; margin-top:5px; font-weight:750; letter-spacing:-.5px; }
+    .result-actions { display:grid; gap:10px; margin-top:auto; padding-top:25px; }
+    .success-bg { background:#f1faf5; }
+    .success-bg .payment-header { background:transparent; }
+    .result-content.processing .result-icon { background:var(--blue-soft); color:var(--blue-dark); margin-top:76px; }
+    .spinner { width:32px; height:32px; border:3px solid #c4d7ec; border-top-color:var(--blue-dark); border-radius:50%; animation:spin 1.1s linear infinite; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .processing-steps { text-align:left; margin:35px 0 25px; padding:19px; border:1px solid var(--line); border-radius:12px; background:#fafcff; }
+    .processing-step { display:flex; gap:10px; align-items:center; padding:8px 0; font-size:12px; color:var(--muted); }
+    .processing-step.done { color:var(--green); }
+    .processing-step.current { color:var(--blue-dark); }
+    .processing-step svg { width:16px; height:16px; }
+    .failure .result-icon { background:#fff0f0; color:var(--red); margin-top:65px; }
+    .failure-info { margin:32px 0; border:1px solid var(--line); border-radius:12px; padding:18px; background:#fafbfd; }
+    .failure-info .amount { font-size:26px; margin-top:5px; }
+    .review h2 { font-size:16px; margin:0 0 8px; letter-spacing:-.3px; }
+    .review .subtitle { font-size:12px; color:var(--muted); margin:0 0 20px; }
+    .review-block { border-top:1px solid #dfe5ec; padding-top:17px; margin-top:20px; }
+    .review h3 { font-size:11px; font-weight:650; letter-spacing:1px; text-transform:uppercase; margin:0 0 12px; color:var(--muted); }
+    .review ul { margin:0; padding-left:17px; font-size:12px; color:#596879; }
+    .review li { padding:4px 0; }
+    .scenario { display:flex; align-items:center; gap:9px; font-size:12px; padding:7px 0; cursor:pointer; }
+    .scenario input { accent-color:var(--blue-dark); width:15px; height:15px; }
+    .review button { font-size:12px; }
+    .review .button { margin-bottom:9px; min-height:40px; }
+    .review-description { color:var(--muted); font-size:12px; margin:0; }
+    .review-tag { display:inline-block; color:var(--blue-dark); background:#e6eef8; padding:3px 7px; border-radius:5px; font-size:10px; margin-bottom:12px; }
+    .flow-nav { display:flex; align-items:center; justify-content:space-between; width:min(390px,100%); margin-top:17px; }
+    .flow-nav button { display:flex; align-items:center; gap:6px; background:none; border:0; padding:8px 0; font-size:12px; color:var(--blue-dark); }
+    .flow-nav button:disabled { opacity:.3; }
+    .flow-nav span { color:var(--muted); font-size:11px; }
+    .toast { position:absolute; bottom:96px; left:20px; right:20px; padding:11px 13px; text-align:center; background:#23384f; color:white; font-size:12px; border-radius:9px; box-shadow:0 4px 18px #19233018; z-index:10; }
+    .invoice-sheet { position:absolute; inset:36px 0 0; z-index:20; background:white; display:flex; flex-direction:column; }
+    .invoice-sheet .phone-content { padding:24px; }
+    .invoice-sheet h3 { font-size:18px; margin:0 0 5px; }
+    .invoice-sheet .summary-top { padding:19px; background:var(--blue-soft); border-radius:12px; margin-bottom:25px; }
+    .invoice-sheet .summary-top p { margin:0; color:var(--blue-dark); font-size:12px; }
+    .invoice-line { display:flex; justify-content:space-between; gap:15px; padding:15px 0; border-bottom:1px solid var(--line); font-size:13px; }
+    .invoice-line span { color:var(--muted); }
+    .invoice-line.total { font-weight:700; border:0; font-size:16px; padding-top:21px; }
+    .invoice-line.total span { color:var(--ink); }
+    .invoice-status { display:inline-flex; gap:6px; align-items:center; font-size:12px; margin-top:22px; color:var(--green); }
+    @media (prefers-reduced-motion:reduce) { .spinner { animation:none; } }
+    @media (max-width:1120px) { .board { grid-template-columns:210px minmax(0,1fr); gap:26px; } .review { grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr; gap:24px; } .review>div { min-width:0; } .review .review-block { margin-top:0; } .preview-column { justify-self:center; width:100%; } }
+    @media (max-width:720px) { .topbar-inner { padding:14px 18px; } .workspace { padding:24px 16px 32px; } .intro { align-items:flex-start; flex-direction:column; gap:14px; margin-bottom:20px; } .intro h1 { font-size:25px; } .top-label { font-size:10px; } .board { grid-template-columns:minmax(0,1fr); gap:22px; } .rail { display:grid; grid-template-columns:1fr 1fr; gap:10px; } .rail-section { margin-top:0; } .rail-heading { margin-left:7px; font-size:10px; } .screen-link { padding:9px 8px; gap:8px; } .screen-link strong { font-size:11px; } .screen-link small { display:none; } .scope-note { display:none; } .review { grid-column:auto; grid-template-columns:1fr; gap:20px; } .phone { border-radius:21px; } .reference-link { font-size:12px; } .device-caption { font-size:10px; } }
+    @media (max-width:370px) { .phone-content { padding-left:16px; padding-right:16px; } .payment-content,.result-content { padding-left:17px; padding-right:17px; } .phone-header { padding-left:16px; padding-right:16px; } .phone-header.payment-header h2 { font-size:16px; } .amount { font-size:27px; } .choice-row { gap:6px; } .choice { font-size:12px; } }
+    @media print { .topbar,.intro,.rail,.review,.flow-nav { display:none; } body { background:white; } .workspace { padding:0; } .board { display:block; } .phone { box-shadow:none; margin:auto; } }
+  </style>
+</head>
+<body>
+  <svg class="sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="m3 10 9-7 9 7v10H3zM9 20v-7h6v7"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 6 6"/></symbol>
+    <symbol id="i-room" viewBox="0 0 24 24"><path d="M5 21V3h14v18M3 21h18M9 7h2m2 0h2M9 11h2m2 0h2M10 21v-6h4v6"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11a8 8 0 0 1-8 8H6l-4 3V11a8 8 0 0 1 8-8h3a8 8 0 0 1 8 8Z"/><path d="M7 9h9M7 13h6"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m14 5-7 7 7 7"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path d="m10 5 7 7-7 7"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="m21 3-7 18-4-7-7-4zM10 14 21 3"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="m12 3 8 3v5c0 6-8 10-8 10S4 17 4 11V6z"/><path d="m8 11 3 3 5-5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5L20 7"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 6v6l4 2"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V3H3v13h5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 15v6h16v-6"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v6m0 3v1"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-external" viewBox="0 0 24 24"><path d="M13 3h8v8m0-8L10 14M9 3H3v18h18v-6"/></symbol>
+    <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M3 8a14 14 0 0 1 18 0M6 12a9 9 0 0 1 12 0m-9 4a4 4 0 0 1 6 0M12 20h.01"/></symbol>
+    <symbol id="i-battery" viewBox="0 0 24 24"><rect x="2" y="7" width="18" height="10" rx="2"/><path d="M23 10v4M6 10v4m4-4v4m4-4v4"/></symbol>
+  </defs></svg>
+  <header class="topbar"><div class="topbar-inner">
+    <div class="brand"><span class="brand-mark"><svg fill="none" stroke="currentColor" stroke-width="1.7"><use href="#i-room"/></svg></span><div><strong>EZ Rent</strong><small>TENANT · PAGE 3</small></div></div>
+    <div class="top-label"><span>Wireframe tương tác · Bản 01</span>Dữ liệu minh hoạ · Chạy riêng với ứng dụng</div>
+  </div></header>
+  <div class="focus-toolbar" id="focus-toolbar" hidden><button type="button" class="button" data-action="exit-focus">Quay về bảng review</button><span>Preview Tenant P3</span></div>
+  <main class="workspace">
+    <div class="intro"><div><div class="eyebrow">Bổ sung luồng Tenant</div><h1>Tin nhắn và thanh toán</h1><p>Chọn màn hình bên dưới hoặc bấm trong điện thoại để xem luồng.</p></div><div class="intro-actions"><a class="reference-link" href="tenant-appointment-preview.html">Preview lịch xem phòng →</a><button type="button" class="button" data-action="focus">Xem tập trung</button><a class="reference-link" href="https://www.figma.com/design/bjJ2lKotKe28S0i0OdKhFc/WireFrame-Nh%C3%B3m-2?node-id=360-75" target="_blank" rel="noopener noreferrer">Đối chiếu P3 <svg fill="none" stroke="currentColor" stroke-width="1.6"><use href="#i-external"/></svg></a></div></div>
+    <div class="board">
+      <nav class="rail" aria-label="Các màn hình wireframe" id="screen-nav"></nav>
+      <section class="preview-column" aria-label="Preview màn hình mobile">
+        <div class="device-caption"><span id="screen-caption">01 / 08 · Danh sách tin nhắn</span><span>390 × 844</span></div>
+        <div class="phone" id="phone">
+          <div class="statusbar"><span>9:41</span><div class="status-icons"><svg fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-wifi"/></svg><svg fill="none" stroke="currentColor" stroke-width="1.8"><use href="#i-battery"/></svg></div></div>
+          <div id="phone-view"></div>
+          <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+        </div>
+        <div class="flow-nav"><button type="button" id="previous-screen"><svg fill="none" stroke="currentColor" stroke-width="1.7"><use href="#i-arrow"/></svg>Màn trước</button><span id="step-number">01 / 08</span><button type="button" id="next-screen">Màn tiếp<svg fill="none" stroke="currentColor" stroke-width="1.7"><use href="#i-next"/></svg></button></div>
+      </section>
+      <aside class="review" aria-label="Ghi chú review và thử trạng thái" id="review-panel"></aside>
+    </div>
+  </main>
+  <script>
+    'use strict';
+    // Preview độc lập: mọi dữ liệu và thao tác chỉ tồn tại trong bộ nhớ trang.
+    const screens = [
+      {id:'inbox',title:'Danh sách tin nhắn',group:'messages',subtitle:'Điểm vào UC09 và UC10',notes:['Mở Tin nhắn từ điều hướng Tenant.','Tách hội thoại chủ nhà và hỗ trợ/phản ánh.','Từ mục Hỗ trợ có thể tạo yêu cầu mới.']},
+      {id:'landlord-chat',title:'Trò chuyện với chủ nhà',group:'messages',subtitle:'UC09 · Gắn với phòng',notes:['Tên chủ nhà và phòng luôn có ngữ cảnh.','Nhập tin nhắn rồi nhấn gửi; Enter để gửi, Shift + Enter để xuống dòng.','Tin lỗi có nút Gửi lại, không làm mất nội dung.']},
+      {id:'support-create',title:'Tạo hỗ trợ / phản ánh',group:'messages',subtitle:'UC10 · Gửi đến Admin',notes:['Chọn Hỗ trợ hoặc Phản ánh.','Phòng liên quan là tuỳ chọn.','Gửi nội dung để mở cuộc trò chuyện với Admin; chưa bổ sung tệp đính kèm chat.']},
+      {id:'support-chat',title:'Trò chuyện với hỗ trợ',group:'messages',subtitle:'UC10 · Theo dõi phản hồi',notes:['Dùng cùng cách nhắn tin như UC09.','Tên Hỗ trợ EZ Rent phân biệt rõ với chủ nhà.','Chưa thêm trạng thái ticket mới vào model hội thoại.']},
+      {id:'payment-qr',title:'QR thanh toán',group:'payment',subtitle:'UC20 · Thông tin hoá đơn',notes:['Giữ nền trắng và màu xanh theo P3.','QR minh hoạ không chứa thông tin chuyển tiền thật.','Thử nút Mô phỏng chuyển khoản ở bên dưới để xem tự gạch nợ.']},
+      {id:'payment-processing',title:'Đang xử lý thanh toán',group:'payment',subtitle:'UC21 · Cập nhật tự động',notes:['Giao diện thể hiện đang cập nhật sau sự kiện chuyển tiền.','Trong luồng demo, chuyển sang thành công sau khoảng 2 giây.','Không có bước chủ nhà nhấn xác nhận.']},
+      {id:'payment-success',title:'Thanh toán thành công',group:'payment',subtitle:'UC21 · Hoá đơn đã thanh toán',notes:['Hoá đơn hết dư nợ, có thời gian và mã giao dịch.','Có thể xem lại chi tiết hoá đơn.','Biên lai tải xuống là mẫu minh hoạ của preview.']},
+      {id:'payment-error',title:'Hết hạn / lỗi thanh toán',group:'payment',subtitle:'UC21 · Có đường thử lại',notes:['Phân biệt mã hết hạn và lỗi cập nhật.','Lỗi cập nhật không yêu cầu người dùng chuyển khoản lần hai.','Cho phép tạo QR mới khi hết hạn hoặc kiểm tra lại khi cập nhật lỗi.']}
+    ];
+    const baseline = {
+      tuan:{name:'Anh Tuấn',initial:'T',room:'Phòng 201 · CCMN Hoa Cúc',preview:'Anh đã xác nhận lịch xem phòng của em.',time:'09:30',unread:2,kind:'landlord',messages:[{sender:'them',text:'Chào Dương, em muốn hỏi thêm thông tin về phòng 201 phải không?',time:'09:20'},{sender:'me',text:'Dạ, em muốn xem phòng vào 18 giờ ngày mai. Anh còn lịch trống không ạ?',time:'09:23',status:'sent'},{sender:'them',text:'Được em nhé. Anh đã xác nhận lịch xem phòng của em. Khi đến em nhắn anh nhé.',time:'09:30'}]},
+      mai:{name:'Chị Mai',initial:'M',room:'Phòng 302 · Nhà trọ An Nhiên',preview:'Phòng có sẵn điều hoà và nóng lạnh nhé.',time:'Hôm qua',unread:0,kind:'landlord',messages:[{sender:'me',text:'Chị ơi, phòng 302 đã có điều hoà chưa ạ?',time:'16:10',status:'sent'},{sender:'them',text:'Phòng có sẵn điều hoà và nóng lạnh nhé em.',time:'16:15'}]},
+      admin:{name:'Hỗ trợ EZ Rent',initial:'',room:'Phản ánh · Thông tin hoá đơn',preview:'Bạn gửi giúp thông tin hoá đơn cần hỗ trợ nhé.',time:'08:45',unread:1,kind:'support',messages:[{sender:'me',text:'Mình cần hỗ trợ kiểm tra thông tin hiển thị trên hoá đơn tháng 10 của phòng 201.',time:'08:40',status:'sent'},{sender:'them',text:'Chào Dương, EZ Rent đã nhận phản ánh. Bạn gửi giúp thông tin cần kiểm tra nhé.',time:'08:45'}]}
+    };
+    const state={screen:screens.some(s=>s.id===location.hash.slice(1))?location.hash.slice(1):'inbox',tab:'landlord',empty:false,sendError:false,search:'',activeOwner:'tuan',activeSupport:'admin',conversations:structuredClone(baseline),drafts:{},supportCount:0,paymentError:'expired',paid:false,invoiceOpen:false};
+    const view=document.getElementById('phone-view');
+    const phone=document.getElementById('phone');
+    let paymentTimer,toastTimer;
+    let messageId=0;
+    const icon=(name)=>`<svg aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><use href="#i-${name}"/></svg>`;
+    const escapeHtml=value=>String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    const current=()=>screens.find(s=>s.id===state.screen);
+    const currentConversation=()=>state.conversations[state.screen==='landlord-chat'?state.activeOwner:state.activeSupport];
+    const isPayment=()=>current().group==='payment';
+    function toast(text){ clearTimeout(toastTimer); const el=document.getElementById('toast'); el.textContent=text; el.hidden=false; toastTimer=setTimeout(()=>{el.hidden=true;},2500); }
+    function header(title,subtitle='',back='',avatar=''){
+      const unread=state.empty?0:Object.values(state.conversations).reduce((sum,c)=>sum+c.unread,0);
+      return `<header class="phone-header ${back?'compact':''}">${back?`<button type="button" class="icon-button" data-action="${back}" aria-label="Quay lại">${icon('arrow')}</button>`:''}${avatar}<div class="header-copy"><h2>${escapeHtml(title)}</h2>${subtitle?`<small>${escapeHtml(subtitle)}</small>`:''}</div>${!back&&unread?`<span class="unread-total" aria-label="${unread} tin chưa đọc">${unread}</span>`:''}</header>`;
+    }
+    function bottomNav(){return `<nav class="bottom-nav" aria-label="Điều hướng Tenant">${[['home','Trang chủ'],['search','Khám phá'],['room','Phòng đang ở'],['chat','Tin nhắn'],['user','Cá nhân']].map(([i,label])=>`<button type="button" ${i==='chat'?'aria-current="page" data-action="inbox"':'disabled'}>${icon(i)}<span>${label}</span></button>`).join('')}</nav>`;}
+    function avatar(conversation){return `<span class="avatar ${conversation.kind==='support'?'support':''}">${conversation.kind==='support'?icon('shield'):escapeHtml(conversation.initial)}</span>`;}
+    function conversationRows(){
+      const rows=Object.entries(state.conversations).filter(([,c])=>c.kind===state.tab&&(`${c.name} ${c.room} ${c.preview}`).toLocaleLowerCase('vi').includes(state.search.toLocaleLowerCase('vi')));
+      if(state.empty||!rows.length){return `<div class="empty-state"><span class="empty-icon">${icon('chat')}</span><h3>${state.search?'Không tìm thấy hội thoại':'Chưa có cuộc trò chuyện'}</h3><p>${state.search?'Thử tìm theo tên hoặc phòng liên quan.':state.tab==='landlord'?'Bạn có thể liên hệ chủ nhà từ trang chi tiết phòng.':'Gửi hỗ trợ hoặc phản ánh để trao đổi với EZ Rent.'}</p></div>`;}
+      return rows.map(([id,c])=>`<button type="button" class="conversation" data-conversation="${escapeHtml(id)}">${avatar(c)}<span class="conversation-copy"><span class="conversation-top"><strong>${escapeHtml(c.name)}</strong><time>${escapeHtml(c.time)}</time></span><span class="room-label">${escapeHtml(c.room)}</span><span class="last-message"><p>${escapeHtml(c.preview)}</p>${c.unread?`<span class="unread-dot" aria-label="${c.unread} tin chưa đọc">${c.unread}</span>`:''}</span></span></button>`).join('');
+    }
+    function inbox(){return `${header('Tin nhắn','Trao đổi về phòng và hỗ trợ')}<div class="phone-content inbox-content"><label class="search-field">${icon('search')}<input type="search" id="conversation-search" aria-label="Tìm hội thoại" placeholder="Tìm tên hoặc phòng" value="${escapeHtml(state.search)}"></label><div class="tabs" role="tablist" aria-label="Loại hội thoại"><button type="button" class="tab" role="tab" aria-selected="${state.tab==='landlord'}" aria-controls="conversation-list" id="tab-landlord" data-tab="landlord">Chủ nhà</button><button type="button" class="tab" role="tab" aria-selected="${state.tab==='support'}" aria-controls="conversation-list" id="tab-support" data-tab="support">Hỗ trợ</button></div><div id="conversation-list" role="tabpanel" aria-labelledby="tab-${state.tab}">${conversationRows()}</div><div class="support-entry"><strong>Cần hỗ trợ từ EZ Rent?</strong><p>Gửi thắc mắc hoặc phản ánh về việc sử dụng hệ thống.</p><button type="button" class="button secondary full" data-action="support-create">${icon('shield')}Gửi hỗ trợ / phản ánh</button></div></div>${bottomNav()}`;}
+    function messageMarkup(conversation){return `<p class="day-label">Hôm nay, 14 tháng 10</p>${conversation.messages.map(m=>`<div class="message-row ${m.sender==='me'?'mine':''}"><div class="bubble">${escapeHtml(m.text)}</div><div class="message-meta ${m.status==='failed'?'failed':''}"><time>${escapeHtml(m.time)}</time>${m.sender==='me'?(m.status==='failed'?`<span>Chưa gửi được</span><button type="button" class="retry-link" data-retry="${m.id}">Gửi lại</button>`:'<span>· Đã gửi</span>'):''}</div></div>`).join('')}`;}
+    function chat(){const c=currentConversation(); const support=c.kind==='support'; const key=support?state.activeSupport:state.activeOwner;return `${header(c.name,support?'Hỗ trợ và phản ánh':'Chủ nhà','back-inbox',avatar(c))}<div class="chat-context"><span class="room-sketch">${icon(support?'shield':'room')}</span><div><strong>${escapeHtml(c.room)}</strong><small>${support?'Trao đổi với quản trị viên EZ Rent':'Trao đổi về căn phòng này'}</small></div></div><div class="phone-content chat-thread" id="chat-thread" aria-label="Lịch sử tin nhắn">${messageMarkup(c)}</div><form class="composer" id="message-form"><div class="composer-row"><textarea id="message-input" aria-label="Nội dung tin nhắn" placeholder="Nhập tin nhắn…" maxlength="2000" rows="1">${escapeHtml(state.drafts[key]||'')}</textarea><button type="submit" class="send-button" aria-label="Gửi tin nhắn">${icon('send')}</button></div><p class="inline-error" id="message-error" role="alert" hidden></p></form>`;}
+    function supportCreate(){return `${header('Gửi yêu cầu','Hỗ trợ và phản ánh đến EZ Rent','back-support')}
+      <form class="phone-content" id="support-form" novalidate>
+        <p class="form-intro">Mô tả vấn đề bạn gặp phải. EZ Rent sẽ phản hồi tại mục Tin nhắn.</p>
+        <fieldset class="field" style="border:0;padding:0"><legend class="field-label">Bạn muốn gửi</legend>
+          <div class="choice-row"><label class="choice"><input type="radio" name="requestType" value="Hỗ trợ" checked>Hỗ trợ</label><label class="choice"><input type="radio" name="requestType" value="Phản ánh">Phản ánh</label></div>
+        </fieldset>
+        <label class="field"><span class="field-label">Phòng liên quan <span style="font-weight:400;color:var(--muted)">(tuỳ chọn)</span></span>
+          <select name="room"><option value="">Không gắn với phòng</option><option value="Phòng 201 · CCMN Hoa Cúc">Phòng 201 · CCMN Hoa Cúc</option></select>
+        </label>
+        <div class="field"><label class="field-label" for="support-content">Nội dung <span style="color:var(--red)">*</span></label>
+          <textarea name="content" id="support-content" maxlength="2000" placeholder="Bạn cần hỗ trợ hoặc phản ánh điều gì?" aria-describedby="support-help support-count" required></textarea>
+          <div class="field-note"><span id="support-help">Viết rõ vấn đề để EZ Rent hỗ trợ bạn.</span><span id="support-count">0/2000</span></div>
+        </div>
+        <p class="inline-error" id="support-error" role="alert" hidden></p>
+      </form>
+      <div class="form-footer"><button type="submit" form="support-form" class="button primary full">Gửi đến EZ Rent ${icon('send')}</button></div>`;}
+    function paymentHeader(){return `<header class="phone-header payment-header"><button type="button" class="icon-button" data-action="invoice" aria-label="Xem chi tiết hoá đơn">${icon('arrow')}</button><h2>Thanh toán hoá đơn</h2></header>`;}
+    function qr(){let cells='';for(let y=0;y<21;y++){for(let x=0;x<21;x++){let dark=false;const anchors=[[0,0],[14,0],[0,14]];let finder=false;for(const [ax,ay]of anchors){if(x>=ax&&x<ax+7&&y>=ay&&y<ay+7){const xx=x-ax,yy=y-ay;dark=xx===0||yy===0||xx===6||yy===6||(xx>=2&&xx<=4&&yy>=2&&yy<=4);finder=true;break;}}if(!finder)dark=(x*7+y*11+x*y)%5<2;cells+=`<span${dark?' class="qr-cell"':''}></span>`;}}return `<div class="qr-grid" role="img" aria-label="Hình QR minh hoạ, không dùng để chuyển khoản">${cells}<span class="qr-label">EZ RENT<br>QR minh hoạ</span></div>`;}
+    function paymentQr(){return `${paymentHeader()}<div class="phone-content payment-content"><p class="amount-label">Tổng tiền tháng 10/2026</p><p class="amount">4.200.000 đ</p><h3 class="payment-caption">Mã QR thanh toán tự động</h3><div class="qr-card">${qr()}<span class="qr-caption">Quét bằng ứng dụng ngân hàng</span></div><button type="button" class="button qr-save" data-action="download-qr">${icon('download')}Lưu ảnh QR</button><div class="payment-wait"><span class="pulse-dot"></span>Đang chờ thanh toán · QR có hiệu lực 10 phút</div><div class="bank-details"><div class="detail-row"><span>Ngân hàng</span><strong>MB Bank</strong></div><div class="detail-row"><span>Chủ tài khoản</span><strong>NGUOI NHAN MINH HOA</strong></div><div class="detail-row"><span>Số tài khoản</span><strong>•••• •••• 6789</strong></div><div class="detail-row"><span>Nội dung</span><button type="button" class="copy-value" data-action="copy-reference">EZR HD1026 P201 ${icon('copy')}</button></div></div><p class="payment-help">Trạng thái hoá đơn tự cập nhật khi thanh toán được ghi nhận.</p></div>`;}
+    function paymentProcessing(){return `${paymentHeader()}<div class="phone-content result-content processing"><div class="result-icon"><span class="spinner" aria-hidden="true"></span></div><h3>Đang cập nhật thanh toán</h3><p>Giao dịch đã được ghi nhận.<br>Vui lòng chờ cập nhật hoá đơn của bạn.</p><div class="processing-steps"><div class="processing-step done">${icon('check')}Đã nhận thông tin giao dịch</div><div class="processing-step current">${icon('clock')}Đang đối chiếu hoá đơn</div><div class="processing-step">${icon('check')}Cập nhật trạng thái thanh toán</div></div><p style="font-size:12px;color:var(--muted)">Bạn không cần chuyển khoản thêm.</p></div>`;}
+    function paymentSuccess(){return `${paymentHeader()}<div class="phone-content result-content"><div class="result-icon">${icon('check')}</div><h3>Thanh toán thành công!</h3><p>Hoá đơn tháng 10/2026 của phòng 201<br>đã được thanh toán.</p><div class="receipt"><div class="receipt-amount"><span>Tổng tiền thanh toán</span><strong>4.200.000 đ</strong></div><div class="detail-row"><span>Phòng</span><strong>201 · CCMN Hoa Cúc</strong></div><div class="detail-row"><span>Người nhận</span><strong>Chủ nhà phòng 201</strong></div><div class="detail-row"><span>Hình thức</span><strong>Chuyển khoản / VietQR</strong></div><div class="detail-row"><span>Thời gian</span><strong>09:41 · 14/10/2026</strong></div><div class="detail-row"><span>Mã giao dịch</span><strong>EZR-DEMO-1026</strong></div><div class="detail-row"><span>Còn phải trả</span><strong style="color:var(--green)">0 đ</strong></div></div><div class="result-actions"><button type="button" class="button primary full" data-action="invoice">Xem hoá đơn ${icon('next')}</button><button type="button" class="button secondary full" data-action="download-receipt">${icon('download')}Tải biên lai</button></div></div>`;}
+    function paymentError(){const expired=state.paymentError==='expired';return `${paymentHeader()}<div class="phone-content result-content failure"><div class="result-icon">${icon(expired?'clock':'alert')}</div><h3>${expired?'Mã QR đã hết hạn':'Chưa cập nhật được hoá đơn'}</h3><p>${expired?'Tạo mã mới để tiếp tục thanh toán hoá đơn của bạn.':'Giao dịch đã được ghi nhận nhưng việc cập nhật hoá đơn bị gián đoạn. Vui lòng kiểm tra lại.'}</p><div class="failure-info"><p class="amount-label">Hoá đơn tháng 10/2026 · Phòng 201</p><p class="amount">4.200.000 đ</p><p style="font-size:12px;color:var(--muted);margin:12px 0 0">${expired?'Trạng thái: Chưa thanh toán':'Bạn không cần chuyển khoản thêm.'}</p></div><div class="result-actions"><button type="button" class="button primary full" data-action="${expired?'payment-qr':'simulate-payment'}">${expired?'Tạo mã QR mới':'Kiểm tra lại thanh toán'}</button><button type="button" class="button secondary full" data-action="support-from-payment">Liên hệ hỗ trợ ${icon('chat')}</button></div></div>`;}
+    function invoiceSheet(){return `<section class="invoice-sheet" role="dialog" aria-modal="true" aria-labelledby="invoice-title"><header class="phone-header compact"><div class="header-copy"><h2 id="invoice-title">Chi tiết hoá đơn</h2></div><button type="button" class="icon-button" data-action="close-invoice" aria-label="Đóng chi tiết hoá đơn">${icon('close')}</button></header><div class="phone-content"><div class="summary-top"><h3>Tháng 10/2026</h3><p>Phòng 201 · CCMN Hoa Cúc</p></div><div class="invoice-line"><span>Tiền phòng</span><strong>3.500.000 đ</strong></div><div class="invoice-line"><span>Tiền điện · 76 kWh</span><strong>266.000 đ</strong></div><div class="invoice-line"><span>Tiền nước · 5 m³</span><strong>125.000 đ</strong></div><div class="invoice-line"><span>Phí dịch vụ</span><strong>309.000 đ</strong></div><div class="invoice-line total"><span>Tổng tiền</span><strong>4.200.000 đ</strong></div><div class="invoice-status" style="${state.paid?'':'color:var(--blue-dark)'}">${icon(state.paid?'check':'clock')}${state.paid?'Đã thanh toán · Còn phải trả 0 đ':'Chưa thanh toán'}</div></div><div class="form-footer"><button type="button" class="button primary full" data-action="close-invoice">${state.paid?'Đóng hoá đơn':'Tiếp tục thanh toán'}</button></div></section>`;}
+    function renderNav(){document.getElementById('screen-nav').innerHTML=['messages','payment'].map(group=>`<div class="${group==='payment'?'rail-section':''}"><p class="rail-heading">${group==='messages'?'UC09 · UC10 / Tin nhắn':'UC20 · UC21 / Thanh toán'}</p>${screens.filter(s=>s.group===group).map(s=>`<button type="button" class="screen-link" data-screen="${s.id}" ${s.id===state.screen?'aria-current="step"':''}><span class="screen-number">${String(screens.indexOf(s)+1).padStart(2,'0')}</span><span><strong>${s.title}</strong><small>${s.subtitle}</small></span></button>`).join('')}</div>`).join('')+'<p class="scope-note">Bản mobile theo P3.<br>Ký hợp đồng và bộ câu hỏi nhu cầu thuê được để lại cho giai đoạn sau.</p>';}
+    function renderReview(){const s=current();const msg=s.group==='messages';document.getElementById('review-panel').innerHTML=`<div><span class="review-tag">${msg?'Tin nhắn · UC09 / UC10':'Thanh toán tự động mô phỏng'}</span><h2>${s.title}</h2><p class="subtitle">${s.subtitle}</p><div class="review-block"><h3>Điểm cần review</h3><ul>${s.notes.map(n=>`<li>${n}</li>`).join('')}</ul></div></div><div><div class="review-block"><h3>Thử trạng thái</h3>${msg?`${state.screen==='inbox'?`<label class="scenario"><input id="empty-toggle" type="checkbox" ${state.empty?'checked':''}>Danh sách chưa có hội thoại</label>`:''}${['landlord-chat','support-chat'].includes(state.screen)?`<label class="scenario"><input id="error-toggle" type="checkbox" ${state.sendError?'checked':''}>Giả lập lỗi gửi tin nhắn</label>`:''}${state.screen==='support-create'?'<p class="review-description">Thử gửi khi nội dung trống, rồi nhập nội dung để mở hội thoại hỗ trợ.</p>':'<p class="review-description">Nội dung gửi ở đây chỉ nằm trong preview, không gửi đến người khác.</p>'}`:`<button type="button" class="button primary full" data-action="simulate-payment">${icon('check')}Mô phỏng chuyển khoản</button><button type="button" class="button secondary full" data-action="expired">${icon('clock')}Mô phỏng QR hết hạn</button><button type="button" class="button secondary full" data-action="payment-failed">${icon('alert')}Mô phỏng lỗi cập nhật</button><p class="review-description">Các nút này phục vụ review và nằm ngoài giao diện sản phẩm. Không có giao dịch ngân hàng thật.</p>`}</div><div class="review-block"><h3>Luồng kế tiếp</h3><p class="review-description">${msg?'Danh sách → hội thoại chủ nhà, hoặc tạo hỗ trợ/phản ánh → trao đổi với Admin.':'QR → sự kiện thanh toán → đang xử lý → đã thanh toán và hết dư nợ.'}</p></div><div class="review-block"><button type="button" class="button full" data-action="reset">Khôi phục dữ liệu minh hoạ</button></div></div>`;}
+    function render(){
+      const map={'inbox':inbox,'landlord-chat':chat,'support-create':supportCreate,'support-chat':chat,'payment-qr':paymentQr,'payment-processing':paymentProcessing,'payment-success':paymentSuccess,'payment-error':paymentError};
+      phone.classList.toggle('success-bg',state.screen==='payment-success');
+      document.getElementById('toast').hidden=true;
+      view.innerHTML=map[state.screen]();
+      if(state.invoiceOpen){view.insertAdjacentHTML('beforeend',invoiceSheet());}
+      renderNav();renderReview();
+      const index=screens.findIndex(s=>s.id===state.screen);
+      const count=`${String(index+1).padStart(2,'0')} / 08`;
+      document.getElementById('screen-caption').textContent=`${count} · ${current().title}`;
+      document.getElementById('step-number').textContent=count;
+      document.getElementById('previous-screen').disabled=index===0;
+      document.getElementById('next-screen').disabled=index===screens.length-1;
+      if(['landlord-chat','support-chat'].includes(state.screen)){const thread=document.getElementById('chat-thread');thread.scrollTop=thread.scrollHeight;}
+    }
+    function setScreen(id){
+      if(!screens.some(s=>s.id===id))return;
+      clearTimeout(paymentTimer);state.screen=id;state.invoiceOpen=false;
+      if(id==='payment-success')state.paid=true;
+      if(['payment-qr','payment-processing','payment-error'].includes(id))state.paid=false;
+      history.replaceState(null,'',`#${id}`);render();
+    }
+    function simulatePayment(){setScreen('payment-processing');paymentTimer=setTimeout(()=>{if(state.screen==='payment-processing')setScreen('payment-success');},1800);}
+    function sendMessage(){
+      const input=document.getElementById('message-input');const text=input.value.trim();const error=document.getElementById('message-error');
+      if(!text){error.textContent='Nhập nội dung tin nhắn trước khi gửi.';error.hidden=false;input.focus();return;}
+      const c=currentConversation();const key=state.screen==='landlord-chat'?state.activeOwner:state.activeSupport;
+      c.messages.push({id:++messageId,sender:'me',text,time:'09:41',status:state.sendError?'failed':'sent'});
+      if(!state.sendError){c.preview=text;c.time='09:41';}
+      state.drafts[key]='';render();document.getElementById('message-input').focus({preventScroll:true});
+      if(state.sendError)toast('Chưa gửi được. Nội dung được giữ để gửi lại.');
+    }
+    function submitSupport(form){
+      const data=new FormData(form);const content=String(data.get('content')||'').trim();const error=document.getElementById('support-error');
+      if(!content){error.textContent='Vui lòng nhập nội dung cần hỗ trợ hoặc phản ánh.';error.hidden=false;document.getElementById('support-content').focus();return;}
+      const type=String(data.get('requestType'));const room=String(data.get('room')||'');const id=`support-${++state.supportCount}`;
+      state.conversations[id]={name:'Hỗ trợ EZ Rent',initial:'',room:`${type}${room?' · '+room:' · Yêu cầu mới'}`,preview:content,time:'09:41',unread:0,kind:'support',messages:[{id:++messageId,sender:'me',text:content,time:'09:41',status:'sent'}]};
+      state.activeSupport=id;state.empty=false;setScreen('support-chat');toast('Đã gửi yêu cầu đến EZ Rent.');
+    }
+    function downloadFile(filename,content,type){const url=URL.createObjectURL(new Blob([content],{type}));const link=document.createElement('a');link.href=url;link.download=filename;document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);}
+    function downloadQr(){
+      const cells=[...document.querySelectorAll('.qr-grid>span:not(.qr-label)')];
+      const marks=cells.map((cell,i)=>cell.classList.contains('qr-cell')?`<rect x="${53+(i%21)*14}" y="${38+Math.floor(i/21)*14}" width="12.5" height="12.5" fill="#192330"/>`:'').join('');
+      const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400"><rect width="400" height="400" fill="white"/>${marks}<rect x="128" y="140" width="144" height="80" rx="8" fill="white"/><text x="200" y="171" text-anchor="middle" font-family="Arial" font-size="21" fill="#356797">EZ RENT</text><text x="200" y="197" text-anchor="middle" font-family="Arial" font-size="16" fill="#356797">QR MINH HOA</text><text x="200" y="365" text-anchor="middle" font-family="Arial" font-size="13" fill="#697586">Khong dung de chuyen khoan</text></svg>`;
+      downloadFile('ez-rent-qr-minh-hoa.svg',svg,'image/svg+xml');toast('Đã tải ảnh QR minh hoạ.');
+    }
+    function downloadReceipt(){const receipt='<!doctype html><html lang="vi"><meta charset="utf-8"><title>Biên lai minh hoạ EZ Rent</title><body style="font:16px/1.8 Arial;max-width:600px;margin:60px auto;padding:20px"><h1>EZ Rent · Biên lai minh hoạ</h1><p>Mẫu preview, không xác nhận giao dịch ngân hàng thật.</p><hr><p>Hoá đơn: Tháng 10/2026<br>Phòng: 201 · CCMN Hoa Cúc<br>Tổng tiền: 4.200.000 đ<br>Hình thức: Chuyển khoản / VietQR<br>Thời gian: 09:41 · 14/10/2026<br>Mã giao dịch: EZR-DEMO-1026<br>Còn phải trả trong mô phỏng: 0 đ</p></body></html>';downloadFile('ez-rent-bien-lai-minh-hoa.html',receipt,'text/html;charset=utf-8');toast('Đã tải biên lai minh hoạ.');}
+    function reset(){clearTimeout(paymentTimer);state.conversations=structuredClone(baseline);state.activeOwner='tuan';state.activeSupport='admin';state.tab='landlord';state.empty=false;state.sendError=false;state.search='';state.drafts={};state.supportCount=0;state.paymentError='expired';state.paid=false;setScreen('inbox');toast('Đã khôi phục dữ liệu minh hoạ.');}
+    async function handleAction(action){
+      if(action==='focus'||action==='exit-focus'){const focused=action==='focus';document.body.classList.toggle('focus-mode',focused);document.getElementById('focus-toolbar').hidden=!focused;return;}
+      if(screens.some(s=>s.id===action)){if(action==='inbox')state.search='';setScreen(action);return;}
+      if(action==='back-inbox'){state.tab=state.screen==='support-chat'?'support':'landlord';state.search='';setScreen('inbox');}
+      if(action==='back-support'){state.tab='support';setScreen('inbox');}
+      if(action==='simulate-payment')simulatePayment();
+      if(action==='expired'||action==='payment-failed'){state.paymentError=action==='expired'?'expired':'update';setScreen('payment-error');}
+      if(action==='support-from-payment'){setScreen('support-create');const textarea=document.getElementById('support-content');textarea.value='Mình cần hỗ trợ thanh toán hoá đơn tháng 10/2026 của phòng 201.';document.getElementById('support-count').textContent=`${textarea.value.length}/2000`;document.querySelector('#support-form select').value='Phòng 201 · CCMN Hoa Cúc';}
+      if(action==='invoice'){state.invoiceOpen=true;render();document.querySelector('[data-action="close-invoice"]').focus({preventScroll:true});}
+      if(action==='close-invoice'){state.invoiceOpen=false;render();document.querySelector('[data-action="invoice"]')?.focus({preventScroll:true});}
+      if(action==='copy-reference'){try{await navigator.clipboard.writeText('EZR HD1026 P201');toast('Đã sao chép nội dung chuyển khoản.');}catch{toast('Nội dung: EZR HD1026 P201');}}
+      if(action==='download-qr')downloadQr();
+      if(action==='download-receipt')downloadReceipt();
+      if(action==='reset')reset();
+    }
+    document.addEventListener('click',event=>{
+      const screen=event.target.closest('[data-screen]');if(screen){setScreen(screen.dataset.screen);return;}
+      const tab=event.target.closest('[data-tab]');if(tab){state.tab=tab.dataset.tab;state.search='';render();return;}
+      const conversation=event.target.closest('[data-conversation]');if(conversation){const id=conversation.dataset.conversation;const c=state.conversations[id];c.unread=0;if(c.kind==='support'){state.activeSupport=id;setScreen('support-chat');}else{state.activeOwner=id;setScreen('landlord-chat');}return;}
+      const retry=event.target.closest('[data-retry]');if(retry){const c=currentConversation();const m=c.messages.find(m=>m.id===Number(retry.dataset.retry));if(m){if(state.sendError){toast('Chưa gửi được. Thử lại khi kết nối ổn định.');}else{m.status='sent';c.preview=m.text;c.time='09:41';render();toast('Đã gửi lại tin nhắn.');}}return;}
+      const action=event.target.closest('[data-action]');if(action)void handleAction(action.dataset.action);
+    });
+    document.addEventListener('submit',event=>{if(event.target.id==='message-form'){event.preventDefault();sendMessage();}if(event.target.id==='support-form'){event.preventDefault();submitSupport(event.target);}});
+    document.addEventListener('input',event=>{
+      if(event.target.id==='conversation-search'){state.search=event.target.value;document.getElementById('conversation-list').innerHTML=conversationRows();}
+      if(event.target.id==='message-input'){const key=state.screen==='landlord-chat'?state.activeOwner:state.activeSupport;state.drafts[key]=event.target.value;event.target.style.height='44px';event.target.style.height=Math.min(90,event.target.scrollHeight)+'px';document.getElementById('message-error').hidden=true;}
+      if(event.target.id==='support-content'){document.getElementById('support-count').textContent=`${event.target.value.length}/2000`;document.getElementById('support-error').hidden=true;}
+    });
+    document.addEventListener('change',event=>{if(event.target.id==='empty-toggle'){state.empty=event.target.checked;render();}if(event.target.id==='error-toggle')state.sendError=event.target.checked;});
+    document.addEventListener('keydown',event=>{
+      if(state.invoiceOpen){if(event.key==='Escape'){event.preventDefault();void handleAction('close-invoice');}if(event.key==='Tab'){const buttons=[...document.querySelectorAll('.invoice-sheet button')];const first=buttons[0],last=buttons.at(-1);if(event.shiftKey&&document.activeElement===first){event.preventDefault();last.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first.focus();}}return;}
+      if(['tab-landlord','tab-support'].includes(event.target.id)&&['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();state.tab=event.key==='Home'?'landlord':event.key==='End'?'support':state.tab==='landlord'?'support':'landlord';state.search='';render();document.getElementById(`tab-${state.tab}`).focus({preventScroll:true});return;}
+      if(event.target.id==='message-input'&&event.key==='Enter'&&!event.shiftKey&&!event.isComposing){event.preventDefault();sendMessage();}
+    });
+    document.getElementById('previous-screen').addEventListener('click',()=>{const i=screens.findIndex(s=>s.id===state.screen);if(i>0)setScreen(screens[i-1].id);});
+    document.getElementById('next-screen').addEventListener('click',()=>{const i=screens.findIndex(s=>s.id===state.screen);if(i<screens.length-1)setScreen(screens[i+1].id);});
+    if(state.screen==='payment-success')state.paid=true;
+    render();
+  </script>
+</body>
+</html>

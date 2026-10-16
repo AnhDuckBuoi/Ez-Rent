@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+    <meta name="theme-color" content="#356797"><title>Tin nhắn · EZ Rent — Bản thử thiết kế</title>
+    <link rel="preload" href="tenant-v4-assets/BeVietnamPro-Regular.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="preload" href="tenant-v4-assets/BeVietnamPro-SemiBold.ttf" as="font" type="font/ttf" crossorigin>
+    <link rel="stylesheet" href="tenant-messages-design-trial.css"><script src="tenant-messages-design-trial.js" defer></script>
+</head>
+<body>
+    <div class="demo-bar"><span><i aria-hidden="true"></i><strong>Bản thử thiết kế</strong><span class="demo-note">Dữ liệu minh họa · Không gửi tin hoặc yêu cầu thật</span></span><button type="button" id="toggle-demo-controls" class="demo-toggle" aria-expanded="false" aria-controls="demo-tools">Tình huống</button><div id="demo-tools"><label for="demo-mode" class="sr-only">Tình huống thử giao diện</label><select id="demo-mode" name="demo-mode"><option value="normal">Cuộc trò chuyện mẫu</option><option value="send-error">Lỗi gửi một lần</option><option value="empty">Chưa có trò chuyện</option><option value="loading">Đang tải</option><option value="load-error">Lỗi tải</option></select><button type="button" id="reset-demo">Làm lại</button></div></div>
+    <a class="skip-link" href="#conversation">Đến cuộc trò chuyện</a>
+    <header class="app-header"><div class="header-inner">
+        <a class="brand" href="http://127.0.0.1:8770/Tenant/Dashboard"><span data-icon="home"></span><strong>EZ Rent</strong></a>
+        <nav aria-label="Điều hướng người thuê" class="main-nav"><a href="http://127.0.0.1:8770/Tenant/Dashboard">Trang chủ</a><a href="http://127.0.0.1:8770/Tenant/RentalPost">Tìm phòng</a><a href="http://127.0.0.1:8770/Tenant/ViewingAppointment">Lịch hẹn</a><a href="http://127.0.0.1:8770/Tenant/Favorite">Đã lưu</a><a href="tenant-messages-design-trial.html" aria-current="page">Tin nhắn</a></nav>
+        <div class="header-tools"><a class="icon-button bell-link" href="http://127.0.0.1:8770/Tenant/Notification" aria-label="Thông báo"><span data-icon="bell"></span></a><a class="user-avatar" href="http://127.0.0.1:8770/Identity/Account/Manage" aria-label="Tài khoản của Minh Anh">MA</a></div>
+    </div></header>
+    <main class="main" id="messages-main">
+        <div class="page-heading"><div><h1>Tin nhắn</h1><p>Trao đổi với chủ nhà, để chuyện tìm nơi ở dễ dàng hơn.</p></div><a href="http://127.0.0.1:8770/Tenant/Dashboard/Messages" class="compare-link">Về giao diện hiện tại <span data-icon="external"></span></a></div>
+        <div class="workspace" id="workspace">
+            <aside class="inbox-pane" aria-labelledby="inbox-title">
+                <div class="inbox-heading"><h2 id="inbox-title" tabindex="-1">Trò chuyện</h2><span id="unread-count" class="unread-total" aria-label="2 cuộc trò chuyện chưa đọc">2</span></div>
+                <div class="inbox-search"><button type="button" class="search-back icon-button" data-action="exit-search" aria-label="Thoát tìm kiếm"><span data-icon="back"></span></button><span data-icon="search"></span><label class="sr-only" for="inbox-search">Tìm cuộc trò chuyện theo tên hoặc phòng</label><input id="inbox-search" name="conversation-search" type="search" placeholder="Tìm tên hoặc phòng…" autocomplete="off"><button class="search-clear" type="button" id="clear-search" aria-label="Xóa tìm kiếm" hidden>×</button></div>
+                <div class="inbox-filters" role="group" aria-label="Lọc cuộc trò chuyện"><button type="button" data-filter="all" aria-pressed="true">Tất cả</button><button type="button" data-filter="unread" aria-pressed="false">Chưa đọc <span id="filter-unread-count">2</span></button></div>
+                <div class="thread-list" id="thread-list" aria-label="Danh sách cuộc trò chuyện"></div>
+                <button type="button" id="open-support" class="support-entry"><span class="support-symbol" data-icon="support"></span><span><strong>Hỗ trợ &amp; phản ánh</strong><small>Gửi yêu cầu đến EZ Rent</small></span><span data-icon="chevron"></span></button>
+            </aside>
+            <section class="chat-pane" id="conversation" aria-label="Cuộc trò chuyện đang mở" tabindex="-1"></section>
+            <aside class="context-pane" id="room-context" aria-label="Thông tin phòng liên quan"></aside>
+        </div>
+        <div class="trial-footnote"><span><span data-icon="info"></span>Đây là không gian thử giao diện. Nội dung chỉ lưu trong tab đến khi tải lại.</span><details><summary>Nguồn ảnh và kiểu chữ</summary><p>Ảnh phòng trong bản thử là ảnh nội thất minh họa.</p><a href="https://www.pexels.com/photo/living-room-interior-with-sofa-against-window-at-home-7513991/" target="_blank" rel="noopener">Caleb Oquendo / Pexels</a><a href="https://github.com/google/fonts/tree/main/ofl/bevietnampro" target="_blank" rel="noopener">Be Vietnam Pro / SIL Open Font License</a></details></div>
+    </main>
+    <nav class="mobile-nav" aria-label="Điều hướng người thuê trên điện thoại">
+        <a href="http://127.0.0.1:8770/Tenant/Dashboard"><span data-icon="home"></span>Trang chủ</a>
+        <a href="http://127.0.0.1:8770/Tenant/RentalPost"><span data-icon="search"></span>Tìm phòng</a>
+        <a href="http://127.0.0.1:8770/Tenant/ViewingAppointment"><span data-icon="calendar"></span>Lịch hẹn</a>
+        <a href="http://127.0.0.1:8770/Tenant/Favorite"><span data-icon="heart"></span>Đã lưu</a>
+        <a href="tenant-messages-design-trial.html" aria-current="page"><span data-icon="chat"></span>Tin nhắn</a>
+    </nav>
+    <dialog id="context-dialog" class="context-dialog" aria-label="Thông tin phòng đang trao đổi"></dialog>
+    <dialog id="support-dialog" class="support-dialog" aria-labelledby="support-title">
+        <div class="dialog-heading"><div><span class="dialog-symbol" data-icon="support"></span><h2 id="support-title">Yêu cầu hỗ trợ</h2><p>Gửi đến bộ phận hỗ trợ EZ Rent.</p></div><button type="button" class="icon-button" data-action="close-support" aria-label="Đóng yêu cầu hỗ trợ"><span data-icon="close"></span></button></div>
+        <p class="demo-disclosure">Biểu mẫu minh họa, chưa gửi yêu cầu thật.</p>
+        <form id="support-form" novalidate>
+            <div class="form-pair"><div class="field"><label for="support-category">Vấn đề cần hỗ trợ</label><select id="support-category" name="category" required aria-describedby="support-category-error"><option value="">Chọn vấn đề</option><option>Thông tin phòng không đúng</option><option>Vấn đề khi xem phòng</option><option>Tài khoản và ứng dụng</option><option>Vấn đề khác</option></select><span class="field-error" id="support-category-error"></span></div><div class="field"><label for="support-room">Phòng liên quan</label><select id="support-room" name="room"></select></div></div>
+            <div class="field"><label for="support-subject">Tiêu đề</label><input id="support-subject" name="subject" autocomplete="off" maxlength="100" required placeholder="Ví dụ: Cần làm rõ khoản phí dịch vụ" aria-describedby="support-subject-error"><span class="field-error" id="support-subject-error"></span></div>
+            <div class="field"><label for="support-description">Mô tả chi tiết</label><textarea id="support-description" name="description" autocomplete="off" maxlength="1000" rows="5" required placeholder="Bạn đã gặp vấn đề gì và mong muốn được hỗ trợ như thế nào?" aria-describedby="support-description-error"></textarea><div class="field-bottom"><span class="field-error" id="support-description-error"></span><span id="support-char-count">0/1.000</span></div></div>
+            <div class="dialog-actions"><button type="button" class="button" data-action="close-support">Để sau</button><button type="submit" class="button primary">Tạo yêu cầu mẫu <span data-icon="arrow"></span></button></div>
+        </form>
+        <div id="support-result" hidden></div>
+    </dialog>
+    <p class="sr-only" id="live-status" role="status" aria-live="polite"></p>
+    <noscript><p class="no-script">Bật JavaScript để thử trò chuyện và biểu mẫu hỗ trợ. Bản thử không gửi dữ liệu đến chủ nhà.</p></noscript>
+</body>
+</html>
