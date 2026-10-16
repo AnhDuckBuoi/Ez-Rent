@@ -85,9 +85,15 @@
                 @Html.DisplayFor(modelItem => item.ResolvedAt)
             </td>
             <td>
-                <a asp-action="Edit" asp-route-id="@item.RepairRequestId">Edit</a> |
+                @if (item.Status == RepairRequestStatus.Pending)
+                {
+                    <a asp-action="Edit" asp-route-id="@item.RepairRequestId">Edit</a>
+                }
                 <a asp-action="Details" asp-route-id="@item.RepairRequestId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.RepairRequestId">Delete</a>
+                @if (item.Status == RepairRequestStatus.Pending)
+                {
+                    <a asp-action="Delete" asp-route-id="@item.RepairRequestId">Hủy</a>
+                }
             </td>
         </tr>
 }

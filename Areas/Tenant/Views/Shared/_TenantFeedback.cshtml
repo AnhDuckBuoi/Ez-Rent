@@ -1,0 +1,14 @@
+@{
+    var message = TempData["DiscoveryMessage"] as string ?? TempData["StatusMessage"] as string;
+    var error = TempData["DiscoveryError"] as string;
+}
+<div class="tenant-feedback-region" data-tenant-feedback>
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="tenant-feedback" role="status"><span>@message</span><button type="button" data-feedback-close aria-label="Đóng thông báo">×</button></div>
+    }
+    @if (!string.IsNullOrEmpty(error))
+    {
+        <div class="tenant-feedback is-error" role="alert"><span>@error</span><button type="button" data-feedback-close aria-label="Đóng thông báo">×</button></div>
+    }
+</div>

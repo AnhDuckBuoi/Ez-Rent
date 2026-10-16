@@ -41,7 +41,7 @@
 
                         <!-- Tìm phòng -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="RentalPost" asp-action="Index">
+                            <a class="nav-link text-dark" asp-area="@(User.IsInRole("Tenant") ? "Tenant" : "")" asp-controller="RentalPost" asp-action="Index">
                                 🔍 Tìm phòng
                             </a>
                         </li>

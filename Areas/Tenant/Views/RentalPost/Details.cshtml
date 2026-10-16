@@ -1,0 +1,22 @@
+@using System.Globalization
+@using EZ_Rent.Areas.Tenant.Services
+@model EZ_Rent.Areas.Tenant.ViewModels.RentalDetailModel
+@{
+    Layout = "_DiscoveryLayout";
+    ViewData["Title"] = Model.Room.Title;
+    var money = CultureInfo.GetCultureInfo("vi-VN");
+    var images = Model.Images.Count == 0 ? new List<string> { RentalPresentation.Placeholder } : Model.Images;
+}
+<a href="@Model.BackUrl" class="back-link">← @Model.BackLabel</a>
+<section class="gallery" aria-label="Ảnh phòng"><img src="@images[0]" id="main-room-image" alt="@Model.Room.Title" data-fallback="/images/room-placeholder.svg" />
+    @if (images.Count > 1) { <div class="gallery-thumbs">@for (var i = 0; i < images.Count; i++) { <button type="button" data-gallery-src="@images[i]" aria-label="Xem ảnh @(i + 1)" aria-pressed="@(i == 0 ? "true" : "false")"><img src="@images[i]" alt="Ảnh @(i + 1) của phòng" data-fallback="/images/room-placeholder.svg" /></button> }</div> }
+</section>
+<section class="detail-heading"><span class="pill">@RentalPresentation.RoomTypeName(Model.Room.RoomType) · Còn trống</span><h1>@Model.Room.Title</h1><p>@Model.Room.Address</p><div class="detail-price"><strong>@Model.Room.Price.ToString("N0", money) đ</strong><span>/ tháng</span><span class="area-chip">@Model.Room.Area.ToString("0.##", money) m²</span></div></section>
+<div class="detail-columns"><div>
+    <section class="detail-section"><h2>Về căn phòng</h2><p class="description">@Model.Description</p></section>
+    <section class="detail-section"><h2>Tiện ích</h2>@if (Model.Amenities.Count == 0) { <p class="muted">Thông tin tiện ích đang được cập nhật.</p> } else { <ul class="amenities">@foreach (var amenity in Model.Amenities) { <li>✓ @amenity</li> }</ul> }</section>
+    <section class="detail-section"><h2>Điện, nước &amp; dịch vụ</h2><dl class="fees"><div><dt>Giá điện</dt><dd>@Model.ElectricityPrice.ToString("N0", money) đ / kWh</dd></div><div><dt>Giá nước</dt><dd>@Model.WaterPrice.ToString("N0", money) đ / m³</dd></div><div><dt>Phí dịch vụ phòng</dt><dd>@Model.ServiceFee.ToString("N0", money) đ</dd></div>@foreach (var service in Model.Services) { <div><dt>@service.Name</dt><dd>@service.UnitPrice.ToString("N0", money) đ / @service.Unit</dd></div> }</dl><p class="muted small">Các khoản hiển thị theo thông tin chủ nhà cung cấp. Hãy xác nhận cách tính phí trước khi thuê.</p></section>
+</div><aside class="contact-panel"><div class="host-avatar">@if (Model.OwnerAvatar != null) { <img src="@Model.OwnerAvatar" alt="Ảnh chủ nhà" data-fallback="/images/room-placeholder.svg" /> } else { <span aria-hidden="true">⌂</span> }</div><p class="eyebrow">CHỦ NHÀ</p><h2>@Model.OwnerName</h2><p class="muted">Người đăng thông tin căn phòng</p>
+    <a asp-area="Tenant" asp-controller="ViewingBooking" asp-action="Index" asp-route-id="@Model.Room.RentalPostId" asp-route-returnUrl="@Model.BackUrl" class="button primary full">Đặt lịch xem phòng</a><p class="small muted">Chọn ngày và giờ đến xem căn phòng này.</p>
+    <form asp-area="Tenant" asp-controller="Favorite" asp-action="Set" method="post" data-favorite-form class="detail-save"><input type="hidden" name="RentalPostId" value="@Model.Room.RentalPostId" /><input type="hidden" name="Saved" value="@((!Model.Room.IsSaved).ToString().ToLowerInvariant())" /><input type="hidden" name="ReturnUrl" value="@Model.Room.ReturnUrl" /><button type="submit" class="button full" aria-pressed="@Model.Room.IsSaved.ToString().ToLowerInvariant()"><span data-heart aria-hidden="true">@(Model.Room.IsSaved ? "♥" : "♡")</span><span data-save-label>@(Model.Room.IsSaved ? "Đã lưu phòng" : "Lưu phòng yêu thích")</span></button></form>
+</aside></div>

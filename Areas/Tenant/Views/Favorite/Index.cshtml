@@ -1,47 +1,5 @@
-@model IEnumerable<EZ_Rent.Models.Favorite>
-
-@{
-    ViewData["Title"] = "Index";
-}
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RentalPost)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RentalPost.Address)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.FavoriteId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.FavoriteId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.FavoriteId">Delete</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+@model EZ_Rent.Areas.Tenant.ViewModels.RentalSearchPageModel
+@{ Layout = "_DiscoveryLayout"; ViewData["Title"] = "Phòng yêu thích"; ViewData["FavoritesPage"] = true; }
+<section class="discovery-intro"><p class="eyebrow">LỰA CHỌN CỦA BẠN</p><h1>Những nơi bạn muốn gọi là nhà.</h1><p>Lưu lại, so sánh và tìm không gian phù hợp với mình.</p></section>
+<p class="notice error" id="search-error" role="alert" hidden></p>
+<section id="rental-results" data-favorites-list aria-label="Phòng đã lưu" aria-live="polite"><partial name="~/Areas/Tenant/Views/RentalPost/_Results.cshtml" model="Model" /></section>

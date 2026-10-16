@@ -1,0 +1,42 @@
+@{
+    var favorites = ViewData["FavoritesPage"] as bool? == true;
+    var appointments = ViewData["AppointmentsPage"] as bool? == true;
+}
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>@ViewData["Title"] · EZ Rent</title>
+    <link rel="stylesheet" href="~/css/tenant-discovery.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tenant-appointments.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tenant-shell.css" asp-append-version="true" />
+    @if (ViewData["BookingPage"] as bool? == true) { <link rel="stylesheet" href="~/css/tenant-booking.css" asp-append-version="true" /> }
+</head>
+<body>
+    <a href="#main" class="skip-link">Đến nội dung</a>
+    @await Component.InvokeAsync("TenantDesktopHeader")
+    <header class="discovery-header tenant-legacy-header">
+        <a asp-area="Tenant" asp-controller="Dashboard" asp-action="Index" class="brand"><span aria-hidden="true">⌂</span><strong>EZ Rent<small>KHÔNG GIAN CỦA BẠN</small></strong></a>
+        <nav class="discovery-shortcuts" aria-label="Lối tắt của bạn">
+            <a asp-area="Tenant" asp-controller="ViewingAppointment" asp-action="Index" class="saved-link" aria-current="@(appointments ? "page" : null)">Lịch hẹn</a>
+            <a asp-area="Tenant" asp-controller="Favorite" asp-action="Index" class="saved-link" aria-label="Phòng yêu thích" aria-current="@(favorites ? "page" : null)"><span aria-hidden="true">♡</span> Đã lưu</a>
+        </nav>
+    </header>
+    <main id="main" class="discovery-main">
+        @await Html.PartialAsync("_TenantFeedback")
+        @RenderBody()
+    </main>
+    <nav class="tenant-nav" aria-label="Điều hướng người thuê">
+        <a asp-area="Tenant" asp-controller="Dashboard" asp-action="Index"><span aria-hidden="true">⌂</span>Trang chủ</a>
+        <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" class="@(!favorites && !appointments ? "active" : "")"><span aria-hidden="true">⌕</span>Khám phá</a>
+        <button disabled><span aria-hidden="true">▤</span>Phòng đang ở</button>
+        <button disabled><span aria-hidden="true">☏</span>Tin nhắn</button>
+        <a asp-area="Identity" asp-page="/Account/Manage/Index"><span aria-hidden="true">○</span>Cá nhân</a>
+    </nav>
+    <script src="~/js/tenant-shell.js" asp-append-version="true" defer></script>
+    <script src="~/js/tenant-discovery.js" asp-append-version="true" defer></script>
+    @if (appointments) { <script src="~/js/tenant-appointments.js" asp-append-version="true" defer></script> }
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

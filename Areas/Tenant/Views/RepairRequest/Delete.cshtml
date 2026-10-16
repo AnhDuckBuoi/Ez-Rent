@@ -1,12 +1,12 @@
 @model EZ_Rent.Models.RepairRequest
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Hủy";
 }
 
-<h1>Delete</h1>
+<h1>Hủy yêu cầu</h1>
 
-<h3>Are you sure you want to delete this?</h3>
+<h3>Bạn muốn hủy yêu cầu này? Lịch sử sẽ được giữ lại.</h3>
 <div>
     <h4>RepairRequest</h4>
     <hr />
@@ -79,9 +79,9 @@
         </dd>
     </dl>
     
-    <form asp-action="Delete">
+    <form asp-action="Delete" asp-route-id="@Model.RepairRequestId" method="post">
         <input type="hidden" asp-for="RepairRequestId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <input type="submit" value="Hủy" class="btn btn-danger" /> |
         <a asp-action="Index">Back to List</a>
     </form>
 </div>

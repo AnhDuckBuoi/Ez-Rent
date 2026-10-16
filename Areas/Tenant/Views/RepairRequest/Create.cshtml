@@ -1,79 +1,43 @@
-@model EZ_Rent.Models.RepairRequest
+@model EZ_Rent.Areas.Tenant.ViewModels.RepairRequestInputModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Báo sự cố";
 }
 
-<h1>Create</h1>
-
-<h4>RepairRequest</h4>
-<hr />
+<h1>Báo sự cố</h1>
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="RentalPostId" class="control-label"></label>
-                <select asp-for="RentalPostId" class ="form-control" asp-items="ViewBag.RentalPostId"></select>
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="RentalPostId" class="form-label"></label>
+                <select asp-for="RentalPostId" class="form-select" asp-items="ViewBag.RentalPostId"><option value="">Chọn phòng</option></select>
+                <span asp-validation-for="RentalPostId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="TenantId" class="control-label"></label>
-                <select asp-for="TenantId" class ="form-control" asp-items="ViewBag.TenantId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="ProblemType" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="ProblemType" class="form-label"></label>
                 <input asp-for="ProblemType" class="form-control" />
                 <span asp-validation-for="ProblemType" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
+            <div class="mb-3">
+                <label asp-for="Description" class="form-label"></label>
+                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Priority" class="control-label"></label>
-                <select asp-for="Priority" class="form-control"></select>
+            <div class="mb-3">
+                <label asp-for="Priority" class="form-label"></label>
+                <select asp-for="Priority" class="form-select" asp-items="Html.GetEnumSelectList<RepairPriority>()"></select>
                 <span asp-validation-for="Priority" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="ImageUrl" class="control-label"></label>
+            <div class="mb-3">
+                <label asp-for="ImageUrl" class="form-label"></label>
                 <input asp-for="ImageUrl" class="form-control" />
                 <span asp-validation-for="ImageUrl" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" class="form-control"></select>
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ResolutionNote" class="control-label"></label>
-                <input asp-for="ResolutionNote" class="form-control" />
-                <span asp-validation-for="ResolutionNote" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UpdatedAt" class="control-label"></label>
-                <input asp-for="UpdatedAt" class="form-control" />
-                <span asp-validation-for="UpdatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ResolvedAt" class="control-label"></label>
-                <input asp-for="ResolvedAt" class="form-control" />
-                <span asp-validation-for="ResolvedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
+            <button type="submit" class="btn btn-primary">Gửi</button>
+            <a asp-action="Index" class="btn btn-link">Quay lại danh sách</a>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

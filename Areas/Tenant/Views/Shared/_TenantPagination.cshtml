@@ -1,0 +1,19 @@
+@model EZ_Rent.Areas.Tenant.ViewModels.TenantPaginationModel
+@if (Model.TotalPages > 1)
+{
+    <nav class="pagination tenant-pagination" aria-label="@Model.Label">
+        @if (Model.Page > 1) { <a href="@Model.PageUrl(Model.Page - 1)" data-page-link="@(Model.Ajax ? "" : null)" class="button" rel="prev">Trước</a> }
+        else { <span class="button page-disabled" aria-disabled="true">Trước</span> }
+        @{ var previous = 0; }
+        @foreach (var number in Model.VisiblePages)
+        {
+            @if (previous > 0 && number - previous > 1) { <span class="page-gap" aria-hidden="true">…</span> }
+            @if (number == Model.Page) { <span class="button page-current" aria-current="page" aria-label="Trang @number, trang hiện tại">@number</span> }
+            else { <a href="@Model.PageUrl(number)" data-page-link="@(Model.Ajax ? "" : null)" class="button" aria-label="Trang @number">@number</a> }
+            previous = number;
+        }
+        @if (Model.Page < Model.TotalPages) { <a href="@Model.PageUrl(Model.Page + 1)" data-page-link="@(Model.Ajax ? "" : null)" class="button" rel="next">Sau</a> }
+        else { <span class="button page-disabled" aria-disabled="true">Sau</span> }
+        <span class="page-summary">Trang @Model.Page / @Model.TotalPages</span>
+    </nav>
+}

@@ -1,0 +1,31 @@
+@using System.Globalization
+@using EZ_Rent.Models.Enums
+@using EZ_Rent.Areas.Tenant.Services
+@model EZ_Rent.Areas.Tenant.ViewModels.RentalSearchPageModel
+@{
+    Layout = "_DiscoveryLayout";
+    ViewData["Title"] = "Tìm phòng";
+    string Input(string key, object? value) => ViewData.ModelState.TryGetValue(key, out var entry)
+        ? entry.AttemptedValue ?? "" : Convert.ToString(value, CultureInfo.InvariantCulture) ?? "";
+}
+<section class="discovery-intro"><p class="eyebrow">TÌM NƠI Ở PHÙ HỢP</p><h1>Phòng mới, khởi đầu mới.</h1><p>Khám phá những không gian còn trống dành cho bạn.</p></section>
+<form asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" method="get" id="rental-search" class="search-form">
+    <div class="search-row"><label class="search-box"><span class="sr-only">Từ khóa</span><span aria-hidden="true">⌕</span><input name="Keyword" value="@Input("Keyword", Model.Filters.Keyword)" maxlength="100" placeholder="Tên phòng hoặc địa chỉ…" /></label><button type="submit" class="button primary">Tìm phòng</button></div>
+    <details class="filter-panel" open="@(Model.Filters.ActiveFilters().Any(c => c.Keys[0] != "Keyword") || !ViewData.ModelState.IsValid)">
+        <summary><span>Bộ lọc tìm kiếm <span data-filter-count>@(Model.Filters.ActiveFilters().Count > 0 ? $"({Model.Filters.ActiveFilters().Count})" : "")</span></span><span aria-hidden="true">＋</span></summary>
+        <div class="filter-grid">
+            <label>Tỉnh / Thành phố<select name="City" id="filter-city"><option value="">Tất cả khu vực</option>@foreach (var city in Model.Cities) { <option value="@city" selected="@(city == Model.Filters.City)">@city</option> }</select></label>
+            <label>Quận / Huyện<select name="District" id="filter-district"><option value="">Tất cả quận/huyện</option>@foreach (var district in Model.Districts) { <option value="@district" selected="@(district == Model.Filters.District)">@district</option> }</select></label>
+            <label>Giá từ (đ/tháng)<input type="number" name="MinPrice" min="0" step="any" value="@Input("MinPrice", Model.Filters.MinPrice)" placeholder="Không giới hạn" /></label>
+            <label>Giá đến (đ/tháng)<input type="number" name="MaxPrice" min="0" step="any" value="@Input("MaxPrice", Model.Filters.MaxPrice)" placeholder="Không giới hạn" /></label>
+            <label>Diện tích từ (m²)<input type="number" name="MinArea" min="0" max="1000000" step="any" value="@Input("MinArea", Model.Filters.MinArea)" placeholder="Không giới hạn" /></label>
+            <label>Diện tích đến (m²)<input type="number" name="MaxArea" min="0" max="1000000" step="any" value="@Input("MaxArea", Model.Filters.MaxArea)" placeholder="Không giới hạn" /></label>
+            <label>Loại phòng<select name="RoomType"><option value="">Tất cả loại phòng</option>@foreach (var type in Enum.GetValues<RoomType>()) { <option value="@((int)type)" selected="@(type == Model.Filters.RoomType)">@RentalPresentation.RoomTypeName(type)</option> }</select></label>
+            <label>Sắp xếp<select name="Sort"><option value="newest" selected="@(Model.Filters.Sort == "newest")">Mới nhất</option><option value="price-asc" selected="@(Model.Filters.Sort == "price-asc")">Giá thấp đến cao</option><option value="price-desc" selected="@(Model.Filters.Sort == "price-desc")">Giá cao đến thấp</option><option value="area-asc" selected="@(Model.Filters.Sort == "area-asc")">Diện tích tăng dần</option><option value="area-desc" selected="@(Model.Filters.Sort == "area-desc")">Diện tích giảm dần</option></select></label>
+        </div>
+        <p id="range-error" class="notice error" role="alert" hidden></p>
+        <div class="filter-actions"><a asp-action="Index" class="button">Xóa bộ lọc</a><button class="button primary" type="submit">Áp dụng bộ lọc</button></div>
+    </details>
+</form>
+<p class="notice error" id="search-error" role="alert" hidden></p>
+<section id="rental-results" aria-label="Kết quả tìm phòng" aria-live="polite"><partial name="_Results" model="Model" /></section>
