@@ -1,0 +1,353 @@
+.account-page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding-bottom: 32px;
+    scroll-margin-top: 110px;
+    color: #1f2f40;
+}
+
+.account-heading {
+    margin: 6px 0 28px;
+}
+
+.account-heading p {
+    font-size: 11px;
+    letter-spacing: .11em;
+    font-weight: 700;
+    color: #356797;
+    margin: 0 0 10px;
+}
+
+.account-heading h1 {
+    font-size: 30px;
+    line-height: 1.25;
+    letter-spacing: -.02em;
+    margin: 0 0 12px;
+}
+
+.account-heading>span,.account-muted {
+    color: #586779;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.account-tabs {
+    display: flex;
+    gap: 28px;
+    border-bottom: 1px solid #dce2e9;
+    margin-bottom: 28px;
+}
+
+.account-tabs a {
+    padding: 0 0 14px;
+    color: #586779;
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+}
+
+.account-tabs a[aria-current=page] {
+    color: #356797;
+    border-color: #356797;
+}
+
+.account-grid {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 320px;
+    gap: 28px;
+    align-items: start;
+}
+
+.account-grid>* {
+    min-width: 0;
+}
+
+.account-panel {
+    background: #fff;
+    border: 1px solid #e0e6ed;
+    border-radius: 14px;
+    padding: 28px;
+}
+
+.account-panel h2 {
+    font-size: 19px;
+    line-height: 1.4;
+    margin: 0 0 8px;
+}
+
+.account-panel>.account-muted {
+    margin: 0 0 24px;
+}
+
+.account-form {
+    display: grid;
+    gap: 22px;
+}
+
+.account-form label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.account-form input {
+    font: inherit;
+    font-size: 16px;
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    border: 1px solid #bdc8d4;
+    border-radius: 8px;
+    background: #fff;
+    color: #1f2f40;
+    padding: 10px 12px;
+    box-sizing: border-box;
+}
+
+.account-form input[readonly] {
+    background: #f6f7f9;
+    color: #586779;
+}
+
+.account-form input[type=file] {
+    padding: 8px;
+    font-size: 13px;
+}
+
+.account-form input[type=file]::file-selector-button {
+    border: 0;
+    background: #eaf0f6;
+    color: #294f75;
+    border-radius: 4px;
+    padding: 6px 8px;
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.account-form small {
+    display: block;
+    font-size: 12px;
+    color: #586779;
+    line-height: 1.6;
+    margin-top: 7px;
+}
+
+.account-primary,.account-secondary,.account-text-button {
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 44px;
+    padding: 11px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.account-primary {
+    color: #fff;
+    background: #356797;
+    border: 1px solid #356797;
+}
+
+.account-primary:hover {
+    background: #2a537b;
+}
+
+.account-secondary {
+    color: #294f75;
+    background: #fff;
+    border: 1px solid #bdc8d4;
+}
+
+.account-secondary:hover {
+    background: #f3f6fa;
+}
+
+.account-text-button {
+    background: none;
+    border: 0;
+    color: #586779;
+    padding-inline: 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.account-page :is(a,button,input):focus-visible {
+    outline: 3px solid #356797;
+    outline-offset: 3px;
+}
+
+.account-actions {
+    padding-top: 2px;
+    border-top: 1px solid #edf0f4;
+    margin-top: 2px;
+}
+
+.account-actions button {
+    margin-top: 18px;
+}
+
+.account-error {
+    color: #a42b30;
+    font-size: 13px;
+    line-height: 1.6;
+    display: block;
+    margin-top: 6px;
+}
+
+.account-error.validation-summary-valid,.account-error.field-validation-valid {
+    display: none;
+}
+
+.account-error.validation-summary-errors {
+    padding: 12px 16px;
+    background: #fff1f1;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.account-form .input-validation-error {
+    border-color: #a42b30;
+}
+
+.account-photo {
+    text-align: left;
+}
+
+.account-avatar {
+    width: 104px;
+    height: 104px;
+    position: relative;
+    display: grid;
+    place-items: center;
+    background: #eaf0f6;
+    border-radius: 50%;
+    color: #356797;
+    font-size: 30px;
+    font-weight: 650;
+    margin: 24px auto 14px;
+    overflow: hidden;
+}
+
+.account-avatar img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.account-name {
+    text-align: center;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    margin: 0 0 24px;
+}
+
+.account-photo [data-avatar-status]:empty {
+    display: none;
+}
+
+.account-photo .account-form {
+    gap: 14px;
+}
+
+.account-security-rail {
+    display: grid;
+    gap: 24px;
+}
+
+.account-status {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #356797;
+    background: #eaf0f6;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: 4px 0 14px;
+}
+
+.account-password {
+    display: flex;
+    border: 1px solid #bdc8d4;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.account-password input {
+    border: 0;
+    background: none;
+}
+
+.account-password button {
+    border: 0;
+    background: none;
+    color: #356797;
+    padding: 0 12px;
+    font: inherit;
+    font-size: 13px;
+    min-width: 52px;
+    cursor: pointer;
+}
+
+.account-page p,.account-page small {
+    overflow-wrap: anywhere;
+}
+
+@media(max-width:999px) {
+    .account-grid {
+        grid-template-columns: minmax(0,1fr) 280px;
+        gap: 20px;
+    }
+
+    .account-panel {
+        padding: 22px;
+    }
+}
+
+@media(max-width:767px) {
+    .account-heading h1 {
+        font-size: 27px;
+    }
+
+    .account-heading {
+        margin-top: 0;
+    }
+
+    .account-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .account-tabs {
+        gap: 20px;
+        font-size: 13px;
+    }
+
+    .account-panel {
+        padding: 22px 20px;
+    }
+
+    .account-photo {
+        display: block;
+    }
+
+    .account-avatar {
+        margin-top: 20px;
+    }
+
+    .account-actions button {
+        width: 100%;
+    }
+
+    .account-page {
+        padding-bottom: 16px;
+    }
+}
+
+
+/* Reserve space when keyboard focus scrolls beneath the fixed mobile navigation. */
+html:has(.account-page) {
+    scroll-padding-bottom: 100px;
+}

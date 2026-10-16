@@ -22,6 +22,7 @@ public sealed class TenantSecurityTests : IAsyncLifetime
     [InlineData("Dashboard")]
     [InlineData("Notification")]
     [InlineData("ViewingBooking")]
+    [InlineData("Account")]
     public async Task Authentication_role_and_identity_are_required(string controller)
     {
         app.Client.DefaultRequestHeaders.Remove("X-Test-Role");

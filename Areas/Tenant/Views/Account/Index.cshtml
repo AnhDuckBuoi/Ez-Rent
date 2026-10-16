@@ -1,0 +1,73 @@
+@model EZ_Rent.Areas.Tenant.ViewModels.AccountProfileModel
+@{
+    Layout = "_TenantHomeLayout";
+    ViewData["Title"] = "Thông tin cá nhân";
+    ViewData["AccountPage"] = true;
+}
+<div class="account-page">
+    <header class="account-heading">
+        <p>TÀI KHOẢN CỦA BẠN</p>
+        <h1>Thông tin cá nhân</h1>
+        <span>Cập nhật cách mọi người nhận ra và liên hệ với bạn.</span>
+    </header>
+    @await Html.PartialAsync("_AccountNav", false)
+    <div asp-validation-summary="ModelOnly" class="account-error" role="alert">
+    </div>
+    <div class="account-grid">
+        <section class="account-panel" aria-labelledby="profile-heading">
+            <h2 id="profile-heading">Thông tin cơ bản</h2>
+            <p class="account-muted">Dùng tên và số điện thoại mà bạn thường sử dụng.</p>
+            <form asp-action="UpdateProfile" method="post" class="account-form">
+                <div>
+                    <label asp-for="Profile.FullName"></label>
+                    <input asp-for="Profile.FullName" autocomplete="name" maxlength="50" required aria-describedby="name-error" />
+                    <span asp-validation-for="Profile.FullName" id="name-error" class="account-error"></span>
+                </div>
+                <div>
+                    <label asp-for="Profile.PhoneNumber"></label>
+                    <input asp-for="Profile.PhoneNumber" type="tel" autocomplete="tel" maxlength="20" aria-describedby="phone-hint phone-error" />
+                    <small id="phone-hint">Không bắt buộc. Giúp chủ nhà liên hệ khi cần.</small>
+                    <span asp-validation-for="Profile.PhoneNumber" id="phone-error" class="account-error"></span>
+                </div>
+                <div>
+                    <label for="account-email">Email đăng nhập</label>
+                    <input id="account-email" value="@Model.Email" type="text" readonly aria-describedby="email-hint" />
+                    <small id="email-hint">@(Model.EmailConfirmed ? "Email đã được xác minh." : "Email chưa được xác minh.") Việc đổi email chưa được hỗ trợ tại đây.</small>
+                </div>
+                <div class="account-actions">
+                    <button type="submit" class="account-primary">Lưu thay đổi</button>
+                </div>
+            </form>
+        </section>
+        <aside class="account-panel account-photo" aria-labelledby="avatar-heading">
+            <h2 id="avatar-heading">Ảnh đại diện</h2>
+            <div class="account-avatar" data-avatar>
+                <span>@Model.Initials</span>
+                @if (Model.AvatarUrl != null)
+                {
+                    <img src="@Model.AvatarUrl" alt="Ảnh đại diện của bạn" width="104" height="104" />
+                }
+            </div>
+            <p class="account-name">@Model.DisplayName</p>
+            <form asp-action="UploadAvatar" method="post" enctype="multipart/form-data" class="account-form">
+                <div>
+                    <label asp-for="Avatar.File">Chọn ảnh mới</label>
+                    <input asp-for="Avatar.File" type="file" accept="image/png,image/jpeg" aria-describedby="avatar-hint avatar-error" />
+                    <small id="avatar-hint">PNG hoặc JPEG, tối đa 2 MB và 4.096 px mỗi chiều.</small>
+                    <span asp-validation-for="Avatar.File" id="avatar-error" class="account-error"></span>
+                </div>
+                <p class="account-muted" data-avatar-status role="status"></p>
+                <button class="account-secondary" type="submit">Lưu ảnh đại diện</button>
+            </form>
+            @if (Model.AvatarUrl != null)
+            {
+                <form asp-action="RemoveAvatar" method="post">
+                    <button class="account-text-button" type="submit">Gỡ ảnh hiện tại</button>
+                </form>
+            }
+        </aside>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/js/tenant-account.js" asp-append-version="true" defer></script>
+}

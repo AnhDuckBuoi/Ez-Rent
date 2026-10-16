@@ -38,7 +38,11 @@ docs/tenant-home-mvc.md, docs/tenant-home-plan.md, docs/tenant-responsive-plan.m
 
 ## Product Principles
 
-- Trình kế hoạch trước phần việc mới, làm trên nhánh feature/tenant-p3, không tự commit/push vào nhánh chính.
+- Trình kế hoạch trước phần việc mới, làm trên nhánh feature/tenant-*, không tự commit/push vào nhánh chính.
 - Trang chủ giúp nắm tình hình và tìm đúng thao tác nhanh.
 - Trạng thái chờ xác nhận không được trình bày như lịch đã có thể đến xem.
 - Câu chữ chỉ rõ hành động, trạng thái và bước tiếp theo.
+
+## Tài khoản Tenant — 17/10/2026
+
+Dương đã duyệt hoàn thiện web Tenant, bắt đầu với Cá nhân/Bảo mật. Gói tài khoản dùng dữ liệu ApplicationUser và Identity sẵn có, không cần migration; sửa hồ sơ/ảnh, đổi hoặc tạo mật khẩu, liên kết Google theo cấu hình và đăng xuất. Email chỉ đọc. Xem docs/tenant-account-mvc.md. Các dữ liệu xem thử vẫn tách khỏi database nhóm.

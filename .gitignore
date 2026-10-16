@@ -112,3 +112,6 @@ desktop.ini
 # Config secret - KHÔNG commit
 appsettings.Development.json
 appsettings.Local.json
+
+# Runtime avatar uploads are user data, not source assets.
+/wwwroot/uploads/avatars/

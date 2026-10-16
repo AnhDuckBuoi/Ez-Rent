@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="~/css/tenant-discovery.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tenant-home.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tenant-shell.css" asp-append-version="true" />
+    @if (ViewData["AccountPage"] as bool? == true) { <link rel="stylesheet" href="~/css/tenant-account.css" asp-append-version="true" /> }
 </head>
 <body>
     <a class="skip-link" href="#main">Đến nội dung</a>
@@ -26,7 +27,7 @@
             <a asp-controller="Favorite" asp-action="Index" class="nav-button nav-saved">Đã lưu</a>
         </nav>
         <a asp-controller="Notification" asp-action="Index" class="header-bell" aria-label="Thông báo, @unread chưa đọc" aria-current="@(notifications ? "page" : null)">@await Html.PartialAsync("_HomeIcon", "bell")@if (unread > 0) { <span class="unread-count">@(unread > 99 ? "99+" : unread.ToString())</span> }</a>
-        <a asp-area="Identity" asp-page="/Account/Manage/Index" class="home-account" aria-label="Tài khoản của tôi">@await Html.PartialAsync("_HomeIcon", "user")</a>
+        <a asp-area="Tenant" asp-controller="Account" asp-action="Index" aria-current="@(ViewData["AccountPage"] as bool? == true ? "page" : null)" class="home-account" aria-label="Tài khoản của tôi">@await Html.PartialAsync("_HomeIcon", "user")</a>
     </div></header>
     <main id="main" class="discovery-main home-page">
         @await Html.PartialAsync("_TenantFeedback")
@@ -37,7 +38,7 @@
         <a asp-controller="RentalPost" asp-action="Index">@await Html.PartialAsync("_HomeIcon", "search")<span>Tìm phòng</span></a>
         <button disabled>@await Html.PartialAsync("_HomeIcon", "room")<span>Phòng đang ở</span></button>
         <a asp-controller="Dashboard" asp-action="Messages" class="@(messages ? "active" : "")">@await Html.PartialAsync("_HomeIcon", "chat")<span>Tin nhắn</span></a>
-        <a asp-area="Identity" asp-page="/Account/Manage/Index">@await Html.PartialAsync("_HomeIcon", "user")<span>Cá nhân</span></a>
+        <a asp-area="Tenant" asp-controller="Account" asp-action="Index" class="@(ViewData["AccountPage"] as bool? == true ? "active" : "")">@await Html.PartialAsync("_HomeIcon", "user")<span>Cá nhân</span></a>
     </nav>
     <script src="~/js/tenant-shell.js" asp-append-version="true" defer></script>
     <script src="~/js/tenant-home.js" asp-append-version="true" defer></script>

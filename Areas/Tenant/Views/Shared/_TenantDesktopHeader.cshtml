@@ -16,6 +16,6 @@
             @await Html.PartialAsync("_HomeIcon", "bell")
             @if (Model.UnreadCount > 0) { <span class="tenant-desktop-count">@(Model.UnreadCount > 99 ? "99+" : Model.UnreadCount.ToString())</span> }
         </a>
-        <a asp-area="Identity" asp-page="/Account/Manage/Index" class="tenant-desktop-account" aria-label="Tài khoản của tôi">@await Html.PartialAsync("_HomeIcon", "user")</a>
+        <a asp-area="Tenant" asp-controller="Account" asp-action="Index" aria-current="@(Model.Controller == "Account" ? "page" : null)" class="tenant-desktop-account" aria-label="Tài khoản của tôi">@await Html.PartialAsync("_HomeIcon", "user")</a>
     </div>
 </header>

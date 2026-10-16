@@ -32,7 +32,7 @@
         <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" class="@(!favorites && !appointments ? "active" : "")"><span aria-hidden="true">⌕</span>Khám phá</a>
         <button disabled><span aria-hidden="true">▤</span>Phòng đang ở</button>
         <button disabled><span aria-hidden="true">☏</span>Tin nhắn</button>
-        <a asp-area="Identity" asp-page="/Account/Manage/Index"><span aria-hidden="true">○</span>Cá nhân</a>
+        <a asp-area="Tenant" asp-controller="Account" asp-action="Index"><span aria-hidden="true">○</span>Cá nhân</a>
     </nav>
     <script src="~/js/tenant-shell.js" asp-append-version="true" defer></script>
     <script src="~/js/tenant-discovery.js" asp-append-version="true" defer></script>

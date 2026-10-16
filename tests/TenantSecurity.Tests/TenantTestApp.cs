@@ -33,6 +33,7 @@ public sealed class TenantTestApp : IAsyncLifetime
     public HttpClient Client { get; private set; } = null!;
     public ITenantViewingScheduleReader? ViewingScheduleReader { get; set; }
     public TimeProvider? ViewingClock { get; set; }
+    public bool UseIdentityCookies { get; set; }
 
     public Task InitializeAsync() => StartAsync(false);
 
@@ -52,17 +53,24 @@ public sealed class TenantTestApp : IAsyncLifetime
         else builder.WebHost.UseUrls("http://127.0.0.1:8770");
         builder.Logging.ClearProviders();
         builder.Services.AddControllersWithViews().AddApplicationPart(typeof(FavoriteController).Assembly);
+        builder.Services.AddRazorPages();
         if (ViewingClock != null) builder.Services.AddSingleton<TimeProvider>(ViewingClock);
         if (preview) builder.Services.AddSingleton<ITenantViewingScheduleReader, PreviewViewingScheduleReader>();
         else if (ViewingScheduleReader != null) builder.Services.AddSingleton<ITenantViewingScheduleReader>(ViewingScheduleReader);
         builder.Services.AddDbContext<AppDbContext>(o => o.UseSqlite(connection));
         builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<AppDbContext>().AddDefaultTokenProviders();
+        // AddIdentity in this fixture has no default UI registration; mirror its production routes.
+        builder.Services.ConfigureApplicationCookie(o =>
+        {
+            o.LoginPath = "/Identity/Account/Login";
+            o.AccessDeniedPath = "/Identity/Account/AccessDenied";
+        });
         builder.Services.AddAuthentication(o =>
         {
-            o.DefaultAuthenticateScheme = "Test";
-            o.DefaultChallengeScheme = "Test";
-            o.DefaultForbidScheme = "Test";
+            o.DefaultAuthenticateScheme = preview || UseIdentityCookies ? IdentityConstants.ApplicationScheme : "Test";
+            o.DefaultChallengeScheme = preview || UseIdentityCookies ? IdentityConstants.ApplicationScheme : "Test";
+            o.DefaultForbidScheme = preview || UseIdentityCookies ? IdentityConstants.ApplicationScheme : "Test";
         }).AddScheme<AuthenticationSchemeOptions, HeaderAuthenticationHandler>("Test", _ => { });
         app = builder.Build();
         if (preview)
@@ -70,8 +78,18 @@ public sealed class TenantTestApp : IAsyncLifetime
             // Only this test executable supplies a demo identity. Production registration is unchanged.
             app.Use(async (context, next) =>
             {
-                context.Request.Headers["X-Test-User"] = TenantA;
-                context.Request.Headers["X-Test-Role"] = "Tenant";
+                // Sign in once for review. A marker prevents silently signing back in after logout.
+                if (!context.Request.Cookies.ContainsKey("tenant-preview-entered"))
+                {
+                    var manager = context.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
+                    var demo = await manager.FindByIdAsync(TenantA);
+                    if (demo != null)
+                    {
+                        await context.RequestServices.GetRequiredService<SignInManager<ApplicationUser>>()
+                            .SignInAsync(demo, isPersistent: false);
+                        context.Response.Cookies.Append("tenant-preview-entered", "1", new CookieOptions { HttpOnly = true, SameSite = SameSiteMode.Lax });
+                    }
+                }
                 // Same-origin review frame: anti-forgery SAMEORIGIN headers remain intact.
                 if (HttpMethods.IsGet(context.Request.Method) && context.Request.Path == "/review/tenant")
                 {
@@ -82,7 +100,7 @@ public sealed class TenantTestApp : IAsyncLifetime
                     return;
                 }
                 if (context.Request.Path == "/") { context.Response.Redirect("/Tenant/Dashboard"); return; }
-                var allowed = context.Request.Path.StartsWithSegments("/Tenant/Dashboard") || context.Request.Path.StartsWithSegments("/Tenant/Notification") || context.Request.Path.StartsWithSegments("/Tenant/RentalPost") || context.Request.Path.StartsWithSegments("/Tenant/Favorite") || context.Request.Path.StartsWithSegments("/Tenant/ViewingAppointment") || context.Request.Path.StartsWithSegments("/Tenant/ViewingBooking") ||
+                var allowed = context.Request.Path.StartsWithSegments("/Tenant/Account") || context.Request.Path.StartsWithSegments("/Identity/Account/Login") || context.Request.Path.StartsWithSegments("/uploads/avatars") || context.Request.Path.StartsWithSegments("/lib") || context.Request.Path.StartsWithSegments("/Tenant/Dashboard") || context.Request.Path.StartsWithSegments("/Tenant/Notification") || context.Request.Path.StartsWithSegments("/Tenant/RentalPost") || context.Request.Path.StartsWithSegments("/Tenant/Favorite") || context.Request.Path.StartsWithSegments("/Tenant/ViewingAppointment") || context.Request.Path.StartsWithSegments("/Tenant/ViewingBooking") ||
                     context.Request.Path.StartsWithSegments("/css") || context.Request.Path.StartsWithSegments("/js") || context.Request.Path.StartsWithSegments("/images") || context.Request.Path.StartsWithSegments("/fonts");
                 if (!allowed)
                 {
@@ -116,6 +134,7 @@ public sealed class TenantTestApp : IAsyncLifetime
         app.UseAuthorization();
         app.MapControllerRoute("areas", "{area:exists}/{controller=Home}/{action=Index}/{id?}");
         app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+        app.MapRazorPages();
         await app.StartAsync();
         Client = preview ? new HttpClient { BaseAddress = new Uri("http://127.0.0.1:8770") } : app.GetTestClient();
         Client.Timeout = TimeSpan.FromSeconds(10);
@@ -164,6 +183,7 @@ public sealed class TenantTestApp : IAsyncLifetime
             await db.SaveChangesAsync();
         });
         if (preview) await SeedPreviewAsync();
+        if (preview || UseIdentityCookies) await SeedAccountAsync();
     }
 
     private static string FindProjectRoot()
@@ -236,6 +256,27 @@ public sealed class TenantTestApp : IAsyncLifetime
                     new() { SenderId = "preview-minh", Content = "Phòng có khu bếp riêng và chỗ để xe ở tầng một nhé.", SentAt = date.AddDays(-1).AddHours(4) } } });
         await db.SaveChangesAsync();
     });
+
+    // Real Identity credentials only in this isolated fixture, never in the application database.
+    private async Task SeedAccountAsync() => await WithServices(async services =>
+    {
+        var roles = services.GetRequiredService<RoleManager<IdentityRole>>();
+        await roles.CreateAsync(new IdentityRole("Tenant"));
+        var users = services.GetRequiredService<UserManager<ApplicationUser>>();
+        var user = (await users.FindByIdAsync(TenantA))!;
+        user.UserName = user.Email = "minhanh@example.test";
+        user.EmailConfirmed = true;
+        user.PhoneNumber = "0901234567";
+        Assert.True((await users.UpdateAsync(user)).Succeeded);
+        Assert.True((await users.AddPasswordAsync(user, "TenantDemo@123")).Succeeded);
+        Assert.True((await users.AddToRoleAsync(user, "Tenant")).Succeeded);
+    });
+
+    public async Task WithServices(Func<IServiceProvider, Task> action)
+    {
+        await using var scope = app.Services.CreateAsyncScope();
+        await action(scope.ServiceProvider);
+    }
 
     public async Task WithDb(Func<AppDbContext, Task> action)
     {

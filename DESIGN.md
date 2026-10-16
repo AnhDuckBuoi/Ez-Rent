@@ -105,3 +105,8 @@ Content panels use 14px corners; primary controls 8px. The calendar date tile us
 Thiết kế Tin nhắn được Dương thích và duyệt ghép MVC cho cả ba kích thước. Phạm vi này dùng `tenant-messages.css`, `tenant-messages.js`, `_TenantMessagesLayout` và các view Dashboard/Messages. Các token Home ở trên giữ nguyên cho Home; không áp font/phong cách Tin nhắn sang toàn ứng dụng.
 
 Tin nhắn: xanh #356797, chữ #203246, phụ #607085, nền #f4f6f9, trắng #ffffff, đường chia #e0e6ed. Be Vietnam Pro local 400/600. Khung tối đa 1440px; desktop trên 1240px ba cột 292px / co giãn / 268px, tablet hai cột, mobile một màn hộp thư hoặc chat. Header desktop tái sử dụng component chung; mobile có nav dưới chỉ ở hộp thư. Giữ bản nháp, phòng liên quan và nút gửi chưa khả dụng đúng sự thật. Thông tin phòng dùng ảnh của tin; không thay bằng stock production. Chi tiết ranh giới và QA: docs/tenant-messages-mvc.md.
+
+
+## Tài khoản Tenant — 17/10/2026
+
+Trang Cá nhân/Bảo mật kế thừa màu, font và shared header của Home, không tạo shell mới. Nội dung tối đa 1080px; form chính và rail ảnh/bảo mật 320px, giảm 280px dưới 1000px; dưới 768px xếp một cột. Nhãn và lỗi nằm cạnh trường, input 16px, nút tối thiểu 44px; preview ảnh ghi rõ chưa lưu. File riêng tenant-account.css/js, chỉ tải ở trang tài khoản.

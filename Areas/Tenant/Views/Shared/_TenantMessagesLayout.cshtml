@@ -15,7 +15,7 @@
     @await Component.InvokeAsync("TenantDesktopHeader")
     <header class="app-header message-mobile-header"><div class="header-inner">
         <a asp-controller="Dashboard" asp-action="Index" class="brand"><span>@await Html.PartialAsync("_HomeIcon", "home")</span><strong>EZ Rent</strong></a>
-        <div class="header-tools"><a asp-controller="Notification" asp-action="Index" class="icon-button bell-link" aria-label="Thông báo">@await Html.PartialAsync("_HomeIcon", "bell")</a><a asp-area="Identity" asp-page="/Account/Manage/Index" class="icon-button" aria-label="Tài khoản của tôi">@await Html.PartialAsync("_HomeIcon", "user")</a></div>
+        <div class="header-tools"><a asp-controller="Notification" asp-action="Index" class="icon-button bell-link" aria-label="Thông báo">@await Html.PartialAsync("_HomeIcon", "bell")</a><a asp-area="Tenant" asp-controller="Account" asp-action="Index" class="icon-button" aria-label="Tài khoản của tôi">@await Html.PartialAsync("_HomeIcon", "user")</a></div>
     </div></header>
     <main id="main" class="main" tabindex="-1">
         @await Html.PartialAsync("_TenantFeedback")
