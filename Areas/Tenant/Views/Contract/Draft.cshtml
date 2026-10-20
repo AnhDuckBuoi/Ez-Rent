@@ -1,0 +1,99 @@
+@using EZ_Rent.Areas.Tenant.Services
+@model EZ_Rent.Areas.Tenant.ViewModels.ContractDraftPage
+@{
+    Layout = "_TenantRentalLayout";
+    ViewData["ContractDraftPage"] = true;
+    ViewData["Title"] = $"Bản nháp BM03 · Hợp đồng #{Model.Contract.RentalContractId}";
+    ViewData["Description"] = "Bổ sung thông tin của bạn, lưu bản nháp rồi xem lại trước khi in.";
+    var draft = Model.Snapshot;
+    var address = draft.RoomAddress;
+    string Blank(string? value) => string.IsNullOrWhiteSpace(value) ? "………………………………" : value;
+    string Day(DateOnly? value) => value?.ToString("dd/MM/yyyy") ?? "……/……/…………";
+    string Phone(string? value) => string.IsNullOrWhiteSpace(value) ? "………………………………" : value;
+}
+<div class="bm03-controls"><a asp-action="Details" asp-route-id="@Model.Contract.RentalContractId" class="rental-button secondary">Về hợp đồng</a><a href="#bm03-paper" class="rental-button secondary">Xem bản giấy</a><button type="button" class="rental-button primary" data-contract-print>In / Lưu PDF bản nháp</button></div>
+<p class="rental-note bm03-notice">BM03 dùng tiền nước theo m³ như nhóm đã chốt. Mỗi lần lưu tạo một phiên bản mới; tài liệu chủ nhà đã cung cấp và việc đối chiếu tài liệu đó được giữ nguyên.</p>
+@if (Model.IsHistorical)
+{
+    <div class="bm03-alert"><strong>Đang xem bản nháp phiên bản @draft.Revision</strong><p>Thông tin và các khoản tiền được giữ theo thời điểm lưu. Bản này chỉ để xem lại.</p><a asp-action="Draft" asp-route-id="@Model.Contract.RentalContractId">Về bản nháp mới nhất để chỉnh sửa</a></div>
+}
+else
+{
+    @await Html.PartialAsync("_TenantDraftForm", Model)
+}
+<section class="bm03-readiness" aria-labelledby="draft-readiness-title"><h2 id="draft-readiness-title">Kiểm tra trước khi in</h2>
+@if (Model.MissingFields.Count > 0)
+{ <p>Thông tin người thuê còn thiếu: <strong>@string.Join(", ", Model.MissingFields)</strong>.</p> }
+else
+{ <p>Đã có đủ các mục thông tin người thuê trong mẫu. Bạn vẫn cần đối chiếu lại nội dung.</p> }
+<p>Ngày/nơi lập, thông tin định danh và thường trú phía chủ nhà, hình thức thanh toán vẫn cần hai bên bổ sung. Bản này luôn được ghi là bản nháp, chưa ký.</p>
+@if (Model.HasTerms)
+{
+    <details class="bm03-terms-review" open><summary>Điều khoản đang lưu cần đối chiếu với BM03</summary><p>Mẫu BM03 có các trách nhiệm và mốc thanh toán riêng. Nội dung dưới đây được giữ từ hợp đồng tại lúc lưu phiên bản, chưa tự gộp hoặc thay thế điều khoản mẫu.</p><p class="bm03-preserve">@draft.ContractTerms</p><p>Bản in có thêm phụ lục đối chiếu này để hai bên cùng kiểm tra.</p></details>
+}
+</section>
+@if (Model.History.Count > 0)
+{
+    <details class="rental-template-reference bm03-draft-history"><summary>Lịch sử bản nháp · Mới nhất: phiên bản @Model.LatestRevision</summary>
+    <ul class="rental-document-history">@foreach (var item in Model.History)
+    { <li data-draft-revision="@item.Revision"><div><strong>Phiên bản @item.Revision</strong><small>@TenantRentalPresentation.SentAt(item.CreatedAt) · Thông tin và khoản tiền tại lúc lưu</small></div><a asp-action="Draft" asp-route-id="@Model.Contract.RentalContractId" asp-route-revision="@item.Revision" class="rental-button secondary">Xem phiên bản @item.Revision</a></li> }</ul>
+    @if (Model.HistoryPages > 1)
+    { <nav class="rental-document-pages" aria-label="Trang lịch sử bản nháp">
+      @if (Model.HistoryPage > 1) { <a asp-action="Draft" asp-route-id="@Model.Contract.RentalContractId" asp-route-revision="@(draft.Revision > 0 ? draft.Revision : (int?)null)" asp-route-historyPage="@(Model.HistoryPage - 1)" class="rental-button secondary">Trước</a> }
+      @for (var number = Math.Max(1, Model.HistoryPage - 2); number <= Math.Min(Model.HistoryPages, Model.HistoryPage + 2); number++)
+      { <a asp-action="Draft" asp-route-id="@Model.Contract.RentalContractId" asp-route-revision="@(draft.Revision > 0 ? draft.Revision : (int?)null)" asp-route-historyPage="@number" aria-current="@(number == Model.HistoryPage ? "page" : null)" class="rental-button secondary">@number</a> }
+      @if (Model.HistoryPage < Model.HistoryPages) { <a asp-action="Draft" asp-route-id="@Model.Contract.RentalContractId" asp-route-revision="@(draft.Revision > 0 ? draft.Revision : (int?)null)" asp-route-historyPage="@(Model.HistoryPage + 1)" class="rental-button secondary">Sau</a> }
+    </nav> }
+    </details>
+}
+<div class="bm03-paper-heading"><h2>Bản giấy @(draft.Revision > 0 ? $"· Phiên bản {draft.Revision}" : "· Chưa lưu")</h2><p class="rental-note">In / Lưu PDF sử dụng đúng nội dung bản giấy này.</p></div>
+<div class="bm03-document" id="bm03-paper">
+    <article class="bm03-page">
+        <p class="bm03-country">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p><p class="bm03-motto">Độc lập – Tự do – Hạnh phúc</p>
+        <h2>HỢP ĐỒNG THUÊ PHÒNG TRỌ</h2><p class="bm03-draft-label">BẢN NHÁP BM03 @(draft.Revision > 0 ? $"· PHIÊN BẢN {draft.Revision}" : "· CHƯA LƯU") · CHƯA HOÀN THIỆN · CHƯA KÝ</p>
+        <p>Hôm nay ngày …… tháng …… năm …………; tại địa chỉ: ………………………………<br>………………………………………………………………………………………………</p>
+        <p><strong>Chúng tôi gồm:</strong></p>
+        <p><strong>1. Đại diện bên cho thuê phòng trọ (Bên A):</strong></p>
+        <p>Ông/bà: <strong>@draft.LandlordName</strong> · Sinh ngày: …………………………<br>Nơi đăng ký HK: …………………………………………………………………………<br>CMND số: ……………………… cấp ngày ……/……/………… tại: ……………………<br>Số điện thoại: @Phone(draft.LandlordPhone)</p>
+        <p><strong>2. Bên thuê phòng trọ (Bên B):</strong></p>
+        <p>Ông/bà: <strong>@draft.FullName</strong> · Sinh ngày: @Day(draft.DateOfBirth)<br>Nơi đăng ký HK thường trú: @Blank(draft.PermanentAddress)<br>@TenantContractDraftService.DocumentLabel(draft.DocumentKind): @Blank(draft.DocumentNumber)<br>Cấp ngày @Day(draft.DocumentIssuedOn) tại: @Blank(draft.DocumentIssuedAt)<br>Số điện thoại: @Phone(draft.PhoneNumber)</p>
+        <p><strong>Sau khi bàn bạc trên tinh thần dân chủ, hai bên cùng có lợi, cùng thống nhất như sau:</strong></p>
+        <p>Bên A đồng ý cho bên B thuê 01 phòng ở tại địa chỉ: @address</p>
+        <p>Giá thuê: <strong>@TenantRentalPresentation.Money(draft.MonthlyRent)/tháng</strong></p>
+        <p>Hình thức thanh toán: ……………………………………………………………………<br>………………………………………………………………………………………………</p>
+    </article>
+    <article class="bm03-page">
+        <p class="bm03-draft-label">BẢN NHÁP BM03 @(draft.Revision > 0 ? $"· PHIÊN BẢN {draft.Revision}" : "· CHƯA LƯU") · CHƯA HOÀN THIỆN · CHƯA KÝ</p>
+        <p>Tiền điện: <strong>@TenantRentalPresentation.Money(draft.ElectricityPrice)/kWh</strong> tính theo chỉ số công tơ, thanh toán vào cuối các tháng.</p>
+        <p>Tiền nước: <strong>@TenantRentalPresentation.Money(draft.WaterPrice)/m³</strong> thanh toán vào đầu các tháng.</p>
+        <p>Tiền đặt cọc: <strong>@TenantRentalPresentation.Money(draft.DepositAmount)</strong></p>
+        <p>Hợp đồng có giá trị kể từ ngày <strong>@TenantRentalPresentation.Date(draft.StartDate)</strong> đến ngày <strong>@TenantRentalPresentation.Date(draft.EndDate)</strong>.</p>
+        <h3>TRÁCH NHIỆM CỦA CÁC BÊN</h3>
+        <p><strong>* Trách nhiệm của bên A:</strong></p>
+        <ul><li>Tạo mọi điều kiện thuận lợi để bên B thực hiện theo hợp đồng.</li><li>Cung cấp nguồn điện, nước, wifi cho bên B sử dụng.</li></ul>
+        <p><strong>* Trách nhiệm của bên B:</strong></p>
+        <ul>
+            <li>Thanh toán đầy đủ các khoản tiền theo đúng thỏa thuận.</li>
+            <li>Bảo quản các trang thiết bị và cơ sở vật chất của bên A trang bị cho ban đầu (làm hỏng phải sửa, mất phải đền).</li>
+            <li>Không được tự ý sửa chữa, cải tạo cơ sở vật chất khi chưa được sự đồng ý của bên A.</li>
+            <li>Giữ gìn vệ sinh trong và ngoài khuôn viên của phòng trọ.</li>
+            <li>Bên B phải chấp hành mọi quy định của pháp luật Nhà nước và quy định của địa phương.</li>
+            <li>Nếu bên B cho khách ở qua đêm thì phải báo và được sự đồng ý của chủ nhà đồng thời phải chịu trách nhiệm về các hành vi vi phạm pháp luật của khách trong thời gian ở lại.</li>
+        </ul>
+        <h3>TRÁCH NHIỆM CHUNG</h3>
+        <ul>
+            <li>Hai bên phải tạo điều kiện cho nhau thực hiện hợp đồng.</li>
+            <li>Trong thời gian hợp đồng còn hiệu lực nếu bên nào vi phạm các điều khoản đã thỏa thuận thì bên còn lại có quyền đơn phương chấm dứt hợp đồng; nếu sự vi phạm hợp đồng đó gây tổn thất cho bên bị vi phạm hợp đồng thì bên vi phạm hợp đồng phải bồi thường thiệt hại.</li>
+            <li>Một trong hai bên muốn chấm dứt hợp đồng trước thời hạn thì phải báo trước cho bên kia ít nhất 30 ngày và hai bên phải có sự thống nhất.</li>
+        </ul>
+    </article>
+    <article class="bm03-page">
+        <p class="bm03-draft-label">BẢN NHÁP BM03 @(draft.Revision > 0 ? $"· PHIÊN BẢN {draft.Revision}" : "· CHƯA LƯU") · CHƯA HOÀN THIỆN · CHƯA KÝ</p>
+        <ul><li>Bên A phải trả lại tiền đặt cọc cho bên B.</li><li>Bên nào vi phạm điều khoản chung thì phải chịu trách nhiệm trước pháp luật.</li><li>Hợp đồng được lập thành 02 bản có giá trị pháp lý như nhau, mỗi bên giữ một bản.</li></ul>
+        <div class="bm03-signatures"><strong>ĐẠI DIỆN BÊN B</strong><strong>ĐẠI DIỆN BÊN A</strong></div>
+    </article>
+    @if (Model.HasTerms)
+    {
+        <article class="bm03-page bm03-terms-appendix"><p class="bm03-draft-label">BẢN NHÁP BM03 · PHỤ LỤC ĐỐI CHIẾU · CHƯA KÝ</p><h2>ĐIỀU KHOẢN ĐANG LƯU</h2><p>Nội dung sau được giữ theo hợp đồng tại lúc tạo bản nháp. Hai bên cần đối chiếu với trách nhiệm và mốc thanh toán trong BM03 trước khi thống nhất bản hoàn chỉnh. Phụ lục này chưa tự sửa hoặc thay thế nội dung mẫu.</p><p class="bm03-preserve">@draft.ContractTerms</p></article>
+    }
+</div>

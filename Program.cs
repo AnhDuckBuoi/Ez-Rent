@@ -9,6 +9,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+builder.Services.AddOptions<EZ_Rent.Services.RentalFileStorageOptions>();
+builder.Services.AddSingleton<EZ_Rent.Services.RentalPrivateFileStore>();
+builder.Services.AddScoped<EZ_Rent.Services.RentalDocumentService>();
+builder.Services.AddScoped<EZ_Rent.Areas.Tenant.Services.TenantContractDraftService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));

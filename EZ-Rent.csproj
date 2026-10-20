@@ -12,6 +12,12 @@
     <Compile Remove="tests\**\*.cs" />
     <Content Remove="tests\**\*" />
     <None Remove="tests\**\*" />
+    <Content Remove="App_Data\RentalFiles\**\*" />
+    <None Remove="App_Data\RentalFiles\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="docs\templates\bm03-hop-dong-thue-phong.pdf" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>

@@ -33,3 +33,13 @@
  body:has(.tenant-desktop-header) .button.primary{background:#356797;border-color:#356797}
  body:has(.tenant-desktop-header) #rental-results{scroll-margin-top:20px}
 }
+
+/* One set of mobile destinations across Tenant layouts. Chat keeps its existing hidden-nav rule. */
+@media(max-width:767px) {
+    .tenant-mobile-nav { font-family: "Segoe UI", Arial, sans-serif; padding-bottom: env(safe-area-inset-bottom, 0px); }
+    .tenant-mobile-nav>a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-width: 0; min-height: 64px; flex: 1; color: #586779; }
+    .tenant-mobile-nav>a>svg { width: 21px; height: 21px; display: block; }
+    .tenant-mobile-nav>a>span { font-size: 10px; line-height: 1.35; font-weight: 400; text-align: center; }
+    .tenant-mobile-nav>a[aria-current=page] { color: #356797; }
+    .tenant-mobile-nav>a[aria-current=page]>span { font-weight: 600; }
+}

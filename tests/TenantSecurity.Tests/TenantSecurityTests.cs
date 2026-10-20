@@ -23,6 +23,7 @@ public sealed class TenantSecurityTests : IAsyncLifetime
     [InlineData("Notification")]
     [InlineData("ViewingBooking")]
     [InlineData("Account")]
+    [InlineData("MyRoom")]
     public async Task Authentication_role_and_identity_are_required(string controller)
     {
         app.Client.DefaultRequestHeaders.Remove("X-Test-Role");
@@ -51,7 +52,8 @@ public sealed class TenantSecurityTests : IAsyncLifetime
             Assert.Contains("Address 3", html);
             Assert.DoesNotContain(TenantTestApp.TenantA, html);
         }
-        else Assert.Contains(TenantTestApp.TenantA, html);
+        else if (controller == "Contract") Assert.Contains("Address 1", html);
+        else Assert.Contains("Room 1", html);
         Assert.DoesNotContain(TenantTestApp.TenantB, html);
         Assert.Equal(HttpStatusCode.OK, (await app.Client.GetAsync($"/Tenant/{controller}/Details/1")).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await app.Client.GetAsync($"/Tenant/{controller}/Details/2")).StatusCode);

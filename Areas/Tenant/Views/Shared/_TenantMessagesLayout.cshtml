@@ -21,13 +21,7 @@
         @await Html.PartialAsync("_TenantFeedback")
         @RenderBody()
     </main>
-    <nav class="mobile-nav" aria-label="Điều hướng người thuê trên điện thoại">
-        <a asp-controller="Dashboard" asp-action="Index">@await Html.PartialAsync("_HomeIcon", "home")<span>Trang chủ</span></a>
-        <a asp-controller="RentalPost" asp-action="Index">@await Html.PartialAsync("_HomeIcon", "search")<span>Tìm phòng</span></a>
-        <a asp-controller="ViewingAppointment" asp-action="Index">@await Html.PartialAsync("_HomeIcon", "calendar")<span>Lịch hẹn</span></a>
-        <a asp-controller="Favorite" asp-action="Index">@await Html.PartialAsync("_HomeIcon", "heart")<span>Đã lưu</span></a>
-        <a asp-controller="Dashboard" asp-action="Messages" aria-current="page">@await Html.PartialAsync("_HomeIcon", "chat")<span>Tin nhắn</span></a>
-    </nav>
+    @await Html.PartialAsync("_TenantMobileNav", "mobile-nav")
     <p class="sr-only" id="messages-live" role="status" aria-live="polite"></p>
     <noscript><p class="no-script">Bật JavaScript để giữ bản nháp và mở biểu mẫu hỗ trợ. Bạn vẫn có thể tìm kiếm và mở các cuộc trò chuyện bằng đường dẫn.</p></noscript>
     <script src="~/js/tenant-shell.js" asp-append-version="true" defer></script>

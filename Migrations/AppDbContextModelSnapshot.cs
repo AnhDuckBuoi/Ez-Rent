@@ -105,6 +105,175 @@ namespace EZ_Rent.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("EZ_Rent.Models.ContractDocument", b =>
+                {
+                    b.Property<int>("ContractDocumentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContractDocumentId"));
+
+                    b.Property<long>("ByteLength")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("nvarchar(180)");
+
+                    b.Property<int>("RentalContractId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Sha256")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("StorageKey")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<DateTime?>("TenantAcknowledgedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TenantAcknowledgedById")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UploadedById")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("Version")
+                        .HasColumnType("int");
+
+                    b.HasKey("ContractDocumentId");
+
+                    b.HasIndex("RentalContractId", "Version")
+                        .IsUnique();
+
+                    b.ToTable("ContractDocuments");
+                });
+
+            modelBuilder.Entity("EZ_Rent.Models.ContractTenantDraft", b =>
+                {
+                    b.Property<int>("ContractTenantDraftId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ContractTenantDraftId"));
+
+                    b.Property<string>("ContractStamp")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("ContractTerms")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateOnly?>("DateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<decimal>("DepositAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("DocumentIssuedAt")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateOnly?>("DocumentIssuedOn")
+                        .HasColumnType("date");
+
+                    b.Property<int?>("DocumentKind")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DocumentNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<decimal>("ElectricityPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("LandlordName")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("LandlordPhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("MonthlyRent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("PermanentAddress")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("RentalContractId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Revision")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RoomAddress")
+                        .IsRequired()
+                        .HasMaxLength(700)
+                        .HasColumnType("nvarchar(700)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TemplateVersion")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("nvarchar(40)");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<decimal>("WaterPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("ContractTenantDraftId");
+
+                    b.HasIndex("RentalContractId", "TenantId", "Revision")
+                        .IsUnique();
+
+                    b.ToTable("ContractTenantDrafts");
+                });
+
             modelBuilder.Entity("EZ_Rent.Models.Conversation", b =>
                 {
                     b.Property<int>("ConversationId")
@@ -252,6 +421,97 @@ namespace EZ_Rent.Migrations
                         .IsUnique();
 
                     b.ToTable("Invoices");
+                });
+
+            modelBuilder.Entity("EZ_Rent.Models.InvoiceMeterEvidence", b =>
+                {
+                    b.Property<int>("InvoiceMeterEvidenceId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("InvoiceMeterEvidenceId"));
+
+                    b.Property<string>("CapturedById")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double>("CurrElectricIndex")
+                        .HasColumnType("float");
+
+                    b.Property<double>("CurrWaterIndex")
+                        .HasColumnType("float");
+
+                    b.Property<string>("ElectricContentType")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<string>("ElectricSha256")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("ElectricStorageKey")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<double>("ElectricUsage")
+                        .HasColumnType("float");
+
+                    b.Property<decimal>("ElectricityPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("InvoiceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Period")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<double>("PrevElectricIndex")
+                        .HasColumnType("float");
+
+                    b.Property<double>("PrevWaterIndex")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("ReadingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("RentalPostId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("WaterContentType")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<decimal>("WaterPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("WaterSha256")
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("WaterStorageKey")
+                        .HasMaxLength(80)
+                        .HasColumnType("nvarchar(80)");
+
+                    b.Property<double>("WaterUsage")
+                        .HasColumnType("float");
+
+                    b.HasKey("InvoiceMeterEvidenceId");
+
+                    b.HasIndex("InvoiceId")
+                        .IsUnique();
+
+                    b.ToTable("InvoiceMeterEvidence");
                 });
 
             modelBuilder.Entity("EZ_Rent.Models.Message", b =>
@@ -407,6 +667,9 @@ namespace EZ_Rent.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("CurrentDocumentVersion")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("DepositAmount")
                         .HasColumnType("decimal(18,2)");
@@ -911,6 +1174,28 @@ namespace EZ_Rent.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("EZ_Rent.Models.ContractDocument", b =>
+                {
+                    b.HasOne("EZ_Rent.Models.RentalContract", "RentalContract")
+                        .WithMany()
+                        .HasForeignKey("RentalContractId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("RentalContract");
+                });
+
+            modelBuilder.Entity("EZ_Rent.Models.ContractTenantDraft", b =>
+                {
+                    b.HasOne("EZ_Rent.Models.RentalContract", "RentalContract")
+                        .WithMany()
+                        .HasForeignKey("RentalContractId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("RentalContract");
+                });
+
             modelBuilder.Entity("EZ_Rent.Models.Conversation", b =>
                 {
                     b.HasOne("EZ_Rent.Models.ApplicationUser", "Initiator")
@@ -972,6 +1257,17 @@ namespace EZ_Rent.Migrations
                     b.Navigation("MeterReading");
 
                     b.Navigation("RentalContract");
+                });
+
+            modelBuilder.Entity("EZ_Rent.Models.InvoiceMeterEvidence", b =>
+                {
+                    b.HasOne("EZ_Rent.Models.Invoice", "Invoice")
+                        .WithOne()
+                        .HasForeignKey("EZ_Rent.Models.InvoiceMeterEvidence", "InvoiceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Invoice");
                 });
 
             modelBuilder.Entity("EZ_Rent.Models.Message", b =>

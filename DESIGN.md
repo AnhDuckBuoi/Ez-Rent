@@ -110,3 +110,23 @@ Tin nhắn: xanh #356797, chữ #203246, phụ #607085, nền #f4f6f9, trắng #
 ## Tài khoản Tenant — 17/10/2026
 
 Trang Cá nhân/Bảo mật kế thừa màu, font và shared header của Home, không tạo shell mới. Nội dung tối đa 1080px; form chính và rail ảnh/bảo mật 320px, giảm 280px dưới 1000px; dưới 768px xếp một cột. Nhãn và lỗi nằm cạnh trường, input 16px, nút tối thiểu 44px; preview ảnh ghi rõ chưa lưu. File riêng tenant-account.css/js, chỉ tải ở trang tài khoản.
+
+
+## Phòng đang ở — 17/10/2026
+
+Gói kế thừa thế giới thị giác Home/tài khoản: Segoe UI, xanh #356797, nền #f6f7f9, trắng và đường chia #dce2e9. Phần mới dùng tenant-rental.css, không thay font hay hình học header chung. Tổng quan một phòng: ảnh thật của phòng cạnh thông tin hợp đồng; tổng cần theo dõi và hai danh sách ngắn nằm dưới. Danh sách dùng dòng có đường chia, tránh lặp thẻ trang trí. Trang chi tiết/form có nội dung chính và rail 320px (260px dưới 1000px), xếp một cột dưới 768px. Khung ảnh không quyết định chiều cao toàn trang.
+
+Mở lối Phòng đang ở trên header chung; mobile dùng partial đích đến chung cho Home, tìm phòng và tin nhắn, giữ ẩn menu trong màn chat. Màu trạng thái đi cùng nhãn, nút tối thiểu 44px, input 16px, lỗi cạnh trường, hủy có trang xác nhận. Phạm vi và kết quả tại docs/tenant-my-room-mvc.md.
+
+## Bản thử tài liệu — phạm vi riêng, 17/10/2026
+
+docs/tenant-documents-preview.html/css/js kế thừa palette và CSS header, chưa thay giao diện MVC hiện có. Desktop đặt form cạnh mẫu giấy; tablet chia nhóm thông tin thành hai cột rồi tới mẫu; mobile xếp theo thứ tự điền → xem mẫu → tài liệu. Mẫu giấy dùng Times New Roman để giữ dấu tiếng Việt khi in, giao diện giữ Segoe UI. Hóa đơn có hai mục điện/nước riêng, ảnh trống có lời giải thích, ảnh được chọn mở bằng dialog native có Escape và trả focus. Khi ghép MVC phải tái sử dụng component header chung.
+
+## Tài liệu MVC và BM03 — 17/10/2026
+
+Đã ghép thành phần vào layout Tenant chung, không sao lại header. Khu tài liệu nằm dưới thông tin hợp đồng, lịch sử phân trang số, xác nhận gắn với phiên bản. Hóa đơn có hai ảnh độc lập và dialog ảnh dùng bàn phím được. BM03 nằm ở trang nháp riêng, giấy Times New Roman, giữ ba phần/trang theo nguồn; in chỉ có giấy, menu và nút ẩn. Mẫu gốc được giữ nguyên; bản nháp đổi nước sang m³ theo quyết định của Dương. Dữ liệu thiếu hiển thị trống và lời giải thích thay vì điền giả. Chưa thiết kế form Tenant thay thông tin bên Landlord.
+
+
+## Form thông tin BM03 — 17/10/2026
+
+Form Tenant nằm trước giấy, nhóm cá nhân/giấy tờ, hai cột từ 640 px và một cột ở mobile. Giữ font/palette/component chung, input 16 px và nút 44 px; lỗi cạnh trường và giữ dữ liệu khi lỗi. Có liên kết đến giấy, nhắc chưa lưu, nút in chỉ dùng bản đã lưu. Lịch sử dùng danh sách và số trang; bản cũ chỉ đọc. Điều khoản nguồn ở phần đối chiếu và phụ lục in riêng. Mục thiếu phía Landlord được ghi rõ, không cho Tenant sửa thông tin của chủ nhà.

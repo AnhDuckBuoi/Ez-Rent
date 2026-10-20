@@ -1,0 +1,19 @@
+@model string
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var room = controller is "MyRoom" or "Contract" or "Invoice" or "RepairRequest";
+    var links = new[] {
+        ("Dashboard", "Index", "home", "Trang chủ", controller == "Dashboard" && action == "Index"),
+        ("RentalPost", "Index", "search", "Tìm phòng", controller is "RentalPost" or "ViewingBooking"),
+        ("MyRoom", "Index", "room", "Phòng đang ở", room),
+        ("Dashboard", "Messages", "chat", "Tin nhắn", controller == "Dashboard" && action == "Messages"),
+        ("Account", "Index", "user", "Cá nhân", controller == "Account")
+    };
+}
+<nav class="@Model tenant-mobile-nav" aria-label="Điều hướng người thuê trên điện thoại">
+    @foreach (var (name, target, icon, label, active) in links)
+    {
+        <a asp-area="Tenant" asp-controller="@name" asp-action="@target" class="@(active ? "active" : null)" aria-current="@(active ? "page" : null)">@await Html.PartialAsync("_HomeIcon", icon)<span>@label</span></a>
+    }
+</nav>

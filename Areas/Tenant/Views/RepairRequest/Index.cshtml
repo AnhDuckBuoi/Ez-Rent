@@ -1,101 +1,26 @@
-@model IEnumerable<EZ_Rent.Models.RepairRequest>
-
+@using EZ_Rent.Areas.Tenant.Services
+@using EZ_Rent.Areas.Tenant.ViewModels
+@model RepairListModel
 @{
-    ViewData["Title"] = "Index";
+    Layout = "_TenantRentalLayout";
+    ViewData["Title"] = "Yêu cầu sửa chữa";
+    ViewData["Description"] = "Theo dõi sự cố, phản hồi của chủ nhà và lịch sử xử lý.";
 }
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.RentalPost)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Tenant)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProblemType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Priority)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageUrl)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ResolutionNote)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ResolvedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.RentalPost.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Tenant.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProblemType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Priority)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImageUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ResolutionNote)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ResolvedAt)
-            </td>
-            <td>
-                @if (item.Status == RepairRequestStatus.Pending)
-                {
-                    <a asp-action="Edit" asp-route-id="@item.RepairRequestId">Edit</a>
-                }
-                <a asp-action="Details" asp-route-id="@item.RepairRequestId">Details</a> |
-                @if (item.Status == RepairRequestStatus.Pending)
-                {
-                    <a asp-action="Delete" asp-route-id="@item.RepairRequestId">Hủy</a>
-                }
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div class="rental-list-actions"><a asp-action="Create" asp-route-roomId="@Model.Input.RoomId" class="rental-button primary">Gửi yêu cầu sửa chữa</a></div>
+<div asp-validation-summary="All" class="rental-validation" role="alert"></div>
+@if (Model.Input.RoomId.HasValue)
+{ <p class="rental-filter-context">Đang xem yêu cầu tại một phòng. <a asp-action="Index">Xem mọi phòng</a></p> }
+<form asp-action="Index" method="get" class="rental-filter">
+    @if (Model.Input.RoomId.HasValue) { <input type="hidden" name="RoomId" value="@Model.Input.RoomId" /> }
+    <div><label for="Status">Trạng thái yêu cầu</label><select id="Status" name="Status">
+        <option value="">Tất cả trạng thái</option>
+        @foreach (var status in Enum.GetValues<RepairRequestStatus>())
+        { <option value="@((int)status)" selected="@(Model.Input.Status == status)">@TenantRentalPresentation.RepairLabel(status)</option> }
+    </select></div>
+    <button class="rental-button secondary" type="submit">Áp dụng</button>
+    <span>@Model.Total yêu cầu</span>
+</form>
+@if (Model.Items.Count == 0)
+{ <section class="rental-empty"><h2>Chưa có yêu cầu phù hợp</h2><p>Khi gặp sự cố tại phòng đang thuê, bạn có thể gửi yêu cầu để chủ nhà theo dõi và xử lý.</p></section> }
+@foreach (var repair in Model.Items) { @await Html.PartialAsync("_RentalRepairRow", repair) }
+@await Html.PartialAsync("_TenantPagination", new TenantPaginationModel(Model.Input.Page, Model.TotalPages, page => Url.Action("Index", new { Page = page, Status = (int?)Model.Input.Status, Model.Input.RoomId }), "Phân trang yêu cầu sửa chữa"))

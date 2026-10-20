@@ -20,6 +20,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Hosting;
 using Xunit;
+using EZ_Rent.Services;
 
 namespace TenantSecurity.Tests;
 
@@ -34,6 +35,7 @@ public sealed class TenantTestApp : IAsyncLifetime
     public ITenantViewingScheduleReader? ViewingScheduleReader { get; set; }
     public TimeProvider? ViewingClock { get; set; }
     public bool UseIdentityCookies { get; set; }
+    public string PrivateFileRoot { get; } = Path.Combine(Path.GetTempPath(), "ez-rent-test-files-" + Guid.NewGuid().ToString("N"));
 
     public Task InitializeAsync() => StartAsync(false);
 
@@ -54,6 +56,10 @@ public sealed class TenantTestApp : IAsyncLifetime
         builder.Logging.ClearProviders();
         builder.Services.AddControllersWithViews().AddApplicationPart(typeof(FavoriteController).Assembly);
         builder.Services.AddRazorPages();
+        builder.Services.Configure<RentalFileStorageOptions>(options => options.RootPath = PrivateFileRoot);
+        builder.Services.AddSingleton<RentalPrivateFileStore>();
+        builder.Services.AddScoped<RentalDocumentService>();
+        builder.Services.AddScoped<TenantContractDraftService>();
         if (ViewingClock != null) builder.Services.AddSingleton<TimeProvider>(ViewingClock);
         if (preview) builder.Services.AddSingleton<ITenantViewingScheduleReader, PreviewViewingScheduleReader>();
         else if (ViewingScheduleReader != null) builder.Services.AddSingleton<ITenantViewingScheduleReader>(ViewingScheduleReader);
@@ -99,8 +105,24 @@ public sealed class TenantTestApp : IAsyncLifetime
                         "docs", "tenant-app-responsive-review.html"));
                     return;
                 }
+                // Design prototype files are available only in this isolated preview host.
+                var documentPreview = context.Request.Path.Value switch
+                {
+                    "/review/tenant-documents" => ("tenant-documents-preview.html", "text/html; charset=utf-8"),
+                    "/review/tenant-documents.css" => ("tenant-documents-preview.css", "text/css; charset=utf-8"),
+                    "/review/tenant-documents.js" => ("tenant-documents-preview.js", "text/javascript; charset=utf-8"),
+                    _ => default
+                };
+                if (HttpMethods.IsGet(context.Request.Method) && documentPreview.Item1 != null)
+                {
+                    context.Response.ContentType = documentPreview.Item2;
+                    context.Response.Headers.CacheControl = "no-store";
+                    await context.Response.SendFileAsync(Path.Combine(app.Environment.ContentRootPath,
+                        "docs", documentPreview.Item1));
+                    return;
+                }
                 if (context.Request.Path == "/") { context.Response.Redirect("/Tenant/Dashboard"); return; }
-                var allowed = context.Request.Path.StartsWithSegments("/Tenant/Account") || context.Request.Path.StartsWithSegments("/Identity/Account/Login") || context.Request.Path.StartsWithSegments("/uploads/avatars") || context.Request.Path.StartsWithSegments("/lib") || context.Request.Path.StartsWithSegments("/Tenant/Dashboard") || context.Request.Path.StartsWithSegments("/Tenant/Notification") || context.Request.Path.StartsWithSegments("/Tenant/RentalPost") || context.Request.Path.StartsWithSegments("/Tenant/Favorite") || context.Request.Path.StartsWithSegments("/Tenant/ViewingAppointment") || context.Request.Path.StartsWithSegments("/Tenant/ViewingBooking") ||
+                var allowed = context.Request.Path.StartsWithSegments("/Tenant/MyRoom") || context.Request.Path.StartsWithSegments("/Tenant/Contract") || context.Request.Path.StartsWithSegments("/Tenant/Invoice") || context.Request.Path.StartsWithSegments("/Tenant/RepairRequest") || context.Request.Path.StartsWithSegments("/Tenant/Account") || context.Request.Path.StartsWithSegments("/Identity/Account/Login") || context.Request.Path.StartsWithSegments("/uploads/avatars") || context.Request.Path.StartsWithSegments("/lib") || context.Request.Path.StartsWithSegments("/Tenant/Dashboard") || context.Request.Path.StartsWithSegments("/Tenant/Notification") || context.Request.Path.StartsWithSegments("/Tenant/RentalPost") || context.Request.Path.StartsWithSegments("/Tenant/Favorite") || context.Request.Path.StartsWithSegments("/Tenant/ViewingAppointment") || context.Request.Path.StartsWithSegments("/Tenant/ViewingBooking") ||
                     context.Request.Path.StartsWithSegments("/css") || context.Request.Path.StartsWithSegments("/js") || context.Request.Path.StartsWithSegments("/images") || context.Request.Path.StartsWithSegments("/fonts");
                 if (!allowed)
                 {
@@ -182,8 +204,13 @@ public sealed class TenantTestApp : IAsyncLifetime
             }
             await db.SaveChangesAsync();
         });
-        if (preview) await SeedPreviewAsync();
+        if (preview)
+        {
+            await SeedPreviewAsync();
+            await SeedRentalPreviewAsync();
+        }
         if (preview || UseIdentityCookies) await SeedAccountAsync();
+        if (preview) await SeedRentalDocumentsPreviewAsync();
     }
 
     private static string FindProjectRoot()
@@ -257,6 +284,101 @@ public sealed class TenantTestApp : IAsyncLifetime
         await db.SaveChangesAsync();
     });
 
+    private async Task SeedRentalPreviewAsync() => await WithDb(async db =>
+    {
+        var room = await db.RentalPosts.SingleAsync(p => p.RentalPostId == 1);
+        room.Title = "Phòng ban công tại Cầu Giấy";
+        room.Address = "Ngõ 68, phố Cầu Giấy"; room.District = "Cầu Giấy"; room.City = "Hà Nội";
+        room.Area = 28; room.Price = 3500000;
+        db.RoomImages.Add(new RoomImage { RentalPostId = 1, MediaUrl = "/images/tenant-preview/living.jpg", IsPrimary = true });
+        (await db.Users.SingleAsync(u => u.Id == "landlord")).PhoneNumber = "0902345678";
+        var contract = await db.RentalContracts.SingleAsync(c => c.RentalContractId == 1);
+        var month = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        contract.StartDate = month.AddYears(-1); contract.EndDate = month.AddMonths(6).AddDays(-1);
+        contract.MonthlyRent = contract.DepositAmount = 3500000;
+        contract.AgreedElectricityPrice = 3800; contract.AgreedWaterPrice = 35000;
+        contract.Terms = "Thanh toán tiền thuê theo kỳ ghi trong hóa đơn.\nGiữ gìn tài sản chung và thông báo khi có sự cố.\nHai bên trao đổi trước khi thay đổi thời hạn thuê.";
+        var reading = new MeterReading
+        {
+            RentalPostId = 1, Period = month.ToString("yyyy-MM"), RecordedById = "landlord",
+            ReadingDate = month.AddDays(1), PrevElectricIndex = 1050, CurrElectricIndex = 1095, ElectricUsage = 45,
+            PrevWaterIndex = 100, CurrWaterIndex = 102, WaterUsage = 2
+        };
+        db.MeterReadings.Add(reading);
+        var invoice = await db.Invoices.SingleAsync(i => i.InvoiceId == 1);
+        invoice.BillingPeriod = month.ToString("yyyy-MM"); invoice.IssueDate = month.AddDays(1); invoice.DueDate = month.AddDays(24);
+        invoice.RoomRentAmount = 3500000; invoice.ElectricUsage = 45; invoice.ElectricAmount = 171000;
+        invoice.WaterUsage = 2; invoice.WaterAmount = 70000; invoice.ServiceFeeAmount = 100000;
+        invoice.AdjustmentAmount = -41000; invoice.TotalAmount = 3800000; invoice.MeterReading = reading;
+        invoice.Note = "Điều chỉnh giảm 41.000 đ theo thỏa thuận trong kỳ.";
+        for (var i = 1; i <= 11; i++)
+        {
+            var billingMonth = month.AddMonths(-i);
+            var status = i == 1 ? PaymentStatus.AwaitingConfirmation : i == 2 ? PaymentStatus.Overdue : PaymentStatus.Paid;
+            db.Invoices.Add(new Invoice
+            {
+                RentalContractId = 1, BillingPeriod = billingMonth.ToString("yyyy-MM"), IssueDate = billingMonth.AddDays(1),
+                DueDate = billingMonth.AddDays(24), RoomRentAmount = 3500000, ServiceFeeAmount = 100000, TotalAmount = 3600000,
+                PaymentStatus = status, PaidAt = status == PaymentStatus.Paid ? billingMonth.AddDays(10) : null
+            });
+        }
+        db.RentalPosts.Add(new RentalPost
+        {
+            RentalPostId = 24, OwnerId = "preview-ha", Title = "Căn hộ nhỏ gần công viên", Address = "Phố Duy Tân",
+            City = "Hà Nội", District = "Cầu Giấy", Description = "Phòng thuê minh họa thứ hai.", Price = 4200000,
+            RoomStatus = RoomStatus.Rented, ApprovalStatus = ApprovalStatus.Approved, RoomType = RoomType.Apartment
+        });
+        db.RentalContracts.Add(new RentalContract
+        {
+            RentalContractId = 3, RentalPostId = 24, TenantId = TenantA, LandlordId = "preview-ha",
+            StartDate = contract.StartDate.AddMonths(-1), EndDate = month.AddMonths(3),
+            MonthlyRent = 4200000, DepositAmount = 4200000, Status = ContractStatus.Active
+        });
+        db.Invoices.Add(new Invoice
+        {
+            RentalContractId = 3, BillingPeriod = month.ToString("yyyy-MM"), RoomRentAmount = 4200000, TotalAmount = 4200000,
+            DueDate = month.AddDays(24), PaymentStatus = PaymentStatus.Unpaid
+        });
+        var request = await db.RepairRequests.SingleAsync(r => r.RepairRequestId == 1);
+        request.ProblemType = "Điện"; request.Description = "Đèn trần nhấp nháy khi bật, bắt đầu từ tối qua.";
+        request.ResolutionNote = null; request.CreatedAt = DateTime.UtcNow.AddHours(-2);
+        var topics = new[] { "Nước", "Khóa cửa", "Thiết bị trong phòng", "Điện" };
+        for (var i = 0; i < 12; i++)
+        {
+            var status = (RepairRequestStatus)(i % 4 + 1);
+            db.RepairRequests.Add(new RepairRequest
+            {
+                RentalPostId = 1, TenantId = TenantA, ProblemType = topics[i % 4],
+                Description = i % 2 == 0 ? "Mình muốn nhờ chủ nhà kiểm tra thiết bị hoạt động chưa ổn định." : "Thiết bị có dấu hiệu cần kiểm tra, nhờ chủ nhà hỗ trợ.",
+                Status = status, CreatedAt = DateTime.UtcNow.AddDays(-i - 1),
+                ResolutionNote = status == RepairRequestStatus.Resolved ? "Đã kiểm tra và thay bộ phận hỏng." : null,
+                ResolvedAt = status == RepairRequestStatus.Resolved ? DateTime.UtcNow.AddDays(-i) : null
+            });
+        }
+        await db.SaveChangesAsync();
+    });
+
+    private async Task SeedRentalDocumentsPreviewAsync() => await WithServices(async services =>
+    {
+        var documents = services.GetRequiredService<RentalDocumentService>();
+        var root = FindProjectRoot();
+        var bytes = await File.ReadAllBytesAsync(Path.Combine(root, "docs", "templates", "bm03-hop-dong-thue-phong.pdf"));
+        for (var version = 0; version < 2; version++)
+        {
+            using var source = new MemoryStream(bytes);
+            var file = new FormFile(source, 0, bytes.Length, "document", $"BM03-minh-hoa-chua-ky-v{version + 1}.pdf");
+            await documents.AppendContractAsync(1, "landlord", version, file);
+        }
+        var fixture = Path.Combine(root, "tests", "TenantSecurity.Tests", "Fixtures");
+        var electricBytes = await File.ReadAllBytesAsync(Path.Combine(fixture, "electric-meter.png"));
+        var waterBytes = await File.ReadAllBytesAsync(Path.Combine(fixture, "water-meter.png"));
+        using var electric = new MemoryStream(electricBytes);
+        using var water = new MemoryStream(waterBytes);
+        await documents.CaptureInvoiceAsync(1, "landlord",
+            new FormFile(electric, 0, electricBytes.Length, "electric", "electric.png"),
+            new FormFile(water, 0, waterBytes.Length, "water", "water.png"));
+    });
+
     // Real Identity credentials only in this isolated fixture, never in the application database.
     private async Task SeedAccountAsync() => await WithServices(async services =>
     {
@@ -306,6 +428,14 @@ public sealed class TenantTestApp : IAsyncLifetime
         Client.Dispose();
         await app.DisposeAsync();
         await connection.DisposeAsync();
+        // Only delete flat files inside this fixture's own generated temporary directory.
+        var expectedParent = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
+        var resolved = Path.GetFullPath(PrivateFileRoot);
+        if (resolved.StartsWith(expectedParent + "ez-rent-test-files-", StringComparison.OrdinalIgnoreCase) && Directory.Exists(resolved))
+        {
+            foreach (var file in Directory.EnumerateFiles(resolved)) File.Delete(file);
+            Directory.Delete(resolved);
+        }
     }
 }
 

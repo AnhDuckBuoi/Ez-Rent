@@ -14,7 +14,12 @@ public sealed class TenantDesktopHeaderViewComponent(AppDbContext db) : ViewComp
         var unread = string.IsNullOrWhiteSpace(userId) ? 0
             : await db.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
         return View("~/Areas/Tenant/Views/Shared/_TenantDesktopHeader.cshtml", new TenantHeaderModel(
-            RouteData.Values["controller"]?.ToString() is "ViewingBooking" ? "RentalPost" : RouteData.Values["controller"]?.ToString() ?? "",
+            RouteData.Values["controller"]?.ToString() switch
+            {
+                "ViewingBooking" => "RentalPost",
+                "Contract" or "Invoice" or "RepairRequest" => "MyRoom",
+                var name => name ?? ""
+            },
             RouteData.Values["action"]?.ToString() ?? "", unread));
     }
 }

@@ -1,5 +1,6 @@
 using EZ_Rent.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace EZ_Rent.Data;
@@ -19,6 +20,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<RentalContract> RentalContracts => Set<RentalContract>();
     public DbSet<MeterReading> MeterReadings => Set<MeterReading>();
     public DbSet<Invoice> Invoices => Set<Invoice>();
+    public DbSet<ContractDocument> ContractDocuments => Set<ContractDocument>();
+    public DbSet<ContractTenantDraft> ContractTenantDrafts => Set<ContractTenantDraft>();
+    public DbSet<InvoiceMeterEvidence> InvoiceMeterEvidence => Set<InvoiceMeterEvidence>();
     public DbSet<RepairRequest> RepairRequests => Set<RepairRequest>();
     public DbSet<Notification> Notifications => Set<Notification>();
 
@@ -68,6 +72,12 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+
+        // Match the existing migration even in design/test hosts without Identity UI store options.
+        builder.Entity<IdentityUserLogin<string>>().Property(x => x.LoginProvider).HasMaxLength(128);
+        builder.Entity<IdentityUserLogin<string>>().Property(x => x.ProviderKey).HasMaxLength(128);
+        builder.Entity<IdentityUserToken<string>>().Property(x => x.LoginProvider).HasMaxLength(128);
+        builder.Entity<IdentityUserToken<string>>().Property(x => x.Name).HasMaxLength(128);
 
         // ===== Decimal precision =====
         foreach (var entityType in builder.Model.GetEntityTypes())
@@ -201,6 +211,20 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .IsUnique();
 
         // ===== MeterReading =====
+        builder.Entity<ContractDocument>()
+            .HasOne(d => d.RentalContract).WithMany().HasForeignKey(d => d.RentalContractId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<ContractDocument>()
+            .HasIndex(d => new { d.RentalContractId, d.Version }).IsUnique();
+        builder.Entity<ContractTenantDraft>()
+            .HasOne(d => d.RentalContract).WithMany().HasForeignKey(d => d.RentalContractId)
+            .OnDelete(DeleteBehavior.Restrict);
+        builder.Entity<ContractTenantDraft>()
+            .HasIndex(d => new { d.RentalContractId, d.TenantId, d.Revision }).IsUnique();
+        builder.Entity<InvoiceMeterEvidence>()
+            .HasOne(e => e.Invoice).WithOne().HasForeignKey<InvoiceMeterEvidence>(e => e.InvoiceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Entity<MeterReading>()
             .HasIndex(m => new { m.RentalPostId, m.Period })
             .IsUnique();

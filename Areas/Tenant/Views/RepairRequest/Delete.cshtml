@@ -1,87 +1,16 @@
-@model EZ_Rent.Models.RepairRequest
-
+@using EZ_Rent.Areas.Tenant.Services
+@model RepairRequest
 @{
-    ViewData["Title"] = "Hủy";
+    Layout = "_TenantRentalLayout";
+    ViewData["Title"] = "Hủy yêu cầu sửa chữa";
+    ViewData["Description"] = Model.RentalPost.Title;
 }
-
-<h1>Hủy yêu cầu</h1>
-
-<h3>Bạn muốn hủy yêu cầu này? Lịch sử sẽ được giữ lại.</h3>
-<div>
-    <h4>RepairRequest</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RentalPost)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RentalPost.Address)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Tenant)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Tenant.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProblemType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProblemType)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Priority)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Priority)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageUrl)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImageUrl)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ResolutionNote)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ResolutionNote)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ResolvedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ResolvedAt)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete" asp-route-id="@Model.RepairRequestId" method="post">
-        <input type="hidden" asp-for="RepairRequestId" />
-        <input type="submit" value="Hủy" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+<section class="rental-panel rental-confirmation">
+    <h2>Bạn muốn hủy yêu cầu này?</h2>
+    <p><strong>@Model.ProblemType</strong></p><p class="rental-prose">@Model.Description</p>
+    <p>Yêu cầu sẽ chuyển sang Đã hủy. Nội dung và lịch sử được giữ lại để bạn tra cứu.</p>
+    <form asp-action="Delete" asp-route-id="@Model.RepairRequestId" method="post" class="rental-actions">
+        <button type="submit" class="rental-button danger">Xác nhận hủy yêu cầu</button>
+        <a asp-action="Details" asp-route-id="@Model.RepairRequestId" class="rental-button secondary">Giữ yêu cầu</a>
     </form>
-</div>
+</section>

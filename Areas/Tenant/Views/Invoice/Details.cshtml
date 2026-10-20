@@ -1,140 +1,32 @@
-@model EZ_Rent.Models.Invoice
-
+@using EZ_Rent.Areas.Tenant.Services
+@model EZ_Rent.Areas.Tenant.ViewModels.InvoiceDetailsModel
 @{
-    ViewData["Title"] = "Details";
+    var invoice = Model.Invoice;
+    Layout = "_TenantRentalLayout";
+    ViewData["Title"] = $"Hóa đơn kỳ {TenantRentalPresentation.Period(invoice.BillingPeriod)}";
+    ViewData["Description"] = invoice.RentalContract.RentalPost.Title;
+    var reading = invoice.MeterReading;
 }
-
-<h1>Details</h1>
-
-<div>
-    <h4>Invoice</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RentalContract)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RentalContract.RentalContractId)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MeterReading)
-        </dt>
-        <dd class = "col-sm-10">
-            @if (Model.MeterReading != null)
-            {
-                @Html.DisplayFor(model => model.MeterReading!.Period)
-            }
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.BillingPeriod)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.BillingPeriod)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RoomRentAmount)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RoomRentAmount)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ElectricUsage)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ElectricUsage)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ElectricAmount)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ElectricAmount)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.WaterUsage)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.WaterUsage)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.WaterAmount)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.WaterAmount)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ServiceFeeAmount)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ServiceFeeAmount)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AdjustmentAmount)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AdjustmentAmount)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TotalAmount)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TotalAmount)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IssueDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IssueDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.DueDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.DueDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PaymentStatus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PaymentStatus)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.VietQRContent)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.VietQRContent)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.TenantConfirmedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.TenantConfirmedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PaidAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PaidAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Note)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Note)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Index">Back to List</a>
+<a asp-action="Index" asp-route-ContractId="@invoice.RentalContractId" class="rental-back">Quay lại danh sách hóa đơn</a>
+<div class="rental-detail-grid">
+    <section class="rental-panel">
+        <div class="rental-section-heading"><h2>Chi tiết khoản thu</h2><span class="rental-status @TenantRentalPresentation.Tone(invoice.PaymentStatus)">@TenantRentalPresentation.PaymentLabel(invoice.PaymentStatus)</span></div>
+        <dl class="rental-detail-facts">
+            <div><dt>Mã hóa đơn</dt><dd>#@invoice.InvoiceId</dd></div>
+            <div><dt>Ngày lập</dt><dd>@TenantRentalPresentation.Date(invoice.IssueDate)</dd></div>
+            <div><dt>Hạn thanh toán</dt><dd>@TenantRentalPresentation.Date(invoice.DueDate)</dd></div>
+            @if (invoice.PaidAt.HasValue) { <div><dt>Ghi nhận thanh toán</dt><dd>@TenantRentalPresentation.Date(invoice.PaidAt.Value)</dd></div> }
+        </dl>
+        <dl class="rental-charges">
+            <div><dt>Tiền phòng</dt><dd>@TenantRentalPresentation.Money(invoice.RoomRentAmount)</dd></div>
+            <div><dt>Tiền điện <small>@TenantRentalPresentation.Number(invoice.ElectricUsage) kWh</small></dt><dd>@TenantRentalPresentation.Money(invoice.ElectricAmount)</dd></div>
+            <div><dt>Tiền nước <small>@TenantRentalPresentation.Number(invoice.WaterUsage) m³</small></dt><dd>@TenantRentalPresentation.Money(invoice.WaterAmount)</dd></div>
+            <div><dt>Phí dịch vụ</dt><dd>@TenantRentalPresentation.Money(invoice.ServiceFeeAmount)</dd></div>
+            <div><dt>Điều chỉnh</dt><dd>@TenantRentalPresentation.Money(invoice.AdjustmentAmount)</dd></div>
+            <div class="rental-charge-total"><dt>Tổng tiền</dt><dd>@TenantRentalPresentation.Money(invoice.TotalAmount)</dd></div>
+        </dl>
+        @if (!string.IsNullOrWhiteSpace(invoice.Note)) { <h3>Ghi chú hóa đơn</h3><p class="rental-prose">@invoice.Note</p> }
+        <p class="rental-note">Liên hệ chủ nhà nếu bạn cần đối chiếu khoản thu hoặc thời hạn thanh toán.</p>
+    </section>
+    @await Html.PartialAsync("_InvoiceMeterEvidence", Model)
 </div>

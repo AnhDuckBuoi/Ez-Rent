@@ -1,148 +1,25 @@
-@model IEnumerable<EZ_Rent.Models.Invoice>
-
+@using EZ_Rent.Areas.Tenant.Services
+@using EZ_Rent.Areas.Tenant.ViewModels
+@model InvoiceListModel
 @{
-    ViewData["Title"] = "Index";
+    Layout = "_TenantRentalLayout";
+    ViewData["Title"] = "Hóa đơn của tôi";
+    ViewData["Description"] = "Theo dõi các khoản thu, hạn thanh toán và trạng thái được ghi nhận.";
 }
-
-<h1>Index</h1>
-
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.RentalContract)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MeterReading)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.BillingPeriod)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoomRentAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ElectricUsage)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ElectricAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.WaterUsage)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.WaterAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ServiceFeeAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AdjustmentAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TotalAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IssueDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DueDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PaymentStatus)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.VietQRContent)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TenantConfirmedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PaidAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Note)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.RentalContract.RentalContractId)
-            </td>
-            <td>
-                @if (item.MeterReading != null)
-                {
-                    @Html.DisplayFor(modelItem => item.MeterReading.Period)
-                }
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.BillingPeriod)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RoomRentAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ElectricUsage)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ElectricAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.WaterUsage)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.WaterAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ServiceFeeAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AdjustmentAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TotalAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IssueDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DueDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PaymentStatus)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.VietQRContent)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TenantConfirmedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PaidAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Note)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                <a asp-action="Details" asp-route-id="@item.InvoiceId">Details</a>
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+<div asp-validation-summary="All" class="rental-validation" role="alert"></div>
+@if (Model.Input.ContractId.HasValue)
+{ <p class="rental-filter-context">Đang xem hợp đồng #@Model.Input.ContractId. <a asp-action="Index">Xem mọi hợp đồng</a></p> }
+<form asp-action="Index" method="get" class="rental-filter">
+    @if (Model.Input.ContractId.HasValue) { <input type="hidden" name="ContractId" value="@Model.Input.ContractId" /> }
+    <div><label for="Status">Trạng thái thanh toán</label><select id="Status" name="Status">
+        <option value="">Tất cả trạng thái</option>
+        @foreach (var status in Enum.GetValues<PaymentStatus>())
+        { <option value="@((int)status)" selected="@(Model.Input.Status == status)">@TenantRentalPresentation.PaymentLabel(status)</option> }
+    </select></div>
+    <button class="rental-button secondary" type="submit">Áp dụng</button>
+    <span>@Model.Total hóa đơn</span>
+</form>
+@if (Model.Items.Count == 0)
+{ <section class="rental-empty"><h2>Chưa có hóa đơn phù hợp</h2><p>Thử đổi bộ lọc. Hóa đơn mới sẽ xuất hiện khi chủ nhà lập khoản thu cho bạn.</p></section> }
+@foreach (var invoice in Model.Items) { @await Html.PartialAsync("_RentalInvoiceRow", invoice) }
+@await Html.PartialAsync("_TenantPagination", new TenantPaginationModel(Model.Input.Page, Model.TotalPages, page => Url.Action("Index", new { Page = page, Status = (int?)Model.Input.Status, Model.Input.ContractId }), "Phân trang hóa đơn"))

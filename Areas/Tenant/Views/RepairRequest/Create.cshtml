@@ -1,45 +1,7 @@
 @model EZ_Rent.Areas.Tenant.ViewModels.RepairRequestInputModel
-
 @{
-    ViewData["Title"] = "Báo sự cố";
+    Layout = "_TenantRentalLayout";
+    ViewData["Title"] = "Gửi yêu cầu sửa chữa";
+    ViewData["Description"] = "Báo sự cố tại phòng đang thuê để chủ nhà tiếp nhận.";
 }
-
-<h1>Báo sự cố</h1>
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Create" method="post">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="mb-3">
-                <label asp-for="RentalPostId" class="form-label"></label>
-                <select asp-for="RentalPostId" class="form-select" asp-items="ViewBag.RentalPostId"><option value="">Chọn phòng</option></select>
-                <span asp-validation-for="RentalPostId" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="ProblemType" class="form-label"></label>
-                <input asp-for="ProblemType" class="form-control" />
-                <span asp-validation-for="ProblemType" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="Description" class="form-label"></label>
-                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="Priority" class="form-label"></label>
-                <select asp-for="Priority" class="form-select" asp-items="Html.GetEnumSelectList<RepairPriority>()"></select>
-                <span asp-validation-for="Priority" class="text-danger"></span>
-            </div>
-            <div class="mb-3">
-                <label asp-for="ImageUrl" class="form-label"></label>
-                <input asp-for="ImageUrl" class="form-control" />
-                <span asp-validation-for="ImageUrl" class="text-danger"></span>
-            </div>
-            <button type="submit" class="btn btn-primary">Gửi</button>
-            <a asp-action="Index" class="btn btn-link">Quay lại danh sách</a>
-        </form>
-    </div>
-</div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+@await Html.PartialAsync("_RepairForm", Model)

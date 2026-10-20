@@ -1,0 +1,62 @@
+.bm03-controls { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.bm03-form-section { margin: 24px 0; }
+.bm03-fields { min-width: 0; border: 0; padding: 0; margin: 28px 0; display: grid; grid-template-columns: 1fr; gap: 18px 24px; }
+.bm03-fields legend { font-size: 16px; font-weight: 650; margin-bottom: 16px; padding: 0; }
+.bm03-fields > div { min-width: 0; }
+.bm03-fields label { display: block; margin-bottom: 7px; font-size: 14px; font-weight: 600; }
+.rental-page .bm03-fields :is(input,select,textarea) { width: 100%; min-width: 0; }
+.bm03-fields textarea { resize: vertical; }
+.bm03-fields span.field-validation-error { display: block; color: #9c263a; font-size: 13px; margin-top: 6px; }
+.bm03-validation { color: #9c263a; font-size: 14px; }
+.bm03-validation.validation-summary-valid { display: none; }
+.bm03-validation ul { padding-left: 20px; }
+.bm03-save-row { display: flex; gap: 16px 24px; align-items: center; flex-wrap: wrap; }
+.bm03-save-row p { margin: 0; max-width: 64ch; }
+.rental-page button:disabled { cursor: not-allowed; opacity: .65; }
+.bm03-alert { margin: 20px 0; padding: 18px 20px; border: 1px solid #d7bd8d; background: #fff8eb; border-radius: 8px; color: #6c4d1f; font-size: 14px; }
+.bm03-alert p { margin: 8px 0; max-width: 74ch; }
+.bm03-alert a { display: inline-flex; align-items: center; min-height: 44px; }
+.bm03-current-agreement { margin: 14px 0 0; }
+.bm03-current-agreement > div { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 8px 0; }
+.bm03-current-agreement dt { min-width: 160px; }
+.bm03-current-agreement dd { margin: 0; font-weight: 600; }
+.bm03-readiness { margin: 26px 0; padding: 22px 0; border-block: 1px solid #dce2e9; font-size: 14px; }
+.rental-page .bm03-readiness h2 { font-size: 19px; margin-bottom: 12px; }
+.bm03-readiness p { max-width: 82ch; }
+.bm03-terms-review summary { min-height: 44px; cursor: pointer; color: #356797; font-weight: 600; }
+.bm03-terms-review summary:focus-visible { outline: 3px solid #356797; outline-offset: 3px; }
+.bm03-preserve { white-space: pre-wrap; overflow-wrap: anywhere; }
+.bm03-draft-history { margin-bottom: 28px; }
+.bm03-paper-heading { margin: 30px auto 20px; max-width: 840px; }
+.rental-page .bm03-paper-heading h2 { font-size: 20px; }
+@media(min-width:640px) {
+    .bm03-fields { grid-template-columns: 1fr 1fr; }
+    .bm03-field-wide { grid-column: 1 / -1; }
+}
+.bm03-notice { max-width: 80ch; margin-bottom: 24px; }
+.bm03-document { max-width: 840px; margin: 0 auto; }
+.bm03-page { padding: 36px 28px; margin-bottom: 24px; background: white; border: 1px solid #dce2e9; color: #20252b; font: 17px/1.75 "Times New Roman", serif; }
+.bm03-page p { margin: 0 0 18px; }
+.bm03-page .bm03-country { text-align: center; font-weight: bold; margin-bottom: 0; }
+.bm03-page .bm03-motto { text-align: center; margin-bottom: 30px; }
+.rental-page .bm03-page h2 { font: bold 24px/1.4 "Times New Roman", serif; text-align: center; margin: 0 0 12px; }
+.rental-page .bm03-page h3 { font: bold 18px/1.5 "Times New Roman", serif; margin: 26px 0 16px; }
+.bm03-page .bm03-draft-label { font: 11px/1.6 "Segoe UI", Arial, sans-serif; color: #586779; text-align: center; margin-bottom: 28px; }
+.bm03-page ul { list-style: none; margin: 0 0 18px; padding: 0; }
+.bm03-page li { margin-bottom: 10px; }
+.bm03-page li::before { content: "- "; }
+.bm03-signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; text-align: center; margin: 30px 0 90px; }
+@media(min-width:768px) { .bm03-page { padding: 50px 60px; } }
+@media print {
+    @page { size: A4; margin: 16mm 18mm; }
+    html, body:has(.tenant-desktop-header) { background: white; }
+    body > :not(main), main.home-page > :not(.rental-page), .rental-page > :not(.bm03-document) { display: none !important; }
+    body > main.home-page, .rental-page, .bm03-document { display: block; width: auto; max-width: none; padding: 0; margin: 0; }
+    .bm03-page { border: 0; margin: 0; padding: 0; font-size: 12pt; line-height: 1.5; break-after: page; }
+    .bm03-page:last-child { break-after: auto; }
+    .rental-page .bm03-page h2 { font-size: 16pt; }
+    .rental-page .bm03-page h3 { font-size: 13pt; margin-top: 18px; break-after: avoid; }
+    .bm03-page p { margin-bottom: 12px; }
+    .bm03-page li { margin-bottom: 7px; }
+    .bm03-signatures { break-inside: avoid; }
+}

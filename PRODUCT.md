@@ -46,3 +46,20 @@ docs/tenant-home-mvc.md, docs/tenant-home-plan.md, docs/tenant-responsive-plan.m
 ## Tài khoản Tenant — 17/10/2026
 
 Dương đã duyệt hoàn thiện web Tenant, bắt đầu với Cá nhân/Bảo mật. Gói tài khoản dùng dữ liệu ApplicationUser và Identity sẵn có, không cần migration; sửa hồ sơ/ảnh, đổi hoặc tạo mật khẩu, liên kết Google theo cấu hình và đăng xuất. Email chỉ đọc. Xem docs/tenant-account-mvc.md. Các dữ liệu xem thử vẫn tách khỏi database nhóm.
+
+## Phòng đang ở — 17/10/2026
+
+Dương đã duyệt tổng quan phòng đang thuê, thiết kế lại hợp đồng/hóa đơn/sửa chữa và ghép menu ba kích thước. Dùng các model và quy tắc sẵn có, chưa cần migration. Hợp đồng/hóa đơn chỉ đọc; sửa chữa dùng luồng gửi/sửa/hủy thật, chỉ đổi khi còn chờ, giữ lịch sử. Chưa triển khai ký hợp đồng hay thanh toán VietQR. Chi tiết đọc mã và QA: docs/tenant-my-room-mvc.md.
+
+## Bản thử tài liệu thuê phòng — 17/10/2026
+
+Dương duyệt thử giao diện tự điền mẫu hợp đồng, in/lưu PDF và lưu bản được ký bên ngoài; tạm hoãn ký trên web. Hóa đơn cần giữ ảnh điện/nước theo chỉ số đúng phòng/kỳ. Bản thử riêng chỉ dùng dữ liệu minh họa và tệp trong bộ nhớ trình duyệt, chưa triển khai lưu trữ thật hoặc sửa dữ liệu chung. Xem docs/tenant-documents-preview.md; mẫu nội dung cần Dương và Đức chốt.
+
+## Ghép tài liệu MVC và BM03 — 17/10/2026
+
+Dương duyệt ghép xem/lưu tài liệu, cung cấp mẫu BM03 và chốt nước theo m³. Tenant nay đọc/tải tài liệu riêng, xem lịch sử, xác nhận đối chiếu theo phiên bản và xem ảnh/chỉ số đã lưu cho hóa đơn; có dịch vụ ghi dùng chung chờ Đức ghép Landlord. Bản nháp BM03 tự điền dữ liệu đang có, để trống thông tin chưa có, không ký trên web. Migration mã nguồn đã thêm, chưa áp dụng database nhóm. Xem docs/tenant-documents-mvc.md về phần đã có và các bước phát hành/thông tin cá nhân còn cần ghép.
+
+
+## Bổ sung thông tin BM03 — 17/10/2026
+
+Dương duyệt form thông tin Tenant và lịch sử bản nháp. Mỗi lần lưu tạo bản chụp riêng cho hợp đồng, gồm thông tin cá nhân và thỏa thuận do server đọc; không sửa hồ sơ hay tài liệu đã lưu. Bản cũ chỉ đọc; có kiểm tra tab cũ và nguồn hợp đồng thay đổi. Điều khoản hợp đồng được giữ riêng trong phụ lục đối chiếu khi in. Chưa ký trên web hoặc bổ sung dữ liệu Landlord còn thiếu. Xem docs/tenant-contract-draft.md; migration chỉ ở mã nguồn, chưa áp dụng database nhóm.

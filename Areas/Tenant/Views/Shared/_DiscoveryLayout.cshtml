@@ -27,13 +27,7 @@
         @await Html.PartialAsync("_TenantFeedback")
         @RenderBody()
     </main>
-    <nav class="tenant-nav" aria-label="Điều hướng người thuê">
-        <a asp-area="Tenant" asp-controller="Dashboard" asp-action="Index"><span aria-hidden="true">⌂</span>Trang chủ</a>
-        <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" class="@(!favorites && !appointments ? "active" : "")"><span aria-hidden="true">⌕</span>Khám phá</a>
-        <button disabled><span aria-hidden="true">▤</span>Phòng đang ở</button>
-        <button disabled><span aria-hidden="true">☏</span>Tin nhắn</button>
-        <a asp-area="Tenant" asp-controller="Account" asp-action="Index"><span aria-hidden="true">○</span>Cá nhân</a>
-    </nav>
+    @await Html.PartialAsync("_TenantMobileNav", "tenant-nav")
     <script src="~/js/tenant-shell.js" asp-append-version="true" defer></script>
     <script src="~/js/tenant-discovery.js" asp-append-version="true" defer></script>
     @if (appointments) { <script src="~/js/tenant-appointments.js" asp-append-version="true" defer></script> }

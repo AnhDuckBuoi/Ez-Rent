@@ -1,0 +1,6 @@
+@{
+    Layout = "_TenantRentalLayout";
+    ViewData["Title"] = "Yêu cầu vừa thay đổi";
+    ViewData["Description"] = "Thông tin bạn đang xem không còn là trạng thái mới nhất.";
+}
+<section class="rental-empty"><h2>Không thể sửa hoặc hủy lúc này</h2><p>Yêu cầu có thể đã được chủ nhà xử lý hoặc đã được hủy. Hãy mở lại danh sách để xem trạng thái mới nhất.</p><a asp-controller="RepairRequest" asp-action="Index" class="rental-button primary">Xem danh sách yêu cầu</a></section>

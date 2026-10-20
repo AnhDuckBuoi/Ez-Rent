@@ -1,0 +1,64 @@
+@using EZ_Rent.Areas.Tenant.Services
+@model EZ_Rent.Areas.Tenant.ViewModels.RepairRequestInputModel
+@{
+    var editing = ViewContext.RouteData.Values["action"]?.ToString() == "Edit";
+    var id = ViewContext.RouteData.Values["id"];
+}
+@if (ViewData["HasRentedPosts"] as bool? != true)
+{
+    <section class="rental-empty"><h2>Chưa có phòng đủ điều kiện</h2><p>Bạn cần có hợp đồng đang hiệu lực để gửi hoặc sửa yêu cầu sửa chữa.</p><a asp-controller="MyRoom" asp-action="Index">Về phòng đang ở</a></section>
+}
+else
+{
+    <div class="rental-detail-grid">
+        <section class="rental-panel">
+            <h2>@(editing ? "Cập nhật nội dung sự cố" : "Mô tả sự cố tại phòng")</h2>
+            <form asp-action="@(editing ? "Edit" : "Create")" asp-route-id="@(editing ? id : null)" method="post" class="rental-form">
+                <div asp-validation-summary="ModelOnly" class="rental-validation" role="alert"></div>
+                <div>
+                    <label asp-for="RentalPostId"></label>
+                    <select asp-for="RentalPostId" asp-items="ViewBag.RentalPostId" disabled="@editing" required aria-describedby="room-error"><option value="">Chọn phòng đang thuê</option></select>
+                    @if (editing) { <input asp-for="RentalPostId" id="repair-room-id" type="hidden" /> }
+                    <span asp-validation-for="RentalPostId" id="room-error" class="rental-field-error"></span>
+                    @if (editing) { <small>Phòng của yêu cầu đã gửi không thể thay đổi.</small> }
+                </div>
+                <div>
+                    <label asp-for="ProblemType"></label>
+                    <input asp-for="ProblemType" list="repair-topics" maxlength="100" required aria-describedby="type-error" />
+                    <datalist id="repair-topics"><option value="Điện"></option><option value="Nước"></option><option value="Thiết bị trong phòng"></option><option value="Khóa cửa"></option><option value="Sự cố khác"></option></datalist>
+                    <span asp-validation-for="ProblemType" id="type-error" class="rental-field-error"></span>
+                </div>
+                <div>
+                    <label asp-for="Description"></label>
+                    <textarea asp-for="Description" rows="6" maxlength="2000" required aria-describedby="description-hint description-error"></textarea>
+                    <small id="description-hint">Nêu vị trí, biểu hiện và thời điểm xảy ra. <span data-repair-count>@(Model.Description?.Length ?? 0)</span>/2.000 ký tự.</small>
+                    <span asp-validation-for="Description" id="description-error" class="rental-field-error"></span>
+                </div>
+                <div>
+                    <label asp-for="Priority"></label>
+                    <select asp-for="Priority" aria-describedby="priority-error">
+                        @foreach (var priority in Enum.GetValues<RepairPriority>())
+                        { <option value="@((int)priority)">@TenantRentalPresentation.PriorityLabel(priority)</option> }
+                    </select>
+                    <span asp-validation-for="Priority" id="priority-error" class="rental-field-error"></span>
+                </div>
+                <div>
+                    <label asp-for="ImageUrl">Liên kết ảnh sự cố</label>
+                    <input asp-for="ImageUrl" type="url" maxlength="500" aria-describedby="image-hint image-error" />
+                    <small id="image-hint">Không bắt buộc. Dán liên kết ảnh HTTP hoặc HTTPS nếu bạn có sẵn.</small>
+                    <span asp-validation-for="ImageUrl" id="image-error" class="rental-field-error"></span>
+                </div>
+                <div class="rental-actions">
+                    <button class="rental-button primary" type="submit">@(editing ? "Lưu thay đổi" : "Gửi yêu cầu")</button>
+                    <a asp-action="@(editing ? "Details" : "Index")" asp-route-id="@(editing ? id : null)" class="rental-button secondary">Quay lại</a>
+                </div>
+            </form>
+        </section>
+        <aside class="rental-panel">
+            <h2>Trước khi gửi</h2>
+            <p>Mô tả rõ sự cố giúp chủ nhà chuẩn bị phương án xử lý.</p>
+            <p>Bạn chỉ sửa hoặc hủy được khi yêu cầu còn ở trạng thái Chờ xử lý. Lịch sử vẫn được lưu sau khi hủy.</p>
+            <p class="rental-note">Nếu có nguy cơ mất an toàn, hãy chủ động gọi chủ nhà hoặc đơn vị hỗ trợ phù hợp ngay.</p>
+        </aside>
+    </div>
+}

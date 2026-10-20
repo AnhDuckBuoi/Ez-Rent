@@ -115,3 +115,6 @@ appsettings.Local.json
 
 # Runtime avatar uploads are user data, not source assets.
 /wwwroot/uploads/avatars/
+
+# Private contract and meter files are runtime user data.
+/App_Data/RentalFiles/

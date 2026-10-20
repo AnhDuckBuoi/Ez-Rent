@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="~/css/tenant-discovery.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tenant-home.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tenant-shell.css" asp-append-version="true" />
+    @if (ViewData["RentalPage"] as bool? == true) { <link rel="stylesheet" href="~/css/tenant-rental.css" asp-append-version="true" /> }
+    @if (ViewData["ContractDraftPage"] as bool? == true) { <link rel="stylesheet" href="~/css/tenant-contract-draft.css" asp-append-version="true" /> }
     @if (ViewData["AccountPage"] as bool? == true) { <link rel="stylesheet" href="~/css/tenant-account.css" asp-append-version="true" /> }
 </head>
 <body>
@@ -33,13 +35,7 @@
         @await Html.PartialAsync("_TenantFeedback")
         @RenderBody()
     </main>
-    <nav class="bottom-nav" aria-label="Điều hướng mobile">
-        <a asp-controller="Dashboard" asp-action="Index" class="@(home ? "active" : "")" aria-current="@(home ? "page" : null)">@await Html.PartialAsync("_HomeIcon", "home")<span>Trang chủ</span></a>
-        <a asp-controller="RentalPost" asp-action="Index">@await Html.PartialAsync("_HomeIcon", "search")<span>Tìm phòng</span></a>
-        <button disabled>@await Html.PartialAsync("_HomeIcon", "room")<span>Phòng đang ở</span></button>
-        <a asp-controller="Dashboard" asp-action="Messages" class="@(messages ? "active" : "")">@await Html.PartialAsync("_HomeIcon", "chat")<span>Tin nhắn</span></a>
-        <a asp-area="Tenant" asp-controller="Account" asp-action="Index" class="@(ViewData["AccountPage"] as bool? == true ? "active" : "")">@await Html.PartialAsync("_HomeIcon", "user")<span>Cá nhân</span></a>
-    </nav>
+    @await Html.PartialAsync("_TenantMobileNav", "bottom-nav")
     <script src="~/js/tenant-shell.js" asp-append-version="true" defer></script>
     <script src="~/js/tenant-home.js" asp-append-version="true" defer></script>
     @await RenderSectionAsync("Scripts", required: false)
