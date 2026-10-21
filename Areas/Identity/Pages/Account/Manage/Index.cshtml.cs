@@ -4,9 +4,12 @@
 
 using System;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Encodings.Web;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using EZ_Rent.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -17,51 +20,34 @@ namespace EZ_Rent.Areas.Identity.Pages.Account.Manage
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly IWebHostEnvironment _env;
 
         public IndexModel(
             UserManager<ApplicationUser> userManager,
-            SignInManager<ApplicationUser> signInManager)
+            SignInManager<ApplicationUser> signInManager,
+            IWebHostEnvironment env)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _env = env;
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public string Username { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [TempData]
         public string StatusMessage { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
+            [Required(ErrorMessage = "Họ tên không được để trống")]
             [MaxLength(50)]
             [Display(Name = "Họ và tên")]
             public string FullName { get; set; } = "";
 
-            [Phone]
+            [Phone(ErrorMessage = "Số điện thoại không hợp lệ")]
             [Display(Name = "Số điện thoại")]
             public string PhoneNumber { get; set; } = "";
         }
@@ -85,8 +71,7 @@ namespace EZ_Rent.Areas.Identity.Pages.Account.Manage
 
             if (user == null)
             {
-                return NotFound(
-                    $"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
             Username = await _userManager.GetUserNameAsync(user);
@@ -100,14 +85,13 @@ namespace EZ_Rent.Areas.Identity.Pages.Account.Manage
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(IFormFile avatar)
         {
             var user = await _userManager.GetUserAsync(User);
 
             if (user == null)
             {
-                return NotFound(
-                    $"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
             }
 
             if (!ModelState.IsValid)
@@ -116,15 +100,69 @@ namespace EZ_Rent.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            user.FullName = Input.FullName;
-            user.PhoneNumber = Input.PhoneNumber;
+            // ===== Update FullName + Phone =====
+            user.FullName = Input.FullName?.Trim() ?? "";
+            user.PhoneNumber = Input.PhoneNumber?.Trim();
 
-            await _userManager.UpdateAsync(user);
+            // ===== Upload Avatar =====
+            if (avatar != null && avatar.Length > 0)
+            {
+                var allowedExts = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+                var ext = Path.GetExtension(avatar.FileName).ToLowerInvariant();
+
+                if (!allowedExts.Contains(ext))
+                {
+                    ModelState.AddModelError("", "Chỉ chấp nhận file ảnh (jpg, png, gif, webp)");
+                    Username = await _userManager.GetUserNameAsync(user);
+                    return Page();
+                }
+
+                if (avatar.Length > 5 * 1024 * 1024)
+                {
+                    ModelState.AddModelError("", "Ảnh không được vượt quá 5MB");
+                    Username = await _userManager.GetUserNameAsync(user);
+                    return Page();
+                }
+
+                // Folder: wwwroot/uploads/avatars/
+                var folder = Path.Combine(_env.WebRootPath, "uploads", "avatars");
+                Directory.CreateDirectory(folder);
+
+                var fileName = $"{user.Id}_{Guid.NewGuid()}{ext}";
+                var filePath = Path.Combine(folder, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await avatar.CopyToAsync(stream);
+                }
+
+                // Xóa avatar cũ nếu nằm trong /uploads/
+                if (!string.IsNullOrEmpty(user.AvatarUrl) && user.AvatarUrl.StartsWith("/uploads/"))
+                {
+                    var oldPath = Path.Combine(_env.WebRootPath, user.AvatarUrl.TrimStart('/'));
+                    if (System.IO.File.Exists(oldPath))
+                    {
+                        try { System.IO.File.Delete(oldPath); } catch { /* ignore */ }
+                    }
+                }
+
+                user.AvatarUrl = $"/uploads/avatars/{fileName}";
+            }
+
+            user.UpdatedAt = DateTime.UtcNow;
+
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (!updateResult.Succeeded)
+            {
+                foreach (var error in updateResult.Errors)
+                    ModelState.AddModelError("", error.Description);
+
+                Username = await _userManager.GetUserNameAsync(user);
+                return Page();
+            }
 
             await _signInManager.RefreshSignInAsync(user);
-
             StatusMessage = "Hồ sơ của bạn đã được cập nhật.";
-
             return RedirectToPage();
         }
     }

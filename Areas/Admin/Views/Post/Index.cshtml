@@ -1,173 +1,644 @@
-@model IEnumerable<EZ_Rent.Models.RentalPost>
+@using EZ_Rent.Helpers
+@model PaginatedList<EZ_Rent.Models.RentalPost>
+@using EZ_Rent.Models.Enums
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Quản lý tin đăng";
+    var statusFilter = ViewBag.StatusFilter as string;
+    var search = ViewBag.Search as string;
 }
 
-<h1>Index</h1>
+<h1>Quản lý tin đăng</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
+<div id="alertContainer">
+    <partial name="_StatusMessage" />
+</div>
+
+@* ⭐ SEARCH BAR *@
+<form method="get" asp-action="Index" class="mb-3">
+    @if (!string.IsNullOrEmpty(statusFilter))
+    {
+        <input type="hidden" name="status" value="@statusFilter" />
+    }
+
+    <div class="input-group">
+        <span class="input-group-text">🔍</span>
+        <input type="text" name="search" class="form-control"
+               placeholder="Tìm theo tiêu đề, địa chỉ, thành phố hoặc tên chủ trọ..." value="@search" />
+        <button type="submit" class="btn btn-primary">Tìm</button>
+
+        @if (!string.IsNullOrEmpty(search))
+        {
+            <a asp-action="Index" asp-route-status="@statusFilter" class="btn btn-outline-secondary">
+                ✖ Xóa
+            </a>
+        }
+    </div>
+</form>
+@* ============================================================ *@
+@*  FILTER TABS                                                  *@
+@* ============================================================ *@
+<ul class="nav nav-pills mb-3">
+    <li class="nav-item">
+        <a class="nav-link @(string.IsNullOrEmpty(statusFilter) ? "active" : "")" asp-action="Index">
+            Tất cả <span class="badge bg-secondary tab-count" data-status="All">@ViewBag.CountAll</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(statusFilter == "Pending" ? "active" : "")" asp-action="Index" asp-route-status="Pending">
+            ⏳ Chờ duyệt <span class="badge bg-warning text-dark tab-count"
+                              data-status="Pending">@ViewBag.CountPending</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(statusFilter == "Approved" ? "active" : "")" asp-action="Index"
+           asp-route-status="Approved">
+            ✅ Đã duyệt <span class="badge bg-success tab-count" data-status="Approved">@ViewBag.CountApproved</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(statusFilter == "Rejected" ? "active" : "")" asp-action="Index"
+           asp-route-status="Rejected">
+            ❌ Từ chối <span class="badge bg-danger tab-count" data-status="Rejected">@ViewBag.CountRejected</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(statusFilter == "NeedRevision" ? "active" : "")" asp-action="Index"
+           asp-route-status="NeedRevision">
+            🔄 Cần sửa <span class="badge bg-info text-dark tab-count"
+                             data-status="NeedRevision">@ViewBag.CountNeedRevision</span>
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(statusFilter == "Draft" ? "active" : "")" asp-action="Index" asp-route-status="Draft">
+            📝 Nháp <span class="badge bg-secondary tab-count" data-status="Draft">@ViewBag.CountDraft</span>
+        </a>
+    </li>
+</ul>
+
+<p class="text-muted">
+    Tổng <strong>@Model.TotalItems</strong> bài đăng —
+    Trang <strong>@Model.PageIndex</strong> / <strong>@Model.TotalPages</strong>
 </p>
-<table class="table">
-    <thead>
+
+<table class="table table-hover align-middle">
+    <thead class="table-light">
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Area)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.City)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.District)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Ward)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MapLocation)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AmenitiesJson)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoomType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoomStatus)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApprovalStatus)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApprovalNote)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApprovedBy)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApprovedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ElectricityUnitPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.WaterUnitPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ServiceFee)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AvailableFrom)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PostedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Owner)
-            </th>
-            <th></th>
+            <th>Tiêu đề</th>
+            <th>Giá · Diện tích</th>
+            <th>Địa chỉ</th>
+            <th>Loại phòng</th>
+            <th>Trạng thái phòng</th>
+            <th>Trạng thái duyệt</th>
+            <th>Ghi chú</th>
+            <th>Chủ trọ</th>
+            <th>Ngày tạo</th>
+            <th style="width:340px">Thao tác</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Area)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.City)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.District)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Ward)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MapLocation)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AmenitiesJson)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RoomType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RoomStatus)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ApprovalStatus)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ApprovalNote)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ApprovedBy.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ApprovedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ElectricityUnitPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.WaterUnitPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ServiceFee)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AvailableFrom)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PostedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Owner.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.RentalPostId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.RentalPostId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.RentalPostId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr id="post-row-@item.RentalPostId" data-id="@item.RentalPostId" data-status="@item.ApprovalStatus">
+                <td>
+                    <div class="fw-bold">@item.Title</div>
+                </td>
+
+                <td>
+                    <span class="text-danger fw-bold">@item.Price.ToString("N0")đ</span>
+                    <br />
+                    <small class="text-muted">@item.Area m²</small>
+                </td>
+
+                <td class="text-truncate" style="max-width:220px;">
+                    @item.Address, @item.Ward, @item.District, @item.City
+                </td>
+
+                <td>@Html.DisplayFor(m => item.RoomType)</td>
+
+                <td class="room-status-cell">
+                    @switch (item.RoomStatus)
+                    {
+                        case RoomStatus.Available:
+                            <span class="badge bg-success">🟢 Còn trống</span>
+                            break;
+                        case RoomStatus.Rented:
+                            <span class="badge bg-danger">🔴 Đã thuê</span>
+                            break;
+                        case RoomStatus.Hidden:
+                            <span class="badge bg-secondary">⚫ Ẩn</span>
+                            break;
+                    }
+                </td>
+
+                <td class="approval-cell">
+                    @switch (item.ApprovalStatus)
+                    {
+                        case ApprovalStatus.Pending:
+                            <span class="badge bg-warning text-dark">⏳ Chờ duyệt</span>
+                            break;
+                        case ApprovalStatus.Approved:
+                            <span class="badge bg-success">✅ Đã duyệt</span>
+                            break;
+                        case ApprovalStatus.Rejected:
+                            <span class="badge bg-danger">❌ Từ chối</span>
+                            break;
+                        case ApprovalStatus.NeedRevision:
+                            <span class="badge bg-info text-dark">🔄 Cần sửa</span>
+                            break;
+                        case ApprovalStatus.Draft:
+                            <span class="badge bg-secondary">📝 Nháp</span>
+                            break;
+                    }
+                </td>
+
+                <td class="note-cell text-truncate" style="max-width:180px;">
+                    @if (!string.IsNullOrEmpty(item.ApprovalNote))
+                    {
+                        <small class="text-muted">@item.ApprovalNote</small>
+                    }
+                </td>
+
+                <td>@item.Owner?.FullName</td>
+
+                <td>@item.CreatedAt.ToString("dd/MM/yyyy")</td>
+
+                <td class="action-cell">
+                    <a asp-action="Details" asp-route-id="@item.RentalPostId"
+                       asp-route-returnUrl="@Context.Request.Path@Context.Request.QueryString"
+                       class="btn btn-sm btn-outline-primary">Xem</a>
+
+                    @if (item.ApprovalStatus == ApprovalStatus.Pending)
+                    {
+                        <button type="button" class="btn btn-sm btn-success btn-approve" data-id="@item.RentalPostId">
+                            Duyệt
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger btn-reject" data-id="@item.RentalPostId"
+                                data-title="@item.Title">
+                            Từ chối
+                        </button>
+                        <button type="button" class="btn btn-sm btn-warning btn-revision" data-id="@item.RentalPostId"
+                                data-title="@item.Title">
+                            Yêu cầu sửa
+                        </button>
+                    }
+                    else if (item.ApprovalStatus == ApprovalStatus.Approved)
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-danger btn-revoke" data-id="@item.RentalPostId">
+                            Hủy duyệt
+                        </button>
+
+                        @* ⭐ Nút Gỡ *@
+                        <button type="button" class="btn btn-sm btn-dark btn-remove" data-id="@item.RentalPostId"
+                                data-title="@item.Title">
+                            🗑️ Gỡ bài
+                        </button>
+                    }
+                    else if (item.ApprovalStatus == ApprovalStatus.Rejected)
+                    {
+                        <button type="button" class="btn btn-sm btn-success btn-approve" data-id="@item.RentalPostId">
+                            Duyệt lại
+                        </button>
+                    }
+                    else if (item.ApprovalStatus == ApprovalStatus.NeedRevision)
+                    {
+                        <button type="button" class="btn btn-sm btn-success btn-approve" data-id="@item.RentalPostId">
+                            Duyệt
+                        </button>
+                        <button type="button" class="btn btn-sm btn-danger btn-reject" data-id="@item.RentalPostId"
+                                data-title="@item.Title">
+                            Từ chối
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@* ============================================================ *@
+@*  PAGINATION — giữ filter status                               *@
+@* ============================================================ *@
+@{
+    var routeValues = new Dictionary<string, string?>
+    {
+        ["status"] = statusFilter
+    };
+}
+
+@await Html.PartialAsync("_Pagination", PaginationInfo.From(
+    Model,
+    action: "Index",
+    controller: "Post",
+    area: "Admin",
+    routeValues: routeValues))
+
+@* ============================================================ *@
+@*  MODAL TỪ CHỐI                                                *@
+@* ============================================================ *@
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Từ chối tin đăng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="rejectId" />
+                <p><strong>Tin:</strong> <span id="rejectTitle"></span></p>
+                <div class="mb-3">
+                    <label for="rejectNote" class="form-label">
+                        Lý do từ chối <span class="text-danger">*</span>
+                    </label>
+                    <textarea id="rejectNote" class="form-control" rows="3" required maxlength="1000"
+                              placeholder="VD: Hình ảnh không rõ, giá không hợp lý..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmReject">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ============================================================ *@
+@*  MODAL YÊU CẦU SỬA                                            *@
+@* ============================================================ *@
+<div class="modal fade" id="revisionModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Yêu cầu chủ trọ sửa lại</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="revisionId" />
+                <p><strong>Tin:</strong> <span id="revisionTitle"></span></p>
+                <div class="mb-3">
+                    <label for="revisionNote" class="form-label">
+                        Nội dung cần sửa <span class="text-danger">*</span>
+                    </label>
+                    <textarea id="revisionNote" class="form-control" rows="3" required maxlength="1000"
+                              placeholder="VD: Bổ sung ảnh rõ hơn..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-warning" id="btnConfirmRevision">Gửi yêu cầu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Form ẩn — chứa AntiForgeryToken cho AJAX *@
+<form id="afForm" style="display:none">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            const afInput = document.querySelector('#afForm input[name="__RequestVerificationToken"]');
+            const AF_TOKEN = afInput ? afInput.value : '';
+
+            const alertContainer = document.getElementById('alertContainer');
+
+            // ================= Alert =================
+            function showAlert(message, type = 'warning') {
+                const html = `
+                            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                                ${message}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>`;
+                alertContainer.insertAdjacentHTML('afterbegin', html);
+
+                setTimeout(() => {
+                    const first = alertContainer.querySelector('.alert');
+                    if (first) bootstrap.Alert.getOrCreateInstance(first).close();
+                }, 4000);
+            }
+
+            // ================= POST helper =================
+            async function postAction(url, params = {}) {
+                const body = new URLSearchParams({
+                    __RequestVerificationToken: AF_TOKEN,
+                    ...params
+                });
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: body.toString()
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.json();
+            }
+
+            // ================= RENDER BADGES =================
+            function renderApprovalBadge(status) {
+                switch (status) {
+                    case 'Pending':
+                        return '<span class="badge bg-warning text-dark">⏳ Chờ duyệt</span>';
+                    case 'Approved':
+                        return '<span class="badge bg-success">✅ Đã duyệt</span>';
+                    case 'Rejected':
+                        return '<span class="badge bg-danger">❌ Từ chối</span>';
+                    case 'NeedRevision':
+                        return '<span class="badge bg-info text-dark">🔄 Cần sửa</span>';
+                    case 'Draft':
+                        return '<span class="badge bg-secondary">📝 Nháp</span>';
+                    default:
+                        return status;
+                }
+            }
+
+            function renderRoomStatusBadge(status) {
+                switch (status) {
+                    case 'Available':
+                        return '<span class="badge bg-success">🟢 Còn trống</span>';
+                    case 'Rented':
+                        return '<span class="badge bg-danger">🔴 Đã thuê</span>';
+                    case 'Hidden':
+                        return '<span class="badge bg-secondary">⚫ Ẩn</span>';
+                    default:
+                        return status;
+                }
+            }
+
+            // ================= RENDER ACTIONS =================
+            function renderActions(id, approvalStatus, title) {
+                const details = `<a href="/Admin/Post/Details/${id}" class="btn btn-sm btn-outline-primary">Xem</a>`;
+
+                switch (approvalStatus) {
+                    case 'Pending':
+                        return `
+                                    ${details}
+                                    <button type="button" class="btn btn-sm btn-success btn-approve" data-id="${id}">Duyệt</button>
+                                    <button type="button" class="btn btn-sm btn-danger btn-reject" data-id="${id}" data-title="${title}">Từ chối</button>
+                                    <button type="button" class="btn btn-sm btn-warning btn-revision" data-id="${id}" data-title="${title}">Yêu cầu sửa</button>`;
+                    case 'Approved':
+                        return `
+                                    ${details}
+                                    <button type="button" class="btn btn-sm btn-outline-danger btn-revoke" data-id="${id}">Hủy duyệt</button>`;
+                    case 'Rejected':
+                        return `
+                                    ${details}
+                                    <button type="button" class="btn btn-sm btn-success btn-approve" data-id="${id}">Duyệt lại</button>`;
+                    case 'NeedRevision':
+                        return `
+                                    ${details}
+                                    <button type="button" class="btn btn-sm btn-success btn-approve" data-id="${id}">Duyệt</button>
+                                    <button type="button" class="btn btn-sm btn-danger btn-reject" data-id="${id}" data-title="${title}">Từ chối</button>`;
+                    default:
+                        return details;
+                }
+            }
+
+            // ================= ⭐ UPDATE TAB COUNTS =================
+            function updateTabCounts(oldStatus, newStatus) {
+                // Xử lý old status → giảm 1
+                if (oldStatus && oldStatus !== newStatus) {
+                    const oldBadge = document.querySelector(`.tab-count[data-status="${oldStatus}"]`);
+                    if (oldBadge) {
+                        const cur = parseInt(oldBadge.textContent) || 0;
+                        oldBadge.textContent = Math.max(0, cur - 1);
+                    }
+                }
+
+                // Xử lý new status → tăng 1
+                if (newStatus && newStatus !== oldStatus) {
+                    const newBadge = document.querySelector(`.tab-count[data-status="${newStatus}"]`);
+                    if (newBadge) {
+                        const cur = parseInt(newBadge.textContent) || 0;
+                        newBadge.textContent = cur + 1;
+                    }
+                }
+
+                // "Tất cả" luôn giữ nguyên (không đổi khi duyệt/từ chối)
+            }
+
+            // ================= UPDATE DOM =================
+            function updateRow(id, newApprovalStatus, newRoomStatus, note, title) {
+                const row = document.getElementById(`post-row-${id}`);
+                if (!row) return;
+
+                // ⭐ Lấy status CŨ trước khi đổi
+                const oldStatus = row.dataset.status;
+
+                // Cập nhật data-status
+                row.dataset.status = newApprovalStatus;
+
+                // 1. Cập nhật approval badge
+                row.querySelector('.approval-cell').innerHTML = renderApprovalBadge(newApprovalStatus);
+
+                // 2. Cập nhật room status badge
+                if (newRoomStatus) {
+                    row.querySelector('.room-status-cell').innerHTML = renderRoomStatusBadge(newRoomStatus);
+                }
+
+                // 3. Cập nhật note
+                const noteCell = row.querySelector('.note-cell');
+                noteCell.innerHTML = note
+                    ? `<small class="text-muted">${note}</small>`
+                    : '';
+
+                // 4. Cập nhật action buttons
+                row.querySelector('.action-cell').innerHTML = renderActions(id, newApprovalStatus, title);
+
+                // 5. ⭐ CẬP NHẬT SỐ ĐẾM TRONG TABS
+                updateTabCounts(oldStatus, newApprovalStatus);
+
+                // 6. Nếu đang filter theo status mà dòng không khớp nữa → ẩn đi
+                if ('@statusFilter' && '@statusFilter' !== newApprovalStatus) {
+                    row.style.transition = 'opacity 0.4s';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 400);
+                }
+
+                bindRowEvents();
+            }
+
+            // ================= APPROVE =================
+            async function doApprove(id, btn) {
+                if (!confirm('Duyệt bài viết này?')) return;
+
+                btn.disabled = true;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '⏳...';
+
+                try {
+                    const data = await postAction(`/Admin/Post/Approve/${id}`);
+
+                    if (data.success) {
+                        const title = document.querySelector(`#post-row-${id} td:first-child .fw-bold`)?.textContent?.trim() || '';
+                        updateRow(id, 'Approved', 'Available', null, title);
+                        showAlert(data.message, 'success');
+                    } else {
+                        showAlert(data.message, 'danger');
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showAlert('Lỗi kết nối: ' + err.message, 'danger');
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            }
+
+            // ================= REVOKE =================
+            async function doRevoke(id, btn) {
+                if (!confirm('Hủy duyệt bài viết này?')) return;
+
+                btn.disabled = true;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '⏳...';
+
+                try {
+                    const data = await postAction(`/Admin/Post/Revoke/${id}`);
+
+                    if (data.success) {
+                        const title = document.querySelector(`#post-row-${id} td:first-child .fw-bold`)?.textContent?.trim() || '';
+                        updateRow(id, 'Pending', 'Hidden', null, title);
+                        showAlert(data.message, 'success');
+                    } else {
+                        showAlert(data.message, 'danger');
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showAlert('Lỗi kết nối: ' + err.message, 'danger');
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            }
+
+            // ================= REJECT MODAL =================
+            function openRejectModal(id, title) {
+                document.getElementById('rejectId').value = id;
+                document.getElementById('rejectTitle').textContent = title;
+                document.getElementById('rejectNote').value = '';
+                new bootstrap.Modal(document.getElementById('rejectModal')).show();
+            }
+
+            async function submitReject() {
+                const id = document.getElementById('rejectId').value;
+                const note = document.getElementById('rejectNote').value.trim();
+
+                if (!note) {
+                    showAlert('Vui lòng nhập lý do từ chối', 'warning');
+                    return;
+                }
+
+                const btn = document.getElementById('btnConfirmReject');
+                btn.disabled = true;
+                btn.innerHTML = '⏳ Đang xử lý...';
+
+                try {
+                    const data = await postAction(`/Admin/Post/Reject/${id}`, { note });
+
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('rejectModal')).hide();
+                        const title = document.querySelector(`#post-row-${id} td:first-child .fw-bold`)?.textContent?.trim() || '';
+                        updateRow(id, 'Rejected', 'Hidden', note, title);
+                        showAlert(data.message, 'success');
+                    } else {
+                        showAlert(data.message, 'danger');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showAlert('Lỗi kết nối: ' + err.message, 'danger');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Xác nhận';
+                }
+            }
+
+            // ================= REVISION MODAL =================
+            function openRevisionModal(id, title) {
+                document.getElementById('revisionId').value = id;
+                document.getElementById('revisionTitle').textContent = title;
+                document.getElementById('revisionNote').value = '';
+                new bootstrap.Modal(document.getElementById('revisionModal')).show();
+            }
+
+            async function submitRevision() {
+                const id = document.getElementById('revisionId').value;
+                const note = document.getElementById('revisionNote').value.trim();
+
+                if (!note) {
+                    showAlert('Vui lòng nhập nội dung cần sửa', 'warning');
+                    return;
+                }
+
+                const btn = document.getElementById('btnConfirmRevision');
+                btn.disabled = true;
+                btn.innerHTML = '⏳ Đang xử lý...';
+
+                try {
+                    const data = await postAction(`/Admin/Post/NeedRevision/${id}`, { note });
+
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('revisionModal')).hide();
+                        const title = document.querySelector(`#post-row-${id} td:first-child .fw-bold`)?.textContent?.trim() || '';
+                        updateRow(id, 'NeedRevision', 'Hidden', note, title);
+                        showAlert(data.message, 'success');
+                    } else {
+                        showAlert(data.message, 'danger');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showAlert('Lỗi kết nối: ' + err.message, 'danger');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Gửi yêu cầu';
+                }
+            }
+
+            // ================= BIND EVENTS =================
+            function bindRowEvents() {
+                document.querySelectorAll('.btn-approve').forEach(function (btn) {
+                    if (btn.dataset.bound) return;
+                    btn.dataset.bound = '1';
+                    btn.addEventListener('click', function () {
+                        doApprove(btn.dataset.id, btn);
+                    });
+                });
+
+                document.querySelectorAll('.btn-revoke').forEach(function (btn) {
+                    if (btn.dataset.bound) return;
+                    btn.dataset.bound = '1';
+                    btn.addEventListener('click', function () {
+                        doRevoke(btn.dataset.id, btn);
+                    });
+                });
+
+                document.querySelectorAll('.btn-reject').forEach(function (btn) {
+                    if (btn.dataset.bound) return;
+                    btn.dataset.bound = '1';
+                    btn.addEventListener('click', function () {
+                        openRejectModal(btn.dataset.id, btn.dataset.title || '');
+                    });
+                });
+
+                document.querySelectorAll('.btn-revision').forEach(function (btn) {
+                    if (btn.dataset.bound) return;
+                    btn.dataset.bound = '1';
+                    btn.addEventListener('click', function () {
+                        openRevisionModal(btn.dataset.id, btn.dataset.title || '');
+                    });
+                });
+            }
+
+            bindRowEvents();
+
+            // Modal confirm buttons
+            document.getElementById('btnConfirmReject')?.addEventListener('click', submitReject);
+            document.getElementById('btnConfirmRevision')?.addEventListener('click', submitRevision);
+        });
+    </script>
+}

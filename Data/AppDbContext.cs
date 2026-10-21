@@ -21,6 +21,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<RepairRequest> RepairRequests => Set<RepairRequest>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<SearchHistory> SearchHistories => Set<SearchHistory>();
 
     // ============================================================
     // TỰ ĐỘNG CẬP NHẬT CreatedAt / UpdatedAt
@@ -261,5 +262,14 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .WithMany()
             .HasForeignKey(n => n.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+        // ===== SearchHistory =====
+        builder.Entity<SearchHistory>()
+            .HasOne(s => s.User)
+            .WithMany()
+            .HasForeignKey(s => s.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<SearchHistory>()
+            .HasIndex(s => new { s.UserId, s.SearchedAt });
     }
 }

@@ -1,171 +1,103 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using EZ_Rent.Data;
 using EZ_Rent.Models;
+using EZ_Rent.Services;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
-namespace EZ_Rent.Areas_Tenant_Controllers
+namespace EZ_Rent.Areas.Tenant.Controllers
 {
     [Area("Tenant")]
+    [Authorize(Roles = "Tenant")]
     public class FavoriteController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly RecommendationService _recommender;
 
-        public FavoriteController(AppDbContext context)
+        public FavoriteController(
+            AppDbContext context,
+            RecommendationService recommender)
         {
             _context = context;
+            _recommender = recommender;
         }
 
-        // GET: Favorite
+        // ============================================================
+        // GET: /Tenant/Favorite
+        // ============================================================
         public async Task<IActionResult> Index()
         {
-            var appDbContext = _context.Favorites.Include(f => f.RentalPost).Include(f => f.User);
-            return View(await appDbContext.ToListAsync());
-        }
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null) return Unauthorized();
 
-        // GET: Favorite/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var favorite = await _context.Favorites
+            var favorites = await _context.Favorites
                 .Include(f => f.RentalPost)
-                .Include(f => f.User)
-                .FirstOrDefaultAsync(m => m.FavoriteId == id);
-            if (favorite == null)
-            {
-                return NotFound();
-            }
+                    .ThenInclude(p => p.RoomImages)
+                .Include(f => f.RentalPost)
+                    .ThenInclude(p => p.Owner)
+                .Where(f => f.UserId == userId)
+                .OrderByDescending(f => f.CreatedAt)
+                .ToListAsync();
 
-            return View(favorite);
+            return View(favorites);
         }
 
-        // GET: Favorite/Create
-        public IActionResult Create()
-        {
-            ViewData["RentalPostId"] = new SelectList(_context.RentalPosts, "RentalPostId", "Address");
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id");
-            return View();
-        }
-
-        // POST: Favorite/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // ============================================================
+        // POST: /Tenant/Favorite/Toggle/{rentalPostId}
+        // AJAX — thêm / bỏ yêu thích
+        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("FavoriteId,CreatedAt,UserId,RentalPostId")] Favorite favorite)
+        public async Task<IActionResult> Toggle(int rentalPostId)
         {
-            if (ModelState.IsValid)
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null)
+                return Json(new { success = false, message = "Chưa đăng nhập" });
+
+            // Check post tồn tại
+            var post = await _context.RentalPosts.FindAsync(rentalPostId);
+            if (post == null)
+                return Json(new { success = false, message = "Phòng không tồn tại" });
+
+            // Tìm Favorite hiện tại
+            var existing = await _context.Favorites
+                .FirstOrDefaultAsync(f => f.UserId == userId &&
+                                          f.RentalPostId == rentalPostId);
+
+            if (existing != null)
             {
-                _context.Add(favorite);
+                // ===== BỎ YÊU THÍCH =====
+                _context.Favorites.Remove(existing);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["RentalPostId"] = new SelectList(_context.RentalPosts, "RentalPostId", "Address", favorite.RentalPostId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", favorite.UserId);
-            return View(favorite);
-        }
 
-        // GET: Favorite/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
+                _recommender.InvalidateModel();
 
-            var favorite = await _context.Favorites.FindAsync(id);
-            if (favorite == null)
-            {
-                return NotFound();
-            }
-            ViewData["RentalPostId"] = new SelectList(_context.RentalPosts, "RentalPostId", "Address", favorite.RentalPostId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", favorite.UserId);
-            return View(favorite);
-        }
-
-        // POST: Favorite/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("FavoriteId,CreatedAt,UserId,RentalPostId")] Favorite favorite)
-        {
-            if (id != favorite.FavoriteId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
+                return Json(new
                 {
-                    _context.Update(favorite);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!FavoriteExists(favorite.FavoriteId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                    success = true,
+                    action  = "removed",
+                    message = "Đã bỏ yêu thích"
+                });
             }
-            ViewData["RentalPostId"] = new SelectList(_context.RentalPosts, "RentalPostId", "Address", favorite.RentalPostId);
-            ViewData["UserId"] = new SelectList(_context.Users, "Id", "Id", favorite.UserId);
-            return View(favorite);
-        }
 
-        // GET: Favorite/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
+            // ===== THÊM YÊU THÍCH =====
+            _context.Favorites.Add(new Favorite
             {
-                return NotFound();
-            }
-
-            var favorite = await _context.Favorites
-                .Include(f => f.RentalPost)
-                .Include(f => f.User)
-                .FirstOrDefaultAsync(m => m.FavoriteId == id);
-            if (favorite == null)
-            {
-                return NotFound();
-            }
-
-            return View(favorite);
-        }
-
-        // POST: Favorite/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var favorite = await _context.Favorites.FindAsync(id);
-            if (favorite != null)
-            {
-                _context.Favorites.Remove(favorite);
-            }
-
+                UserId       = userId,
+                RentalPostId = rentalPostId,
+                CreatedAt    = DateTime.UtcNow
+            });
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
 
-        private bool FavoriteExists(int id)
-        {
-            return _context.Favorites.Any(e => e.FavoriteId == id);
+            _recommender.InvalidateModel();
+
+            return Json(new
+            {
+                success = true,
+                action  = "added",
+                message = "Đã thêm vào yêu thích"
+            });
         }
     }
 }

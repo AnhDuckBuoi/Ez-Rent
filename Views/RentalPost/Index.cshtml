@@ -1,173 +1,200 @@
-@model IEnumerable<EZ_Rent.Models.RentalPost>
+@using EZ_Rent.Helpers
+@model PaginatedList<EZ_Rent.Models.RentalPost>
+@using EZ_Rent.Models.Enums
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Tìm phòng";
+
+    var cities    = ViewBag.Cities as List<string> ?? new();
+    var districts = ViewBag.Districts as List<string> ?? new();
+    var selectedAmenities = ViewBag.Amenities as string[] ?? Array.Empty<string>();
+
+    var allAmenities = new[] { "Wifi", "Điều hòa", "Nóng lạnh", "Tủ lạnh", "Máy giặt",
+                               "Ban công", "Thang máy", "Chỗ đậu xe", "Bếp riêng", "Camera an ninh" };
 }
 
-<h1>Index</h1>
+<h1>🏠 Tìm phòng trọ</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Price)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Area)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Address)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.City)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.District)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Ward)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MapLocation)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AmenitiesJson)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoomType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoomStatus)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApprovalStatus)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApprovalNote)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApprovedBy)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ApprovedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ElectricityUnitPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.WaterUnitPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ServiceFee)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AvailableFrom)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.PostedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Owner)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Price)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Area)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.City)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.District)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Ward)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MapLocation)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AmenitiesJson)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RoomType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RoomStatus)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ApprovalStatus)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ApprovalNote)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ApprovedBy.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ApprovedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ElectricityUnitPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.WaterUnitPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ServiceFee)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AvailableFrom)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.PostedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Owner.Id)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.RentalPostId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.RentalPostId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.RentalPostId">Delete</a>
-            </td>
-        </tr>
+<div class="row">
+    @* ============================================================ *@
+    @*  SIDEBAR FILTER                                               *@
+    @* ============================================================ *@
+    <div class="col-md-3">
+        <form method="get" asp-action="Index">
+            <div class="card mb-3">
+                <div class="card-header"><strong>Bộ lọc</strong></div>
+                <div class="card-body">
+
+                    @* Thành phố *@
+                    <div class="mb-3">
+                        <label class="form-label">Thành phố</label>
+                        <select name="city" class="form-select">
+                            <option value="">-- Tất cả --</option>
+                            @foreach (var c in cities)
+                            {
+                                <option value="@c" selected="@(ViewBag.City == c)">@c</option>
+                            }
+                        </select>
+                    </div>
+
+                    @* Quận *@
+                    <div class="mb-3">
+                        <label class="form-label">Quận / Huyện</label>
+                        <select name="district" class="form-select">
+                            <option value="">-- Tất cả --</option>
+                            @foreach (var d in districts)
+                            {
+                                <option value="@d" selected="@(ViewBag.District == d)">@d</option>
+                            }
+                        </select>
+                    </div>
+
+                    @* Khoảng giá *@
+                    <div class="mb-3">
+                        <label class="form-label">Khoảng giá (đ/tháng)</label>
+                        <div class="d-flex gap-2">
+                            <input type="number" name="minPrice" class="form-control"
+                                   placeholder="Từ" value="@ViewBag.MinPrice" step="100000" />
+                            <input type="number" name="maxPrice" class="form-control"
+                                   placeholder="Đến" value="@ViewBag.MaxPrice" step="100000" />
+                        </div>
+                    </div>
+
+                    @* Loại phòng *@
+                    <div class="mb-3">
+                        <label class="form-label">Loại phòng</label>
+                        <select name="roomType" class="form-select">
+                            <option value="">-- Tất cả --</option>
+                            @foreach (RoomType t in Enum.GetValues(typeof(RoomType)))
+                            {
+                                <option value="@((int)t)" selected="@(ViewBag.RoomType?.Equals(t) == true)">
+                                    @t
+                                </option>
+                            }
+                        </select>
+                    </div>
+
+                    @* Diện tích *@
+                    <div class="mb-3">
+                        <label class="form-label">Diện tích (m²)</label>
+                        <div class="d-flex gap-2">
+                            <input type="number" name="minArea" class="form-control"
+                                   placeholder="Từ" value="@ViewBag.MinArea" />
+                            <input type="number" name="maxArea" class="form-control"
+                                   placeholder="Đến" value="@ViewBag.MaxArea" />
+                        </div>
+                    </div>
+
+                    @* Tiện ích *@
+                    <div class="mb-3">
+                        <label class="form-label">Tiện ích</label>
+                        @foreach (var a in allAmenities)
+                        {
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                       name="amenities" value="@a"
+                                       checked="@selectedAmenities.Contains(a)" />
+                                <label class="form-check-label">@a</label>
+                            </div>
+                        }
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">🔍 Tìm kiếm</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100 mt-2">Xóa bộ lọc</a>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    @* ============================================================ *@
+    @*  RESULTS                                                     *@
+    @* ============================================================ *@
+    <div class="col-md-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>@Model.TotalItems kết quả (Trang @Model.PageIndex / @Model.TotalPages)</h5>
+
+            <form method="get" asp-action="Index" class="d-flex gap-2">
+                @* Giữ filter khi đổi sort *@
+                <input type="hidden" name="city" value="@ViewBag.City" />
+                <input type="hidden" name="district" value="@ViewBag.District" />
+                <input type="hidden" name="minPrice" value="@ViewBag.MinPrice" />
+                <input type="hidden" name="maxPrice" value="@ViewBag.MaxPrice" />
+                <input type="hidden" name="roomType" value="@((int?)ViewBag.RoomType)" />
+
+                <select name="sortBy" class="form-select" onchange="this.form.submit()">
+                    <option value="">Mới nhất</option>
+                    <option value="price_asc"  selected="@(ViewBag.SortBy == "price_asc")">Giá thấp → cao</option>
+                    <option value="price_desc" selected="@(ViewBag.SortBy == "price_desc")">Giá cao → thấp</option>
+                    <option value="area_asc"   selected="@(ViewBag.SortBy == "area_asc")">Diện tích nhỏ → lớn</option>
+                    <option value="area_desc"  selected="@(ViewBag.SortBy == "area_desc")">Diện tích lớn → nhỏ</option>
+                </select>
+            </form>
+        </div>
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info">
+                Không tìm thấy phòng nào phù hợp. Vui lòng thử lại với bộ lọc khác.
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+                @foreach (var post in Model)
+                {
+                    var thumb = post.RoomImages?.FirstOrDefault(i => i.IsPrimary)?.MediaUrl
+                                ?? post.RoomImages?.FirstOrDefault()?.MediaUrl
+                                ?? "https://via.placeholder.com/300x200";
+
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm">
+                            <img src="@thumb" class="card-img-top"
+                                 style="height:180px; object-fit:cover;" />
+                            <div class="card-body">
+                                <h6 class="card-title">@post.Title</h6>
+                                <p class="text-danger fw-bold mb-1">
+                                    @post.Price.ToString("N0")đ/tháng
+                                </p>
+                                <p class="text-muted small mb-1">
+                                    📍 @post.District, @post.City
+                                </p>
+                                <p class="text-muted small mb-0">
+                                    📐 @post.Area m² · @post.RoomType
+                                </p>
+                            </div>
+                            <div class="card-footer bg-white">
+                                <a asp-action="Details" asp-route-id="@post.RentalPostId"
+                                   class="btn btn-sm btn-outline-primary w-100">
+                                    Xem chi tiết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
+
+@* ============================================================ *@
+@*  PAGINATION                                                   *@
+@* ============================================================ *@
+@{
+    var routeValues = new Dictionary<string, string?>
+    {
+        ["city"]     = ViewBag.City,
+        ["district"] = ViewBag.District,
+        ["minPrice"] = ViewBag.MinPrice?.ToString(),
+        ["maxPrice"] = ViewBag.MaxPrice?.ToString(),
+        ["roomType"] = ViewBag.RoomType?.ToString(),
+        ["minArea"]  = ViewBag.MinArea?.ToString(),
+        ["maxArea"]  = ViewBag.MaxArea?.ToString(),
+        ["sortBy"]   = ViewBag.SortBy
+    };
 }
-    </tbody>
-</table>
+
+@await Html.PartialAsync("_Pagination", PaginationInfo.From(
+    Model,
+    action: "Index",
+    controller: "RentalPost",
+    routeValues: routeValues))

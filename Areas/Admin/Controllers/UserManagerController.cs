@@ -1,17 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using EZ_Rent.Data;
+using EZ_Rent.Helpers;
 using EZ_Rent.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
-namespace EZ_Rent.Areas_Admin_Controllers
+namespace EZ_Rent.Areas.Admin.Controllers
 {
     [Area("Admin")]
     [Authorize(Roles = "Admin")]
@@ -19,10 +14,12 @@ namespace EZ_Rent.Areas_Admin_Controllers
     {
         private readonly AppDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+
+        private const int PAGE_SIZE = 15;
+
         [TempData]
         public string? StatusMessage { get; set; }
-
-        private readonly RoleManager<IdentityRole> _roleManager;
 
         public UserManagerController(
             AppDbContext context,
@@ -34,52 +31,69 @@ namespace EZ_Rent.Areas_Admin_Controllers
             _roleManager = roleManager;
         }
 
-        // GET: UserManager
-        public async Task<IActionResult> Index()
+        // ============================================================
+        // GET: /Admin/UserManager
+        // ============================================================
+        public async Task<IActionResult> Index(int page = 1)
         {
-            return View(await _context.Users.ToListAsync());
+            if (page < 1) page = 1;
+
+            var query = _context.Users
+                .OrderByDescending(u => u.CreatedAt)
+                .AsQueryable();
+
+            var paginatedUsers = await PaginatedList<ApplicationUser>.CreateAsync(
+                query, page, PAGE_SIZE);
+
+            // ⭐ PRE-LOAD ROLES 1 LẦN — tránh N+1 query
+            var userRoles = new Dictionary<string, List<string>>();
+            foreach (var user in paginatedUsers)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                userRoles[user.Id] = roles.ToList();
+            }
+
+            ViewBag.UserRoles = userRoles;
+
+            return View(paginatedUsers);
         }
 
-        // GET: UserManager/Details/5
+        // ============================================================
+        // GET: /Admin/UserManager/Details/{id}
+        // ============================================================
         public async Task<IActionResult> Details(string id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (string.IsNullOrEmpty(id)) return NotFound();
 
-            var applicationUser = await _context.Users
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (applicationUser == null)
-            {
-                return NotFound();
-            }
-            var currentRoles = await _userManager.GetRolesAsync(applicationUser);
+            var user = await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
+            if (user == null) return NotFound();
 
-            ViewBag.CurrentRoles = currentRoles;
-            return View(applicationUser);
+            ViewBag.CurrentRoles = await _userManager.GetRolesAsync(user);
+            return View(user);
         }
 
-        // GET: UserManager/Create
+        // ============================================================
+        // GET: /Admin/UserManager/Create
+        // ============================================================
         public async Task<IActionResult> Create()
         {
             await LoadRoles();
             return View();
         }
 
-        // POST: UserManager/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // ============================================================
+        // POST: /Admin/UserManager/Create
+        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
-    string fullName,
-    string email,
-    string password,
-    string phoneNumber,
-    string[] roles)
+            string fullName,
+            string email,
+            string password,
+            string? phoneNumber,
+            string[]? roles)
         {
-            var user = new ApplicationUser()
+            var user = new ApplicationUser
             {
                 FullName = fullName,
                 Email = email,
@@ -91,144 +105,114 @@ namespace EZ_Rent.Areas_Admin_Controllers
 
             if (result.Succeeded)
             {
-                if (roles.Length > 0)
-                {
+                if (roles != null && roles.Length > 0)
                     await _userManager.AddToRolesAsync(user, roles);
-                }
 
                 StatusMessage = "Tạo người dùng mới thành công";
-
                 return RedirectToAction(nameof(Index));
             }
 
             foreach (var error in result.Errors)
-            {
                 ModelState.AddModelError("", error.Description);
-            }
-
-            StatusMessage = "Tạo người dùng mới thất bại";
 
             await LoadRoles(roles);
+            return View(user);
+        }
+
+        // ============================================================
+        // GET: /Admin/UserManager/Edit/{id}
+        // ============================================================
+        public async Task<IActionResult> Edit(string id)
+        {
+            if (string.IsNullOrEmpty(id)) return NotFound();
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            await LoadRoles(currentRoles);
 
             return View(user);
         }
 
-        // GET: UserManager/Edit/5
-        public async Task<IActionResult> Edit(string id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var applicationUser = await _userManager.FindByIdAsync(id);
-
-            if (applicationUser == null)
-            {
-                return NotFound();
-            }
-
-            var currentRoles = await _userManager.GetRolesAsync(applicationUser);
-
-            await LoadRoles(currentRoles);
-
-            return View(applicationUser);
-        }
-
-        // POST: UserManager/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        // ============================================================
+        // POST: /Admin/UserManager/Edit/{id}
+        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
-    string id,
-    string fullName,
-    string email,
-    string? phoneNumber,
-    string[] roles)
+            string id,
+            string fullName,
+            string email,
+            string? phoneNumber,
+            string[]? roles)
         {
             var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
 
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            // Lấy role cũ trước khi thay đổi
             var oldRoles = await _userManager.GetRolesAsync(user);
 
-            // Cập nhật thông tin User
             user.FullName = fullName;
             user.Email = email;
             user.PhoneNumber = phoneNumber;
 
             var result = await _userManager.UpdateAsync(user);
-
             if (!result.Succeeded)
             {
                 foreach (var error in result.Errors)
-                {
                     ModelState.AddModelError("", error.Description);
-                }
 
                 await LoadRoles(roles);
-
-                StatusMessage = "Cập nhật thất bại";
-
                 return View(user);
             }
 
-            // Xóa toàn bộ Role cũ
             await _userManager.RemoveFromRolesAsync(user, oldRoles);
 
-            // Thêm Role mới
-            if (roles.Length > 0)
-            {
+            if (roles != null && roles.Length > 0)
                 await _userManager.AddToRolesAsync(user, roles);
-            }
 
             StatusMessage = "Cập nhật thành công";
-
             return RedirectToAction(nameof(Index));
         }
-        // GET: UserManager/Delete/5
+
+        // ============================================================
+        // GET: /Admin/UserManager/Delete/{id}
+        // ============================================================
         public async Task<IActionResult> Delete(string id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-            var roles = await _roleManager.Roles
-                .OrderBy(x => x.Name)
-                .ToListAsync();
+            if (string.IsNullOrEmpty(id)) return NotFound();
 
-            ViewBag.Roles = roles;
-            var applicationUser = await _context.Users
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (applicationUser == null)
-            {
-                return NotFound();
-            }
+            var user = await _context.Users.FirstOrDefaultAsync(m => m.Id == id);
+            if (user == null) return NotFound();
 
-            return View(applicationUser);
+            return View(user);
         }
 
-        // POST: UserManager/Delete/5
+        // ============================================================
+        // POST: /Admin/UserManager/Delete/{id}
+        // ============================================================
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(string id)
         {
-            var applicationUser = await _context.Users.FindAsync(id);
-            if (applicationUser != null)
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null) return NotFound();
+
+            if (user.Id == _userManager.GetUserId(User))
             {
-                _context.Users.Remove(applicationUser);
+                StatusMessage = "Không thể xóa chính mình!";
+                return RedirectToAction(nameof(Index));
             }
 
-            await _context.SaveChangesAsync();
+            await _userManager.DeleteAsync(user);
+
             StatusMessage = "Xóa thành công";
             return RedirectToAction(nameof(Index));
         }
 
+        // ============================================================
+        // POST: /Admin/UserManager/Lock/{id}
+        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Lock(string id)
@@ -256,6 +240,9 @@ namespace EZ_Rent.Areas_Admin_Controllers
             });
         }
 
+        // ============================================================
+        // POST: /Admin/UserManager/Unlock/{id}
+        // ============================================================
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Unlock(string id)
@@ -278,18 +265,16 @@ namespace EZ_Rent.Areas_Admin_Controllers
             });
         }
 
-        private bool ApplicationUserExists(string id)
-        {
-            return _context.Users.Any(e => e.Id == id);
-        }
+        // ============================================================
+        // Helpers
+        // ============================================================
         private async Task LoadRoles(IEnumerable<string>? selectedRoles = null)
         {
             ViewBag.Roles = await _roleManager.Roles
                 .OrderBy(x => x.Name)
                 .ToListAsync();
 
-            ViewBag.SelectedRoles = selectedRoles?.ToList()
-                                    ?? new List<string>();
+            ViewBag.SelectedRoles = selectedRoles?.ToList() ?? new List<string>();
         }
     }
 }

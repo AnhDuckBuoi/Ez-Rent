@@ -695,6 +695,43 @@ namespace EZ_Rent.Migrations
                     b.ToTable("RoomImages");
                 });
 
+            modelBuilder.Entity("EZ_Rent.Models.SearchHistory", b =>
+                {
+                    b.Property<int>("SearchHistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SearchHistoryId"));
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("District")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("MaxPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("MinPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("RoomType")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SearchedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("SearchHistoryId");
+
+                    b.HasIndex("UserId", "SearchedAt");
+
+                    b.ToTable("SearchHistories");
+                });
+
             modelBuilder.Entity("EZ_Rent.Models.Service", b =>
                 {
                     b.Property<int>("ServiceId")
@@ -1115,6 +1152,17 @@ namespace EZ_Rent.Migrations
                         .IsRequired();
 
                     b.Navigation("RentalPost");
+                });
+
+            modelBuilder.Entity("EZ_Rent.Models.SearchHistory", b =>
+                {
+                    b.HasOne("EZ_Rent.Models.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("EZ_Rent.Models.Service", b =>

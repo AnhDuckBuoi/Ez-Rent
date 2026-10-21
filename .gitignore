@@ -109,6 +109,9 @@ desktop.ini
 *.bak
 *.orig
 *.cache
-# Config secret - KHÔNG commit
+# Config secret - KHï¿½NG commit
 appsettings.Development.json
 appsettings.Local.json
+
+#wwwroot
+wwwroot/uploads/

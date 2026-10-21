@@ -79,6 +79,11 @@ public class RentalPost
     [Required]
     public string OwnerId { get; set; } = "";
     public ApplicationUser Owner { get; set; } = null!;
+    // // == Delete ===
+    // public bool IsDeleted { get; set; } = false;
+    // public DateTime? DeletedAt { get; set; }
+    // public string? DeletedReason { get; set; }
+    // public string? DeletedById { get; set; }
 
     // ===== Navigation =====
     public ICollection<RoomImage> RoomImages { get; set; } = new List<RoomImage>();

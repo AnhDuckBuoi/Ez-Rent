@@ -1,0 +1,87 @@
+@model EZ_Rent.Helpers.PaginationInfo
+
+@if (Model.TotalPages > 1)
+{
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center mb-2">
+
+            @* Nút Previous *@
+            <li class="page-item @(Model.HasPreviousPage ? "" : "disabled")">
+                <a class="page-link"
+                   asp-action="@Model.Action"
+                   asp-controller="@Model.Controller"
+                   asp-area="@Model.Area"
+                   asp-all-route-data="Model.RouteValues"
+                   asp-route-page="@(Model.PageIndex - 1)">
+                    ← Trước
+                </a>
+            </li>
+
+            @{
+                int startPage = Math.Max(1, Model.PageIndex - 2);
+                int endPage   = Math.Min(Model.TotalPages, Model.PageIndex + 2);
+            }
+
+            @if (startPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link"
+                       asp-action="@Model.Action"
+                       asp-controller="@Model.Controller"
+                       asp-area="@Model.Area"
+                       asp-all-route-data="Model.RouteValues"
+                       asp-route-page="1">1</a>
+                </li>
+                @if (startPage > 2)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
+            }
+
+            @for (int i = startPage; i <= endPage; i++)
+            {
+                <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                    <a class="page-link"
+                       asp-action="@Model.Action"
+                       asp-controller="@Model.Controller"
+                       asp-area="@Model.Area"
+                       asp-all-route-data="Model.RouteValues"
+                       asp-route-page="@i">@i</a>
+                </li>
+            }
+
+            @if (endPage < Model.TotalPages)
+            {
+                @if (endPage < Model.TotalPages - 1)
+                {
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                }
+                <li class="page-item">
+                    <a class="page-link"
+                       asp-action="@Model.Action"
+                       asp-controller="@Model.Controller"
+                       asp-area="@Model.Area"
+                       asp-all-route-data="Model.RouteValues"
+                       asp-route-page="@Model.TotalPages">@Model.TotalPages</a>
+                </li>
+            }
+
+            @* Nút Next *@
+            <li class="page-item @(Model.HasNextPage ? "" : "disabled")">
+                <a class="page-link"
+                   asp-action="@Model.Action"
+                   asp-controller="@Model.Controller"
+                   asp-area="@Model.Area"
+                   asp-all-route-data="Model.RouteValues"
+                   asp-route-page="@(Model.PageIndex + 1)">
+                    Sau →
+                </a>
+            </li>
+
+        </ul>
+
+        <p class="text-center text-muted small mb-0">
+            Trang @Model.PageIndex / @Model.TotalPages (tổng @Model.TotalItems mục)
+        </p>
+    </nav>
+}

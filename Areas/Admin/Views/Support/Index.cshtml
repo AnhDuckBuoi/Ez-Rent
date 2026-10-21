@@ -1,95 +1,461 @@
-@model IEnumerable<EZ_Rent.Models.RepairRequest>
+@using EZ_Rent.Helpers
+@model PaginatedList<EZ_Rent.Models.RepairRequest>
+@using EZ_Rent.Models.Enums
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Khiếu nại sửa chữa";
 }
 
-<h1>Index</h1>
+<h1>Khiếu nại sửa chữa</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
+<div id="alertContainer">
+    <partial name="_StatusMessage" />
+</div>
+
+@* ============================================================ *@
+@*  FILTER STATUS                                                *@
+@* ============================================================ *@
+<ul class="nav nav-pills mb-3">
+    <li class="nav-item">
+        <a class="nav-link @(ViewBag.StatusFilter == null ? "active" : "")"
+           asp-action="Index">Tất cả</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ViewBag.StatusFilter == "Pending" ? "active" : "")"
+           asp-action="Index" asp-route-status="Pending">⏳ Chờ xử lý</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ViewBag.StatusFilter == "InProgress" ? "active" : "")"
+           asp-action="Index" asp-route-status="InProgress">🔧 Đang xử lý</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ViewBag.StatusFilter == "Resolved" ? "active" : "")"
+           asp-action="Index" asp-route-status="Resolved">✅ Đã giải quyết</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(ViewBag.StatusFilter == "Cancelled" ? "active" : "")"
+           asp-action="Index" asp-route-status="Cancelled">❌ Đã hủy</a>
+    </li>
+</ul>
+
+<p class="text-muted">
+    Tổng <strong>@Model.TotalItems</strong> khiếu nại —
+    Trang <strong>@Model.PageIndex</strong> / <strong>@Model.TotalPages</strong>
 </p>
-<table class="table">
-    <thead>
+
+<table class="table table-hover align-middle">
+    <thead class="table-light">
         <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.RentalPost)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Tenant)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ProblemType)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Description)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Priority)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ImageUrl)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ResolutionNote)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ResolvedAt)
-            </th>
-            <th></th>
+            <th>Phòng</th>
+            <th>Người gửi</th>
+            <th>Loại sự cố</th>
+            <th>Ưu tiên</th>
+            <th>Trạng thái</th>
+            <th>Ngày gửi</th>
+            <th style="width:280px">Thao tác</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.RentalPost.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Tenant.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProblemType)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Priority)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ImageUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ResolutionNote)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ResolvedAt)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.RepairRequestId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.RepairRequestId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.RepairRequestId">Delete</a>
-            </td>
-        </tr>
-}
+        @foreach (var item in Model)
+        {
+            <tr id="repair-row-@item.RepairRequestId" data-id="@item.RepairRequestId">
+                <td class="text-truncate" style="max-width:200px;">
+                    @item.RentalPost?.Address
+                </td>
+                <td>@item.Tenant?.FullName</td>
+                <td>@item.ProblemType</td>
+
+                @* ===== PRIORITY ===== *@
+                <td class="priority-cell">
+                    @switch (item.Priority)
+                    {
+                        case RepairPriority.Low:
+                            <span class="badge bg-secondary">Thấp</span>
+                            break;
+                        case RepairPriority.Medium:
+                            <span class="badge bg-info text-dark">Trung bình</span>
+                            break;
+                        case RepairPriority.High:
+                            <span class="badge bg-warning text-dark">Cao</span>
+                            break;
+                        case RepairPriority.Urgent:
+                            <span class="badge bg-danger">Khẩn cấp</span>
+                            break;
+                    }
+                </td>
+
+                @* ===== STATUS ===== *@
+                <td class="status-cell">
+                    @switch (item.Status)
+                    {
+                        case RepairRequestStatus.Pending:
+                            <span class="badge bg-warning text-dark">⏳ Chờ xử lý</span>
+                            break;
+                        case RepairRequestStatus.InProgress:
+                            <span class="badge bg-info text-dark">🔧 Đang xử lý</span>
+                            break;
+                        case RepairRequestStatus.Resolved:
+                            <span class="badge bg-success">✅ Đã giải quyết</span>
+                            break;
+                        case RepairRequestStatus.Cancelled:
+                            <span class="badge bg-secondary">❌ Đã hủy</span>
+                            break;
+                    }
+                </td>
+
+                <td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+
+                @* ===== ACTIONS ===== *@
+                <td class="action-cell">
+                    <a asp-action="Details" asp-route-id="@item.RepairRequestId"
+                       class="btn btn-sm btn-outline-primary">Chi tiết</a>
+
+                    @if (item.Status == RepairRequestStatus.Pending)
+                    {
+                        <button type="button" class="btn btn-sm btn-info btn-action"
+                                data-id="@item.RepairRequestId"
+                                data-action="InProgress">
+                            🔧 Bắt đầu
+                        </button>
+
+                        <button type="button" class="btn btn-sm btn-success btn-resolve"
+                                data-id="@item.RepairRequestId">
+                            ✅ Xử lý
+                        </button>
+
+                        <button type="button" class="btn btn-sm btn-outline-danger btn-cancel"
+                                data-id="@item.RepairRequestId">
+                            ❌ Hủy
+                        </button>
+                    }
+                    else if (item.Status == RepairRequestStatus.InProgress)
+                    {
+                        <button type="button" class="btn btn-sm btn-success btn-resolve"
+                                data-id="@item.RepairRequestId">
+                            ✅ Xử lý
+                        </button>
+
+                        <button type="button" class="btn btn-sm btn-outline-danger btn-cancel"
+                                data-id="@item.RepairRequestId">
+                            ❌ Hủy
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
     </tbody>
 </table>
+
+@* ============================================================ *@
+@*  PAGINATION                                                   *@
+@* ============================================================ *@
+@{
+    var routeValues = new Dictionary<string, string?>
+    {
+        ["status"] = ViewBag.StatusFilter
+    };
+}
+
+@await Html.PartialAsync("_Pagination", PaginationInfo.From(
+    Model,
+    action: "Index",
+    controller: "Support",
+    area: "Admin",
+    routeValues: routeValues))
+
+@* ============================================================ *@
+@*  MODAL RESOLVE                                                *@
+@* ============================================================ *@
+<div class="modal fade" id="resolveModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Đánh dấu đã giải quyết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="resolveId" />
+                <label for="resolveNote" class="form-label">
+                    Ghi chú giải quyết <span class="text-danger">*</span>
+                </label>
+                <textarea id="resolveNote" class="form-control" rows="3" required maxlength="2000"
+                          placeholder="VD: Đã cử thợ sửa, kiểm tra lại và hoạt động bình thường..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-success" id="btnConfirmResolve">Xác nhận</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* ============================================================ *@
+@*  MODAL CANCEL                                                 *@
+@* ============================================================ *@
+<div class="modal fade" id="cancelModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Hủy khiếu nại</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="cancelId" />
+                <label for="cancelNote" class="form-label">
+                    Lý do hủy <span class="text-danger">*</span>
+                </label>
+                <textarea id="cancelNote" class="form-control" rows="3" required maxlength="2000"
+                          placeholder="VD: Khiếu nại trùng lặp, không có căn cứ..."></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-danger" id="btnConfirmCancel">Xác nhận hủy</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* Form ẩn — chứa AntiForgeryToken cho AJAX *@
+<form id="afForm" style="display:none">
+    @Html.AntiForgeryToken()
+</form>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            // ================= Token =================
+            const afInput = document.querySelector('#afForm input[name="__RequestVerificationToken"]');
+            const AF_TOKEN = afInput ? afInput.value : '';
+
+            const alertContainer = document.getElementById('alertContainer');
+
+            // ================= Alert =================
+            function showAlert(message, type = 'warning') {
+                const html = `
+                    <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`;
+                alertContainer.insertAdjacentHTML('afterbegin', html);
+
+                setTimeout(() => {
+                    const first = alertContainer.querySelector('.alert');
+                    if (first) bootstrap.Alert.getOrCreateInstance(first).close();
+                }, 4000);
+            }
+
+            // ================= POST helper =================
+            async function postAction(url, params = {}) {
+                const body = new URLSearchParams({
+                    __RequestVerificationToken: AF_TOKEN,
+                    ...params
+                });
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: body.toString()
+                });
+
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return await res.json();
+            }
+
+            // ================= UPDATE DOM =================
+            function renderStatusBadge(status) {
+                switch (status) {
+                    case 'Pending':
+                        return '<span class="badge bg-warning text-dark">⏳ Chờ xử lý</span>';
+                    case 'InProgress':
+                        return '<span class="badge bg-info text-dark">🔧 Đang xử lý</span>';
+                    case 'Resolved':
+                        return '<span class="badge bg-success">✅ Đã giải quyết</span>';
+                    case 'Cancelled':
+                        return '<span class="badge bg-secondary">❌ Đã hủy</span>';
+                    default:
+                        return status;
+                }
+            }
+
+            function renderActions(id, status) {
+                const details = `<a href="/Admin/Support/Details/${id}" class="btn btn-sm btn-outline-primary">Chi tiết</a>`;
+
+                if (status === 'Pending') {
+                    return `
+                        ${details}
+                        <button type="button" class="btn btn-sm btn-info btn-action"
+                                data-id="${id}" data-action="InProgress">🔧 Bắt đầu</button>
+                        <button type="button" class="btn btn-sm btn-success btn-resolve"
+                                data-id="${id}">✅ Xử lý</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger btn-cancel"
+                                data-id="${id}">❌ Hủy</button>`;
+                }
+
+                if (status === 'InProgress') {
+                    return `
+                        ${details}
+                        <button type="button" class="btn btn-sm btn-success btn-resolve"
+                                data-id="${id}">✅ Xử lý</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger btn-cancel"
+                                data-id="${id}">❌ Hủy</button>`;
+                }
+
+                return details;
+            }
+
+            function updateRow(id, newStatus) {
+                const row = document.getElementById(`repair-row-${id}`);
+                if (!row) return;
+
+                // Cập nhật badge status
+                row.querySelector('.status-cell').innerHTML = renderStatusBadge(newStatus);
+
+                // Cập nhật nút action
+                row.querySelector('.action-cell').innerHTML = renderActions(id, newStatus);
+
+                // Gắn lại event cho các nút mới
+                bindRowEvents();
+            }
+
+            // ================= IN PROGRESS =================
+            async function doInProgress(id, btn) {
+                if (!confirm('Chuyển khiếu nại sang trạng thái Đang xử lý?')) return;
+
+                btn.disabled = true;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '⏳...';
+
+                try {
+                    const data = await postAction(`/Admin/Support/InProgress/${id}`);
+
+                    if (data.success) {
+                        updateRow(id, data.newStatus);
+                        showAlert(data.message, 'success');
+                    } else {
+                        showAlert(data.message, 'danger');
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showAlert('Lỗi kết nối: ' + err.message, 'danger');
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            }
+
+            // ================= RESOLVE (mở modal) =================
+            function openResolveModal(id) {
+                document.getElementById('resolveId').value = id;
+                document.getElementById('resolveNote').value = '';
+                new bootstrap.Modal(document.getElementById('resolveModal')).show();
+            }
+
+            async function submitResolve() {
+                const id = document.getElementById('resolveId').value;
+                const note = document.getElementById('resolveNote').value.trim();
+
+                if (!note) {
+                    showAlert('Vui lòng nhập ghi chú giải quyết', 'warning');
+                    return;
+                }
+
+                const btn = document.getElementById('btnConfirmResolve');
+                btn.disabled = true;
+                btn.innerHTML = '⏳ Đang xử lý...';
+
+                try {
+                    const data = await postAction(`/Admin/Support/Resolve/${id}`, { note });
+
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('resolveModal')).hide();
+                        updateRow(id, data.newStatus);
+                        showAlert(data.message, 'success');
+                    } else {
+                        showAlert(data.message, 'danger');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showAlert('Lỗi kết nối: ' + err.message, 'danger');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Xác nhận';
+                }
+            }
+
+            // ================= CANCEL (mở modal) =================
+            function openCancelModal(id) {
+                document.getElementById('cancelId').value = id;
+                document.getElementById('cancelNote').value = '';
+                new bootstrap.Modal(document.getElementById('cancelModal')).show();
+            }
+
+            async function submitCancel() {
+                const id = document.getElementById('cancelId').value;
+                const note = document.getElementById('cancelNote').value.trim();
+
+                if (!note) {
+                    showAlert('Vui lòng nhập lý do hủy', 'warning');
+                    return;
+                }
+
+                const btn = document.getElementById('btnConfirmCancel');
+                btn.disabled = true;
+                btn.innerHTML = '⏳ Đang xử lý...';
+
+                try {
+                    const data = await postAction(`/Admin/Support/Cancel/${id}`, { note });
+
+                    if (data.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('cancelModal')).hide();
+                        updateRow(id, data.newStatus);
+                        showAlert(data.message, 'success');
+                    } else {
+                        showAlert(data.message, 'danger');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    showAlert('Lỗi kết nối: ' + err.message, 'danger');
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = 'Xác nhận hủy';
+                }
+            }
+
+            // ================= BIND EVENTS (gọi lại sau khi update DOM) =================
+            function bindRowEvents() {
+                document.querySelectorAll('.btn-action').forEach(function (btn) {
+                    if (btn.dataset.bound) return;
+                    btn.dataset.bound = '1';
+                    btn.addEventListener('click', function () {
+                        doInProgress(btn.dataset.id, btn);
+                    });
+                });
+
+                document.querySelectorAll('.btn-resolve').forEach(function (btn) {
+                    if (btn.dataset.bound) return;
+                    btn.dataset.bound = '1';
+                    btn.addEventListener('click', function () {
+                        openResolveModal(btn.dataset.id);
+                    });
+                });
+
+                document.querySelectorAll('.btn-cancel').forEach(function (btn) {
+                    if (btn.dataset.bound) return;
+                    btn.dataset.bound = '1';
+                    btn.addEventListener('click', function () {
+                        openCancelModal(btn.dataset.id);
+                    });
+                });
+            }
+
+            // Bind lần đầu
+            bindRowEvents();
+
+            // ================= Modal confirm buttons =================
+            document.getElementById('btnConfirmResolve')?.addEventListener('click', submitResolve);
+            document.getElementById('btnConfirmCancel')?.addEventListener('click', submitCancel);
+        });
+    </script>
+}

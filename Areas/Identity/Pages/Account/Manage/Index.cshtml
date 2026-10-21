@@ -1,35 +1,126 @@
 ﻿@page
 @model IndexModel
+@using Microsoft.AspNetCore.Identity
+@using EZ_Rent.Models
+@inject UserManager<ApplicationUser> UserManager
 @{
-    ViewData["Title"] = "Profile";
+    ViewData["Title"] = "Hồ sơ cá nhân";
     ViewData["ActivePage"] = ManageNavPages.Index;
+
+    var user = await UserManager.GetUserAsync(User);
+
+    // ⭐ Chỉ dùng avatar local — tránh ảnh external gây lag
+    var avatarUrl = (!string.IsNullOrEmpty(user?.AvatarUrl)
+                     && user.AvatarUrl.StartsWith("/uploads/"))
+        ? user.AvatarUrl
+        : null;
+
+    var initial = !string.IsNullOrEmpty(user?.FullName)
+        ? user.FullName.Trim().First().ToString().ToUpper()
+        : "?";
 }
 
 <h3>@ViewData["Title"]</h3>
 <partial name="_StatusMessage" for="StatusMessage" />
+
 <div class="row">
-    <div class="col-md-6">
-        <form id="profile-form" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.FullName" class="form-control" placeholder="Nhap ho va ten" />
-                <label asp-for="Input.FullName" class="form-label"></label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+    @* ========== CỘT TRÁI — AVATAR ========== *@
+    <div class="col-md-4">
+        <div class="card shadow-sm text-center">
+            <div class="card-body">
+                @if (avatarUrl != null)
+                {
+                    <img src="@avatarUrl"
+                         class="rounded-circle"
+                         width="140" height="140"
+                         style="object-fit:cover;border:4px solid #667eea;" />
+                }
+                else
+                {
+                    @* ⭐ Hiện chữ cái đầu khi chưa upload ảnh *@
+                    <div class="rounded-circle d-inline-flex align-items-center justify-content-center"
+                         style="width:140px;height:140px;
+                                background: linear-gradient(135deg, #667eea, #764ba2);
+                                color:white;font-size:56px;font-weight:bold;">
+                        @initial
+                    </div>
+                }
+
+                <h5 class="mt-3 mb-0">@user?.FullName</h5>
+                <p class="text-muted small mb-0">@user?.Email</p>
             </div>
+        </div>
+    </div>
+
+    @* ========== CỘT PHẢI — FORM ========== *@
+    <div class="col-md-8">
+        <form id="profile-form" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3" role="alert"></div>
+
+            @* FullName *@
             <div class="form-floating mb-3">
-                <input asp-for="Username" class="form-control" placeholder="Please choose your username." disabled />
+                <input asp-for="Input.FullName" class="form-control"
+                       placeholder="Nhập họ và tên" />
+                <label asp-for="Input.FullName" class="form-label"></label>
+                <span asp-validation-for="Input.FullName" class="text-danger small"></span>
+            </div>
+
+            @* Username (read-only) *@
+            <div class="form-floating mb-3">
+                <input asp-for="Username" class="form-control"
+                       placeholder="Username" disabled />
                 <label asp-for="Username" class="form-label"></label>
             </div>
+
+            @* Phone *@
             <div class="form-floating mb-3">
-                <input asp-for="Input.PhoneNumber" class="form-control" placeholder="Please enter your phone number." />
+                <input asp-for="Input.PhoneNumber" class="form-control"
+                       placeholder="Nhập số điện thoại" />
                 <label asp-for="Input.PhoneNumber" class="form-label"></label>
-                <span asp-validation-for="Input.PhoneNumber" class="text-danger"></span>
+                <span asp-validation-for="Input.PhoneNumber" class="text-danger small"></span>
             </div>
-            <button id="update-profile-button" type="submit" class="w-100 btn btn-lg btn-primary">Save</button>
+
+            @* Upload Avatar *@
+            <div class="mb-3">
+                <label for="avatar" class="form-label">
+                    <strong>Ảnh đại diện mới</strong>
+                </label>
+                <input type="file" id="avatar" name="avatar"
+                       class="form-control" accept="image/*"
+                       onchange="previewAvatar(this)" />
+                <small class="text-muted">
+                    Chỉ chấp nhận ảnh jpg, png, gif, webp — tối đa 5MB.
+                </small>
+            </div>
+
+            @* Preview *@
+            <div class="mb-3 text-center" id="preview" style="display:none;">
+                <img id="previewImg" class="rounded-circle"
+                     width="120" height="120"
+                     style="object-fit:cover;border:4px solid #667eea;" />
+                <p class="text-muted small mb-0">Xem trước</p>
+            </div>
+
+            <button id="update-profile-button" type="submit"
+                    class="w-100 btn btn-lg btn-primary">
+                💾 Lưu thay đổi
+            </button>
         </form>
     </div>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        function previewAvatar(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('preview').style.display = 'block';
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
 }

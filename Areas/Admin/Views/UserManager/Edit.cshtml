@@ -1,65 +1,106 @@
 @model EZ_Rent.Models.ApplicationUser
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Sửa người dùng";
+
+    var initial = !string.IsNullOrEmpty(Model.FullName)
+        ? Model.FullName.Trim().First().ToString().ToUpper()
+        : "?";
 }
 
-<h1>Edit</h1>
-
-<h4>ApplicationUser</h4>
-<hr />
+<h1>✏️ Sửa thông tin người dùng</h1>
 
 <div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <strong>Chỉnh sửa thông tin</strong>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                    <input type="hidden" asp-for="Id" />
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="FullName" class="form-label">
+                                <strong>Họ và tên</strong> <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="FullName" class="form-control" />
+                            <span asp-validation-for="FullName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="UserName" class="form-label">
+                                <strong>Username</strong>
+                            </label>
+                            <input asp-for="UserName" class="form-control bg-light" readonly />
+                            <small class="text-muted">Username không thể thay đổi.</small>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Email" class="form-label">
+                                <strong>Email</strong> <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="Email" type="email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="PhoneNumber" class="form-label">
+                                <strong>Số điện thoại</strong>
+                            </label>
+                            <input asp-for="PhoneNumber" class="form-control" />
+                            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <hr />
+
+                    <div class="mb-3">
+                        <label class="form-label"><strong>Vai trò</strong></label>
+                        <div class="border rounded p-3 bg-light">
+                            <partial name="_RoleCheckboxes" />
+                        </div>
+                        <small class="text-muted">
+                            Bỏ tick để xóa vai trò cũ, tick để thêm vai trò mới.
+                        </small>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-warning">💾 Lưu thay đổi</button>
+                        <a asp-action="Details" asp-route-id="@Model.Id"
+                           class="btn btn-outline-info">👁️ Xem chi tiết</a>
+                        <a asp-action="Index" class="btn btn-outline-secondary">← Quay lại</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="col-md-4">
-
-        <form asp-action="Edit" method="post">
-
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <input type="hidden" asp-for="Id" />
-
-            <div class="form-group">
-                <label asp-for="FullName" class="control-label"></label>
-                <input asp-for="FullName" class="form-control" />
-                <span asp-validation-for="FullName" class="text-danger"></span>
+        <div class="card shadow-sm">
+            <div class="card-body text-center">
+                @* ⭐ Avatar chữ cái đầu *@
+                <div class="rounded-circle mb-3 d-inline-flex align-items-center justify-content-center"
+                     style="width:100px; height:100px;
+                            background: linear-gradient(135deg, #667eea, #764ba2);
+                            color:white; font-size:40px; font-weight:bold;">
+                    @initial
+                </div>
+                <h6 class="mb-1">@Model.FullName</h6>
+                <p class="text-muted small mb-2">@Model.Email</p>
+                <p class="text-muted small mb-0">
+                    Tham gia: @Model.CreatedAt.ToString("dd/MM/yyyy")
+                </p>
             </div>
-
-            <div class="form-group">
-                <label asp-for="UserName" class="control-label"></label>
-                <input asp-for="UserName" class="form-control" readonly />
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
-                <span asp-validation-for="Email" class="text-danger"></span>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="PhoneNumber" class="control-label"></label>
-                <input asp-for="PhoneNumber" class="form-control" />
-                <span asp-validation-for="PhoneNumber" class="text-danger"></span>
-            </div>
-            <div class="mt-3">
-                <label class="form-label">Roles</label>
-
-                <partial name="_RoleCheckboxes" />
-            </div>
-            <div class="form-group p-3">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-
-        </form>
-
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }
