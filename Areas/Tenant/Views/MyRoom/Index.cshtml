@@ -1,0 +1,72 @@
+@using EZ_Rent.Areas.Tenant.Services
+@model EZ_Rent.Areas.Tenant.ViewModels.MyRoomModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Phòng đang ở";
+    ViewData["Description"] = "Thông tin nơi ở, các khoản thu và yêu cầu cần theo dõi của bạn.";
+}
+@if (Model.Selected == null)
+{
+    <section class="rental-empty">
+        @await Html.PartialAsync("_HomeIcon", "room")
+        <h2>Bạn chưa có phòng đang thuê</h2>
+        <p>Khi có hợp đồng đang hiệu lực, thông tin phòng sẽ xuất hiện tại đây. Bạn vẫn có thể xem lại hợp đồng và hóa đơn cũ.</p>
+        <div class="rental-actions">
+            <a asp-controller="RentalPost" asp-action="Index" class="rental-button primary">Tìm phòng</a>
+            <a asp-controller="Contract" asp-action="Index" class="rental-button secondary">Xem hợp đồng của tôi</a>
+        </div>
+    </section>
+}
+else
+{
+    var contract = Model.Selected;
+    var room = contract.RentalPost;
+    var image = room.RoomImages.Where(i => i.MediaType == MediaType.Image)
+        .OrderByDescending(i => i.IsPrimary).ThenBy(i => i.DisplayOrder).ThenBy(i => i.RoomImageId)
+        .Select(i => RentalPresentation.SafeMediaUrl(i.MediaUrl)).FirstOrDefault(url => url != null) ?? RentalPresentation.Placeholder;
+    @if (Model.Contracts.Count > 1)
+    {
+        <form asp-action="Index" method="get" class="rental-room-picker">
+            <label for="contractId">Chọn phòng đang thuê</label>
+            <select id="contractId" name="contractId">
+                @foreach (var item in Model.Contracts)
+                { <option value="@item.RentalContractId" selected="@(item.RentalContractId == contract.RentalContractId)">@item.RentalPost.Title · Hợp đồng #@item.RentalContractId</option> }
+            </select>
+            <button type="submit" class="rental-button secondary">Xem phòng</button>
+        </form>
+    }
+    <section class="rental-room-overview" aria-labelledby="room-heading">
+        <div class="rental-room-photo">
+            <img src="@image" alt="Không gian @room.Title" width="480" height="320" data-rental-image="room" />
+        </div>
+        <div class="rental-room-info">
+            <span class="rental-status success">Hợp đồng đang hiệu lực</span>
+            <h2 id="room-heading">@room.Title</h2>
+            <p class="rental-address">@room.Address, @room.District, @room.City</p>
+            <dl class="rental-facts">
+                <div><dt>Tiền thuê / tháng</dt><dd>@TenantRentalPresentation.Money(contract.MonthlyRent)</dd></div>
+                <div><dt>Thời hạn hợp đồng</dt><dd>@TenantRentalPresentation.Date(contract.StartDate) – @TenantRentalPresentation.Date(contract.EndDate)</dd></div>
+                <div><dt>Chủ nhà</dt><dd>@contract.Landlord.FullName</dd></div>
+                <div><dt>Liên hệ</dt><dd>@if (!string.IsNullOrWhiteSpace(contract.Landlord.PhoneNumber)) { <a href="tel:@contract.Landlord.PhoneNumber">@contract.Landlord.PhoneNumber</a> } else { <span>Chưa có số điện thoại</span> }</dd></div>
+            </dl>
+            <a asp-controller="Contract" asp-action="Details" asp-route-id="@contract.RentalContractId" class="rental-button secondary">Xem hợp đồng</a>
+        </div>
+    </section>
+    <div class="rental-summary" aria-label="Các mục cần theo dõi">
+        <p><strong>@TenantRentalPresentation.Money(Model.UnpaidTotal)</strong><span>chưa thanh toán · @Model.UnpaidCount hóa đơn, gồm cả hóa đơn chờ đối soát</span></p>
+        <p><strong>@Model.OpenRepairCount yêu cầu</strong><span>sửa chữa đang chờ hoặc đang xử lý tại phòng này</span></p>
+    </div>
+    <div class="rental-overview-columns">
+        <section aria-labelledby="bills-heading">
+            <div class="rental-section-heading"><h2 id="bills-heading">Hóa đơn gần đây</h2><a asp-controller="Invoice" asp-action="Index" asp-route-ContractId="@contract.RentalContractId">Xem tất cả</a></div>
+            @if (Model.Invoices.Count == 0) { <p class="rental-empty-inline">Chưa có hóa đơn cho hợp đồng này.</p> }
+            @foreach (var invoice in Model.Invoices) { @await Html.PartialAsync("_RentalInvoiceRow", invoice) }
+        </section>
+        <section aria-labelledby="repairs-heading">
+            <div class="rental-section-heading"><h2 id="repairs-heading">Yêu cầu sửa chữa</h2><a asp-controller="RepairRequest" asp-action="Index" asp-route-RoomId="@room.RentalPostId">Xem tất cả</a></div>
+            <a asp-controller="RepairRequest" asp-action="Create" asp-route-roomId="@room.RentalPostId" class="rental-button secondary">Gửi yêu cầu sửa chữa</a>
+            @if (Model.Repairs.Count == 0) { <p class="rental-empty-inline">Bạn chưa gửi yêu cầu sửa chữa tại phòng này.</p> }
+            @foreach (var repair in Model.Repairs) { @await Html.PartialAsync("_RentalRepairRow", repair) }
+        </section>
+    </div>
+}

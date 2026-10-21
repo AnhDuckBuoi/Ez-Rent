@@ -1,0 +1,56 @@
+@using EZ_Rent.Areas.Tenant.ViewModels
+@model TenantMessagesModel
+@if (Model.Selected is not { } selected)
+{
+    <div class="state-panel">@await Html.PartialAsync("_HomeIcon", "chat")<h2>Một nơi cho những cuộc trao đổi</h2><p>Chọn cuộc trò chuyện ở bên trái để xem nội dung. Bạn cũng có thể tìm phòng hoặc xem hướng dẫn hỗ trợ.</p><a asp-controller="RentalPost" asp-action="Index" class="button primary">Tìm phòng</a></div>
+}
+else
+{
+    <div class="chat-header"><a href="@Url.Action("Messages", Model.Input.Routes(conversationId: selected.Id > 0 ? selected.Id : null, view: "inbox"))" data-messages-link class="icon-button mobile-back" aria-label="Về danh sách trò chuyện">@await Html.PartialAsync("_HomeIcon", "back")</a><span class="avatar @(selected.IsSupport ? "sage" : "")" aria-hidden="true">@selected.Initials</span><div class="chat-person"><h2 id="chat-person-name" tabindex="-1">@selected.Name</h2><p>@(selected.IsSupport ? selected.RoomLabel : "Chủ nhà · " + selected.RoomLabel)</p><small class="chat-connection" data-chat-connection role="status">Đang kết nối…</small></div><a href="@Url.Action("Messages", Model.Input.Routes(conversationId: selected.Id > 0 ? selected.Id : null))" data-action="refresh-messages" class="message-refresh">Tải tin mới</a><button type="button" class="icon-button context-toggle" data-action="show-context" aria-label="Thông tin cuộc trò chuyện" aria-haspopup="dialog" aria-expanded="false" aria-controls="context-dialog">@await Html.PartialAsync("_HomeIcon", "info")</button></div>
+    @if (selected.Room is { IsAvailable: true } room)
+    {
+        <button type="button" class="room-link" data-action="show-context" aria-haspopup="dialog" aria-controls="context-dialog"><img src="@room.ImageUrl" width="44" height="44" alt="" data-message-image /><span><strong>@room.Title</strong><small>@room.Price.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) đ / tháng · @room.Area.ToString("0.##", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) m²</small></span>@await Html.PartialAsync("_HomeIcon", "arrow")</button>
+    }
+    @if (Model.Appointment is { } appointment)
+    {
+        <div class="visit-strip">@await Html.PartialAsync("_HomeIcon", "calendar")<span>Đã xác nhận <strong>@appointment.TimeLabel, @appointment.DateLabel</strong></span><a asp-controller="ViewingAppointment" asp-action="Details" asp-route-id="@appointment.Id">Xem lịch</a></div>
+    }
+    <div id="message-stream" class="message-stream" role="log" aria-live="off" aria-label="Nội dung trò chuyện với @selected.Name">
+        @if (Model.MessagePages > 1)
+        {
+            <div class="history-pages"><p>Trang 1 là tin mới nhất.</p>@await Html.PartialAsync("_TenantPagination", new TenantPaginationModel(Model.Input.MessagePage, Model.MessagePages, page => Url.Action("Messages", Model.Input.Routes(conversationId: selected.Id, messagePage: page, view: "chat")), "Trang tin nhắn"))</div>
+        }
+        @{ DateTime? previousDate = null; }
+        @foreach (var message in Model.Messages)
+        {
+            @if (previousDate != message.VietnamTime.Date) { <div class="date-divider">@message.DateLabel</div> }
+            <div class="message @(message.Self ? "self" : "")" data-message-id="@message.Id" data-unread="@((!message.Self && !message.IsRead).ToString().ToLowerInvariant())"><p class="bubble">@message.Content</p><span class="message-meta"><time datetime="@message.VietnamTime.ToString("yyyy-MM-ddTHH:mm:ss+07:00")">@message.TimeLabel</time>@if (message.Self) { @await Html.PartialAsync("_HomeIcon", "check")<span>@(message.IsRead ? "Đã đọc" : "Đã gửi")</span> }</span></div>
+            previousDate = message.VietnamTime.Date;
+        }
+        @if (Model.Messages.Count == 0) { <p class="stream-start">@(selected.Id == 0 ? "Gửi tin đầu tiên để bắt đầu trao đổi về căn phòng này." : "Cuộc trò chuyện này chưa có tin nhắn.")</p> }
+    </div>
+    @if (selected.CanSend)
+    {
+        <form asp-action="SendMessage" method="post" class="composer" id="message-send-form">
+            @if (selected.Id > 0) { <input type="hidden" name="ConversationId" value="@selected.Id" /> }
+            else { <input type="hidden" name="RentalPostId" value="@Model.Input.RentalPostId" /><input type="hidden" name="ContactStamp" value="@Model.ContactStamp" /> }
+            @if (!selected.IsSupport) { <div class="quick-replies" aria-label="Gợi ý tin nhắn"><button type="button" data-quick="fees">Hỏi về phí dịch vụ</button><button type="button" data-quick="visit">Hỏi lịch xem phòng</button></div> }
+            <label for="message-input" class="composer-label">Tin nhắn</label>
+            <div class="compose-box"><textarea id="message-input" name="Content" rows="1" maxlength="2000" required autocomplete="off" placeholder="Nhập tin nhắn…" aria-invalid="@(Model.SendError != null ? "true" : null)" aria-describedby="send-availability message-send-status">@Model.AttemptedContent</textarea><button type="submit" class="send-button" aria-label="Gửi tin nhắn">@await Html.PartialAsync("_HomeIcon", "send")</button></div>
+            <div class="composer-bottom"><span id="send-availability">Enter xuống dòng · Tin chưa gửi chỉ giữ trong tab.</span><span id="message-char-count">0/2.000</span></div>
+            <p id="message-send-status" class="message-send-status @(Model.SendError != null ? "is-error" : "")" role="status" aria-live="polite">@Model.SendError</p>
+        </form>
+    }
+    else
+    {
+        <p class="composer readonly-note">@(selected.IsSupport ? "Yêu cầu này hiện chỉ đọc vì tài khoản tiếp nhận không còn hoạt động hoặc không còn quyền quản trị. Bạn có thể gửi yêu cầu mới qua mục Hỗ trợ & phản ánh." : "Cuộc trò chuyện hiện chỉ đọc vì tài khoản liên quan không còn hoạt động.")</p>
+    }
+    @if (selected.Id > 0 && Model.Messages.Any(m => !m.Self && !m.IsRead))
+    {
+        <form asp-action="ReadMessages" method="post" id="message-read-form" class="message-read-form">
+            <input type="hidden" name="ConversationId" value="@selected.Id" /><input type="hidden" name="MessagePage" value="@Model.Input.MessagePage" />
+            @foreach (var incoming in Model.Messages.Where(m => !m.Self && !m.IsRead)) { <input type="hidden" name="MessageIds" value="@incoming.Id" /> }
+            <button type="submit" class="message-read-button">Đánh dấu các tin trong trang đã đọc</button>
+        </form>
+    }
+}

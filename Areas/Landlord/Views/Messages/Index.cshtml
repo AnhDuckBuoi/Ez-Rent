@@ -1,0 +1,51 @@
+@model MessagesModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Tin nhắn với người thuê";
+    var input = Model.Input;
+    var selected = Model.Selected;
+}
+<section id="landlord-messages-root" class="shared-chat" data-conversation-id="@(selected?.Id ?? 0)" data-message-page="@input.MessagePage">
+    <div class="d-flex justify-content-between align-items-center gap-3 mb-4"><h1 class="h3">Tin nhắn với người thuê</h1><span data-chat-connection class="chat-connection" role="status">Đang kết nối…</span></div>
+    <div class="shared-chat-grid">
+        <aside class="shared-chat-inbox">
+            <form method="get" asp-action="Index" class="mb-3"><label for="chat-search" class="form-label">Tìm người thuê hoặc phòng</label><input id="chat-search" type="search" name="q" maxlength="100" value="@input.Q" class="form-control" /><div class="d-flex gap-2 align-items-center mt-2"><label><input type="checkbox" name="filter" value="unread" checked="@(input.Filter == "unread")" /> Chưa đọc</label><button type="submit" class="btn btn-outline-primary btn-sm">Tìm</button></div></form>
+            @foreach (var conversation in Model.Conversations.Items)
+            {
+                <a asp-action="Index" asp-route-c="@conversation.Id" asp-route-page="@input.Page" asp-route-q="@input.Q" asp-route-filter="@input.Filter" class="shared-chat-thread" aria-current="@(selected?.Id == conversation.Id ? "page" : null)"><strong>@conversation.OtherName</strong><span>@conversation.RoomTitle</span><small>@conversation.LastContent</small>@if (conversation.Unread > 0) { <span class="badge bg-primary">@conversation.Unread chưa đọc</span> }</a>
+            }
+            @if (Model.Conversations.Total == 0) { <p>Chưa có cuộc trò chuyện. Tin nhắn từ người thuê sẽ xuất hiện tại đây.</p> }
+            @if (Model.Conversations.TotalPages > 1)
+            {
+                <nav aria-label="Trang cuộc trò chuyện" class="d-flex gap-2 flex-wrap mt-3">
+                @foreach (var n in new SortedSet<int>(Enumerable.Range(Math.Max(1, input.Page - 2), Math.Min(Model.Conversations.TotalPages, input.Page + 2) - Math.Max(1, input.Page - 2) + 1)) { 1, Model.Conversations.TotalPages }) { <a asp-action="Index" asp-route-page="@n" asp-route-q="@input.Q" asp-route-filter="@input.Filter" class="btn btn-outline-primary btn-sm" aria-current="@(n == input.Page ? "page" : null)">@n</a> }
+                </nav>
+            }
+        </aside>
+        <div class="shared-chat-conversation">
+        @if (selected == null) { <p>Chọn một cuộc trò chuyện để xem nội dung.</p> }
+        else
+        {
+            <header class="shared-chat-heading"><h2 class="h5">@selected.OtherName</h2><p>@selected.RoomTitle</p><a asp-action="Index" asp-route-c="@selected.Id" asp-route-messagePage="@input.MessagePage" class="btn btn-outline-primary btn-sm">Tải tin mới</a></header>
+            @if (Model.Messages.TotalPages > 1)
+            {
+                <nav aria-label="Trang tin nhắn" class="d-flex gap-2 flex-wrap p-3">
+                @foreach (var n in new SortedSet<int>(Enumerable.Range(Math.Max(1, input.MessagePage - 2), Math.Min(Model.Messages.TotalPages, input.MessagePage + 2) - Math.Max(1, input.MessagePage - 2) + 1)) { 1, Model.Messages.TotalPages }) { <a asp-action="Index" asp-route-c="@selected.Id" asp-route-messagePage="@n" class="btn btn-outline-primary btn-sm" aria-current="@(n == input.MessagePage ? "page" : null)">@n</a> }
+                </nav>
+            }
+            <div id="landlord-message-stream" class="shared-chat-stream" aria-label="Lịch sử tin nhắn">
+                @foreach (var message in Model.Messages.Items)
+                {
+                    <div class="shared-chat-message @(message.Mine ? "mine" : null)" data-message-id="@message.Id" data-unread="@((!message.Mine && !message.IsRead).ToString().ToLowerInvariant())"><p>@message.Content</p><small>@LandlordTime.Stamp(message.SentAt) · @(message.Mine ? message.IsRead ? "Đã đọc" : "Đã gửi" : "")</small></div>
+                }
+            </div>
+            @if (Model.CanSend) { <form asp-action="Send" asp-route-id="@selected.Id" method="post" id="landlord-message-form" class="shared-chat-composer"><label for="landlord-message-input" class="form-label">Tin nhắn</label><textarea id="landlord-message-input" class="form-control" name="Content" required maxlength="2000" rows="2" aria-describedby="landlord-send-status">@Model.AttemptedContent</textarea><div class="d-flex justify-content-end mt-2"><button type="submit" class="btn btn-primary">Gửi tin nhắn</button></div><p id="landlord-send-status" role="status" class="mt-2">@Model.SendError</p></form> } else { <p class="p-3">Cuộc trò chuyện hiện chỉ đọc vì tài khoản người nhận không hoạt động.</p> }
+            @if (Model.Messages.Items.Any(m => !m.Mine && !m.IsRead))
+            {
+                <form asp-action="Read" method="post" id="landlord-read-form"><input type="hidden" name="ConversationId" value="@selected.Id" /><input type="hidden" name="MessagePage" value="@input.MessagePage" />@foreach (var message in Model.Messages.Items.Where(m => !m.Mine && !m.IsRead)) { <input type="hidden" name="MessageIds" value="@message.Id" /> }<button type="submit" class="btn btn-link">Đánh dấu tin trong trang đã đọc</button></form>
+            }
+        }
+        </div>
+    </div>
+</section>
+@section Scripts { <script src="~/js/landlord-chat.js" asp-append-version="true" defer></script> }

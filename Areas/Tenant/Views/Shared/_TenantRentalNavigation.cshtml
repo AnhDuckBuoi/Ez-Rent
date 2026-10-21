@@ -1,0 +1,8 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var links = new[] { ("MyRoom", "Tổng quan"), ("Contract", "Hợp đồng"), ("Invoice", "Hóa đơn"), ("RepairRequest", "Sửa chữa") };
+}
+<header class="rental-heading"><h1>@ViewData["Title"]</h1><p>@ViewData["Description"]</p></header>
+<nav class="rental-tabs" aria-label="Phòng đang ở">
+@foreach (var (name, label) in links) { <a asp-area="Tenant" asp-controller="@name" asp-action="Index" aria-current="@(controller == name ? "page" : null)">@label</a> }
+</nav>

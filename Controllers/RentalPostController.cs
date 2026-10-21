@@ -145,21 +145,8 @@ namespace EZ_Rent.Controllers
 
             try
             {
-                _context.SearchHistories.Add(new SearchHistory
-                {
-                    UserId = userId,
-                    City = city,
-                    District = district,
-                    MinPrice = minPrice,
-                    MaxPrice = maxPrice,
-                    RoomType = roomType,
-                    SearchedAt = DateTime.UtcNow
-                });
-
-                await _context.SaveChangesAsync();
-
-                // ⭐ Invalidate cache để recommender rebuild với SearchHistory mới
-                _recommender.InvalidateModel();
+                await SearchHistoryRecorder.RecordAsync(_context, _recommender, userId,
+                    city, district, minPrice, maxPrice, roomType, HttpContext.RequestAborted);
             }
             catch (Exception ex)
             {

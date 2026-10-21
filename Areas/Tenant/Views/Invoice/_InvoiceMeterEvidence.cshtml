@@ -1,0 +1,42 @@
+@using EZ_Rent.Areas.Tenant.Services
+@model EZ_Rent.Areas.Tenant.ViewModels.InvoiceDetailsModel
+@{
+    var invoice = Model.Invoice;
+    var evidence = Model.Evidence;
+    var reading = invoice.MeterReading;
+    var period = evidence?.Period ?? reading?.Period;
+    var date = evidence?.ReadingDate ?? reading?.ReadingDate;
+}
+<aside class="rental-panel rental-invoice-evidence">
+    <h2>Chỉ số điện nước</h2>
+    @if (date == null)
+    {
+        <p>Chưa có chỉ số điện nước phù hợp gắn với hóa đơn này.</p>
+    }
+    else
+    {
+        <p class="rental-note">Kỳ @TenantRentalPresentation.Period(period!) · Ghi ngày @TenantRentalPresentation.Date(date.Value)</p>
+        <p class="rental-evidence-state">@(evidence != null ? "Đã lưu bộ chỉ số và ảnh đối chiếu cho hóa đơn này." : "Chỉ số hiện tại từ bản ghi cũ; chưa có bộ ảnh được lưu riêng khi phát hành.")</p>
+        @foreach (var kind in new[] { "electric", "water" })
+        {
+            var electric = kind == "electric";
+            var label = electric ? "Ảnh công tơ điện" : "Ảnh đồng hồ nước";
+            var previous = electric ? evidence?.PrevElectricIndex ?? reading!.PrevElectricIndex : evidence?.PrevWaterIndex ?? reading!.PrevWaterIndex;
+            var current = electric ? evidence?.CurrElectricIndex ?? reading!.CurrElectricIndex : evidence?.CurrWaterIndex ?? reading!.CurrWaterIndex;
+            var unit = electric ? "kWh" : "m³";
+            var hasImage = electric ? evidence?.ElectricStorageKey != null : evidence?.WaterStorageKey != null;
+            <section class="rental-meter-section">
+                <h3>@(electric ? "Điện" : "Nước")</h3>
+                <dl class="rental-detail-facts rental-meter"><div><dt>@(electric ? "Điện kỳ trước" : "Nước kỳ trước")</dt><dd>@TenantRentalPresentation.Number(previous) @unit</dd></div><div><dt>@(electric ? "Điện kỳ này" : "Nước kỳ này")</dt><dd>@TenantRentalPresentation.Number(current) @unit</dd></div></dl>
+                @if (hasImage)
+                {
+                    <a asp-action="MeterImage" asp-route-id="@invoice.InvoiceId" asp-route-kind="@kind" data-rental-zoom data-zoom-title="@label · Kỳ @TenantRentalPresentation.Period(period!)" class="rental-meter-image"><img src="@Url.Action("MeterImage", new { id = invoice.InvoiceId, kind })" alt="@label" loading="lazy" data-rental-image /><span>Phóng to @label.ToLowerInvariant()</span></a>
+                    <a asp-action="MeterImage" asp-route-id="@invoice.InvoiceId" asp-route-kind="@kind" asp-route-download="true" class="rental-button secondary">Tải @label.ToLowerInvariant()</a>
+                }
+                else
+                { <p class="rental-meter-missing">Chưa có @label.ToLowerInvariant() được lưu cho hóa đơn này.</p> }
+            </section>
+        }
+    }
+    <a asp-controller="Contract" asp-action="Details" asp-route-id="@invoice.RentalContractId" class="rental-button secondary">Xem hợp đồng liên quan</a>
+</aside>

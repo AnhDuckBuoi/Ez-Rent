@@ -1,0 +1,15 @@
+@using EZ_Rent.Areas.Tenant.Services
+@model Invoice
+<article class="rental-row" data-invoice-id="@Model.InvoiceId">
+    <div class="rental-row-main">
+        <a asp-controller="Invoice" asp-action="Details" asp-route-id="@Model.InvoiceId" class="rental-row-title">Hóa đơn kỳ @TenantRentalPresentation.Period(Model.BillingPeriod)</a>
+        @if (Model.RentalContract?.RentalPost != null)
+        { <p>@Model.RentalContract.RentalPost.Title</p> }
+        <small>Hạn thanh toán: @TenantRentalPresentation.Date(Model.DueDate)</small>
+    </div>
+    <div class="rental-row-end">
+        <span class="rental-status @TenantRentalPresentation.Tone(Model.PaymentStatus)">@TenantRentalPresentation.PaymentLabel(Model.PaymentStatus)</span>
+        <strong class="rental-amount">@TenantRentalPresentation.Money(Model.TotalAmount)</strong>
+        <a asp-controller="Invoice" asp-action="Details" asp-route-id="@Model.InvoiceId" aria-label="Xem hóa đơn kỳ @TenantRentalPresentation.Period(Model.BillingPeriod)">Xem chi tiết</a>
+    </div>
+</article>

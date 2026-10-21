@@ -13,7 +13,12 @@ var builder = WebApplication.CreateBuilder(args);
 // ============================================================
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
-
+builder.Services.AddSignalR(options => options.MaximumReceiveMessageSize = 16384);
+builder.Services.AddScoped<ChatRealtime>();
+builder.Services.AddOptions<EZ_Rent.Services.RentalFileStorageOptions>();
+builder.Services.AddSingleton<EZ_Rent.Services.RentalPrivateFileStore>();
+builder.Services.AddScoped<EZ_Rent.Services.RentalDocumentService>();
+builder.Services.AddScoped<EZ_Rent.Areas.Tenant.Services.TenantContractDraftService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -98,6 +103,7 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.MapRazorPages();
+app.MapHub<ChatHub>("/hubs/chat", options => options.CloseOnAuthenticationExpiration = true);
 
 // ============================================================
 // SEED DATA

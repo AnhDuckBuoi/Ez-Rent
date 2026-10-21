@@ -1,0 +1,24 @@
+@model EZ_Rent.Areas.Tenant.ViewModels.TenantNoticeListModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Thông báo của bạn";
+    ViewData["NotificationsPage"] = true;
+}
+<a asp-controller="Dashboard" asp-action="Index" class="back-link">Quay lại Trang chủ</a>
+<div class="home-heading"><div><h1>Thông báo của bạn</h1><p>@Model.UnreadCount thông báo chưa đọc · Giờ Việt Nam</p></div>
+    @if (Model.UnreadCount > 0) { <form asp-action="ReadAll" method="post"><button type="submit" class="button">Đánh dấu tất cả đã đọc</button></form> }
+</div>
+@if (Model.InvalidPage)
+{
+    <div class="empty-state" role="alert"><h2>Không thể mở trang thông báo</h2><p>Số trang phải là số nguyên dương.</p><a asp-action="Index" class="button">Xem tất cả thông báo</a></div>
+}
+else if (Model.Total == 0)
+{
+    <div class="empty-state"><h2>Bạn chưa có thông báo</h2><p>Khi có thông báo mới từ hệ thống, bạn có thể xem lại tại đây.</p><a asp-controller="Dashboard" asp-action="Index" class="button">Về Trang chủ</a></div>
+}
+else
+{
+    <div class="notification-list-page">@await Html.PartialAsync("_HomeNotices", Model.Items)</div>
+    @await Html.PartialAsync("_TenantPagination", new EZ_Rent.Areas.Tenant.ViewModels.TenantPaginationModel(
+        Model.Page, Model.TotalPages, page => Url.Action("Index", new { page }), "Trang thông báo"))
+}

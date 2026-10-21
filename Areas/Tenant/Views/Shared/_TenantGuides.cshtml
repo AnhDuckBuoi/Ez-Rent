@@ -1,0 +1,31 @@
+<section class="home-news" aria-labelledby="home-news-title">
+    <div class="home-section-title"><div><h2 id="home-news-title">Góc người thuê</h2><p>Đọc một chút, chủ động hơn khi tìm và ở.</p></div></div>
+    <nav class="home-categories" aria-label="Lọc hướng dẫn" data-guide-filters hidden>
+        <button type="button" data-guide-filter="all" aria-pressed="true">Tất cả</button>
+        <button type="button" data-guide-filter="visit" aria-pressed="false">Đi xem phòng</button>
+        <button type="button" data-guide-filter="living" aria-pressed="false">Sống tiện nghi</button>
+    </nav>
+    <div class="home-stories">
+        <article class="home-story featured" data-guide-category="visit" id="prepare-visit">
+            <h3>Một buổi xem phòng, bắt đầu từ sự chuẩn bị.</h3><p class="story-meta">Hướng dẫn EZ Rent · Checklist 5 mục</p>
+            <p class="story-excerpt">Ghi lại những điều bạn muốn hỏi để buổi xem phòng thoải mái và rõ ràng hơn.</p>
+            <details class="home-reading"><summary class="text-button article-toggle"><span class="when-closed">Mở checklist</span><span class="when-open">Thu gọn</span>@await Html.PartialAsync("_HomeIcon", "down")</summary>
+                <div class="home-article-body"><p class="home-article-lead">Không cần nhớ mọi thứ trong đầu. Một danh sách ngắn sẽ giúp bạn chủ động hơn khi trao đổi với chủ nhà.</p>
+                    <div class="home-checklist"><div class="checklist-heading"><h4>Danh sách cho buổi hẹn của bạn</h4><output id="checklist-count" aria-live="polite">0/5 mục</output></div>
+                        @foreach (var text in new[] { "Xem lại địa chỉ và giờ hẹn đã được chủ nhà xác nhận.", "Ghi sẵn các câu hỏi về không gian và sinh hoạt trong phòng.", "Đánh dấu những tiện ích bạn muốn xem trực tiếp.", "Ghi lại các thông tin chủ nhà trao đổi để đối chiếu sau buổi xem.", "Để lại thời gian cân nhắc và chọn phương án phù hợp với mình." })
+                        { <label class="checklist-item"><input type="checkbox" data-home-check /><span>@text</span></label> }
+                        <p class="checklist-note">Dùng danh sách này để chuẩn bị trước buổi hẹn.</p>
+                    </div>
+                </div>
+            </details>
+        </article>
+        <div class="home-story-stack">
+            <article class="home-story" data-guide-category="living"><h3>Một góc nhỏ, thêm chút dễ chịu.</h3><p class="story-meta">Hướng dẫn EZ Rent · Sống tiện nghi</p><p class="story-excerpt">Vài ý tưởng cho bàn học, góc đọc sách và những món đồ bạn yêu thích.</p>
+                <details class="home-reading"><summary class="text-button article-toggle"><span class="when-closed">Đọc bài viết</span><span class="when-open">Thu gọn</span>@await Html.PartialAsync("_HomeIcon", "down")</summary><div class="home-article-body"><p>Một chiếc đèn, vài cuốn sách hay một chậu cây nhỏ có thể trở thành điểm nhấn cho góc riêng của bạn.</p><h4>Bắt đầu từ góc bạn dùng nhiều nhất</h4><p>Hãy nghĩ đến cách bạn muốn sử dụng không gian: học tập, đọc sách hay nghỉ ngơi. Giữ những món đồ thường dùng ở gần và dành một khoảng trống cho sinh hoạt hằng ngày.</p><h4>Chậm một chút cũng được</h4><p>Bạn có thể sắp xếp từng góc theo thời gian, thử nhiều cách bố trí và giữ lại điều khiến mình cảm thấy thoải mái.</p></div></details>
+            </article>
+            <article class="home-story" data-guide-category="visit"><h3>Lưu lại để dễ xem và so sánh.</h3><p class="story-meta">Hướng dẫn EZ Rent · Phòng đã lưu</p><p class="story-excerpt">Giữ những lựa chọn bạn quan tâm trong cùng một nơi.</p>
+                <details class="home-reading"><summary class="text-button article-toggle"><span class="when-closed">Đọc bài viết</span><span class="when-open">Thu gọn</span>@await Html.PartialAsync("_HomeIcon", "down")</summary><div class="home-article-body"><p>Khi thấy một căn phòng phù hợp, bạn có thể lưu lại để trở về xem sau mà không cần tìm kiếm từ đầu.</p><h4>Những lựa chọn của riêng bạn</h4><p>Nút trái tim đưa phòng vào danh sách Đã lưu. Bạn có thể xem lại thông tin và bỏ lưu khi đã thay đổi ý định.</p><a asp-controller="Favorite" asp-action="Index" class="text-button">Mở danh sách đã lưu @await Html.PartialAsync("_HomeIcon", "arrow")</a></div></details>
+            </article>
+        </div>
+    </div>
+</section>

@@ -1,67 +1,33 @@
-@model EZ_Rent.Models.ViewingAppointment
+@model EZ_Rent.Areas.Tenant.ViewModels.ViewingAppointmentInputModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Sửa lịch xem phòng";
 }
 
-<h1>Edit</h1>
-
-<h4>ViewingAppointment</h4>
-<hr />
+<h1>Sửa lịch xem phòng</h1>
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="ViewingAppointmentId" />
-            <div class="form-group">
-                <label asp-for="RentalPostId" class="control-label"></label>
-                <select asp-for="RentalPostId" class="form-control" asp-items="ViewBag.RentalPostId"></select>
+    <div class="col-md-6">
+        <form asp-action="Edit" method="post">
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="RentalPostId" class="form-label"></label>
+                <select asp-for="RentalPostId" class="form-select" asp-items="ViewBag.RentalPostId"><option value="">Chọn phòng</option></select>
                 <span asp-validation-for="RentalPostId" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="TenantId" class="control-label"></label>
-                <select asp-for="TenantId" class="form-control" asp-items="ViewBag.TenantId"></select>
-                <span asp-validation-for="TenantId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="ViewingDate" class="control-label"></label>
-                <input asp-for="ViewingDate" class="form-control" />
+            <div class="mb-3">
+                <label asp-for="ViewingDate" class="form-label"></label>
+                <input asp-for="ViewingDate" type="datetime-local" class="form-control" />
                 <span asp-validation-for="ViewingDate" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="Note" class="control-label"></label>
-                <input asp-for="Note" class="form-control" />
+            <div class="mb-3">
+                <label asp-for="Note" class="form-label"></label>
+                <textarea asp-for="Note" class="form-control" rows="3"></textarea>
                 <span asp-validation-for="Note" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="LandlordNote" class="control-label"></label>
-                <input asp-for="LandlordNote" class="form-control" />
-                <span asp-validation-for="LandlordNote" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Status" class="control-label"></label>
-                <select asp-for="Status" class="form-control"></select>
-                <span asp-validation-for="Status" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="CreatedAt" class="control-label"></label>
-                <input asp-for="CreatedAt" class="form-control" />
-                <span asp-validation-for="CreatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="UpdatedAt" class="control-label"></label>
-                <input asp-for="UpdatedAt" class="form-control" />
-                <span asp-validation-for="UpdatedAt" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
+            <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+            <a asp-action="Index" class="btn btn-link">Quay lại danh sách</a>
         </form>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
 </div>
 
 @section Scripts {

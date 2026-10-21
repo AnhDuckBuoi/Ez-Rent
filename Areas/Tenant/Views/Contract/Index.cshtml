@@ -1,119 +1,39 @@
-@model IEnumerable<EZ_Rent.Models.RentalContract>
-
+@using EZ_Rent.Areas.Tenant.Services
+@using EZ_Rent.Areas.Tenant.ViewModels
+@model ContractListModel
 @{
-    ViewData["Title"] = "Index";
+    Layout = "_Layout";
+    ViewData["Title"] = "Hợp đồng của tôi";
+    ViewData["Description"] = "Tra cứu điều khoản, thời hạn và các khoản tiền đã thỏa thuận.";
 }
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.RentalPost)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Tenant)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Landlord)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.StartDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.EndDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.MonthlyRent)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.DepositAmount)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AgreedElectricityPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AgreedWaterPrice)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Terms)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TenantConfirmedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LandlordConfirmedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.RentalPost.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Tenant.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Landlord.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.StartDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.EndDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.MonthlyRent)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DepositAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AgreedElectricityPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AgreedWaterPrice)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Terms)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TenantConfirmedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LandlordConfirmedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.RentalContractId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.RentalContractId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.RentalContractId">Delete</a>
-            </td>
-        </tr>
+<div asp-validation-summary="All" class="rental-validation" role="alert"></div>
+<form asp-action="Index" method="get" class="rental-filter">
+    <div><label for="Status">Trạng thái hợp đồng</label><select id="Status" name="Status">
+        <option value="">Tất cả trạng thái</option>
+        @foreach (var status in Enum.GetValues<ContractStatus>())
+        { <option value="@((int)status)" selected="@(Model.Input.Status == status)">@TenantRentalPresentation.ContractLabel(status)</option> }
+    </select></div>
+    <button class="rental-button secondary" type="submit">Áp dụng</button>
+    <span>@Model.Total hợp đồng</span>
+</form>
+@if (Model.Items.Count == 0)
+{
+    <section class="rental-empty"><h2>Chưa có hợp đồng phù hợp</h2><p>Hợp đồng của bạn sẽ xuất hiện tại đây khi được tạo. Bạn có thể đổi bộ lọc để xem các trạng thái khác.</p><a asp-action="Index">Xem tất cả hợp đồng</a></section>
 }
-    </tbody>
-</table>
+@foreach (var contract in Model.Items)
+{
+    <article class="rental-row" data-contract-id="@contract.RentalContractId">
+        <div class="rental-row-main">
+            <a asp-action="Details" asp-route-id="@contract.RentalContractId" class="rental-row-title">@contract.RentalPost.Title</a>
+            <p>@contract.RentalPost.Address</p>
+            <small>Hợp đồng #@contract.RentalContractId · @TenantRentalPresentation.Date(contract.StartDate) – @TenantRentalPresentation.Date(contract.EndDate)</small>
+            <small>Chủ nhà: @contract.Landlord.FullName</small>
+        </div>
+        <div class="rental-row-end">
+            <span class="rental-status @TenantRentalPresentation.Tone(contract.Status)">@TenantRentalPresentation.ContractLabel(contract.Status)</span>
+            <strong class="rental-amount">@TenantRentalPresentation.Money(contract.MonthlyRent)<small> / tháng</small></strong>
+            <a asp-action="Details" asp-route-id="@contract.RentalContractId">Xem hợp đồng</a>
+        </div>
+    </article>
+}
+@await Html.PartialAsync("_TenantPagination", new TenantPaginationModel(Model.Input.Page, Model.TotalPages, page => Url.Action("Index", new { Page = page, Status = (int?)Model.Input.Status }), "Phân trang hợp đồng"))

@@ -1,0 +1,20 @@
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+@inject EZ_Rent.Data.AppDbContext Db
+@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var unread = userId == null ? 0 : await Db.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
+    var links = new[] { ("Dashboard", "Index", "Trang chủ"), ("MyRoom", "Index", "Phòng đang ở"),
+        ("Favorite", "Index", "Phòng yêu thích"), ("ViewingAppointment", "Index", "Lịch xem phòng"),
+        ("Contract", "Index", "Hợp đồng"), ("Invoice", "Index", "Hóa đơn"), ("RepairRequest", "Index", "Yêu cầu sửa chữa"),
+        ("Dashboard", "Messages", "Tin nhắn"), ("Support", "Create", "Hỗ trợ, phản ánh"),
+        ("Notification", "Index", "Thông báo"), ("Account", "Index", "Cá nhân và bảo mật") };
+}
+<ul class="dropdown-menu" data-tenant-menu>
+@foreach (var (name, target, label) in links) {
+    var active = controller == name && (name != "Dashboard" || action == target);
+    <li><a class="dropdown-item @(active ? "active" : null)" asp-area="Tenant" asp-controller="@name" asp-action="@target" aria-current="@(active ? "page" : null)" aria-label="@(name == "Notification" ? $"Thông báo, {unread} chưa đọc" : null)">@label @if (name == "Notification" && unread > 0) { <span class="badge bg-primary">@unread</span> }</a></li>
+}
+</ul>

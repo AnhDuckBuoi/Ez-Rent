@@ -1,84 +1,36 @@
-@model EZ_Rent.Models.RepairRequest
-
+@using EZ_Rent.Areas.Tenant.Services
+@model RepairRequest
 @{
-    ViewData["Title"] = "Details";
+    Layout = "_Layout";
+    ViewData["Title"] = $"Yêu cầu sửa chữa #{Model.RepairRequestId}";
+    ViewData["Description"] = Model.RentalPost.Title;
+    var image = RentalPresentation.SafeMediaUrl(Model.ImageUrl);
 }
-
-<h1>Details</h1>
-
-<div>
-    <h4>RepairRequest</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RentalPost)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RentalPost.Address)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Tenant)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Tenant.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ProblemType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ProblemType)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Priority)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Priority)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ImageUrl)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImageUrl)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ResolutionNote)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ResolutionNote)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ResolvedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ResolvedAt)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.RepairRequestId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+<a asp-action="Index" class="rental-back">Quay lại danh sách yêu cầu</a>
+<div class="rental-detail-grid">
+    <section class="rental-panel">
+        <div class="rental-section-heading"><h2>@Model.ProblemType</h2><span class="rental-status @TenantRentalPresentation.Tone(Model.Status)">@TenantRentalPresentation.RepairLabel(Model.Status)</span></div>
+        <dl class="rental-detail-facts">
+            <div><dt>Phòng</dt><dd>@Model.RentalPost.Title</dd></div>
+            <div><dt>Mức độ ưu tiên</dt><dd>@TenantRentalPresentation.PriorityLabel(Model.Priority)</dd></div>
+            <div><dt>Gửi lúc</dt><dd>@TenantRentalPresentation.SentAt(Model.CreatedAt) · Giờ Việt Nam</dd></div>
+            @if (Model.UpdatedAt.HasValue) { <div><dt>Cập nhật gần nhất</dt><dd>@TenantRentalPresentation.SentAt(Model.UpdatedAt.Value)</dd></div> }
+            @if (Model.ResolvedAt.HasValue) { <div><dt>Hoàn tất lúc</dt><dd>@TenantRentalPresentation.SentAt(Model.ResolvedAt.Value)</dd></div> }
+        </dl>
+        <h3>Mô tả sự cố</h3><p class="rental-prose">@Model.Description</p>
+        @if (image != null)
+        { <figure class="rental-evidence"><img src="@image" alt="Ảnh sự cố bạn cung cấp" width="640" height="420" loading="lazy" data-rental-image /><figcaption>Ảnh đính kèm yêu cầu</figcaption></figure> }
+    </section>
+    <aside class="rental-panel">
+        <h2>Phản hồi từ chủ nhà</h2>
+        <p class="rental-prose">@(string.IsNullOrWhiteSpace(Model.ResolutionNote) ? "Chưa có phản hồi được lưu. Bạn có thể quay lại theo dõi trạng thái yêu cầu." : Model.ResolutionNote)</p>
+        @if (TenantRentalPresentation.CanChange(Model))
+        {
+            <p class="rental-note">Bạn có thể sửa hoặc hủy khi yêu cầu còn chờ xử lý.</p>
+            <a asp-action="Edit" asp-route-id="@Model.RepairRequestId" class="rental-button secondary">Sửa yêu cầu</a>
+            <a asp-action="Delete" asp-route-id="@Model.RepairRequestId" class="rental-button quiet-danger">Hủy yêu cầu</a>
+        }
+        else
+        { <p class="rental-note">Yêu cầu đã chuyển trạng thái nên không thể sửa hoặc hủy.</p> }
+    </aside>
 </div>

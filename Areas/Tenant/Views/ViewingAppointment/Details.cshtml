@@ -1,66 +1,24 @@
-@model EZ_Rent.Models.ViewingAppointment
-
-@{
-    ViewData["Title"] = "Details";
-}
-
-<h1>Details</h1>
-
-<div>
-    <h4>ViewingAppointment</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RentalPost)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RentalPost.Address)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Tenant)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Tenant.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ViewingDate)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ViewingDate)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Note)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Note)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.LandlordNote)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.LandlordNote)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Status)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Status)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
-        </dd>
-    </dl>
-</div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.ViewingAppointmentId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
+@model EZ_Rent.Areas.Tenant.ViewModels.AppointmentModel
+@{ Layout = "_Layout"; ViewData["Title"] = "Chi tiết lịch hẹn"; ViewData["AppointmentsPage"] = true; }
+<div class="appointment-detail">
+    <a asp-action="Index" class="back-link">← Lịch hẹn của tôi</a>
+    <section class="appointment-detail-hero">
+        <p class="eyebrow">LỊCH XEM PHÒNG #@Model.Id</p>
+        <h1>Chi tiết lịch hẹn</h1>
+        <span class="appointment-status @Model.StatusClass">@Model.StatusLabel</span>
+        <p>@Model.Explanation</p>
+    </section>
+    <section class="detail-section">
+        <h2>Phòng hẹn xem</h2><h3 class="appointment-room-title">@Model.Title</h3>
+        <p class="appointment-address">@Model.Address</p>
+        @if (Model.PostAvailable) { <a asp-controller="RentalPost" asp-action="Details" asp-route-id="@Model.PostId" class="appointment-detail-link">Xem thông tin phòng →</a> }
+        <div class="appointment-time"><span aria-hidden="true">▦</span><div><strong>@Model.TimeLabel</strong><span>@Model.DateLabel</span></div></div>
+    </section>
+    <section class="detail-section"><h2>Ghi chú của bạn</h2><p class="description">@(string.IsNullOrWhiteSpace(Model.Note) ? "Bạn chưa để lại ghi chú." : Model.Note)</p></section>
+    <section class="detail-section landlord-response"><h2>Phản hồi của chủ nhà</h2><p class="description">@(string.IsNullOrWhiteSpace(Model.LandlordNote) ? "Chưa có ghi chú phản hồi từ chủ nhà." : Model.LandlordNote)</p></section>
+    @if (Model.CanCancel)
+    {
+        <div class="appointment-actions"><a asp-action="Delete" asp-route-id="@Model.Id" class="button danger">Hủy lịch hẹn</a></div>
+    }
+    <p class="muted small appointment-footnote">Chức năng chọn khung giờ mới đang được chuẩn bị.</p>
 </div>

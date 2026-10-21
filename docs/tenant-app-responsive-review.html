@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>EZ Rent · Review Tenant trên ba thiết bị</title>
+    <style>
+        @font-face{font-family:Be Vietnam Pro;src:url('/fonts/tenant/BeVietnamPro-Regular.ttf');font-weight:400;font-display:swap}
+        @font-face{font-family:Be Vietnam Pro;src:url('/fonts/tenant/BeVietnamPro-SemiBold.ttf');font-weight:600;font-display:swap}
+        :root{color-scheme:light;--blue:#356797;--ink:#203246;--muted:#607085;--line:#dce3ec}*{box-sizing:border-box}body{margin:0;background:#edf1f6;color:var(--ink);font:14px/1.6 'Be Vietnam Pro',sans-serif}button,select,a{font:inherit;touch-action:manipulation}button,select{color:inherit}button{cursor:pointer}button,a,select{outline-offset:3px}button:focus-visible,a:focus-visible,select:focus-visible{outline:3px solid #467db2}header{background:white;border-bottom:1px solid var(--line);padding:18px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}h1{margin:0;font-size:20px;font-weight:600;line-height:1.4}header p{margin:5px 0 0;font-size:12px;color:var(--muted)}.devices{display:flex;gap:6px;border:1px solid var(--line);border-radius:10px;padding:4px}.devices button{min-height:44px;padding:8px 16px;border:0;border-radius:7px;background:white;color:var(--muted);display:flex;gap:8px;align-items:center}.devices [aria-pressed=true]{background:#eaf1f8;color:var(--blue);font-weight:600}svg{width:19px;height:19px;flex-shrink:0}.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:14px 28px;background:#f8fafc;border-bottom:1px solid var(--line)}.page-control,.view-control{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.page-control label{font-size:12px;color:var(--muted)}select{border:1px solid #ccd8e5;border-radius:7px;background:white;min-height:44px;padding:8px 32px 8px 12px;font-size:13px;max-width:100%}.scale-button{border:1px solid #ccd8e5;background:white;color:var(--blue);padding:8px 12px;border-radius:7px;min-height:44px;font-size:12px}.scale-button[aria-pressed=true]{background:#eaf1f8}a{color:var(--blue);text-underline-offset:3px;font-size:12px;min-height:44px;display:flex;align-items:center}.status-row{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 18px;padding:17px 16px 12px;color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}.stage{overflow:auto;padding:4px 20px 24px;max-width:100%;min-height:180px}.device{position:relative;margin:0 auto;background:white;border:1px solid #c9d5e2;border-radius:12px;overflow:hidden;flex-shrink:0}iframe{display:block;border:0;transform-origin:top left;background:white}.note{max-width:780px;margin:0 auto;padding:0 24px 24px;color:var(--muted);font-size:12px;text-align:center}.offline{max-width:780px;margin:12px auto;padding:12px 18px;border:1px solid #ecc8ce;border-radius:8px;background:#fff1f3;color:#842a3b;font-size:13px}[hidden]{display:none!important}@media(max-width:700px){header{padding:16px 18px}h1{font-size:18px}.devices{width:100%}.devices button{justify-content:center;flex:1;padding:8px 10px;font-size:12px}.toolbar{padding:12px 18px;gap:10px}.page-control{flex:1}.page-control select{flex:1}.view-control{width:100%;justify-content:space-between}.stage{padding-left:12px;padding-right:12px}.status-row{font-size:11px}}
+    </style>
+</head>
+<body>
+    <header><div><h1>EZ Rent · Không gian người thuê</h1><p>Review ứng dụng hiện tại trên desktop, tablet và mobile · Dữ liệu thử riêng</p></div><div class="devices" role="group" aria-label="Chọn thiết bị">
+        <button type="button" data-device="desktop" aria-pressed="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 3h20v14H2zM8 21h8m-4-4v4"/></svg>Desktop</button>
+        <button type="button" data-device="tablet" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M10 19h4"/></svg>Tablet</button>
+        <button type="button" data-device="mobile" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 5h4m-3 14h2"/></svg>Mobile</button>
+    </div></header>
+    <div class="toolbar"><div class="page-control"><label for="review-page">Mở nhanh</label><select id="review-page" name="review-page"><option value="home">Trang chủ</option><option value="search">Tìm phòng</option><option value="saved">Phòng đã lưu</option><option value="appointments">Lịch hẹn</option><option value="messages">Tin nhắn</option><option value="support">Gửi hỗ trợ, phản ánh</option><option value="notifications">Thông báo</option><option value="room">Phòng đang ở</option><option value="contracts">Hợp đồng</option><option value="documents">Bản thử hợp đồng &amp; công tơ</option><option value="contract-files">Tài liệu hợp đồng</option><option value="contract-draft">BM03 · Bản nháp</option><option value="invoices">Hóa đơn</option><option value="repairs">Sửa chữa</option><option value="account">Cá nhân</option><option value="security">Bảo mật</option><option value="help">Hướng dẫn hỗ trợ</option></select></div><div class="view-control"><button type="button" class="scale-button" id="actual-size" aria-pressed="false">Xem tỷ lệ 100%</button><a id="open-page" href="/Tenant/Dashboard" target="_blank" rel="noopener">Mở trang trong tab riêng ↗</a></div></div>
+    <main><div class="status-row" aria-live="polite" role="status"><span id="device-label"></span><span id="scale-label"></span><span id="load-status">Đang mở ứng dụng…</span></div><p id="frame-error" class="offline" hidden>Chưa mở được ứng dụng. Hãy tải lại trang review.</p><div class="stage" id="stage"><div class="device" id="device"><iframe id="app-preview" title="Ứng dụng EZ Rent Tenant trên thiết bị đã chọn"></iframe></div></div><p class="note">Bạn có thể thao tác và chuyển trang ngay trong khung. Đổi thiết bị giữ trang đang mở và bản nháp. Khung này mô phỏng kích thước trình duyệt; chọn tỷ lệ 100% để xem chữ đúng kích thước. Các phần đang chờ hoàn thiện vẫn hiển thị đúng trạng thái trong ứng dụng.</p></main>
+    <script>
+        (()=>{
+            'use strict';
+            const presets={desktop:[1440,1000,'Desktop'],tablet:[834,1112,'Tablet'],mobile:[390,844,'Mobile']};
+            const pages={support:'/Tenant/Support/Create','contract-files':'/Tenant/Contract/Details/1','contract-draft':'/Tenant/Contract/Draft/1',documents:'/review/tenant-documents',room:'/Tenant/MyRoom',contracts:'/Tenant/Contract',invoices:'/Tenant/Invoice',repairs:'/Tenant/RepairRequest',account:'/Tenant/Account',security:'/Tenant/Account/Security',home:'/Tenant/Dashboard',search:'/Tenant/RentalPost',saved:'/Tenant/Favorite',appointments:'/Tenant/ViewingAppointment',messages:'/Tenant/Dashboard/Messages',notifications:'/Tenant/Notification',help:'/Tenant/Dashboard/Help'};
+            const params=new URL(location.href).searchParams;
+            let selected=Object.hasOwn(presets,params.get('device'))?params.get('device'):'desktop';
+            let actualSize=false;
+            const frame=document.getElementById('app-preview'),device=document.getElementById('device'),stage=document.getElementById('stage'),pageSelect=document.getElementById('review-page'),openLink=document.getElementById('open-page');
+            function remember(){const url=new URL(location.href);url.searchParams.set('device',selected);history.replaceState(null,'',url);}
+            function layout(){
+                const [width,height,label]=presets[selected];
+                const available=Math.max(200,stage.clientWidth-44);
+                const scale=actualSize?1:Math.min(1,available/width);
+                frame.style.width=`${width}px`;frame.style.height=`${height}px`;frame.style.transform=`scale(${scale})`;
+                device.style.width=`${Math.ceil(width*scale)+2}px`;device.style.height=`${Math.ceil(height*scale)+2}px`;
+                document.getElementById('device-label').textContent=`${label} · ${width} × ${height}`;
+                document.getElementById('scale-label').textContent=`Tỷ lệ hiển thị ${Math.round(scale*100)}%`;
+                document.querySelectorAll('[data-device]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.device===selected)));
+            }
+            function syncPage(){
+                try{
+                    const url=new URL(frame.contentWindow.location.href);
+                    if(url.origin!==location.origin)return;
+                    openLink.href=url.href;
+                    const match=Object.entries(pages).sort((a,b)=>b[1].length-a[1].length).find(([,path])=>url.pathname===path||url.pathname.startsWith(path+'/'));
+                    if(match)pageSelect.value=match[0];
+                }catch{document.getElementById('frame-error').hidden=false;}
+            }
+            frame.addEventListener('load',()=>{
+                document.getElementById('load-status').textContent='Sẵn sàng để thử';syncPage();
+                try{frame.contentWindow.addEventListener('popstate',syncPage);}catch{}
+            });
+            document.querySelectorAll('[data-device]').forEach(button=>button.addEventListener('click',()=>{selected=button.dataset.device;layout();remember();}));
+            document.getElementById('actual-size').addEventListener('click',event=>{actualSize=!actualSize;event.currentTarget.setAttribute('aria-pressed',String(actualSize));event.currentTarget.textContent=actualSize?'Thu vừa khung':'Xem tỷ lệ 100%';layout();});
+            pageSelect.addEventListener('change',()=>{document.getElementById('load-status').textContent='Đang chuyển trang…';frame.src=pages[pageSelect.value];});
+            openLink.addEventListener('click',syncPage);
+            new ResizeObserver(layout).observe(stage);
+            pageSelect.value=Object.hasOwn(pages,params.get('page'))?params.get('page'):'home';
+            layout();frame.src=pages[pageSelect.value];
+        })();
+    </script>
+</body>
+</html>

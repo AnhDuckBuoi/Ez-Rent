@@ -39,6 +39,9 @@ public class RentalContract
     public DateTime? TenantConfirmedAt { get; set; }
     public DateTime? LandlordConfirmedAt { get; set; }
 
+    // Incremented atomically when a new retained document is appended.
+    public int CurrentDocumentVersion { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 

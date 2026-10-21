@@ -9,6 +9,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="tests\**\*.cs" />
+    <Content Remove="tests\**\*" />
+    <None Remove="tests\**\*" />
+    <Content Remove="App_Data\RentalFiles\**\*" />
+    <None Remove="App_Data\RentalFiles\**\*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="docs\templates\bm03-hop-dong-thue-phong.pdf" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="16.2.0" />
     <PackageReference Include="Bogus" Version="35.6.5" />
     <PackageReference Include="DiscoRec" Version="0.1.2" />
