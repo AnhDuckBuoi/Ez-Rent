@@ -1,0 +1,8 @@
+@model ContractFormModel
+@{
+    ViewData["Title"] = "Sửa hợp đồng nháp";
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Hợp đồng</a></li><li><a asp-action="Details" asp-route-id="@Model.Id">Số @Model.Id</a></li><li aria-current="page">Sửa</li></ol></nav>
+<div class="ll-head"><div><h1>Sửa hợp đồng nháp số @Model.Id</h1></div></div>
+<partial name="_ContractForm" model="Model" />
+@section Scripts { <partial name="_LlValidation" /> }

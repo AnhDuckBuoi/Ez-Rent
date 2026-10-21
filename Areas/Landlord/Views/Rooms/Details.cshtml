@@ -1,0 +1,128 @@
+@model RoomDetailModel
+@{
+    ViewData["Title"] = Model.Title;
+    var approval = LandlordLabels.Approval(Model.Approval);
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Phòng trọ</a></li><li aria-current="page">Chi tiết tin</li></ol></nav>
+<div class="ll-head">
+    <div>
+        <h1>@Model.Title</h1>
+        <p>Mã tin @Model.Id · @Model.FullAddress</p>
+    </div>
+    <div class="ll-head-actions">
+        <a class="ll-btn" asp-action="Edit" asp-route-id="@Model.Id">Sửa tin</a>
+        @if (Model.Approval is ApprovalStatus.Draft or ApprovalStatus.NeedRevision or ApprovalStatus.Rejected)
+        {
+            <form method="post" asp-action="Submit" asp-route-id="@Model.Id"><button class="ll-btn ll-btn--primary" type="submit">Gửi duyệt</button></form>
+        }
+        @if (Model.Approval is ApprovalStatus.Rejected or ApprovalStatus.NeedRevision)
+        {
+            <a class="ll-btn" asp-controller="Support" asp-action="Create" asp-route-roomId="@Model.Id">Hỏi quản trị viên</a>
+        }
+        @if (Model.Room == RoomStatus.Available && Model.Approval == ApprovalStatus.Approved)
+        {
+            <a class="ll-btn ll-btn--primary" asp-controller="Contracts" asp-action="Create" asp-route-roomId="@Model.Id">Lập hợp đồng</a>
+        }
+    </div>
+</div>
+
+@if (Model.Approval is ApprovalStatus.NeedRevision or ApprovalStatus.Rejected && !string.IsNullOrWhiteSpace(Model.ApprovalNote))
+{
+    <p class="ll-note @(Model.Approval == ApprovalStatus.Rejected ? "is-danger" : "is-warn")"><strong>Quản trị viên nhắn:</strong> @Model.ApprovalNote</p>
+}
+
+<div class="ll-split" style="margin-top:16px">
+    <div class="ll-stack">
+        <section class="ll-panel" id="media" aria-labelledby="media-title">
+            <div class="ll-panel-head">
+                <h2 id="media-title">Ảnh & video (@Model.Media.Count/12)</h2>
+                <span class="hint" style="color:var(--ll-muted);font-size:13px">Ảnh đầu tiên được đánh dấu là ảnh đại diện trên trang tìm phòng.</span>
+            </div>
+            <div id="room-media" data-ll-region>
+                <partial name="_Media" model="Model" />
+            </div>
+            <form method="post" enctype="multipart/form-data" asp-action="UploadMedia" asp-route-id="@Model.Id" class="ll-inline-form" style="margin-top:16px" data-ll-action>
+                <div class="ll-field">
+                    <label for="media-files">Thêm ảnh/video</label>
+                    <input id="media-files" type="file" name="files" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" data-ll-preview="#media-previews" />
+                    <span class="hint">JPG, PNG, WebP tối đa 5 MB; MP4, WebM tối đa 25 MB. Ảnh thật giúp tin được duyệt nhanh hơn.</span>
+                    <div id="media-previews" class="ll-previews"></div>
+                    <span class="ll-error" data-ll-error></span>
+                </div>
+                <div><button class="ll-btn" type="submit">Tải lên</button></div>
+            </form>
+        </section>
+
+        <section class="ll-panel" aria-labelledby="desc-title">
+            <h2 id="desc-title" style="margin-bottom:10px">Mô tả</h2>
+            <p class="ll-text">@Model.Description</p>
+            @if (Model.Amenities.Count > 0)
+            {
+                <h3 style="margin:16px 0 8px">Tiện ích</h3>
+                <p>@string.Join(" · ", Model.Amenities)</p>
+            }
+        </section>
+    </div>
+
+    <aside class="ll-stack" aria-label="Thông tin tin đăng">
+        <section class="ll-panel">
+            <h2 style="margin-bottom:12px">Trạng thái</h2>
+            <dl class="ll-facts">
+                <dt>Kiểm duyệt</dt><dd>@LandlordHtml.Badge(approval)</dd>
+                <dt>Tình trạng</dt><dd>@LandlordHtml.Badge(LandlordLabels.Room(Model.Room))</dd>
+                @if (Model.TenantName != null)
+                {
+                    <dt>Người thuê</dt><dd><a asp-controller="Contracts" asp-action="Details" asp-route-id="@Model.ActiveContractId">@Model.TenantName</a></dd>
+                }
+                <dt>Lịch chờ</dt><dd><a asp-controller="Viewings" asp-action="Index" asp-route-room="@Model.Id" asp-route-status="Pending">@Model.PendingViewings yêu cầu</a></dd>
+                <dt>Lịch sắp tới</dt><dd>@Model.UpcomingViewings lịch đã xác nhận</dd>
+                <dt>Quan tâm</dt><dd>@Model.Favorites người thuê đã lưu tin</dd>
+                <dt>Sự cố mở</dt><dd>@Model.OpenRepairs</dd>
+                <dt>Tạo tin</dt><dd>@LandlordTime.Stamp(Model.CreatedAt)</dd>
+                <dt>Cập nhật</dt><dd>@LandlordTime.Stamp(Model.UpdatedAt ?? Model.CreatedAt)</dd>
+            </dl>
+            @if (Model.Room != RoomStatus.Rented)
+            {
+                var show = Model.Room == RoomStatus.Hidden;
+                <form method="post" asp-action="Visibility" asp-route-id="@Model.Id" style="margin-top:14px">
+                    <input type="hidden" name="visible" value="@(show ? "true" : "false")" />
+                    <button class="ll-btn" type="submit">@(show ? "Hiện lại trên trang tìm phòng" : "Ẩn khỏi trang tìm phòng")</button>
+                </form>
+            }
+        </section>
+
+        <section class="ll-panel">
+            <h2 style="margin-bottom:12px">Giá và chi phí</h2>
+            <dl class="ll-facts">
+                <dt>Giá thuê</dt><dd class="num">@LandlordFormat.Money(Model.Price)/tháng</dd>
+                <dt>Diện tích</dt><dd>@LandlordFormat.Area(Model.Area)</dd>
+                <dt>Loại phòng</dt><dd>@LandlordLabels.RoomTypeName(Model.RoomType)</dd>
+                <dt>Điện</dt><dd class="num">@LandlordFormat.Money(Model.ElectricityUnitPrice)/kWh</dd>
+                <dt>Nước</dt><dd class="num">@LandlordFormat.Money(Model.WaterUnitPrice)/m³</dd>
+                <dt>Phí chung</dt><dd class="num">@LandlordFormat.Money(Model.ServiceFee)/tháng</dd>
+                @foreach (var s in Model.Services)
+                {
+                    <dt>@s.Name</dt><dd class="num">@LandlordFormat.Money(s.UnitPrice)/@s.Unit</dd>
+                }
+                <dt>Vào ở từ</dt><dd>@LandlordTime.Date(Model.AvailableFrom)</dd>
+                @if (Model.MapUrl != null)
+                {
+                    <dt>Bản đồ</dt><dd><a href="@Model.MapUrl" target="_blank" rel="noopener noreferrer">Mở Google Maps</a></dd>
+                }
+            </dl>
+        </section>
+
+        <section class="ll-panel">
+            <h2 style="margin-bottom:8px">Xóa tin</h2>
+            @if (Model.CanDelete)
+            {
+                <p style="color:var(--ll-muted);font-size:14px">Tin chưa phát sinh lịch hẹn, hợp đồng hay tin nhắn nên có thể xóa hẳn.</p>
+                <a class="ll-btn ll-btn--danger" asp-action="Delete" asp-route-id="@Model.Id">Xóa tin này</a>
+            }
+            else
+            {
+                <p style="color:var(--ll-muted);font-size:14px">Tin đã có lịch hẹn, hợp đồng hoặc dữ liệu thuê nên được giữ lại để hai bên tra cứu. Hãy ẩn tin nếu không cho thuê nữa.</p>
+            }
+        </section>
+    </aside>
+</div>

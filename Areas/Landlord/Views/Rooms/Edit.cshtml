@@ -1,0 +1,21 @@
+@model RoomFormModel
+@{
+    ViewData["Title"] = "Sửa tin phòng";
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Phòng trọ</a></li><li><a asp-action="Details" asp-route-id="@Model.Id">Chi tiết tin</a></li><li aria-current="page">Sửa</li></ol></nav>
+<div class="ll-head">
+    <div>
+        <h1>Sửa tin phòng</h1>
+        <p>Ảnh/video được quản lý ở trang chi tiết tin.</p>
+    </div>
+</div>
+@if (Model.CurrentApproval == ApprovalStatus.Approved)
+{
+    <p class="ll-note is-warn">Tin đang hiển thị. Sau khi lưu, tin chuyển về “Chờ duyệt” và tạm ẩn khỏi trang tìm phòng đến khi quản trị viên duyệt lại.</p>
+}
+@if (!string.IsNullOrWhiteSpace(Model.ApprovalNote) && Model.CurrentApproval is ApprovalStatus.NeedRevision or ApprovalStatus.Rejected)
+{
+    <p class="ll-note is-warn"><strong>Quản trị viên nhắn:</strong> @Model.ApprovalNote</p>
+}
+<div style="margin-top:16px"><partial name="_RoomForm" model="Model" /></div>
+@section Scripts { <partial name="_LlValidation" /> }

@@ -1,0 +1,36 @@
+@model SupportListModel
+@if (Model.Items.Total == 0)
+{
+    <div class="ll-panel ll-empty">
+        <h2 data-ll-focus>Bạn chưa gửi yêu cầu nào</h2>
+        <p>Khi cần quản trị viên hỗ trợ, hãy gửi yêu cầu kèm phòng liên quan để được xử lý nhanh hơn.</p>
+        <a class="ll-btn ll-btn--primary" asp-action="Create">Gửi yêu cầu</a>
+    </div>
+}
+else
+{
+    <div class="ll-table-wrap">
+        <table class="ll-table">
+            <caption class="ll-visually-hidden" data-ll-focus>Danh sách yêu cầu hỗ trợ</caption>
+            <thead><tr><th scope="col">Yêu cầu</th><th scope="col">Cập nhật</th><th scope="col">Trạng thái</th><th scope="col"></th></tr></thead>
+            <tbody>
+                @foreach (var s in Model.Items.Items)
+                {
+                    var firstLine = s.FirstMessage.Split('\n')[0];
+                    <tr>
+                        <td class="main"><a class="title" asp-action="Details" asp-route-id="@s.Id">@firstLine</a>
+                            <div class="sub">Số @s.Id · gửi @LandlordTime.Stamp(s.CreatedAt)@(s.RoomTitle != null ? " · " + s.RoomTitle : "")</div></td>
+                        <td data-label="Cập nhật">@LandlordTime.Ago(s.LastAt, DateTime.UtcNow)</td>
+                        <td data-label="Trạng thái">
+                            @if (s.Unread > 0) { @LandlordHtml.Badge(new StatusLabel($"{s.Unread} phản hồi mới", "warn")) }
+                            else if (s.LastFromMe) { @LandlordHtml.Badge(new StatusLabel("Chờ phản hồi", "pending")) }
+                            else { @LandlordHtml.Badge(new StatusLabel("Đã phản hồi", "ok")) }
+                        </td>
+                        <td><div class="actions"><a class="ll-btn ll-btn--small" asp-action="Details" asp-route-id="@s.Id">Xem</a></div></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_LlPager" model="@PagerModel.For(Context.Request, Model.Items, "support-list", "Phân trang yêu cầu hỗ trợ")" />
+}

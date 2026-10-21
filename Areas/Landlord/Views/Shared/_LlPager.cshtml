@@ -1,0 +1,22 @@
+@model PagerModel
+@if (Model.Total > 0)
+{
+    <nav class="ll-pager" aria-label="@Model.Label">
+        @if (Model.TotalPages > 1)
+        {
+            @if (Model.Page > 1) { <a href="@Model.PageUrl(Model.Page - 1)" rel="prev" data-ll-nav="@Model.Region">‹ Trước</a> }
+            else { <span class="page is-disabled" aria-disabled="true">‹ Trước</span> }
+            var previous = 0;
+            foreach (var number in Model.VisiblePages)
+            {
+                if (previous > 0 && number - previous > 1) { <span class="gap" aria-hidden="true">…</span> }
+                if (number == Model.Page) { <span class="page" aria-current="page" aria-label="Trang @number, đang xem">@number</span> }
+                else { <a href="@Model.PageUrl(number)" data-ll-nav="@Model.Region" aria-label="Trang @number">@number</a> }
+                previous = number;
+            }
+            @if (Model.Page < Model.TotalPages) { <a href="@Model.PageUrl(Model.Page + 1)" rel="next" data-ll-nav="@Model.Region">Sau ›</a> }
+            else { <span class="page is-disabled" aria-disabled="true">Sau ›</span> }
+        }
+        <span class="info" data-ll-announce>Hiển thị @Model.FirstIndex–@Model.LastIndex trên tổng @Model.Total · Trang @Model.Page/@Model.TotalPages</span>
+    </nav>
+}

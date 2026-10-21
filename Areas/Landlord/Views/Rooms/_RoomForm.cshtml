@@ -1,0 +1,186 @@
+@model RoomFormModel
+@{
+    var input = Model.Input;
+    var creating = Model.Id == null;
+}
+<form method="post" enctype="multipart/form-data" class="ll-form">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <fieldset class="ll-fieldset">
+        <legend>Thông tin chính</legend>
+        <div class="ll-fields">
+            <div class="ll-field span-2">
+                <label asp-for="Input.Title"></label>
+                <input asp-for="Input.Title" placeholder="Ví dụ: Phòng 25 m² có gác, gần ĐH Mở Hà Nội" />
+                <span asp-validation-for="Input.Title" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.RoomType"></label>
+                <select asp-for="Input.RoomType">
+                    @foreach (var t in Enum.GetValues<RoomType>())
+                    {
+                        <option value="@t" selected="@(input.RoomType == t)">@LandlordLabels.RoomTypeName(t)</option>
+                    }
+                </select>
+                <span asp-validation-for="Input.RoomType" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.AvailableFrom"></label>
+                <input asp-for="Input.AvailableFrom" type="date" value="@(input.AvailableFrom?.ToString("yyyy-MM-dd"))" />
+                <span asp-validation-for="Input.AvailableFrom" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.Price"></label>
+                <input asp-for="Input.Price" type="number" min="100000" step="50000" inputmode="numeric" value="@(input.Price?.ToString("0"))" />
+                <span asp-validation-for="Input.Price" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.Area"></label>
+                <input asp-for="Input.Area" inputmode="decimal" placeholder="25.5" />
+                <span asp-validation-for="Input.Area" class="ll-error"></span>
+            </div>
+            <div class="ll-field span-2">
+                <label asp-for="Input.Description"></label>
+                <textarea asp-for="Input.Description" rows="6" placeholder="Nội thất, giờ giấc, chỗ để xe, an ninh, khoảng cách tới trường/chợ…"></textarea>
+                <span class="hint">Mô tả đúng thực tế giúp tin được duyệt nhanh và tránh tranh cãi khi người thuê đến xem.</span>
+                <span asp-validation-for="Input.Description" class="ll-error"></span>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="ll-fieldset">
+        <legend>Địa chỉ</legend>
+        <div class="ll-fields">
+            <div class="ll-field span-2">
+                <label asp-for="Input.Address"></label>
+                <input asp-for="Input.Address" placeholder="Số 96 Định Công" autocomplete="street-address" />
+                <span asp-validation-for="Input.Address" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.Ward"></label>
+                <input asp-for="Input.Ward" />
+                <span asp-validation-for="Input.Ward" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.District"></label>
+                <input asp-for="Input.District" placeholder="Hoàng Mai" />
+                <span asp-validation-for="Input.District" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.City"></label>
+                <input asp-for="Input.City" />
+                <span asp-validation-for="Input.City" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.MapLocation"></label>
+                <input asp-for="Input.MapLocation" placeholder="https://maps.app.goo.gl/… hoặc 20.9821, 105.8414" />
+                <span class="hint">Dán link chia sẻ Google Maps hoặc tọa độ.</span>
+                <span asp-validation-for="Input.MapLocation" class="ll-error"></span>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="ll-fieldset">
+        <legend>Chi phí hằng tháng</legend>
+        <p>Công khai đủ các khoản ngay từ đầu để người thuê tính được chi phí thật. Giá điện nước sẽ được điền sẵn vào hợp đồng.</p>
+        <div class="ll-fields">
+            <div class="ll-field">
+                <label asp-for="Input.ElectricityUnitPrice"></label>
+                <input asp-for="Input.ElectricityUnitPrice" type="number" min="0" step="100" inputmode="numeric" value="@(input.ElectricityUnitPrice?.ToString("0"))" />
+                <span asp-validation-for="Input.ElectricityUnitPrice" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.WaterUnitPrice"></label>
+                <input asp-for="Input.WaterUnitPrice" type="number" min="0" step="1000" inputmode="numeric" value="@(input.WaterUnitPrice?.ToString("0"))" />
+                <span asp-validation-for="Input.WaterUnitPrice" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.InternetFee"></label>
+                <input asp-for="Input.InternetFee" type="number" min="0" step="10000" inputmode="numeric" placeholder="Để trống nếu không thu" value="@(input.InternetFee?.ToString("0"))" />
+                <span asp-validation-for="Input.InternetFee" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.ServiceFee"></label>
+                <input asp-for="Input.ServiceFee" type="number" min="0" step="10000" inputmode="numeric" value="@(input.ServiceFee?.ToString("0"))" />
+                <span asp-validation-for="Input.ServiceFee" class="ll-error"></span>
+            </div>
+        </div>
+        <h3 style="margin:18px 0 8px">Các khoản phí dịch vụ khác</h3>
+        <p class="hint" style="color:var(--ll-muted);font-size:13px;margin:0 0 8px">Ví dụ: gửi xe (đ/xe), vệ sinh (đ/tháng), máy giặt chung (đ/người).</p>
+        <div id="room-services" data-ll-repeat data-ll-max="10">
+            @for (var i = 0; i < input.Services.Count; i++)
+            {
+                <div class="ll-repeat-row" data-ll-repeat-row>
+                    <div class="ll-field"><label for="Input_Services_@(i)__Name">Tên dịch vụ</label>
+                        <input id="Input_Services_@(i)__Name" name="Input.Services[@i].Name" value="@input.Services[i].Name" maxlength="100" placeholder="Wifi, gửi xe, vệ sinh…" />
+                        <span asp-validation-for="Input.Services[i].Name" class="ll-error"></span></div>
+                    <div class="ll-field"><label for="Input_Services_@(i)__UnitPrice">Đơn giá (đ)</label>
+                        <input id="Input_Services_@(i)__UnitPrice" name="Input.Services[@i].UnitPrice" value="@(input.Services[i].UnitPrice?.ToString("0"))" type="number" min="0" step="1000" inputmode="numeric" />
+                        <span asp-validation-for="Input.Services[i].UnitPrice" class="ll-error"></span></div>
+                    <div class="ll-field"><label for="Input_Services_@(i)__Unit">Tính theo</label>
+                        <input id="Input_Services_@(i)__Unit" name="Input.Services[@i].Unit" value="@(input.Services[i].Unit ?? "tháng")" maxlength="30" /></div>
+                    <button type="button" class="ll-btn ll-btn--small" data-ll-repeat-remove aria-label="Bỏ dịch vụ này">Bỏ</button>
+                </div>
+            }
+            <template>
+                <div class="ll-repeat-row" data-ll-repeat-row>
+                    <div class="ll-field"><label for="Input_Services___i____Name">Tên dịch vụ</label>
+                        <input id="Input_Services___i____Name" name="Input.Services[__i__].Name" maxlength="100" placeholder="Wifi, gửi xe, vệ sinh…" /></div>
+                    <div class="ll-field"><label for="Input_Services___i____UnitPrice">Đơn giá (đ)</label>
+                        <input id="Input_Services___i____UnitPrice" name="Input.Services[__i__].UnitPrice" type="number" min="0" step="1000" inputmode="numeric" /></div>
+                    <div class="ll-field"><label for="Input_Services___i____Unit">Tính theo</label>
+                        <input id="Input_Services___i____Unit" name="Input.Services[__i__].Unit" value="tháng" maxlength="30" /></div>
+                    <button type="button" class="ll-btn ll-btn--small" data-ll-repeat-remove aria-label="Bỏ dịch vụ này">Bỏ</button>
+                </div>
+            </template>
+        </div>
+        <button type="button" class="ll-btn ll-btn--small" style="margin-top:10px" data-ll-repeat-add="room-services">@LandlordHtml.Icon("plus") Thêm dịch vụ</button>
+        <span asp-validation-for="Input.Services" class="ll-error"></span>
+    </fieldset>
+
+    <fieldset class="ll-fieldset">
+        <legend>Tiện ích</legend>
+        <div class="ll-checks">
+            @foreach (var a in LandlordLabels.Amenities)
+            {
+                <label class="ll-check"><input type="checkbox" name="Input.Amenities" value="@a" checked="@input.Amenities.Contains(a)" /> @a</label>
+            }
+        </div>
+    </fieldset>
+
+    @if (creating)
+    {
+        <fieldset class="ll-fieldset">
+            <legend>Ảnh & video</legend>
+            <div class="ll-field">
+                <label for="Input_Media">Chọn tối đa 12 file</label>
+                <input id="Input_Media" type="file" name="Input.Media" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" data-ll-preview="#create-previews" />
+                <span class="hint">JPG, PNG, WebP tối đa 5 MB; MP4, WebM tối đa 25 MB. Ảnh đầu tiên làm ảnh đại diện. Nếu form báo lỗi, bạn cần chọn lại ảnh.</span>
+                <div id="create-previews" class="ll-previews"></div>
+                <span asp-validation-for="Input.Media" class="ll-error"></span>
+            </div>
+        </fieldset>
+    }
+
+    <div class="ll-form-actions">
+        @if (creating)
+        {
+            <a class="ll-btn" asp-action="Index">Hủy</a>
+            <button class="ll-btn" type="submit" name="intent" value="draft">Lưu nháp</button>
+            <button class="ll-btn ll-btn--primary" type="submit" name="intent" value="submit">Gửi duyệt</button>
+        }
+        else
+        {
+            <a class="ll-btn" asp-action="Details" asp-route-id="@Model.Id">Hủy</a>
+            @if (Model.CurrentApproval == ApprovalStatus.Draft)
+            {
+                <button class="ll-btn" type="submit" name="intent" value="draft">Lưu nháp</button>
+                <button class="ll-btn ll-btn--primary" type="submit" name="intent" value="submit">Lưu và gửi duyệt</button>
+            }
+            else
+            {
+                <button class="ll-btn ll-btn--primary" type="submit" name="intent" value="submit">Lưu và gửi duyệt lại</button>
+            }
+        }
+    </div>
+</form>

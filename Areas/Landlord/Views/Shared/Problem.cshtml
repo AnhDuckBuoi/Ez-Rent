@@ -1,0 +1,9 @@
+@model ProblemModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+<div class="ll-panel ll-empty" role="alert">
+    <h1 data-ll-focus>@Model.Title</h1>
+    <p>@Model.Message</p>
+    <a class="ll-btn ll-btn--primary" href="@Model.BackUrl">@Model.BackText</a>
+</div>

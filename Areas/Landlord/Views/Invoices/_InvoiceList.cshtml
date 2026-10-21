@@ -1,0 +1,68 @@
+@model InvoiceListModel
+@{
+    var input = Model.Input;
+    string TabUrl(string? s) => Url.Action("Index", new { status = s, period = input.Period })!;
+    var tabs = new List<TabLink>
+    {
+        new("Tất cả", TabUrl(null), null, input.Status == null),
+        new("Chưa thu", TabUrl("open"), Model.Counts.GetValueOrDefault("open"), input.Status == "open"),
+        new("Chờ xác nhận tiền", TabUrl("awaiting"), Model.Counts.GetValueOrDefault("awaiting"), input.Status == "awaiting"),
+        new("Quá hạn", TabUrl("overdue"), Model.Counts.GetValueOrDefault("overdue"), input.Status == "overdue"),
+        new("Đã thanh toán", TabUrl("paid"), Model.Counts.GetValueOrDefault("paid"), input.Status == "paid"),
+        new("Đã hủy", TabUrl("cancelled"), Model.Counts.GetValueOrDefault("cancelled"), input.Status == "cancelled")
+    };
+}
+<partial name="_LlTabs" model="@(new TabsModel(tabs, "invoice-list", "Lọc theo trạng thái thanh toán"))" />
+<form class="ll-filter" method="get" asp-action="Index" data-ll-filter="invoice-list">
+    <input type="hidden" name="status" value="@input.Status" />
+    <div class="ll-field">
+        <label for="invoice-period">Kỳ thanh toán</label>
+        <input id="invoice-period" type="month" name="period" value="@input.Period" />
+    </div>
+    <button class="ll-btn" type="submit">Lọc</button>
+    @if (!string.IsNullOrEmpty(input.Period)) { <a class="ll-btn ll-btn--link" asp-action="Index" asp-route-status="@input.Status" data-ll-nav="invoice-list">Mọi kỳ</a> }
+    <p class="ll-summary" style="margin:0 0 10px auto">Tổng chưa thu: <strong class="num">@LandlordFormat.Money(Model.OpenAmount)</strong></p>
+</form>
+@if (Model.Items.Total == 0)
+{
+    <div class="ll-panel ll-empty">
+        <h2 data-ll-focus>Không có hóa đơn ở mục này</h2>
+        <p>Ghi chỉ số điện nước rồi lập hóa đơn cho các phòng đang có hợp đồng.</p>
+        <a class="ll-btn ll-btn--primary" asp-action="Create">Lập hóa đơn</a>
+    </div>
+}
+else
+{
+    <div class="ll-table-wrap">
+        <table class="ll-table">
+            <caption class="ll-visually-hidden" data-ll-focus>Danh sách hóa đơn</caption>
+            <thead><tr><th scope="col">Kỳ · Phòng</th><th scope="col">Người thuê</th><th scope="col" class="right">Tổng tiền</th><th scope="col">Hạn</th><th scope="col">Trạng thái</th><th scope="col" class="right">Thao tác</th></tr></thead>
+            <tbody>
+                @foreach (var i in Model.Items.Items)
+                {
+                    <tr>
+                        <td class="main"><a class="title" asp-action="Details" asp-route-id="@i.Id">@LandlordTime.PeriodLabel(i.Period)</a><div class="sub">@i.RoomTitle · số @i.Id</div></td>
+                        <td data-label="Người thuê">@i.TenantName</td>
+                        <td data-label="Tổng tiền" class="right num"><strong>@LandlordFormat.Money(i.Total)</strong></td>
+                        <td data-label="Hạn" class="num">@LandlordTime.Date(i.DueDate)</td>
+                        <td data-label="Trạng thái">@LandlordHtml.Badge(LandlordLabels.Payment(i.Status, i.Overdue))
+                            @if (i.TenantConfirmedAt.HasValue && i.Status == PaymentStatus.AwaitingConfirmation) { <div class="sub">Báo chuyển @LandlordTime.Stamp(i.TenantConfirmedAt)</div> }</td>
+                        <td>
+                            <div class="actions">
+                                @if (i.Status is PaymentStatus.Unpaid or PaymentStatus.AwaitingConfirmation or PaymentStatus.Overdue)
+                                {
+                                    <form method="post" asp-action="MarkPaid" asp-route-id="@i.Id" data-ll-action data-ll-refresh="invoice-list"
+                                          data-ll-confirm="Xác nhận đã nhận đủ @LandlordFormat.Money(i.Total) cho hóa đơn số @i.Id?">
+                                        <button class="ll-btn ll-btn--small ll-btn--ok" type="submit">Đã nhận tiền</button>
+                                    </form>
+                                }
+                                <a class="ll-btn ll-btn--small" asp-action="Details" asp-route-id="@i.Id">Xem</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_LlPager" model="@PagerModel.For(Context.Request, Model.Items, "invoice-list", "Phân trang hóa đơn")" />
+}

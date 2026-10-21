@@ -1,0 +1,15 @@
+@model InvoiceListModel
+@{
+    ViewData["Title"] = "Hóa đơn";
+    ViewData["Description"] = "Hóa đơn tiền phòng và dịch vụ, mã VietQR và trạng thái thanh toán.";
+}
+<div class="ll-head">
+    <div>
+        <h1>Hóa đơn</h1>
+        <p>Hóa đơn (BM05) lấy tiền phòng và giá điện nước từ hợp đồng, lượng tiêu thụ từ phiếu chỉ số. Mã VietQR chỉ là thông tin chuyển khoản; bạn xác nhận đã nhận tiền sau khi đối soát.</p>
+    </div>
+    <div class="ll-head-actions"><a class="ll-btn ll-btn--primary" asp-action="Create">@LandlordHtml.Icon("plus") Lập hóa đơn</a></div>
+</div>
+<div id="invoice-list" data-ll-region>
+    <partial name="_InvoiceList" model="Model" />
+</div>

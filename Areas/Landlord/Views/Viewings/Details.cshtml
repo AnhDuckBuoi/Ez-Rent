@@ -1,0 +1,8 @@
+@model ViewingDetailModel
+@{
+    ViewData["Title"] = "Lịch xem phòng";
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Lịch xem phòng</a></li><li aria-current="page">Chi tiết</li></ol></nav>
+<div id="viewing-panel" data-ll-region>
+    <partial name="_ViewingPanel" model="Model" />
+</div>

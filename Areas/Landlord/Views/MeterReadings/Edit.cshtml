@@ -1,0 +1,9 @@
+@model MeterFormModel
+@{
+    ViewData["Title"] = "Sửa chỉ số điện nước";
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Điện nước</a></li><li><a asp-action="Details" asp-route-id="@Model.Id">Phiếu chỉ số</a></li><li aria-current="page">Sửa</li></ol></nav>
+<div class="ll-head"><div><h1>Sửa chỉ số @LandlordTime.PeriodLabel(Model.Input.Period).ToLowerInvariant()</h1>
+    <p>@Model.RoomTitle. Chọn ảnh mới nếu muốn thay ảnh đã lưu.</p></div></div>
+<partial name="_MeterForm" model="Model" />
+@section Scripts { <partial name="_LlValidation" /> }

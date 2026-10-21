@@ -1,0 +1,79 @@
+@model ViewingListModel
+@{
+    var input = Model.Input;
+    string TabUrl(ViewingAppointmentStatus? s) => Url.Action("Index", new { status = s, room = input.Room })!;
+    var tabs = new List<TabLink> { new("Tất cả", TabUrl(null), Model.Counts.Values.Sum(), input.Status == null) };
+    foreach (var s in new[] { ViewingAppointmentStatus.Pending, ViewingAppointmentStatus.Confirmed, ViewingAppointmentStatus.Completed, ViewingAppointmentStatus.Cancelled, ViewingAppointmentStatus.Rejected })
+        tabs.Add(new(LandlordLabels.Viewing(s).Text, TabUrl(s), Model.Counts.GetValueOrDefault(s), input.Status == s));
+}
+<partial name="_LlTabs" model="@(new TabsModel(tabs, "viewing-list", "Lọc theo trạng thái lịch hẹn"))" />
+@if (Model.Rooms.Count > 1)
+{
+    <form class="ll-filter" method="get" asp-action="Index" data-ll-filter="viewing-list">
+        <input type="hidden" name="status" value="@input.Status" />
+        <div class="ll-field grow">
+            <label for="viewing-room">Phòng</label>
+            <select id="viewing-room" name="room">
+                <option value="">Tất cả phòng</option>
+                @foreach (var r in Model.Rooms) { <option value="@r.Id" selected="@(input.Room == r.Id)">@r.Title</option> }
+            </select>
+        </div>
+        <noscript><button class="ll-btn" type="submit">Lọc</button></noscript>
+    </form>
+}
+@if (Model.Items.Total == 0)
+{
+    <div class="ll-panel ll-empty">
+        <h2 data-ll-focus>@(Model.Counts.Count == 0 ? "Chưa có yêu cầu xem phòng" : "Không có lịch ở mục này")</h2>
+        <p>Yêu cầu xuất hiện ở đây khi người thuê đặt lịch xem phòng đã được duyệt của bạn.</p>
+    </div>
+}
+else
+{
+    <div class="ll-table-wrap">
+        <table class="ll-table">
+            <caption class="ll-visually-hidden" data-ll-focus>Danh sách lịch xem phòng</caption>
+            <thead><tr><th scope="col">Giờ hẹn</th><th scope="col">Người thuê · Phòng</th><th scope="col">Trạng thái</th><th scope="col" class="right">Thao tác</th></tr></thead>
+            <tbody>
+                @foreach (var v in Model.Items.Items)
+                {
+                    <tr>
+                        <td class="main">
+                            <a class="title num" asp-action="Details" asp-route-id="@v.Id">@LandlordTime.Time(v.ViewingDate) · @LandlordTime.Date(v.ViewingDate)</a>
+                            <div class="sub">@LandlordTime.LongDate(v.ViewingDate)</div>
+                        </td>
+                        <td data-label="Người thuê">
+                            <strong>@v.TenantName</strong>
+                            <div class="sub">@v.RoomTitle</div>
+                            @if (!string.IsNullOrWhiteSpace(v.Note)) { <div class="sub">“@v.Note”</div> }
+                        </td>
+                        <td data-label="Trạng thái">
+                            @LandlordHtml.Badge(LandlordLabels.Viewing(v.Status))
+                            @if (v.ResponseLate) { <div class="sub" style="color:var(--warn)">Gửi @LandlordTime.Ago(v.CreatedAt, DateTime.UtcNow), quá 2 giờ</div> }
+                            else if (v.Status == ViewingAppointmentStatus.Pending) { <div class="sub">Gửi @LandlordTime.Ago(v.CreatedAt, DateTime.UtcNow)</div> }
+                        </td>
+                        <td>
+                            <div class="actions">
+                                @if (v.Status == ViewingAppointmentStatus.Pending && !v.IsPast)
+                                {
+                                    <form method="post" asp-action="Confirm" asp-route-id="@v.Id" data-ll-action data-ll-refresh="viewing-list">
+                                        <button class="ll-btn ll-btn--small ll-btn--ok" type="submit">Xác nhận</button>
+                                    </form>
+                                }
+                                @if (v.Status == ViewingAppointmentStatus.Pending || (v.Status == ViewingAppointmentStatus.Confirmed && v.IsPast))
+                                {
+                                    <a class="ll-btn ll-btn--small" asp-action="Details" asp-route-id="@v.Id">@(v.Status == ViewingAppointmentStatus.Pending ? "Từ chối…" : "Hoàn thành…")</a>
+                                }
+                                else
+                                {
+                                    <a class="ll-btn ll-btn--small" asp-action="Details" asp-route-id="@v.Id">Chi tiết</a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_LlPager" model="@PagerModel.For(Context.Request, Model.Items, "viewing-list", "Phân trang lịch hẹn")" />
+}

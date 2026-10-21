@@ -1,0 +1,63 @@
+@model MeterDetailModel
+@{
+    ViewData["Title"] = "Phiếu chỉ số " + LandlordTime.PeriodLabel(Model.Period);
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index" asp-route-period="@Model.Period">Điện nước</a></li><li><a asp-action="History" asp-route-id="@Model.RoomId">Lịch sử</a></li><li aria-current="page">@LandlordTime.PeriodLabel(Model.Period)</li></ol></nav>
+<div class="ll-head">
+    <div><h1>Phiếu chỉ số @LandlordTime.PeriodLabel(Model.Period).ToLowerInvariant()</h1><p>Phiếu số @Model.Id · @Model.RoomTitle · ghi lúc @LandlordTime.Stamp(Model.ReadingDate) bởi @Model.RecordedBy</p></div>
+    <div class="ll-head-actions">
+        @if (Model.InvoiceId.HasValue)
+        {
+            <a class="ll-btn" asp-controller="Invoices" asp-action="Details" asp-route-id="@Model.InvoiceId">Xem hóa đơn số @Model.InvoiceId</a>
+        }
+        else
+        {
+            <a class="ll-btn" asp-action="Edit" asp-route-id="@Model.Id">Sửa chỉ số</a>
+            <a class="ll-btn ll-btn--primary" asp-controller="Invoices" asp-action="Create" asp-route-period="@Model.Period">Lập hóa đơn</a>
+        }
+    </div>
+</div>
+<div class="ll-split">
+    <div class="ll-meter">
+        <section class="ll-meter-card">
+            <h2 style="font-size:16px;margin-bottom:10px">Điện</h2>
+            <dl class="ll-facts">
+                <dt>Kỳ trước</dt><dd class="num">@MeterInput.Show(Model.PrevElectric)</dd>
+                <dt>Kỳ này</dt><dd class="num">@MeterInput.Show(Model.CurrElectric)</dd>
+                <dt>Tiêu thụ</dt><dd class="num"><strong>@LandlordFormat.Number(Model.ElectricUsage) kWh</strong></dd>
+            </dl>
+            @if (Model.ElectricPhotoUrl != null) { <img class="ll-photo" style="margin-top:12px" src="@Model.ElectricPhotoUrl" alt="Ảnh công tơ điện @LandlordTime.PeriodLabel(Model.Period)" loading="lazy" /> }
+            else { <p class="ll-note" style="margin-top:12px">Không có ảnh công tơ.</p> }
+        </section>
+        <section class="ll-meter-card">
+            <h2 style="font-size:16px;margin-bottom:10px">Nước</h2>
+            <dl class="ll-facts">
+                <dt>Kỳ trước</dt><dd class="num">@MeterInput.Show(Model.PrevWater)</dd>
+                <dt>Kỳ này</dt><dd class="num">@MeterInput.Show(Model.CurrWater)</dd>
+                <dt>Tiêu thụ</dt><dd class="num"><strong>@LandlordFormat.Number(Model.WaterUsage) m³</strong></dd>
+            </dl>
+            @if (Model.WaterPhotoUrl != null) { <img class="ll-photo" style="margin-top:12px" src="@Model.WaterPhotoUrl" alt="Ảnh đồng hồ nước @LandlordTime.PeriodLabel(Model.Period)" loading="lazy" /> }
+            else { <p class="ll-note" style="margin-top:12px">Không có ảnh đồng hồ.</p> }
+        </section>
+    </div>
+    <aside class="ll-stack">
+        @if (Model.ElectricPrice.HasValue && Model.WaterPrice.HasValue)
+        {
+            var e = LandlordBilling.Amount(Model.ElectricUsage, Model.ElectricPrice.Value);
+            var w = LandlordBilling.Amount(Model.WaterUsage, Model.WaterPrice.Value);
+            <div class="ll-bill">
+                <h2>Tiền điện nước theo hợp đồng hiện tại</h2>
+                @LandlordHtml.BillRow("Điện", $"{LandlordFormat.Number(Model.ElectricUsage)} × {LandlordFormat.Number(Model.ElectricPrice.Value)}", LandlordFormat.Money(e))
+                @LandlordHtml.BillRow("Nước", $"{LandlordFormat.Number(Model.WaterUsage)} × {LandlordFormat.Number(Model.WaterPrice.Value)}", LandlordFormat.Money(w))
+                <div class="ll-bill-total"><span>Cộng</span><b>@LandlordFormat.Money(e + w)</b></div>
+            </div>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.Note)) { <p class="ll-note"><strong>Ghi chú:</strong> @Model.Note</p> }
+        @if (!Model.InvoiceId.HasValue && Model.IsLatest)
+        {
+            <form method="post" asp-action="Delete" asp-route-id="@Model.Id" data-ll-confirm="Xóa phiếu chỉ số này?">
+                <button class="ll-btn ll-btn--danger" type="submit">Xóa phiếu chỉ số</button>
+            </form>
+        }
+    </aside>
+</div>

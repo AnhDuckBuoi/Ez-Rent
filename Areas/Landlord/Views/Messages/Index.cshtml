@@ -1,0 +1,12 @@
+@model MessagesModel
+@{
+    ViewData["Title"] = "Trò chuyện với người thuê";
+    ViewData["Description"] = "Trò chuyện giữa chủ trọ và người thuê về phòng và quá trình thuê.";
+}
+<div class="ll-head">
+    <div>
+        <h1>Trò chuyện với người thuê</h1>
+        <p>Trao đổi với người thuê về phòng, lịch xem và hợp đồng. Lịch sử được lưu để hai bên xem lại.</p>
+    </div>
+</div>
+<partial name="_Inbox" model="Model" />

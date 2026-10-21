@@ -1,0 +1,51 @@
+@model RoomDetailModel
+@if (Model.Media.Count == 0)
+{
+    <p class="ll-note" data-ll-focus>Tin chưa có ảnh. Cần ít nhất 1 ảnh trước khi gửi duyệt.</p>
+}
+else
+{
+    <ul class="ll-media-grid" style="list-style:none;margin:0;padding:0" aria-label="Ảnh và video của phòng">
+        @for (var i = 0; i < Model.Media.Count; i++)
+        {
+            var m = Model.Media[i];
+            <li class="ll-media">
+                @if (m.Type == MediaType.Video)
+                {
+                    <video src="@m.Url" controls preload="metadata" aria-label="Video phòng @(i + 1)"></video>
+                }
+                else
+                {
+                    <img src="@m.Url" alt="Ảnh phòng @(i + 1): @Model.Title" loading="lazy" />
+                }
+                <div class="bar">
+                    @if (m.IsPrimary) { <span class="tag">Ảnh đại diện</span> }
+                    else if (m.Type == MediaType.Image)
+                    {
+                        <form method="post" asp-action="PrimaryMedia" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="room-media">
+                            <input type="hidden" name="mediaId" value="@m.Id" /><button class="ll-btn ll-btn--link" type="submit">Đặt làm đại diện</button>
+                        </form>
+                    }
+                    <span style="margin-left:auto"></span>
+                    @if (i > 0)
+                    {
+                        <form method="post" asp-action="MoveMedia" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="room-media">
+                            <input type="hidden" name="mediaId" value="@m.Id" /><input type="hidden" name="direction" value="up" />
+                            <button class="ll-btn ll-btn--small" type="submit" aria-label="Đưa file @(i + 1) lên trước">↑</button>
+                        </form>
+                    }
+                    @if (i < Model.Media.Count - 1)
+                    {
+                        <form method="post" asp-action="MoveMedia" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="room-media">
+                            <input type="hidden" name="mediaId" value="@m.Id" /><input type="hidden" name="direction" value="down" />
+                            <button class="ll-btn ll-btn--small" type="submit" aria-label="Đưa file @(i + 1) ra sau">↓</button>
+                        </form>
+                    }
+                    <form method="post" asp-action="DeleteMedia" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="room-media" data-ll-confirm="Xóa file này khỏi tin?">
+                        <input type="hidden" name="mediaId" value="@m.Id" /><button class="ll-btn ll-btn--small ll-btn--danger" type="submit" aria-label="Xóa file @(i + 1)">Xóa</button>
+                    </form>
+                </div>
+            </li>
+        }
+    </ul>
+}

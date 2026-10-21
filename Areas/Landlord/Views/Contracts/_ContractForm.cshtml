@@ -1,0 +1,112 @@
+@model ContractFormModel
+@{
+    var input = Model.Input;
+    var creating = Model.Id == null;
+}
+<form method="post" class="ll-form">
+    <div asp-validation-summary="ModelOnly"></div>
+    <fieldset class="ll-fieldset">
+        <legend>Phòng và người thuê</legend>
+        @if (Model.Rooms.Count == 0)
+        {
+            <p class="ll-note is-warn">Bạn chưa có phòng nào đã được duyệt và đang trống. <a asp-controller="Rooms" asp-action="Index">Xem danh sách phòng</a>.</p>
+        }
+        <div class="ll-fields">
+            <div class="ll-field span-2">
+                <label asp-for="Input.RentalPostId"></label>
+                <select asp-for="Input.RentalPostId" data-ll-defaults="@Url.Action("RoomDefaults")">
+                    <option value="0">— Chọn phòng —</option>
+                    @foreach (var r in Model.Rooms)
+                    {
+                        <option value="@r.Value" selected="@(r.Value == input.RentalPostId.ToString())">@r.Text — @r.Hint</option>
+                    }
+                </select>
+                <span class="hint">Đổi phòng sẽ điền lại giá thuê, cọc, giá điện nước theo tin đăng; bạn vẫn sửa được.</span>
+                <span asp-validation-for="Input.RentalPostId" class="ll-error"></span>
+            </div>
+            @if (creating)
+            {
+                <div class="ll-field">
+                    <label asp-for="Input.TenantId"></label>
+                    <select asp-for="Input.TenantId">
+                        <option value="">— Chọn người đã xem phòng / nhắn tin —</option>
+                        @foreach (var t in Model.Tenants)
+                        {
+                            <option value="@t.Value" selected="@(t.Value == input.TenantId)">@t.Text (@t.Hint)</option>
+                        }
+                    </select>
+                    <span asp-validation-for="Input.TenantId" class="ll-error"></span>
+                </div>
+                <div class="ll-field">
+                    <label asp-for="Input.TenantEmail"></label>
+                    <input asp-for="Input.TenantEmail" type="email" autocomplete="off" placeholder="nguoithue@gmail.com" />
+                    <span class="hint">Dùng khi người thuê chưa đặt lịch qua EZ-Rent. Tài khoản phải là người thuê.</span>
+                    <span asp-validation-for="Input.TenantEmail" class="ll-error"></span>
+                </div>
+            }
+            else
+            {
+                <div class="ll-field span-2">
+                    <span class="ll-label">Người thuê</span>
+                    <p style="margin:0">@Model.TenantName <span class="hint" style="color:var(--ll-muted)">— muốn đổi người thuê, hãy hủy và lập hợp đồng mới.</span></p>
+                </div>
+            }
+        </div>
+    </fieldset>
+    <fieldset class="ll-fieldset">
+        <legend>Thời hạn và chi phí</legend>
+        <div class="ll-fields">
+            <div class="ll-field">
+                <label asp-for="Input.StartDate"></label>
+                <input asp-for="Input.StartDate" type="date" value="@(input.StartDate?.ToString("yyyy-MM-dd"))" />
+                <span asp-validation-for="Input.StartDate" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.EndDate"></label>
+                <input asp-for="Input.EndDate" type="date" value="@(input.EndDate?.ToString("yyyy-MM-dd"))" />
+                <span asp-validation-for="Input.EndDate" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.MonthlyRent"></label>
+                <input asp-for="Input.MonthlyRent" type="number" min="100000" step="1000" inputmode="numeric" data-ll-fill="rent" value="@(input.MonthlyRent?.ToString("0"))" />
+                <span asp-validation-for="Input.MonthlyRent" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.DepositAmount"></label>
+                <input asp-for="Input.DepositAmount" type="number" min="0" step="1000" inputmode="numeric" data-ll-fill="deposit" value="@(input.DepositAmount?.ToString("0"))" />
+                <span asp-validation-for="Input.DepositAmount" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.AgreedElectricityPrice"></label>
+                <input asp-for="Input.AgreedElectricityPrice" type="number" min="0" step="100" inputmode="numeric" data-ll-fill="electricity" value="@(input.AgreedElectricityPrice?.ToString("0"))" />
+                <span asp-validation-for="Input.AgreedElectricityPrice" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="Input.AgreedWaterPrice"></label>
+                <input asp-for="Input.AgreedWaterPrice" type="number" min="0" step="1000" inputmode="numeric" data-ll-fill="water" value="@(input.AgreedWaterPrice?.ToString("0"))" />
+                <span asp-validation-for="Input.AgreedWaterPrice" class="ll-error"></span>
+            </div>
+        </div>
+    </fieldset>
+    <fieldset class="ll-fieldset">
+        <legend>Điều khoản</legend>
+        <div class="ll-field">
+            <label asp-for="Input.Terms"></label>
+            <textarea asp-for="Input.Terms" rows="16"></textarea>
+            <span class="hint">Mẫu có sẵn theo BM03: trách nhiệm hai bên, tiền cọc, báo trước khi chuyển đi. Sửa cho đúng thỏa thuận thực tế.</span>
+            <span asp-validation-for="Input.Terms" class="ll-error"></span>
+        </div>
+    </fieldset>
+    <div class="ll-form-actions">
+        <a class="ll-btn" href="@(creating ? Url.Action("Index") : Url.Action("Details", new { id = Model.Id }))">Hủy</a>
+        @if (creating)
+        {
+            <button class="ll-btn" type="submit" name="intent" value="draft">Lưu nháp</button>
+            <button class="ll-btn ll-btn--primary" type="submit" name="intent" value="send">Xác nhận và gửi người thuê</button>
+        }
+        else
+        {
+            <button class="ll-btn ll-btn--primary" type="submit">Lưu bản nháp</button>
+        }
+    </div>
+</form>

@@ -1,0 +1,43 @@
+@model BankInput
+@{
+    ViewData["Title"] = "Tài khoản nhận tiền";
+}
+<div class="ll-head">
+    <div>
+        <h1>Tài khoản nhận tiền</h1>
+        <p>Dùng để tạo mã VietQR trên hóa đơn. Người thuê quét mã bằng ứng dụng ngân hàng, số tiền và nội dung được điền sẵn theo từng hóa đơn.</p>
+    </div>
+</div>
+<form method="post" class="ll-form" style="max-width:720px">
+    <div asp-validation-summary="ModelOnly"></div>
+    <fieldset class="ll-fieldset">
+        <legend>Thông tin tài khoản</legend>
+        <div class="ll-fields">
+            <div class="ll-field span-2">
+                <label asp-for="Bin"></label>
+                <select asp-for="Bin">
+                    <option value="">— Chọn ngân hàng —</option>
+                    @foreach (var b in LandlordBankAccounts.Banks)
+                    {
+                        <option value="@b.Bin" selected="@(b.Bin == Model.Bin)">@b.Name</option>
+                    }
+                </select>
+                <span asp-validation-for="Bin" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="AccountNumber"></label>
+                <input asp-for="AccountNumber" inputmode="numeric" autocomplete="off" />
+                <span asp-validation-for="AccountNumber" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="AccountName"></label>
+                <input asp-for="AccountName" autocomplete="off" placeholder="NGUYEN VAN A" style="text-transform:uppercase" />
+                <span class="hint">Viết không dấu, đúng tên in trên tài khoản.</span>
+                <span asp-validation-for="AccountName" class="ll-error"></span>
+            </div>
+        </div>
+    </fieldset>
+    <p class="ll-note">Chỉ bạn xem và sửa được thông tin này. EZ-Rent không kết nối trực tiếp với ngân hàng, nên khi người thuê chuyển khoản bạn vẫn cần kiểm tra tài khoản rồi bấm “Xác nhận đã nhận tiền” trên hóa đơn.</p>
+    <div class="ll-form-actions"><button class="ll-btn ll-btn--primary" type="submit">Lưu tài khoản</button></div>
+</form>
+@section Scripts { <partial name="_LlValidation" /> }

@@ -1,0 +1,47 @@
+@model SupportInput
+@{
+    ViewData["Title"] = "Gửi yêu cầu hỗ trợ";
+    var rooms = ViewData["Rooms"] as IReadOnlyList<OptionItem> ?? [];
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Hỗ trợ</a></li><li aria-current="page">Gửi yêu cầu</li></ol></nav>
+<div class="ll-head"><div><h1>Gửi yêu cầu tới quản trị viên</h1>
+    <p>Không gửi mật khẩu, số thẻ hay thông tin đăng nhập trong nội dung.</p></div></div>
+<form method="post" class="ll-form" style="max-width:760px">
+    <div asp-validation-summary="ModelOnly"></div>
+    <fieldset class="ll-fieldset">
+        <legend>Nội dung yêu cầu</legend>
+        <div class="ll-fields">
+            <div class="ll-field">
+                <label asp-for="Category"></label>
+                <select asp-for="Category">
+                    @foreach (var c in new[] { "help", "feedback", "report", "other" })
+                    { <option value="@c" selected="@(Model.Category == c)">@SupportInput.CategoryLabel(c)</option> }
+                </select>
+                <span asp-validation-for="Category" class="ll-error"></span>
+            </div>
+            <div class="ll-field">
+                <label asp-for="RoomId"></label>
+                <select asp-for="RoomId">
+                    <option value="">— Không gắn phòng —</option>
+                    @foreach (var r in rooms) { <option value="@r.Value" selected="@(r.Value == Model.RoomId?.ToString())">@r.Text</option> }
+                </select>
+                <span asp-validation-for="RoomId" class="ll-error"></span>
+            </div>
+            <div class="ll-field span-2">
+                <label asp-for="Subject"></label>
+                <input asp-for="Subject" placeholder="Ví dụ: Tin đăng bị từ chối nhưng chưa rõ lý do" />
+                <span asp-validation-for="Subject" class="ll-error"></span>
+            </div>
+            <div class="ll-field span-2">
+                <label asp-for="Content"></label>
+                <textarea asp-for="Content" rows="7"></textarea>
+                <span asp-validation-for="Content" class="ll-error"></span>
+            </div>
+        </div>
+    </fieldset>
+    <div class="ll-form-actions">
+        <a class="ll-btn" asp-action="Index">Hủy</a>
+        <button class="ll-btn ll-btn--primary" type="submit">Gửi yêu cầu</button>
+    </div>
+</form>
+@section Scripts { <partial name="_LlValidation" /> }

@@ -1,0 +1,87 @@
+@model RepairDetailModel
+@{
+    var r = Model.Item;
+}
+<div class="ll-head">
+    <div><h1 data-ll-focus>@r.ProblemType</h1><p>Yêu cầu số @r.Id · @r.RoomTitle · @r.TenantName · gửi @LandlordTime.Stamp(r.CreatedAt)</p></div>
+    <div class="ll-head-actions">@LandlordHtml.Badge(LandlordLabels.Priority(r.Priority)) @LandlordHtml.Badge(LandlordLabels.Repair(r.Status))</div>
+</div>
+<div class="ll-split">
+    <div class="ll-stack">
+        <section class="ll-panel">
+            <h2 style="margin-bottom:10px">Mô tả của người thuê</h2>
+            <p class="ll-text">@r.Description</p>
+            @if (Model.ImageUrl != null)
+            {
+                <img class="ll-photo" style="margin-top:12px" src="@Model.ImageUrl" alt="Ảnh sự cố do người thuê gửi" loading="lazy" referrerpolicy="no-referrer" />
+            }
+        </section>
+        <section class="ll-panel">
+            <h2 style="margin-bottom:10px">Lịch sử xử lý</h2>
+            @if (string.IsNullOrWhiteSpace(Model.ResolutionNote))
+            {
+                <p class="ll-text" style="color:var(--ll-muted)">Chưa có cập nhật nào.</p>
+            }
+            else
+            {
+                <ol class="ll-todo" reversed>
+                    @foreach (var line in Model.ResolutionNote.Split('\n', StringSplitOptions.RemoveEmptyEntries).Reverse())
+                    {
+                        <li><span class="ll-text">@line</span></li>
+                    }
+                </ol>
+            }
+            <dl class="ll-facts" style="margin-top:10px;font-size:14px">
+                <dt>Cập nhật</dt><dd>@LandlordTime.Stamp(Model.UpdatedAt ?? r.CreatedAt)</dd>
+                @if (r.ResolvedAt.HasValue) { <dt>Hoàn tất</dt><dd>@LandlordTime.Stamp(r.ResolvedAt)</dd> }
+            </dl>
+        </section>
+    </div>
+    <aside class="ll-stack" aria-label="Xử lý yêu cầu">
+        @if (r.Status == RepairRequestStatus.Pending)
+        {
+            <section class="ll-panel">
+                <h2 style="margin-bottom:10px">Tiếp nhận</h2>
+                <form method="post" asp-action="Accept" asp-route-id="@r.Id" class="ll-inline-form" data-ll-action data-ll-refresh="repair-panel">
+                    <div class="ll-field"><label for="accept-note">Hẹn lịch sửa (không bắt buộc)</label>
+                        <textarea id="accept-note" name="Note" maxlength="1000" placeholder="Ví dụ: Thợ đến sáng mai lúc 9 giờ."></textarea></div>
+                    <span class="ll-error" data-ll-error></span>
+                    <button class="ll-btn ll-btn--primary" type="submit">Tiếp nhận yêu cầu</button>
+                </form>
+            </section>
+        }
+        @if (r.Status == RepairRequestStatus.InProgress)
+        {
+            <section class="ll-panel">
+                <h2 style="margin-bottom:10px">Cập nhật tiến độ</h2>
+                <form method="post" asp-action="Note" asp-route-id="@r.Id" class="ll-inline-form" data-ll-action data-ll-refresh="repair-panel">
+                    <div class="ll-field"><label for="progress-note">Nội dung</label>
+                        <textarea id="progress-note" name="Note" maxlength="1000" required placeholder="Ví dụ: Đã mua linh kiện, chiều nay thợ đến thay."></textarea></div>
+                    <span class="ll-error" data-ll-error></span>
+                    <button class="ll-btn" type="submit">Gửi cập nhật</button>
+                </form>
+            </section>
+        }
+        @if (r.Status is RepairRequestStatus.Pending or RepairRequestStatus.InProgress)
+        {
+            <section class="ll-panel">
+                <h2 style="margin-bottom:10px">Hoàn tất</h2>
+                <form method="post" asp-action="Resolve" asp-route-id="@r.Id" class="ll-inline-form" data-ll-action data-ll-refresh="repair-panel">
+                    <div class="ll-field"><label for="resolve-note">Đã xử lý thế nào (bắt buộc)</label>
+                        <textarea id="resolve-note" name="Note" maxlength="1000" required placeholder="Ví dụ: Đã thay bóng đèn LED mới."></textarea></div>
+                    <span class="ll-error" data-ll-error></span>
+                    <button class="ll-btn ll-btn--ok" type="submit">Đánh dấu đã xử lý</button>
+                </form>
+            </section>
+        }
+        else
+        {
+            <p class="ll-note">Yêu cầu đã ở trạng thái “@LandlordLabels.Repair(r.Status).Text”. Lịch sử được giữ lại để tra cứu.</p>
+        }
+        <form method="post" asp-controller="Messages" asp-action="Start">
+            <input type="hidden" name="roomId" value="@r.RoomId" /><input type="hidden" name="tenantId" value="@Model.TenantId" />
+            <button class="ll-btn" type="submit">@LandlordHtml.Icon("chat") Nhắn tin cho người thuê</button>
+        </form>
+        @if (Model.TenantPhone != null) { <a class="ll-btn" href="tel:@Model.TenantPhone">Gọi @Model.TenantPhone</a> }
+    </aside>
+</div>

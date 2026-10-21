@@ -1,0 +1,8 @@
+@model ContractDetailModel
+@{
+    ViewData["Title"] = $"Hợp đồng số {Model.Id}";
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Hợp đồng</a></li><li aria-current="page">Số @Model.Id</li></ol></nav>
+<div id="contract-panel" data-ll-region>
+    <partial name="_ContractPanel" model="Model" />
+</div>

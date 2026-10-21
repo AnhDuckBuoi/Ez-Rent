@@ -1,0 +1,14 @@
+@model MeterIndexModel
+@{
+    ViewData["Title"] = "Điện nước";
+    ViewData["Description"] = "Ghi nhận chỉ số điện, nước hằng tháng cho các phòng đang cho thuê, kèm ảnh công tơ.";
+}
+<div class="ll-head">
+    <div>
+        <h1>Điện nước</h1>
+        <p>Phiếu ghi chỉ số (BM04). Mỗi phòng đang có hợp đồng ghi một lần mỗi tháng; chỉ số kỳ trước được lấy tự động để tính lượng tiêu thụ.</p>
+    </div>
+</div>
+<div id="meter-rooms" data-ll-region>
+    <partial name="_MeterRooms" model="Model" />
+</div>

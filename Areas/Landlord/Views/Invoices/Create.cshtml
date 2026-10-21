@@ -1,0 +1,8 @@
+@model InvoiceFormModel
+@{
+    ViewData["Title"] = "Lập hóa đơn";
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Hóa đơn</a></li><li aria-current="page">Lập mới</li></ol></nav>
+<div class="ll-head"><div><h1>Lập hóa đơn</h1><p>Bảng tính bên phải cập nhật ngay khi bạn thay đổi dịch vụ hay khoản điều chỉnh. Server tính lại khi lưu.</p></div></div>
+<partial name="_InvoiceForm" model="Model" />
+@section Scripts { <partial name="_LlValidation" /> }

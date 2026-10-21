@@ -1,0 +1,104 @@
+@model ViewingHoursModel
+@using EZ_Rent.Areas.Landlord.Controllers
+@{
+    ViewData["Title"] = "Khung giờ nhận khách";
+    ViewData["Description"] = "Giờ chủ trọ nhận khách xem phòng; người thuê chọn giờ đến trong các giờ này.";
+    int[] order = [1, 2, 3, 4, 5, 6, 0];
+    string Label(string state) => state switch { "booked" => "Đã có lịch", "held" => "Đang giữ chỗ", "soon" => "Quá sát giờ", _ => "Còn trống" };
+    string Tone(string state) => state switch { "booked" => "info", "held" => "warn", "soon" => "muted", _ => "ok" };
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-controller="Viewings" asp-action="Index">Lịch xem phòng</a></li><li aria-current="page">Khung giờ nhận khách</li></ol></nav>
+<div class="ll-head">
+    <div>
+        <h1>Khung giờ nhận khách</h1>
+        <p>Người thuê chọn ngày rồi chọn một giờ đến trong các giờ bạn mở, và phải gửi trước ít nhất 6 giờ. Mỗi giờ chỉ nhận một lịch cho mọi phòng của bạn. Yêu cầu đang chờ được giữ chỗ tối đa 2 giờ.</p>
+    </div>
+</div>
+@if (!Model.Configured)
+{
+    <p class="ll-note is-warn">Bạn chưa mở giờ nào. Trang đặt lịch của người thuê sẽ báo phòng chưa mở lịch xem.</p>
+}
+<div class="ll-split" style="margin-top:16px">
+    <div class="ll-stack">
+        <form method="post" asp-action="Weekly" class="ll-fieldset" style="display:grid;gap:14px">
+            <h2>Lịch lặp hằng tuần</h2>
+            <div asp-validation-summary="ModelOnly"></div>
+            <p class="hint" style="color:var(--ll-muted);margin:0">Nhập các giờ đến cách nhau bằng dấu phẩy, mốc 5 phút. Ví dụ: <code>08:00, 09:30, 17:30</code>. Để trống = không nhận khách ngày đó.</p>
+            @foreach (var day in order)
+            {
+                var key = $"Input.Weekly[{day}]";
+                <div class="ll-field">
+                    <label for="weekly-@day">@ViewingHoursController.DayName(day)</label>
+                    <input id="weekly-@day" name="Input.Weekly[@day]" value="@Model.Input.Weekly.GetValueOrDefault(day)" maxlength="200" placeholder="Không nhận khách" autocomplete="off" />
+                    @if (ViewData.ModelState.TryGetValue(key, out var entry) && entry.Errors.Count > 0)
+                    {
+                        <span class="ll-error">@entry.Errors[0].ErrorMessage</span>
+                    }
+                </div>
+            }
+            <div><button class="ll-btn ll-btn--primary" type="submit">Lưu lịch hằng tuần</button></div>
+        </form>
+
+        <section class="ll-fieldset" aria-labelledby="exc-title">
+            <h2 id="exc-title" style="margin-bottom:10px">Ngày nghỉ hoặc giờ riêng</h2>
+            <form method="post" asp-action="AddException" class="ll-fields" style="align-items:end">
+                <div class="ll-field">
+                    <label asp-for="Exception.Date"></label>
+                    <input asp-for="Exception.Date" type="date" min="@Model.Today.ToString("yyyy-MM-dd")" value="@(Model.Exception.Date?.ToString("yyyy-MM-dd"))" />
+                    <span asp-validation-for="Exception.Date" class="ll-error"></span>
+                </div>
+                <div class="ll-field">
+                    <span class="ll-label">Áp dụng</span>
+                    <label class="ll-check"><input type="radio" name="Exception.Mode" value="closed" checked="@(Model.Exception.Mode != "custom")" /> Nghỉ cả ngày</label>
+                    <label class="ll-check"><input type="radio" name="Exception.Mode" value="custom" checked="@(Model.Exception.Mode == "custom")" /> Dùng giờ riêng</label>
+                </div>
+                <div class="ll-field span-2">
+                    <label asp-for="Exception.Times"></label>
+                    <input asp-for="Exception.Times" placeholder="Ví dụ: 19:00, 19:30 (chỉ khi chọn “Dùng giờ riêng”)" autocomplete="off" />
+                    <span asp-validation-for="Exception.Times" class="ll-error"></span>
+                </div>
+                <div class="span-2"><button class="ll-btn" type="submit">Thêm ngoại lệ</button></div>
+            </form>
+            @if (Model.Exceptions.Count > 0)
+            {
+                <ul class="ll-todo" style="margin-top:14px">
+                    @foreach (var (date, times) in Model.Exceptions)
+                    {
+                        <li>
+                            <div><strong>@LandlordTime.LongDate(date.ToDateTime(TimeOnly.MinValue))</strong>
+                                <div class="meta">@(times.Count == 0 ? "Nghỉ cả ngày" : "Giờ riêng: " + string.Join(", ", times))</div></div>
+                            <form method="post" asp-action="RemoveException">
+                                <input type="hidden" name="date" value="@date.ToString("yyyy-MM-dd")" />
+                                <button class="ll-btn ll-btn--small" type="submit" aria-label="Bỏ ngoại lệ ngày @date.ToString("dd/MM/yyyy")">Bỏ</button>
+                            </form>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+
+    <aside class="ll-panel" aria-labelledby="week-title">
+        <h2 id="week-title" style="margin-bottom:6px">7 ngày tới (người thuê sẽ thấy)</h2>
+        <p style="color:var(--ll-muted);font-size:13px">Giờ “Quá sát giờ” không đặt được vì cần báo trước 6 giờ.</p>
+        @foreach (var day in Model.Week)
+        {
+            <div style="padding:10px 0;border-top:1px solid var(--ll-line)">
+                <strong>@LandlordTime.LongDate(day.Date.ToDateTime(TimeOnly.MinValue))</strong>@(day.IsException ? " · ngoại lệ" : "")
+                @if (day.Slots.Count == 0)
+                {
+                    <div class="meta" style="color:var(--ll-muted);font-size:13px">Không nhận khách</div>
+                }
+                else
+                {
+                    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px">
+                        @foreach (var s in day.Slots)
+                        {
+                            <span class="ll-badge is-@Tone(s.State)" title="@Label(s.State)">@s.Time.ToString("HH:mm") · @Label(s.State)</span>
+                        }
+                    </div>
+                }
+            </div>
+        }
+    </aside>
+</div>

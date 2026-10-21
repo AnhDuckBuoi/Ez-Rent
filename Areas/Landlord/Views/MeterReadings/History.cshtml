@@ -1,0 +1,10 @@
+@model MeterHistoryModel
+@{
+    ViewData["Title"] = "Lịch sử điện nước · " + Model.RoomTitle;
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Điện nước</a></li><li aria-current="page">Lịch sử</li></ol></nav>
+<div class="ll-head"><div><h1>Lịch sử chỉ số</h1><p>@Model.RoomTitle</p></div>
+    <div class="ll-head-actions"><a class="ll-btn ll-btn--primary" asp-action="Create" asp-route-roomId="@Model.RoomId">Ghi chỉ số tháng này</a></div></div>
+<div id="meter-history" data-ll-region>
+    <partial name="_HistoryList" model="Model" />
+</div>

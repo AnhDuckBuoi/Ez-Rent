@@ -1,0 +1,15 @@
+@model SupportListModel
+@{
+    ViewData["Title"] = "Hỗ trợ";
+    ViewData["Description"] = "Yêu cầu hỗ trợ, phản ánh và báo cáo chủ trọ gửi tới quản trị viên EZ-Rent.";
+}
+<div class="ll-head">
+    <div>
+        <h1>Hỗ trợ từ quản trị viên</h1>
+        <p>Gửi câu hỏi về cách dùng, phản ánh về người thuê hoặc báo cáo vi phạm. Lịch sử trao đổi được lưu lại để tra cứu.</p>
+    </div>
+    <div class="ll-head-actions"><a class="ll-btn ll-btn--primary" asp-action="Create">@LandlordHtml.Icon("plus") Gửi yêu cầu</a></div>
+</div>
+<div id="support-list" data-ll-region>
+    <partial name="_SupportList" model="Model" />
+</div>

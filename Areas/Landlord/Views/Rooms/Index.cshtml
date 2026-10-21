@@ -1,0 +1,17 @@
+@model RoomListModel
+@{
+    ViewData["Title"] = "Phòng trọ";
+    ViewData["Description"] = "Danh sách tin phòng của chủ trọ, trạng thái kiểm duyệt và tình trạng cho thuê.";
+}
+<div class="ll-head">
+    <div>
+        <h1>Phòng trọ</h1>
+        <p>Tin mới cần quản trị viên duyệt trước khi hiển thị trên trang tìm phòng. Sửa nội dung tin đã duyệt sẽ gửi duyệt lại.</p>
+    </div>
+    <div class="ll-head-actions">
+        <a class="ll-btn ll-btn--primary" asp-action="Create">@LandlordHtml.Icon("plus") Đăng tin phòng</a>
+    </div>
+</div>
+<div id="room-list" data-ll-region>
+    <partial name="_RoomList" model="Model" />
+</div>

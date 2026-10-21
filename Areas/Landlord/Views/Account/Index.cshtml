@@ -1,0 +1,95 @@
+@model LandlordAccountModel
+@{
+    ViewData["Title"] = "Tài khoản";
+}
+<div class="ll-head">
+    <div>
+        <h1>Tài khoản của bạn</h1>
+        <p>Họ tên và số điện thoại hiện trên hợp đồng, hóa đơn và trang liên hệ với người thuê.</p>
+    </div>
+</div>
+<div class="ll-split">
+    <div class="ll-stack">
+        <form method="post" asp-action="Profile" class="ll-fieldset" style="display:grid;gap:14px">
+            <h2>Thông tin cá nhân</h2>
+            <div asp-validation-summary="ModelOnly"></div>
+            <span asp-validation-for="Profile" class="ll-error"></span>
+            <div class="ll-fields">
+                <div class="ll-field">
+                    <label asp-for="Profile.FullName"></label>
+                    <input asp-for="Profile.FullName" autocomplete="name" />
+                    <span asp-validation-for="Profile.FullName" class="ll-error"></span>
+                </div>
+                <div class="ll-field">
+                    <label asp-for="Profile.PhoneNumber"></label>
+                    <input asp-for="Profile.PhoneNumber" type="tel" inputmode="tel" autocomplete="tel" />
+                    <span asp-validation-for="Profile.PhoneNumber" class="ll-error"></span>
+                </div>
+                <div class="ll-field span-2">
+                    <span class="ll-label">Email đăng nhập</span>
+                    <p style="margin:0">@Model.Email @LandlordHtml.Badge(Model.EmailConfirmed ? new StatusLabel("Đã xác thực", "ok") : new StatusLabel("Chưa xác thực", "warn"))
+                        · <a asp-area="Identity" asp-page="/Account/Manage/Email">Đổi email / gửi lại thư xác thực</a></p>
+                </div>
+            </div>
+            <div><button class="ll-btn ll-btn--primary" type="submit">Lưu thông tin</button></div>
+        </form>
+
+        <form method="post" asp-action="Password" class="ll-fieldset" style="display:grid;gap:14px">
+            <h2>Đổi mật khẩu</h2>
+            <span asp-validation-for="Password" class="ll-error"></span>
+            @if (Model.HasPassword)
+            {
+                <div class="ll-fields">
+                    <div class="ll-field span-2">
+                        <label asp-for="Password.CurrentPassword"></label>
+                        <input asp-for="Password.CurrentPassword" autocomplete="current-password" />
+                        <span asp-validation-for="Password.CurrentPassword" class="ll-error"></span>
+                    </div>
+                    <div class="ll-field">
+                        <label asp-for="Password.NewPassword"></label>
+                        <input asp-for="Password.NewPassword" autocomplete="new-password" />
+                        <span asp-validation-for="Password.NewPassword" class="ll-error"></span>
+                    </div>
+                    <div class="ll-field">
+                        <label asp-for="Password.ConfirmPassword"></label>
+                        <input asp-for="Password.ConfirmPassword" autocomplete="new-password" />
+                        <span asp-validation-for="Password.ConfirmPassword" class="ll-error"></span>
+                    </div>
+                </div>
+                <div><button class="ll-btn" type="submit">Đổi mật khẩu</button></div>
+            }
+            else
+            {
+                <p class="ll-note">Tài khoản đăng nhập bằng Google chưa có mật khẩu. <a asp-area="Identity" asp-page="/Account/Manage/SetPassword">Đặt mật khẩu</a>.</p>
+            }
+        </form>
+    </div>
+    <aside class="ll-stack" aria-label="Ảnh đại diện và bảo mật">
+        <section class="ll-panel" style="display:grid;gap:12px;justify-items:start">
+            <h2>Ảnh đại diện</h2>
+            @if (Model.AvatarUrl != null)
+            {
+                <img src="@Model.AvatarUrl" alt="Ảnh đại diện của bạn" style="width:120px;height:120px;border-radius:50%;object-fit:cover;border:1px solid var(--ll-line)" />
+            }
+            <form method="post" enctype="multipart/form-data" asp-action="Avatar" class="ll-inline-form">
+                <label class="ll-label" for="avatar-file">Chọn ảnh JPG, PNG, WebP (tối đa 2 MB)</label>
+                <input id="avatar-file" type="file" name="file" accept="image/jpeg,image/png,image/webp" required data-ll-preview="#avatar-preview" />
+                <div id="avatar-preview" class="ll-previews"></div>
+                <button class="ll-btn ll-btn--small" type="submit">Tải ảnh lên</button>
+            </form>
+            @if (Model.AvatarUrl != null)
+            {
+                <form method="post" asp-action="RemoveAvatar"><button class="ll-btn ll-btn--small ll-btn--link" type="submit">Bỏ ảnh đại diện</button></form>
+            }
+        </section>
+        <section class="ll-panel">
+            <h2 style="margin-bottom:10px">Bảo mật nâng cao</h2>
+            <dl class="ll-facts" style="font-size:14px">
+                <dt>Xác thực 2 lớp</dt><dd>@(Model.TwoFactorEnabled ? "Đang bật" : "Chưa bật") · <a asp-area="Identity" asp-page="/Account/Manage/TwoFactorAuthentication">Quản lý</a></dd>
+                <dt>Đăng nhập Google</dt><dd><a asp-area="Identity" asp-page="/Account/Manage/ExternalLogins">Liên kết tài khoản</a></dd>
+                <dt>Ngày tạo</dt><dd>@LandlordTime.Stamp(Model.CreatedAt)</dd>
+            </dl>
+        </section>
+    </aside>
+</div>
+@section Scripts { <partial name="_LlValidation" /> }

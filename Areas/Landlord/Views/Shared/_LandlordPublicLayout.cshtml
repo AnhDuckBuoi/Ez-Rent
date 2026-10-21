@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · EZ-Rent</title>
+    <meta name="description" content="@(ViewData["Description"] ?? "Đăng ký tài khoản chủ trọ trên EZ-Rent để đăng tin, quản lý hợp đồng, điện nước và hóa đơn VietQR.")" />
+    <meta name="theme-color" content="#356797" />
+    <link rel="icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="~/css/landlord.css" asp-append-version="true" />
+</head>
+<body class="ll">
+    <a class="ll-skip" href="#ll-main">Đến nội dung chính</a>
+    <header style="background:var(--ll-surface);border-bottom:1px solid var(--ll-line)">
+        <div style="max-width:1040px;margin:0 auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <a class="ll-brand" style="padding:4px 0" asp-area="" asp-controller="Home" asp-action="Index">
+                <span class="ll-brand-mark">@LandlordHtml.Icon("home")</span>
+                <span><strong>EZ-Rent</strong><small>Dành cho chủ trọ</small></span>
+            </a>
+            <a class="ll-btn ll-btn--small" asp-area="Identity" asp-page="/Account/Login">Đăng nhập</a>
+        </div>
+    </header>
+    <main id="ll-main" class="ll-main" style="margin:0 auto;max-width:1040px" tabindex="-1">
+        @RenderBody()
+    </main>
+    <div id="ll-live" class="ll-visually-hidden" aria-live="polite" aria-atomic="true"></div>
+    <script src="~/js/landlord.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

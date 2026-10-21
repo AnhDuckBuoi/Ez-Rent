@@ -1,0 +1,111 @@
+@model ContractDetailModel
+@{
+    var status = Model.Status;
+}
+<div class="ll-head">
+    <div>
+        <h1 data-ll-focus>Hợp đồng thuê phòng số @Model.Id</h1>
+        <p>@Model.RoomTitle · @Model.TenantName</p>
+    </div>
+    <div class="ll-head-actions">
+        @LandlordHtml.Badge(LandlordLabels.Contract(status))
+        <button class="ll-btn" type="button" data-ll-print>@LandlordHtml.Icon("print") In hợp đồng</button>
+    </div>
+</div>
+<div class="ll-split">
+    <article class="ll-doc" aria-label="Nội dung hợp đồng">
+        <p class="center nation">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br />Độc lập – Tự do – Hạnh phúc</p>
+        <h2>HỢP ĐỒNG THUÊ PHÒNG TRỌ</h2>
+        <p class="center" style="color:var(--ll-muted)">Số @Model.Id/EZ-RENT · lập ngày @LandlordTime.Date(LandlordTime.ToVietnam(Model.CreatedAt))</p>
+        <div class="parties">
+            <div>
+                <h3>Bên cho thuê (Bên A)</h3>
+                <p>Ông/Bà: <strong>@Model.LandlordName</strong><br />Điện thoại: @(Model.LandlordPhone ?? "—")<br />Email: @(Model.LandlordEmail ?? "—")</p>
+            </div>
+            <div>
+                <h3>Bên thuê (Bên B)</h3>
+                <p>Ông/Bà: <strong>@Model.TenantName</strong><br />Điện thoại: @(Model.TenantPhone ?? "—")<br />Email: @(Model.TenantEmail ?? "—")</p>
+            </div>
+        </div>
+        <h3>Phòng cho thuê</h3>
+        <p>@Model.RoomTitle, địa chỉ @Model.RoomAddress, diện tích @LandlordFormat.Area(Model.RoomArea).</p>
+        <h3>Thời hạn, giá thuê và chi phí</h3>
+        <dl class="ll-facts" style="margin-bottom:12px">
+            <dt>Thời hạn</dt><dd class="num">Từ @LandlordTime.Date(Model.StartDate) đến @LandlordTime.Date(Model.EndDate)</dd>
+            <dt>Giá thuê</dt><dd class="num">@LandlordFormat.Money(Model.MonthlyRent)/tháng, thanh toán theo hóa đơn hằng tháng trên EZ-Rent (chuyển khoản VietQR hoặc tiền mặt)</dd>
+            <dt>Tiền đặt cọc</dt><dd class="num">@LandlordFormat.Money(Model.DepositAmount)</dd>
+            <dt>Giá điện</dt><dd class="num">@LandlordFormat.Money(Model.AgreedElectricityPrice)/kWh theo chỉ số công tơ hằng tháng</dd>
+            <dt>Giá nước</dt><dd class="num">@LandlordFormat.Money(Model.AgreedWaterPrice)/m³ theo chỉ số đồng hồ hằng tháng</dd>
+        </dl>
+        <h3>Điều khoản và trách nhiệm</h3>
+        <p class="ll-text">@Model.Terms</p>
+        <div class="signs">
+            <div><p><strong>Bên A</strong></p><p>@(Model.LandlordConfirmedAt.HasValue ? "Đã xác nhận lúc " + LandlordTime.Stamp(Model.LandlordConfirmedAt) : "Chưa xác nhận")</p></div>
+            <div><p><strong>Bên B</strong></p><p>@(Model.TenantConfirmedAt.HasValue ? "Đã xác nhận lúc " + LandlordTime.Stamp(Model.TenantConfirmedAt) : "Chưa xác nhận")</p></div>
+        </div>
+        <p style="font-size:13px;color:var(--ll-muted);margin-top:18px">Xác nhận trên EZ-Rent ghi nhận sự đồng ý của hai bên, không phải chữ ký số hoặc chữ ký điện tử theo quy định pháp luật.</p>
+    </article>
+
+    <aside class="ll-stack no-print" aria-label="Thao tác hợp đồng">
+        <section class="ll-panel">
+            <h2 style="margin-bottom:10px">Bước tiếp theo</h2>
+            @switch (status)
+            {
+                case ContractStatus.Draft:
+                    <p style="color:var(--ll-muted)">Kiểm tra lại nội dung rồi gửi cho người thuê xem và xác nhận.</p>
+                    <div class="ll-inline-form">
+                        <a class="ll-btn" asp-action="Edit" asp-route-id="@Model.Id">Sửa hợp đồng</a>
+                        <form method="post" asp-action="Send" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="contract-panel" data-ll-confirm="Gửi hợp đồng cho người thuê? Bạn được tính là đã xác nhận nội dung này.">
+                            <button class="ll-btn ll-btn--primary" type="submit" style="width:100%">Xác nhận và gửi người thuê</button>
+                        </form>
+                    </div>
+                    break;
+                case ContractStatus.PendingTenant when Model.TenantConfirmedAt == null:
+                    <p style="color:var(--ll-muted)">Đang chờ người thuê xem và xác nhận trên EZ-Rent. Nếu hai bên cần sửa điều khoản, hãy thu hồi về bản nháp.</p>
+                    <form method="post" asp-action="Recall" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="contract-panel">
+                        <button class="ll-btn" type="submit">Thu hồi để chỉnh sửa</button>
+                    </form>
+                    break;
+                case ContractStatus.PendingTenant:
+                case ContractStatus.PendingLandlord:
+                    <p>Người thuê đã xác nhận lúc @LandlordTime.Stamp(Model.TenantConfirmedAt). Xác nhận để hợp đồng có hiệu lực, phòng sẽ chuyển “Đã cho thuê”.</p>
+                    <form method="post" asp-action="Confirm" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="contract-panel">
+                        <button class="ll-btn ll-btn--ok" type="submit">Xác nhận hiệu lực</button>
+                    </form>
+                    break;
+                case ContractStatus.Active:
+                    <p style="color:var(--ll-muted)">Hợp đồng đang hiệu lực. Ghi điện nước và lập hóa đơn hằng tháng cho phòng này.</p>
+                    <div class="ll-inline-form">
+                        <a class="ll-btn" asp-controller="MeterReadings" asp-action="Create" asp-route-roomId="@Model.RoomId">Ghi chỉ số tháng này</a>
+                        <a class="ll-btn ll-btn--primary" asp-controller="Invoices" asp-action="Create" asp-route-contractId="@Model.Id">Lập hóa đơn</a>
+                    </div>
+                    break;
+                default:
+                    <p style="color:var(--ll-muted)">Hợp đồng đã đóng. Thông tin được lưu để tra cứu.</p>
+                    break;
+            }
+        </section>
+        <section class="ll-panel">
+            <dl class="ll-facts">
+                <dt>Hóa đơn</dt><dd><a asp-controller="Invoices" asp-action="Index">@Model.InvoiceCount hóa đơn</a>@(Model.UnpaidInvoices > 0 ? $", {Model.UnpaidInvoices} chưa thanh toán" : "")</dd>
+                <dt>Phòng</dt><dd><a asp-controller="Rooms" asp-action="Details" asp-route-id="@Model.RoomId">@Model.RoomTitle</a></dd>
+            </dl>
+            <form method="post" asp-controller="Messages" asp-action="Start" style="margin-top:14px">
+                <input type="hidden" name="roomId" value="@Model.RoomId" /><input type="hidden" name="tenantId" value="@Model.TenantId" />
+                <button class="ll-btn" type="submit">@LandlordHtml.Icon("chat") Nhắn tin cho người thuê</button>
+            </form>
+        </section>
+        @if (status is ContractStatus.Draft or ContractStatus.PendingTenant or ContractStatus.PendingLandlord)
+        {
+            <form method="post" asp-action="Cancel" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="contract-panel" data-ll-confirm="Hủy hợp đồng chưa có hiệu lực này?">
+                <button class="ll-btn ll-btn--danger" type="submit">Hủy hợp đồng</button>
+            </form>
+        }
+        @if (status == ContractStatus.Active)
+        {
+            <form method="post" asp-action="End" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="contract-panel" data-ll-confirm="Kết thúc hợp đồng? Phòng sẽ trở lại trạng thái còn trống trên trang tìm phòng.">
+                <button class="ll-btn ll-btn--danger" type="submit">Kết thúc hợp đồng</button>
+            </form>
+        }
+    </aside>
+</div>

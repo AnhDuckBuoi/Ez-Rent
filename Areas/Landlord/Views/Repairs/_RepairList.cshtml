@@ -1,0 +1,59 @@
+@model RepairListModel
+@{
+    var input = Model.Input;
+    string TabUrl(RepairRequestStatus? s) => Url.Action("Index", new { status = s, priority = input.Priority })!;
+    var tabs = new List<TabLink> { new("Tất cả", TabUrl(null), Model.Counts.Values.Sum(), input.Status == null) };
+    foreach (var s in new[] { RepairRequestStatus.Pending, RepairRequestStatus.InProgress, RepairRequestStatus.Resolved, RepairRequestStatus.Cancelled })
+        tabs.Add(new(LandlordLabels.Repair(s).Text, TabUrl(s), Model.Counts.GetValueOrDefault(s), input.Status == s));
+}
+<partial name="_LlTabs" model="@(new TabsModel(tabs, "repair-list", "Lọc theo trạng thái xử lý"))" />
+<form class="ll-filter" method="get" asp-action="Index" data-ll-filter="repair-list">
+    <input type="hidden" name="status" value="@input.Status" />
+    <div class="ll-field">
+        <label for="repair-priority">Mức ưu tiên</label>
+        <select id="repair-priority" name="priority">
+            <option value="">Tất cả</option>
+            @foreach (var p in new[] { RepairPriority.Urgent, RepairPriority.High, RepairPriority.Medium, RepairPriority.Low })
+            { <option value="@p" selected="@(input.Priority == p)">@LandlordLabels.Priority(p).Text</option> }
+        </select>
+    </div>
+    <noscript><button class="ll-btn" type="submit">Lọc</button></noscript>
+</form>
+@if (Model.Items.Total == 0)
+{
+    <div class="ll-panel ll-empty"><h2 data-ll-focus>Không có yêu cầu ở mục này</h2><p>Người thuê gửi yêu cầu cho phòng đang có hợp đồng hiệu lực.</p></div>
+}
+else
+{
+    <div class="ll-table-wrap">
+        <table class="ll-table">
+            <caption class="ll-visually-hidden" data-ll-focus>Danh sách yêu cầu sửa chữa</caption>
+            <thead><tr><th scope="col">Sự cố</th><th scope="col">Phòng · Người gửi</th><th scope="col">Ưu tiên</th><th scope="col">Trạng thái</th><th scope="col" class="right"></th></tr></thead>
+            <tbody>
+                @foreach (var r in Model.Items.Items)
+                {
+                    <tr>
+                        <td class="main"><a class="title" asp-action="Details" asp-route-id="@r.Id">@r.ProblemType</a>
+                            <div class="sub">@(r.Description.Length > 90 ? r.Description[..90] + "…" : r.Description)</div>
+                            <div class="sub">Gửi @LandlordTime.Stamp(r.CreatedAt)@(r.HasImage ? " · có ảnh" : "")</div></td>
+                        <td data-label="Phòng">@r.RoomTitle<div class="sub">@r.TenantName</div></td>
+                        <td data-label="Ưu tiên">@LandlordHtml.Badge(LandlordLabels.Priority(r.Priority))</td>
+                        <td data-label="Trạng thái">@LandlordHtml.Badge(LandlordLabels.Repair(r.Status))</td>
+                        <td>
+                            <div class="actions">
+                                @if (r.Status == RepairRequestStatus.Pending)
+                                {
+                                    <form method="post" asp-action="Accept" asp-route-id="@r.Id" data-ll-action data-ll-refresh="repair-list">
+                                        <button class="ll-btn ll-btn--small ll-btn--primary" type="submit">Tiếp nhận</button>
+                                    </form>
+                                }
+                                <a class="ll-btn ll-btn--small" asp-action="Details" asp-route-id="@r.Id">Xem</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_LlPager" model="@PagerModel.For(Context.Request, Model.Items, "repair-list", "Phân trang yêu cầu sửa chữa")" />
+}

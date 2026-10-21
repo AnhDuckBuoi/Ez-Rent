@@ -1,0 +1,90 @@
+@model MessagesModel
+@{
+    var input = Model.Input;
+    var selected = Model.Selected;
+}
+<div class="ll-inbox @(input.C.HasValue && selected != null ? "has-selection" : "")">
+    <section class="ll-inbox-list" aria-label="Danh sách cuộc trò chuyện">
+        <form method="get" asp-action="Index" role="search">
+            <div class="ll-field">
+                <label class="ll-visually-hidden" for="msg-q">Tìm người thuê hoặc phòng</label>
+                <input id="msg-q" type="search" name="q" value="@input.Q" maxlength="100" placeholder="Tìm người thuê, phòng" />
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;justify-content:space-between">
+                <label class="ll-check"><input type="checkbox" name="filter" value="unread" checked="@(input.Filter == "unread")" /> Chưa đọc (@Model.TotalUnread)</label>
+                <button class="ll-btn ll-btn--small" type="submit">Tìm</button>
+            </div>
+        </form>
+        @if (Model.Conversations.Total == 0)
+        {
+            <div class="ll-empty">
+                <h2>Chưa có cuộc trò chuyện</h2>
+                <p>Bắt đầu từ trang chi tiết lịch hẹn, hợp đồng hoặc yêu cầu sửa chữa bằng nút “Nhắn tin cho người thuê”.</p>
+            </div>
+        }
+        else
+        {
+            <ul class="ll-convs">
+                @foreach (var c in Model.Conversations.Items)
+                {
+                    <li class="@(c.Unread > 0 ? "unread" : "")">
+                        <a asp-action="Index" asp-route-c="@c.Id" asp-route-q="@input.Q" asp-route-filter="@input.Filter" asp-route-page="@(input.Page > 1 ? input.Page : null)"
+                           aria-current="@(selected?.Id == c.Id ? "page" : null)">
+                            <span class="name">@(string.IsNullOrWhiteSpace(c.OtherName) ? "Người thuê" : c.OtherName)</span>
+                            <span class="time">@LandlordTime.Ago(c.LastAt, DateTime.UtcNow)</span>
+                            <span class="preview">@(c.LastContent == null ? "Chưa có tin nhắn" : (c.LastFromMe ? "Bạn: " : "") + c.LastContent)</span>
+                            @if (c.Unread > 0) { <span class="ll-count" aria-label="@c.Unread tin chưa đọc">@c.Unread</span> }
+                            @if (c.RoomTitle != null) { <span class="room">@c.RoomTitle</span> }
+                        </a>
+                    </li>
+                }
+            </ul>
+            <div style="padding:0 12px 12px"><partial name="_LlPager" model="@PagerModel.For(Context.Request, Model.Conversations, null, "Phân trang cuộc trò chuyện")" /></div>
+        }
+    </section>
+
+    <section class="ll-chat" aria-label="Nội dung trò chuyện">
+        @if (selected == null)
+        {
+            <div class="ll-empty" style="margin:auto"><h2>Chọn một cuộc trò chuyện</h2></div>
+        }
+        else
+        {
+            <div class="ll-chat-head">
+                <div>
+                    <a class="ll-btn ll-btn--link" asp-action="Index" asp-route-q="@input.Q" asp-route-filter="@input.Filter" style="margin-bottom:4px">‹ Tất cả cuộc trò chuyện</a>
+                    <h2>@(string.IsNullOrWhiteSpace(selected.OtherName) ? "Người thuê" : selected.OtherName)</h2>
+                    @if (selected.RoomTitle != null) { <a asp-controller="Rooms" asp-action="Details" asp-route-id="@selected.RoomId" style="font-size:13px">@selected.RoomTitle</a> }
+                </div>
+                @if (!string.IsNullOrWhiteSpace(Model.OtherPhone)) { <a class="ll-btn ll-btn--small" href="tel:@Model.OtherPhone">Gọi @Model.OtherPhone</a> }
+            </div>
+            @if (Model.Messages.TotalPages > 1)
+            {
+                <div style="padding:6px 18px 10px;border-bottom:1px solid var(--ll-line)">
+                    <partial name="_LlPager" model="@PagerModel.For(Context.Request, Model.Messages, null, "Phân trang lịch sử tin nhắn (trang 1 là tin mới nhất)", "messagePage")" />
+                    <p style="margin:4px 0 0;font-size:12.5px;color:var(--ll-muted)">Trang 1 là các tin mới nhất; trang số lớn hơn là tin cũ hơn.</p>
+                </div>
+            }
+            <div id="ll-thread" class="ll-thread" role="log" aria-live="polite" aria-label="Lịch sử tin nhắn"
+                 data-since="@(Model.Messages.Page == 1 ? Url.Action("Since", new { id = selected.Id }) : null)"
+                 data-last-id="@(Model.Messages.Items.LastOrDefault()?.Id ?? 0)">
+                @if (Model.Messages.Items.Count == 0)
+                {
+                    <p class="ll-empty">Chưa có tin nhắn. Gửi lời chào để bắt đầu.</p>
+                }
+                @foreach (var m in Model.Messages.Items)
+                {
+                    <div class="ll-msg @(m.Mine ? "mine" : "")" data-id="@m.Id">
+                        <p>@m.Content</p>
+                        <time datetime="@LandlordTime.ToVietnam(m.SentAt).ToString("s")">@LandlordTime.Stamp(m.SentAt)</time>
+                    </div>
+                }
+            </div>
+            <form id="composer" class="ll-composer" method="post" asp-action="Send" asp-route-id="@selected.Id" data-ll-chat>
+                <label class="ll-visually-hidden" for="msg-content">Nội dung tin nhắn</label>
+                <textarea id="msg-content" name="Content" maxlength="2000" required placeholder="Nhập tin nhắn (Ctrl + Enter để gửi)"></textarea>
+                <button class="ll-btn ll-btn--primary" type="submit">Gửi</button>
+            </form>
+        }
+    </section>
+</div>

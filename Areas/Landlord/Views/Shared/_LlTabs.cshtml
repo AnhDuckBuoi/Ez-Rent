@@ -1,0 +1,8 @@
+@model TabsModel
+<nav class="ll-tabs" aria-label="@Model.Label">
+    @foreach (var tab in Model.Tabs)
+    {
+        <a href="@tab.Url" data-ll-nav="@Model.Region" aria-current="@(tab.Current ? "page" : null)">@tab.Text
+            @if (tab.Count.HasValue) { <span class="n">@tab.Count</span> }</a>
+    }
+</nav>

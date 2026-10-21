@@ -1,0 +1,9 @@
+@model MeterFormModel
+@{
+    ViewData["Title"] = "Ghi chỉ số điện nước";
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Điện nước</a></li><li aria-current="page">Ghi chỉ số</li></ol></nav>
+<div class="ll-head"><div><h1>Ghi chỉ số @LandlordTime.PeriodLabel(Model.Input.Period).ToLowerInvariant()</h1>
+    <p>@Model.RoomTitle · @Model.TenantName. Chụp ảnh công tơ để người thuê đối chiếu khi xem hóa đơn.</p></div></div>
+<partial name="_MeterForm" model="Model" />
+@section Scripts { <partial name="_LlValidation" /> }

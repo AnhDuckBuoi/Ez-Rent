@@ -1,0 +1,87 @@
+@model MeterFormModel
+@{
+    var input = Model.Input;
+    var previewUrl = Url.Action("Preview", Model.Id == null ? null : new { id = Model.Id });
+}
+@*
+    Form này là ví dụ AJAX chính cho Chương 4: mỗi lần nhập chỉ số, landlord.js gọi GET /Landlord/MeterReadings/Preview
+    (sau 350 ms ngừng gõ), server tính lượng tiêu thụ × giá trong hợp đồng và trả JSON; phiếu tính tiền bên phải cập nhật
+    mà không tải lại trang. Khi lưu, server tính lại từ đầu, không tin số liệu trên trình duyệt.
+*@
+<form method="post" enctype="multipart/form-data" class="ll-split" data-ll-calc="@previewUrl" data-ll-calc-auto="@(Model.Id != null)">
+    <div class="ll-form">
+        <div asp-validation-summary="ModelOnly"></div>
+        <input type="hidden" asp-for="Input.RentalPostId" />
+        <input type="hidden" asp-for="Input.Period" />
+        @if (!Model.HasPrevious)
+        {
+            <p class="ll-note">Đây là lần ghi đầu tiên của phòng: nhập chỉ số lúc bàn giao làm “kỳ trước”.</p>
+        }
+        <div class="ll-meter">
+            <section class="ll-meter-card" aria-labelledby="meter-e">
+                <h3 id="meter-e">@LandlordHtml.Icon("bolt") Công tơ điện</h3>
+                <div class="ll-field">
+                    <label asp-for="Input.PrevElectricIndex"></label>
+                    <input asp-for="Input.PrevElectricIndex" inputmode="decimal" readonly="@Model.HasPrevious" />
+                    @if (Model.HasPrevious) { <span class="hint">Chốt @LandlordTime.PeriodLabel(Model.PreviousPeriod).ToLowerInvariant()</span> }
+                    <span asp-validation-for="Input.PrevElectricIndex" class="ll-error"></span>
+                </div>
+                <div class="ll-field" style="margin-top:12px">
+                    <label asp-for="Input.CurrElectricIndex"></label>
+                    <input asp-for="Input.CurrElectricIndex" inputmode="decimal" autocomplete="off" autofocus />
+                    <span asp-validation-for="Input.CurrElectricIndex" class="ll-error"></span>
+                </div>
+                <div class="ll-field" style="margin-top:12px">
+                    <label asp-for="Input.ElectricPhoto"></label>
+                    <input asp-for="Input.ElectricPhoto" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" data-ll-preview="#e-preview" />
+                    <div id="e-preview" class="ll-previews">
+                        @if (Model.ElectricPhotoUrl != null) { <img src="@Model.ElectricPhotoUrl" alt="Ảnh công tơ điện đã lưu" /> }
+                    </div>
+                    <span asp-validation-for="Input.ElectricPhoto" class="ll-error"></span>
+                </div>
+            </section>
+            <section class="ll-meter-card" aria-labelledby="meter-w">
+                <h3 id="meter-w">@LandlordHtml.Icon("drop") Đồng hồ nước</h3>
+                <div class="ll-field">
+                    <label asp-for="Input.PrevWaterIndex"></label>
+                    <input asp-for="Input.PrevWaterIndex" inputmode="decimal" readonly="@Model.HasPrevious" />
+                    <span asp-validation-for="Input.PrevWaterIndex" class="ll-error"></span>
+                </div>
+                <div class="ll-field" style="margin-top:12px">
+                    <label asp-for="Input.CurrWaterIndex"></label>
+                    <input asp-for="Input.CurrWaterIndex" inputmode="decimal" autocomplete="off" />
+                    <span asp-validation-for="Input.CurrWaterIndex" class="ll-error"></span>
+                </div>
+                <div class="ll-field" style="margin-top:12px">
+                    <label asp-for="Input.WaterPhoto"></label>
+                    <input asp-for="Input.WaterPhoto" type="file" accept="image/jpeg,image/png,image/webp" capture="environment" data-ll-preview="#w-preview" />
+                    <div id="w-preview" class="ll-previews">
+                        @if (Model.WaterPhotoUrl != null) { <img src="@Model.WaterPhotoUrl" alt="Ảnh đồng hồ nước đã lưu" /> }
+                    </div>
+                    <span asp-validation-for="Input.WaterPhoto" class="ll-error"></span>
+                </div>
+            </section>
+        </div>
+        <div class="ll-field">
+            <label asp-for="Input.Note"></label>
+            <textarea asp-for="Input.Note" rows="3" placeholder="Ví dụ: công tơ đã thay mới ngày 05"></textarea>
+            <span asp-validation-for="Input.Note" class="ll-error"></span>
+        </div>
+    </div>
+
+    <aside aria-label="Phiếu tính tiền điện nước">
+        <div class="ll-bill" data-ll-calc-box aria-live="polite">
+            <h2>Tạm tính @LandlordTime.PeriodLabel(input.Period).ToLowerInvariant()</h2>
+            @LandlordHtml.BillRow("Điện", "", "—", "electricAmount", "electricFormula")
+            @LandlordHtml.BillRow("Nước", "", "—", "waterAmount", "waterFormula")
+            <div class="ll-bill-row"><span class="label">Tiêu thụ</span><span class="leader" aria-hidden="true"></span>
+                <span class="value"><span data-ll-out="electricUsage">—</span> · <span data-ll-out="waterUsage">—</span></span></div>
+            <div class="ll-bill-total"><span>Tiền điện nước</span><b data-ll-out="total">—</b></div>
+            <p class="ll-bill-msg" data-ll-out="message"></p>
+            <p style="font-size:13px;color:var(--ll-muted);margin:8px 0 0">Giá theo hợp đồng: điện @LandlordFormat.Money(Model.ElectricPrice)/kWh, nước @LandlordFormat.Money(Model.WaterPrice)/m³.</p>
+        </div>
+        <div class="ll-form-actions" style="justify-content:stretch">
+            <button class="ll-btn ll-btn--primary" type="submit" style="flex:1">Lưu chỉ số</button>
+        </div>
+    </aside>
+</form>

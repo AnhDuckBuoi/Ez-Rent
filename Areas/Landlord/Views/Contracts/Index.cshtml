@@ -1,0 +1,15 @@
+@model ContractListModel
+@{
+    ViewData["Title"] = "Hợp đồng";
+    ViewData["Description"] = "Hợp đồng thuê phòng của chủ trọ: lập, gửi người thuê xác nhận, theo dõi hiệu lực.";
+}
+<div class="ll-head">
+    <div>
+        <h1>Hợp đồng</h1>
+        <p>Lập hợp đồng (BM03) sau khi hai bên thống nhất. Hợp đồng chỉ có hiệu lực khi cả hai bên xác nhận; xác nhận trên hệ thống không phải chữ ký số.</p>
+    </div>
+    <div class="ll-head-actions"><a class="ll-btn ll-btn--primary" asp-action="Create">@LandlordHtml.Icon("plus") Lập hợp đồng</a></div>
+</div>
+<div id="contract-list" data-ll-region>
+    <partial name="_ContractList" model="Model" />
+</div>

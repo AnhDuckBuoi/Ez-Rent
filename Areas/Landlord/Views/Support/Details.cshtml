@@ -1,0 +1,28 @@
+@model SupportDetailModel
+@{
+    var first = Model.Item.FirstMessage.Split('\n')[0];
+    ViewData["Title"] = "Yêu cầu hỗ trợ số " + Model.Item.Id;
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Hỗ trợ</a></li><li aria-current="page">Số @Model.Item.Id</li></ol></nav>
+<div class="ll-head"><div><h1>@first</h1>
+    <p>Gửi @LandlordTime.Stamp(Model.Item.CreatedAt) tới @Model.AdminName@(Model.Item.RoomTitle != null ? " · " + Model.Item.RoomTitle : "")</p></div></div>
+<section class="ll-inbox" style="grid-template-columns:minmax(0,1fr);min-height:0" aria-label="Trao đổi với quản trị viên">
+    <div class="ll-chat">
+        <div class="ll-thread" role="log" aria-label="Lịch sử trao đổi">
+            @foreach (var m in Model.Messages)
+            {
+                <div class="ll-msg @(m.Mine ? "mine" : "")">
+                    @if (!m.Mine) { <strong style="font-size:12.5px">Quản trị viên</strong> }
+                    <p>@m.Content</p>
+                    <time>@LandlordTime.Stamp(m.SentAt)</time>
+                </div>
+            }
+            @if (Model.Messages.All(m => m.Mine)) { <p class="ll-note" style="align-self:stretch">Quản trị viên chưa phản hồi. Bạn có thể bổ sung thông tin bên dưới.</p> }
+        </div>
+        <form class="ll-composer" method="post" asp-action="Reply" asp-route-id="@Model.Item.Id">
+            <label class="ll-visually-hidden" for="support-reply">Bổ sung thông tin</label>
+            <textarea id="support-reply" name="Content" maxlength="2000" required placeholder="Bổ sung thông tin cho quản trị viên"></textarea>
+            <button class="ll-btn ll-btn--primary" type="submit">Gửi</button>
+        </form>
+    </div>
+</section>

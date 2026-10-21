@@ -1,0 +1,8 @@
+@model InvoiceFormModel
+@{
+    ViewData["Title"] = "Sửa hóa đơn";
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Hóa đơn</a></li><li><a asp-action="Details" asp-route-id="@Model.Id">Số @Model.Id</a></li><li aria-current="page">Sửa</li></ol></nav>
+<div class="ll-head"><div><h1>Sửa hóa đơn số @Model.Id</h1><p>Người thuê sẽ nhận thông báo số tiền mới; mã VietQR được tạo lại theo số tiền mới.</p></div></div>
+<partial name="_InvoiceForm" model="Model" />
+@section Scripts { <partial name="_LlValidation" /> }

@@ -1,0 +1,13 @@
+@model RoomFormModel
+@{
+    ViewData["Title"] = "Đăng tin phòng";
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Phòng trọ</a></li><li aria-current="page">Đăng tin mới</li></ol></nav>
+<div class="ll-head">
+    <div>
+        <h1>Đăng tin phòng</h1>
+        <p>Phiếu đăng tin (BM01). Lưu nháp để hoàn thiện sau, hoặc gửi duyệt để quản trị viên kiểm tra trước khi tin hiển thị.</p>
+    </div>
+</div>
+<partial name="_RoomForm" model="Model" />
+@section Scripts { <partial name="_LlValidation" /> }

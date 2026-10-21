@@ -1,0 +1,38 @@
+@model ContractListModel
+@{
+    string TabUrl(ContractStatus? s) => Url.Action("Index", new { status = s })!;
+    var tabs = new List<TabLink> { new("Tất cả", TabUrl(null), Model.Counts.Values.Sum(), Model.Input.Status == null) };
+    foreach (var s in new[] { ContractStatus.Draft, ContractStatus.PendingTenant, ContractStatus.PendingLandlord, ContractStatus.Active, ContractStatus.Expired, ContractStatus.Cancelled })
+        tabs.Add(new(LandlordLabels.Contract(s).Text, TabUrl(s), Model.Counts.GetValueOrDefault(s), Model.Input.Status == s));
+}
+<partial name="_LlTabs" model="@(new TabsModel(tabs, "contract-list", "Lọc theo trạng thái hợp đồng"))" />
+@if (Model.Items.Total == 0)
+{
+    <div class="ll-panel ll-empty">
+        <h2 data-ll-focus>@(Model.Counts.Count == 0 ? "Chưa có hợp đồng nào" : "Không có hợp đồng ở mục này")</h2>
+        <p>Phòng phải được duyệt và đang trống mới lập được hợp đồng.</p>
+        <a class="ll-btn ll-btn--primary" asp-action="Create">Lập hợp đồng</a>
+    </div>
+}
+else
+{
+    <div class="ll-table-wrap">
+        <table class="ll-table">
+            <caption class="ll-visually-hidden" data-ll-focus>Danh sách hợp đồng</caption>
+            <thead><tr><th scope="col">Phòng · Người thuê</th><th scope="col">Thời hạn</th><th scope="col">Tiền thuê</th><th scope="col">Trạng thái</th><th scope="col" class="right"></th></tr></thead>
+            <tbody>
+                @foreach (var c in Model.Items.Items)
+                {
+                    <tr>
+                        <td class="main"><a class="title" asp-action="Details" asp-route-id="@c.Id">@c.RoomTitle</a><div class="sub">@c.TenantName · HĐ số @c.Id</div></td>
+                        <td data-label="Thời hạn" class="num">@LandlordTime.Date(c.StartDate) – @LandlordTime.Date(c.EndDate)</td>
+                        <td data-label="Tiền thuê" class="num">@LandlordFormat.Money(c.MonthlyRent)</td>
+                        <td data-label="Trạng thái">@LandlordHtml.Badge(LandlordLabels.Contract(c.Status))</td>
+                        <td><div class="actions"><a class="ll-btn ll-btn--small" asp-action="Details" asp-route-id="@c.Id">Xem</a></div></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_LlPager" model="@PagerModel.For(Context.Request, Model.Items, "contract-list", "Phân trang hợp đồng")" />
+}

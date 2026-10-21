@@ -1,0 +1,89 @@
+@model InvoiceDetailModel
+<div class="ll-head">
+    <div>
+        <h1 data-ll-focus>Hóa đơn @LandlordTime.PeriodLabel(Model.Period).ToLowerInvariant()</h1>
+        <p>Số @Model.Id · @Model.RoomTitle · @Model.TenantName</p>
+    </div>
+    <div class="ll-head-actions">
+        @LandlordHtml.Badge(LandlordLabels.Payment(Model.Status, Model.Overdue))
+        <button class="ll-btn" type="button" data-ll-print>@LandlordHtml.Icon("print") In hóa đơn</button>
+    </div>
+</div>
+@if (Model.Status == PaymentStatus.AwaitingConfirmation)
+{
+    <p class="ll-note is-warn">Người thuê báo đã chuyển khoản lúc @LandlordTime.Stamp(Model.TenantConfirmedAt). Kiểm tra tài khoản với nội dung “@Model.TransferNote” rồi xác nhận.</p>
+}
+<div class="ll-split">
+    <article class="ll-bill" aria-label="Chi tiết hóa đơn">
+        <h2>Hóa đơn tiền phòng và dịch vụ · @Model.RoomAddress</h2>
+        @LandlordHtml.BillRow("Tiền phòng", null, LandlordFormat.Money(Model.RoomRent))
+        @LandlordHtml.BillRow("Điện", Model.MeterReadingId == null ? "Không kèm điện nước" : $"{MeterInput.Show(Model.PrevElectric ?? 0)} → {MeterInput.Show(Model.CurrElectric ?? 0)}: {LandlordFormat.Number(Model.ElectricUsage)} kWh × {LandlordFormat.Number(Model.ElectricPrice)}", LandlordFormat.Money(Model.ElectricAmount))
+        @LandlordHtml.BillRow("Nước", Model.MeterReadingId == null ? "Không kèm điện nước" : $"{MeterInput.Show(Model.PrevWater ?? 0)} → {MeterInput.Show(Model.CurrWater ?? 0)}: {LandlordFormat.Number(Model.WaterUsage)} m³ × {LandlordFormat.Number(Model.WaterPrice)}", LandlordFormat.Money(Model.WaterAmount))
+        @LandlordHtml.BillRow("Dịch vụ", null, LandlordFormat.Money(Model.ServiceFee))
+        @if (Model.Adjustment != 0) { @LandlordHtml.BillRow("Điều chỉnh", null, LandlordFormat.Money(Model.Adjustment)) }
+        <div class="ll-bill-total"><span>Tổng cộng</span><b>@LandlordFormat.Money(Model.Total)</b></div>
+        @if (!string.IsNullOrWhiteSpace(Model.Note)) { <p style="margin:12px 0 0;font-size:14px;color:var(--ll-muted)">@Model.Note</p> }
+        <dl class="ll-facts" style="margin-top:16px;font-size:14px">
+            <dt>Ngày lập</dt><dd>@LandlordTime.Stamp(Model.IssueDate)</dd>
+            <dt>Hạn thanh toán</dt><dd>@LandlordTime.Date(Model.DueDate)@(Model.Overdue ? " (đã quá hạn)" : "")</dd>
+            @if (Model.PaidAt.HasValue) { <dt>Đã thanh toán</dt><dd>@LandlordTime.Stamp(Model.PaidAt)</dd> }
+            <dt>Chủ trọ</dt><dd>@Model.LandlordName</dd>
+        </dl>
+        @if (Model.ElectricPhotoUrl != null || Model.WaterPhotoUrl != null)
+        {
+            <div class="ll-grid ll-grid--2" style="margin-top:16px">
+                @if (Model.ElectricPhotoUrl != null) { <figure style="margin:0"><img class="ll-photo" src="@Model.ElectricPhotoUrl" alt="Ảnh công tơ điện kỳ @Model.Period" loading="lazy" /><figcaption class="sub" style="font-size:13px;color:var(--ll-muted)">Công tơ điện</figcaption></figure> }
+                @if (Model.WaterPhotoUrl != null) { <figure style="margin:0"><img class="ll-photo" src="@Model.WaterPhotoUrl" alt="Ảnh đồng hồ nước kỳ @Model.Period" loading="lazy" /><figcaption class="sub" style="font-size:13px;color:var(--ll-muted)">Đồng hồ nước</figcaption></figure> }
+            </div>
+        }
+    </article>
+    <aside class="ll-stack" aria-label="Thanh toán">
+        <section class="ll-panel ll-qr">
+            <h2>Chuyển khoản VietQR</h2>
+            @if (Model.HasQr && Model.Status is not (PaymentStatus.Paid or PaymentStatus.Cancelled))
+            {
+                <img src="@Model.QrDataUri" alt="Mã VietQR chuyển @LandlordFormat.Money(Model.Total) cho hóa đơn số @Model.Id" />
+                @if (Model.Bank != null) { <p style="margin:0">@Model.Bank.BankName · @Model.Bank.AccountNumber<br /><strong>@Model.Bank.AccountName</strong></p> }
+                <p style="margin:0;font-size:13px;color:var(--ll-muted)">Nội dung: <strong>@Model.TransferNote</strong>. Mã QR không có nghĩa là đã thanh toán.</p>
+            }
+            else if (Model.Status == PaymentStatus.Paid)
+            {
+                <p>Hóa đơn đã thanh toán.</p>
+            }
+            else if (Model.Status == PaymentStatus.Cancelled)
+            {
+                <p>Hóa đơn đã hủy.</p>
+            }
+            else
+            {
+                <p style="color:var(--ll-muted)">Chưa có mã VietQR. <a asp-controller="PaymentSettings" asp-action="Index">Cài tài khoản nhận tiền</a> rồi tạo lại mã.</p>
+            }
+            @if (Model.Status is PaymentStatus.Unpaid or PaymentStatus.AwaitingConfirmation or PaymentStatus.Overdue)
+            {
+                <form method="post" asp-action="RefreshQr" asp-route-id="@Model.Id" class="no-print" data-ll-action data-ll-refresh="invoice-panel">
+                    <button class="ll-btn ll-btn--small" type="submit">Tạo lại mã QR</button>
+                </form>
+            }
+        </section>
+        <section class="ll-panel no-print">
+            <h2 style="margin-bottom:10px">Thao tác</h2>
+            <div class="ll-inline-form">
+                @if (Model.CanMarkPaid)
+                {
+                    <form method="post" asp-action="MarkPaid" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="invoice-panel"
+                          data-ll-confirm="Xác nhận bạn đã nhận đủ @LandlordFormat.Money(Model.Total)?">
+                        <button class="ll-btn ll-btn--ok" type="submit" style="width:100%">Xác nhận đã nhận tiền</button>
+                    </form>
+                }
+                @if (Model.CanEdit) { <a class="ll-btn" asp-action="Edit" asp-route-id="@Model.Id">Sửa hóa đơn</a> }
+                <a class="ll-btn" asp-controller="Contracts" asp-action="Details" asp-route-id="@Model.ContractId">Xem hợp đồng</a>
+                @if (Model.CanCancel)
+                {
+                    <form method="post" asp-action="Cancel" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="invoice-panel" data-ll-confirm="Hủy hóa đơn này? Người thuê sẽ được báo không cần thanh toán.">
+                        <button class="ll-btn ll-btn--danger" type="submit" style="width:100%">Hủy hóa đơn</button>
+                    </form>
+                }
+            </div>
+        </section>
+    </aside>
+</div>

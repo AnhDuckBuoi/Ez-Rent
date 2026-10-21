@@ -1,0 +1,15 @@
+@model ViewingListModel
+@{
+    ViewData["Title"] = "Lịch xem phòng";
+    ViewData["Description"] = "Yêu cầu đặt lịch xem phòng của người thuê: xác nhận, từ chối, cập nhật đã hoàn thành.";
+}
+<div class="ll-head">
+    <div>
+        <h1>Lịch xem phòng</h1>
+        <p>Người thuê gửi yêu cầu ở trạng thái “Chờ xác nhận”. Hãy phản hồi sớm (trong 2 giờ theo quy định của nhóm); người thuê không nên đến khi lịch chưa được xác nhận.</p>
+    </div>
+    <div class="ll-head-actions"><a class="ll-btn" asp-controller="ViewingHours" asp-action="Index">@LandlordHtml.Icon("calendar") Khung giờ nhận khách</a></div>
+</div>
+<div id="viewing-list" data-ll-region>
+    <partial name="_ViewingList" model="Model" />
+</div>

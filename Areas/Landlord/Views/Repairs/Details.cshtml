@@ -1,0 +1,8 @@
+@model RepairDetailModel
+@{
+    ViewData["Title"] = "Yêu cầu sửa chữa";
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Sửa chữa</a></li><li aria-current="page">Chi tiết</li></ol></nav>
+<div id="repair-panel" data-ll-region>
+    <partial name="_RepairPanel" model="Model" />
+</div>

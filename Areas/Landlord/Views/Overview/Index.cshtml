@@ -1,0 +1,166 @@
+@model OverviewModel
+@{
+    ViewData["Title"] = "Tổng quan";
+    ViewData["Description"] = "Tình hình phòng trọ, lịch xem, hóa đơn và sửa chữa cần xử lý của chủ trọ.";
+}
+<div class="ll-head">
+    <div>
+        <h1>Chào @(string.IsNullOrWhiteSpace(Model.Name) ? "bạn" : Model.Name)</h1>
+        <p>@LandlordTime.PeriodLabel(Model.Period): những việc cần làm được xếp ngay bên dưới.</p>
+    </div>
+    <div class="ll-head-actions">
+        <a class="ll-btn" asp-controller="MeterReadings" asp-action="Index">@LandlordHtml.Icon("bolt") Ghi điện nước</a>
+        <a class="ll-btn ll-btn--primary" asp-controller="Rooms" asp-action="Create">@LandlordHtml.Icon("plus") Đăng tin phòng</a>
+    </div>
+</div>
+
+@if (!Model.BankConfigured)
+{
+    <p class="ll-note is-warn">Bạn chưa cài <a asp-controller="PaymentSettings" asp-action="Index">tài khoản nhận tiền</a>. Hóa đơn sẽ không có mã VietQR cho người thuê quét.</p>
+}
+@if (!Model.ViewingHoursConfigured && Model.Rooms > 0)
+{
+    <p class="ll-note is-warn" style="margin-top:8px">Bạn chưa mở <a asp-controller="ViewingHours" asp-action="Index">khung giờ nhận khách</a>. Người thuê sẽ không chọn được giờ xem phòng.</p>
+}
+@if (Model.SupportReplies > 0)
+{
+    <p class="ll-note" style="margin-top:8px">Quản trị viên đã trả lời <a asp-controller="Support" asp-action="Index">@Model.SupportReplies tin trong mục Hỗ trợ</a>.</p>
+}
+
+<section aria-label="Số liệu chính" class="ll-kpis" style="margin-top:16px">
+    <a class="ll-kpi" asp-controller="Rooms" asp-action="Index"><b>@Model.Rooms</b><span>tin phòng · @Model.Rented đang cho thuê · @Model.Available còn trống</span></a>
+    <a class="ll-kpi @(Model.PendingViewings > 0 ? "is-alert" : "")" asp-controller="Viewings" asp-action="Index" asp-route-status="Pending"><b>@Model.PendingViewings</b><span>lịch xem chờ bạn xác nhận</span></a>
+    <a class="ll-kpi" asp-controller="Invoices" asp-action="Index" asp-route-status="open"><b class="num">@LandlordFormat.Money(Model.OutstandingAmount)</b><span>chưa thu · @Model.OpenInvoices hóa đơn</span></a>
+    <a class="ll-kpi" asp-controller="Invoices" asp-action="Index" asp-route-status="paid" asp-route-period="@Model.Period"><b class="num">@LandlordFormat.Money(Model.CollectedThisPeriod)</b><span>đã thu kỳ @LandlordTime.PeriodLabel(Model.Period).ToLowerInvariant()</span></a>
+</section>
+
+<div class="ll-grid ll-grid--2">
+    <section class="ll-panel" aria-labelledby="todo-viewings">
+        <div class="ll-panel-head">
+            <h2 id="todo-viewings">Yêu cầu xem phòng mới</h2>
+            <a asp-controller="Viewings" asp-action="Index" asp-route-status="Pending">Xem tất cả</a>
+        </div>
+        @if (Model.PendingViewingList.Count == 0)
+        {
+            <p class="ll-note">Không có yêu cầu nào đang chờ.</p>
+        }
+        else
+        {
+            <ul class="ll-todo">
+                @foreach (var v in Model.PendingViewingList)
+                {
+                    <li>
+                        <div>
+                            <a asp-controller="Viewings" asp-action="Details" asp-route-id="@v.Id"><strong>@v.TenantName</strong></a>
+                            <div class="meta">@v.RoomTitle · @LandlordTime.Full(v.ViewingDate)</div>
+                        </div>
+                        @if (v.ResponseLate) { @LandlordHtml.Badge(new StatusLabel("Quá 2 giờ", "warn")) } else { @LandlordHtml.Badge(LandlordLabels.Viewing(v.Status)) }
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+
+    <section class="ll-panel" aria-labelledby="todo-next">
+        <div class="ll-panel-head">
+            <h2 id="todo-next">Lịch đã hẹn sắp tới</h2>
+            <a asp-controller="Viewings" asp-action="Index" asp-route-status="Confirmed">Xem tất cả</a>
+        </div>
+        @if (Model.NextViewings.Count == 0)
+        {
+            <p class="ll-note">Chưa có lịch đã xác nhận.</p>
+        }
+        else
+        {
+            <ul class="ll-todo">
+                @foreach (var v in Model.NextViewings)
+                {
+                    <li>
+                        <div>
+                            <a asp-controller="Viewings" asp-action="Details" asp-route-id="@v.Id"><strong>@LandlordTime.LongDate(v.ViewingDate), @LandlordTime.Time(v.ViewingDate)</strong></a>
+                            <div class="meta">@v.TenantName · @v.RoomTitle</div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+
+    <section class="ll-panel" aria-labelledby="todo-invoices">
+        <div class="ll-panel-head">
+            <h2 id="todo-invoices">Hóa đơn cần kiểm tra</h2>
+            <a asp-controller="Invoices" asp-action="Index" asp-route-status="open">Xem tất cả</a>
+        </div>
+        <p class="meta" style="color:var(--ll-muted);font-size:14px">
+            @Model.AwaitingPayment chờ xác nhận tiền · @Model.OverdueInvoices quá hạn ·
+            <a asp-controller="MeterReadings" asp-action="Index">@Model.MissingReadings phòng chưa ghi điện nước tháng này</a>
+        </p>
+        @if (Model.InvoicesToCheck.Count == 0)
+        {
+            <p class="ll-note">Không có hóa đơn quá hạn hay chờ xác nhận.</p>
+        }
+        else
+        {
+            <ul class="ll-todo">
+                @foreach (var i in Model.InvoicesToCheck)
+                {
+                    <li>
+                        <div>
+                            <a asp-controller="Invoices" asp-action="Details" asp-route-id="@i.Id"><strong>@i.TenantName</strong></a>
+                            <div class="meta">@i.RoomTitle · @LandlordTime.PeriodLabel(i.Period) · <span class="num">@LandlordFormat.Money(i.Total)</span></div>
+                        </div>
+                        @LandlordHtml.Badge(LandlordLabels.Payment(i.Status, i.Overdue))
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+
+    <section class="ll-panel" aria-labelledby="todo-repairs">
+        <div class="ll-panel-head">
+            <h2 id="todo-repairs">Sự cố chưa xử lý xong</h2>
+            <a asp-controller="Repairs" asp-action="Index">Xem tất cả</a>
+        </div>
+        @if (Model.UrgentRepairs.Count == 0)
+        {
+            <p class="ll-note">Không có sự cố nào đang mở.</p>
+        }
+        else
+        {
+            <ul class="ll-todo">
+                @foreach (var r in Model.UrgentRepairs)
+                {
+                    <li>
+                        <div>
+                            <a asp-controller="Repairs" asp-action="Details" asp-route-id="@r.Id"><strong>@r.ProblemType</strong></a>
+                            <div class="meta">@r.RoomTitle · @r.TenantName · @LandlordLabels.Repair(r.Status).Text</div>
+                        </div>
+                        @LandlordHtml.Badge(LandlordLabels.Priority(r.Priority))
+                    </li>
+                }
+            </ul>
+        }
+    </section>
+</div>
+
+@if (Model.RoomsToFix.Count > 0 || Model.WaitingApproval > 0 || Model.ContractsWaiting > 0 || Model.UnreadMessages > 0)
+{
+    <section class="ll-panel" aria-labelledby="todo-other" style="margin-top:18px">
+        <h2 id="todo-other" style="margin-bottom:10px">Việc khác</h2>
+        <ul class="ll-todo">
+            @foreach (var room in Model.RoomsToFix)
+            {
+                <li>
+                    <div>
+                        <a asp-controller="Rooms" asp-action="Details" asp-route-id="@room.Id"><strong>@room.Title</strong></a>
+                        @if (!string.IsNullOrWhiteSpace(room.ApprovalNote)) { <div class="meta">Quản trị viên: @room.ApprovalNote</div> }
+                    </div>
+                    @LandlordHtml.Badge(LandlordLabels.Approval(room.Approval))
+                </li>
+            }
+            @if (Model.WaitingApproval > 0) { <li><a asp-controller="Rooms" asp-action="Index" asp-route-approval="Pending">@Model.WaitingApproval tin đang chờ quản trị viên duyệt</a></li> }
+            @if (Model.ContractsWaiting > 0) { <li><a asp-controller="Contracts" asp-action="Index">@Model.ContractsWaiting hợp đồng đang chờ xác nhận</a></li> }
+            @if (Model.UnreadMessages > 0) { <li><a asp-controller="Messages" asp-action="Index" asp-route-filter="unread">@Model.UnreadMessages tin nhắn chưa đọc</a></li> }
+        </ul>
+    </section>
+}

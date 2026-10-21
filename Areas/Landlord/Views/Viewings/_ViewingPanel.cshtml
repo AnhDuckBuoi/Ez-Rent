@@ -1,0 +1,109 @@
+@model ViewingDetailModel
+@{
+    var v = Model.Item;
+}
+<div class="ll-head">
+    <div>
+        <h1 data-ll-focus>@LandlordTime.LongDate(v.ViewingDate), @LandlordTime.Time(v.ViewingDate)</h1>
+        <p>Lịch hẹn số @v.Id · @v.RoomTitle · @Model.RoomAddress</p>
+    </div>
+    <div class="ll-head-actions">@LandlordHtml.Badge(LandlordLabels.Viewing(v.Status))</div>
+</div>
+<div class="ll-split">
+    <div class="ll-stack">
+        <section class="ll-panel">
+            <h2 style="margin-bottom:12px">Thông tin yêu cầu</h2>
+            <dl class="ll-facts">
+                <dt>Người thuê</dt><dd>@v.TenantName</dd>
+                @if (Model.TenantPhone != null) { <dt>Điện thoại</dt><dd><a href="tel:@Model.TenantPhone">@Model.TenantPhone</a></dd> }
+                @if (Model.TenantEmail != null) { <dt>Email</dt><dd>@Model.TenantEmail</dd> }
+                <dt>Phòng</dt><dd><a asp-controller="Rooms" asp-action="Details" asp-route-id="@v.RoomId">@v.RoomTitle</a></dd>
+                <dt>Gửi lúc</dt><dd>@LandlordTime.Stamp(v.CreatedAt)</dd>
+                <dt>Lời nhắn</dt><dd class="ll-text">@(string.IsNullOrWhiteSpace(v.Note) ? "Không có" : v.Note)</dd>
+                <dt>Phản hồi của bạn</dt><dd class="ll-text">@(string.IsNullOrWhiteSpace(v.LandlordNote) ? "Chưa có" : v.LandlordNote)</dd>
+            </dl>
+            <form method="post" asp-controller="Messages" asp-action="Start" style="margin-top:16px">
+                <input type="hidden" name="roomId" value="@v.RoomId" /><input type="hidden" name="tenantId" value="@Model.TenantId" />
+                <button class="ll-btn" type="submit">@LandlordHtml.Icon("chat") Nhắn tin cho người thuê</button>
+            </form>
+        </section>
+        @if (Model.SameTime.Count > 0)
+        {
+            <section class="ll-panel">
+                <h2 style="margin-bottom:8px">Lịch khác cùng giờ đến</h2>
+                <p style="color:var(--ll-muted);font-size:14px">Bạn là người dẫn xem cho mọi phòng của mình, nên chỉ xác nhận được một lịch tại cùng một giờ.</p>
+                <ul class="ll-todo">
+                    @foreach (var o in Model.SameTime)
+                    {
+                        <li><a asp-action="Details" asp-route-id="@o.Id">@o.TenantName · @o.RoomTitle</a>@LandlordHtml.Badge(LandlordLabels.Viewing(o.Status))</li>
+                    }
+                </ul>
+            </section>
+        }
+    </div>
+
+    <aside class="ll-stack" aria-label="Xử lý lịch hẹn">
+        @if (v.Status == ViewingAppointmentStatus.Pending)
+        {
+            @if (v.ResponseLate)
+            {
+                <p class="ll-note is-warn">Yêu cầu đã chờ hơn 2 giờ. Hãy phản hồi ngay để người thuê sắp xếp.</p>
+            }
+            @if (!v.IsPast)
+            {
+                <section class="ll-panel">
+                    <h2 style="margin-bottom:10px">Xác nhận lịch</h2>
+                    <form method="post" asp-action="Confirm" asp-route-id="@v.Id" class="ll-inline-form" data-ll-action data-ll-refresh="viewing-panel">
+                        <div class="ll-field">
+                            <label for="confirm-note">Lời nhắn (không bắt buộc)</label>
+                            <textarea id="confirm-note" name="Note" maxlength="500" placeholder="Ví dụ: Gọi tôi khi tới cổng, số 0912…"></textarea>
+                        </div>
+                        <span class="ll-error" data-ll-error></span>
+                        <button class="ll-btn ll-btn--ok" type="submit">Xác nhận lịch xem</button>
+                    </form>
+                </section>
+            }
+            <section class="ll-panel">
+                <h2 style="margin-bottom:10px">Từ chối</h2>
+                <form method="post" asp-action="Reject" asp-route-id="@v.Id" class="ll-inline-form" data-ll-action data-ll-refresh="viewing-panel">
+                    <div class="ll-field">
+                        <label for="reject-note">Lý do (bắt buộc)</label>
+                        <textarea id="reject-note" name="Note" maxlength="500" required placeholder="Ví dụ: Giờ này tôi bận, bạn chọn sau 17:00 nhé."></textarea>
+                    </div>
+                    <span class="ll-error" data-ll-error></span>
+                    <button class="ll-btn ll-btn--danger" type="submit">Từ chối yêu cầu</button>
+                </form>
+            </section>
+        }
+        else if (v.Status == ViewingAppointmentStatus.Confirmed)
+        {
+            <section class="ll-panel">
+                <h2 style="margin-bottom:10px">Sau buổi xem phòng</h2>
+                @if (v.IsPast)
+                {
+                    <form method="post" asp-action="Complete" asp-route-id="@v.Id" class="ll-inline-form" data-ll-action data-ll-refresh="viewing-panel">
+                        <div class="ll-field">
+                            <label for="complete-note">Ghi chú (không bắt buộc)</label>
+                            <textarea id="complete-note" name="Note" maxlength="500"></textarea>
+                        </div>
+                        <span class="ll-error" data-ll-error></span>
+                        <button class="ll-btn ll-btn--primary" type="submit">Cập nhật: Đã hoàn thành</button>
+                    </form>
+                    <p style="margin-top:12px"><a asp-controller="Contracts" asp-action="Create" asp-route-roomId="@v.RoomId" asp-route-tenantId="@Model.TenantId">Lập hợp đồng với người thuê này</a></p>
+                }
+                else
+                {
+                    <p style="color:var(--ll-muted)">Lịch đã xác nhận. Bạn cập nhật “Đã hoàn thành” được sau giờ hẹn. Người thuê vẫn có thể hủy trước đó.</p>
+                }
+            </section>
+        }
+        else
+        {
+            <p class="ll-note">Lịch đã kết thúc ở trạng thái “@LandlordLabels.Viewing(v.Status).Text”. Bản ghi được giữ lại để hai bên tra cứu.</p>
+            @if (v.Status == ViewingAppointmentStatus.Completed)
+            {
+                <a class="ll-btn ll-btn--primary" asp-controller="Contracts" asp-action="Create" asp-route-roomId="@v.RoomId" asp-route-tenantId="@Model.TenantId">Lập hợp đồng</a>
+            }
+        }
+    </aside>
+</div>

@@ -1,0 +1,9 @@
+@model ContractFormModel
+@{
+    ViewData["Title"] = "Lập hợp đồng";
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Hợp đồng</a></li><li aria-current="page">Lập mới</li></ol></nav>
+<div class="ll-head"><div><h1>Lập hợp đồng thuê phòng</h1>
+    <p>Lưu nháp để trao đổi thêm, hoặc xác nhận và gửi để người thuê xem lại các điều khoản trên EZ-Rent.</p></div></div>
+<partial name="_ContractForm" model="Model" />
+@section Scripts { <partial name="_LlValidation" /> }

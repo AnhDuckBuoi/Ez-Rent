@@ -1,0 +1,75 @@
+@{
+    var nav = ViewData["LandlordNav"] as LandlordNavCounts ?? new LandlordNavCounts();
+    var controller = ViewContext.RouteData.Values["controller"] as string ?? "";
+    string? Current(string name) => string.Equals(controller, name, StringComparison.OrdinalIgnoreCase) ? "page" : null;
+    var flash = TempData[LandlordFlash.Key] as string;
+    var flashKind = TempData[LandlordFlash.KindKey] as string;
+    var description = ViewData["Description"] as string ?? "Khu quản lý dành cho chủ trọ trên EZ-Rent: phòng, lịch xem, hợp đồng, điện nước, hóa đơn và sửa chữa.";
+}
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · Chủ trọ · EZ-Rent</title>
+    <meta name="description" content="@description" />
+    @* Trang quản lý riêng tư: không cho công cụ tìm kiếm lập chỉ mục (SEO đúng cách cho khu vực cần đăng nhập). *@
+    <meta name="robots" content="noindex, nofollow" />
+    <meta name="theme-color" content="#356797" />
+    <link rel="icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="~/css/landlord.css" asp-append-version="true" />
+</head>
+<body class="ll">
+    <a class="ll-skip" href="#ll-main">Đến nội dung chính</a>
+    <div class="ll-shell">
+        <header class="ll-side">
+            <a class="ll-brand" asp-area="Landlord" asp-controller="Overview" asp-action="Index">
+                <span class="ll-brand-mark">@LandlordHtml.Icon("home")</span>
+                <span><strong>EZ-Rent</strong><small>Khu chủ trọ</small></span>
+            </a>
+            <nav class="ll-nav" aria-label="Chức năng chủ trọ">
+                <a asp-area="Landlord" asp-controller="Overview" asp-action="Index" aria-current="@Current("Overview")">@LandlordHtml.Icon("overview")<span>Tổng quan</span></a>
+                <a asp-area="Landlord" asp-controller="Rooms" asp-action="Index" aria-current="@Current("Rooms")">@LandlordHtml.Icon("rooms")<span>Phòng trọ</span></a>
+                <a asp-area="Landlord" asp-controller="Viewings" asp-action="Index" aria-current="@(Current("Viewings") ?? Current("ViewingHours"))">@LandlordHtml.Icon("calendar")<span>Lịch xem phòng</span>
+                    @if (nav.PendingViewings > 0) { <span class="ll-count" aria-label="@nav.PendingViewings lịch chờ xác nhận">@nav.PendingViewings</span> }</a>
+                <a asp-area="Landlord" asp-controller="Messages" asp-action="Index" aria-current="@Current("Messages")">@LandlordHtml.Icon("chat")<span>Trò chuyện</span>
+                    @if (nav.UnreadMessages > 0) { <span class="ll-count" aria-label="@nav.UnreadMessages tin chưa đọc">@(nav.UnreadMessages > 99 ? "99+" : nav.UnreadMessages.ToString())</span> }</a>
+                <a asp-area="Landlord" asp-controller="Contracts" asp-action="Index" aria-current="@Current("Contracts")">@LandlordHtml.Icon("contract")<span>Hợp đồng</span></a>
+                <a asp-area="Landlord" asp-controller="MeterReadings" asp-action="Index" aria-current="@Current("MeterReadings")">@LandlordHtml.Icon("bolt")<span>Điện, nước</span></a>
+                <a asp-area="Landlord" asp-controller="Invoices" asp-action="Index" aria-current="@Current("Invoices")">@LandlordHtml.Icon("receipt")<span>Hóa đơn</span></a>
+                <a asp-area="Landlord" asp-controller="Repairs" asp-action="Index" aria-current="@Current("Repairs")">@LandlordHtml.Icon("wrench")<span>Yêu cầu sửa chữa</span>
+                    @if (nav.OpenRepairs > 0) { <span class="ll-count" aria-label="@nav.OpenRepairs yêu cầu mới">@nav.OpenRepairs</span> }</a>
+                <a asp-area="Landlord" asp-controller="PaymentSettings" asp-action="Index" aria-current="@Current("PaymentSettings")">@LandlordHtml.Icon("bank")<span>Nhận tiền</span></a>
+                <a asp-area="Landlord" asp-controller="Support" asp-action="Index" aria-current="@Current("Support")">@LandlordHtml.Icon("help")<span>Hỗ trợ</span>
+                    @if (nav.SupportReplies > 0) { <span class="ll-count" aria-label="@nav.SupportReplies phản hồi mới từ quản trị viên">@nav.SupportReplies</span> }</a>
+            </nav>
+            <div class="ll-account">
+                <span class="who" style="display:flex;align-items:center;gap:9px">
+                    @if (LandlordFormat.SafeMediaUrl(nav.AvatarUrl) is { } avatar)
+                    {
+                        <img src="@avatar" alt="" style="width:30px;height:30px;border-radius:50%;object-fit:cover" />
+                    }
+                    @nav.Name
+                </span>
+                <a asp-area="Landlord" asp-controller="Account" asp-action="Index" aria-current="@Current("Account")">@LandlordHtml.Icon("user")<span class="hide-sm">Tài khoản</span></a>
+                <a class="hide-sm" asp-area="" asp-controller="Home" asp-action="Index">@LandlordHtml.Icon("home")<span>Trang chủ EZ-Rent</span></a>
+                <form method="post" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="/">
+                    <button type="submit">@LandlordHtml.Icon("logout")<span>Đăng xuất</span></button>
+                </form>
+            </div>
+        </header>
+        <main id="ll-main" class="ll-main" tabindex="-1">
+            @if (!string.IsNullOrEmpty(flash))
+            {
+                <div id="ll-flash" class="ll-flash @(flashKind == "error" ? "is-error" : "")" role="status">
+                    <span>@flash</span><button type="button" data-ll-dismiss aria-label="Đóng thông báo">×</button>
+                </div>
+            }
+            @RenderBody()
+        </main>
+    </div>
+    <div id="ll-live" class="ll-visually-hidden" aria-live="polite" aria-atomic="true"></div>
+    <script src="~/js/landlord.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

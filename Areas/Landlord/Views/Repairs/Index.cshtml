@@ -1,0 +1,14 @@
+@model RepairListModel
+@{
+    ViewData["Title"] = "Sửa chữa";
+    ViewData["Description"] = "Yêu cầu sửa chữa do người thuê gửi: tiếp nhận, cập nhật tiến độ, hoàn tất.";
+}
+<div class="ll-head">
+    <div>
+        <h1>Yêu cầu sửa chữa</h1>
+        <p>Phiếu yêu cầu (BM06) do người thuê gửi kèm mô tả, mức ưu tiên và ảnh. Cập nhật trạng thái để người thuê theo dõi.</p>
+    </div>
+</div>
+<div id="repair-list" data-ll-region>
+    <partial name="_RepairList" model="Model" />
+</div>

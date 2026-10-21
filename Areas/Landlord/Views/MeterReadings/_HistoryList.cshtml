@@ -1,0 +1,28 @@
+@model MeterHistoryModel
+@if (Model.Items.Total == 0)
+{
+    <div class="ll-panel ll-empty"><h2 data-ll-focus>Phòng chưa có chỉ số nào</h2></div>
+}
+else
+{
+    <div class="ll-table-wrap">
+        <table class="ll-table">
+            <caption class="ll-visually-hidden" data-ll-focus>Các kỳ đã ghi</caption>
+            <thead><tr><th scope="col">Kỳ</th><th scope="col">Điện (cũ → mới)</th><th scope="col">Nước (cũ → mới)</th><th scope="col">Hóa đơn</th><th scope="col"></th></tr></thead>
+            <tbody>
+                @foreach (var m in Model.Items.Items)
+                {
+                    <tr>
+                        <td class="main"><a class="title" asp-action="Details" asp-route-id="@m.Id">@LandlordTime.PeriodLabel(m.Period)</a>
+                            <div class="sub">Ghi lúc @LandlordTime.Stamp(m.ReadingDate)@(m.HasPhotos ? " · có ảnh công tơ" : "")</div></td>
+                        <td data-label="Điện" class="num">@MeterInput.Show(m.PrevElectric) → @MeterInput.Show(m.CurrElectric) <strong>(@LandlordFormat.Number(m.ElectricUsage) kWh)</strong></td>
+                        <td data-label="Nước" class="num">@MeterInput.Show(m.PrevWater) → @MeterInput.Show(m.CurrWater) <strong>(@LandlordFormat.Number(m.WaterUsage) m³)</strong></td>
+                        <td data-label="Hóa đơn">@if (m.InvoiceId.HasValue) { <a asp-controller="Invoices" asp-action="Details" asp-route-id="@m.InvoiceId">Số @m.InvoiceId</a> } else { <span>Chưa lập</span> }</td>
+                        <td><div class="actions"><a class="ll-btn ll-btn--small" asp-action="Details" asp-route-id="@m.Id">Xem</a></div></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_LlPager" model="@PagerModel.For(Context.Request, Model.Items, "meter-history", "Phân trang lịch sử chỉ số")" />
+}

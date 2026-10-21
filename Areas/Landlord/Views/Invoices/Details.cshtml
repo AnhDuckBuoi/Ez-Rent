@@ -1,0 +1,8 @@
+@model InvoiceDetailModel
+@{
+    ViewData["Title"] = $"Hóa đơn số {Model.Id}";
+}
+<nav class="ll-crumbs" aria-label="Đường dẫn"><ol><li><a asp-action="Index">Hóa đơn</a></li><li aria-current="page">Số @Model.Id</li></ol></nav>
+<div id="invoice-panel" data-ll-region>
+    <partial name="_InvoicePanel" model="Model" />
+</div>

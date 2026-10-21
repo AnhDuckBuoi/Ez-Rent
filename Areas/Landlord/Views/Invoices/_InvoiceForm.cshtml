@@ -1,0 +1,108 @@
+@model InvoiceFormModel
+@{
+    var input = Model.Input;
+    var creating = Model.Id == null;
+    var b = Model.Breakdown;
+    var calcUrl = Url.Action("Calculate", creating ? null : new { id = Model.Id });
+}
+@if (!Model.BankConfigured)
+{
+    <p class="ll-note is-warn" style="margin-bottom:16px">Chưa có tài khoản nhận tiền nên hóa đơn sẽ không có mã VietQR. <a asp-controller="PaymentSettings" asp-action="Index">Cài đặt ngay</a>.</p>
+}
+<form method="post" class="ll-split" data-ll-calc="@calcUrl">
+    <div class="ll-form">
+        <div asp-validation-summary="ModelOnly"></div>
+        <fieldset class="ll-fieldset">
+            <legend>Hợp đồng và kỳ</legend>
+            <div class="ll-fields">
+                <div class="ll-field span-2">
+                    <label asp-for="Input.RentalContractId"></label>
+                    @if (creating)
+                    {
+                        <select asp-for="Input.RentalContractId" data-ll-reload="contractId">
+                            <option value="0">— Chọn hợp đồng đang hiệu lực —</option>
+                            @foreach (var c in Model.Contracts)
+                            {
+                                <option value="@c.Value" selected="@(c.Value == input.RentalContractId.ToString())">@c.Text</option>
+                            }
+                        </select>
+                        <span class="hint">Đổi hợp đồng sẽ tải lại danh sách dịch vụ của phòng tương ứng.</span>
+                    }
+                    else
+                    {
+                        <input type="hidden" asp-for="Input.RentalContractId" />
+                        <p style="margin:0">@(Model.Contracts.FirstOrDefault(c => c.Value == input.RentalContractId.ToString())?.Text)</p>
+                    }
+                    <span asp-validation-for="Input.RentalContractId" class="ll-error"></span>
+                    @if (Model.ContractSummary != null) { <span class="hint">@Model.ContractSummary</span> }
+                </div>
+                <div class="ll-field">
+                    <label asp-for="Input.BillingPeriod"></label>
+                    <input asp-for="Input.BillingPeriod" type="month" readonly="@(!creating)" />
+                    <span asp-validation-for="Input.BillingPeriod" class="ll-error"></span>
+                </div>
+                <div class="ll-field">
+                    <label asp-for="Input.DueDate"></label>
+                    <input asp-for="Input.DueDate" type="date" value="@(input.DueDate?.ToString("yyyy-MM-dd"))" />
+                    <span asp-validation-for="Input.DueDate" class="ll-error"></span>
+                </div>
+                <div class="ll-field span-2">
+                    <label class="ll-check"><input asp-for="Input.WithoutMeter" /> Lập hóa đơn không kèm điện nước</label>
+                    <span class="hint">Chỉ dùng khi phòng không tính điện nước theo công tơ trong kỳ này.</span>
+                    <span asp-validation-for="Input.WithoutMeter" class="ll-error"></span>
+                </div>
+            </div>
+        </fieldset>
+        <fieldset class="ll-fieldset">
+            <legend>Dịch vụ và khoản khác</legend>
+            <label class="ll-check"><input asp-for="Input.IncludeFixedFee" /> Tính phí dịch vụ chung của phòng (@LandlordFormat.Money(Model.FixedFee)/tháng)</label>
+            @if (Model.Services.Count > 0)
+            {
+                <div class="ll-fields ll-fields--3" style="margin-top:12px">
+                    @foreach (var s in Model.Services)
+                    {
+                        <div class="ll-field">
+                            <label for="qty-@s.Id">@s.Name <span class="hint">(@LandlordFormat.Money(s.UnitPrice)/@s.Unit)</span></label>
+                            <input id="qty-@s.Id" name="Input.Qty[@s.Id]" type="number" min="0" max="20" step="1" inputmode="numeric" value="@input.Qty.GetValueOrDefault(s.Id)" />
+                            <span asp-validation-for="Input.Qty" class="ll-error"></span>
+                        </div>
+                    }
+                </div>
+                <p class="hint" style="color:var(--ll-muted);font-size:13px;margin-top:8px">Nhập số lượng (ví dụ 2 xe). Để 0 nếu không tính dịch vụ đó kỳ này.</p>
+            }
+            <div class="ll-fields" style="margin-top:14px">
+                <div class="ll-field">
+                    <label asp-for="Input.AdjustmentAmount"></label>
+                    <input asp-for="Input.AdjustmentAmount" type="number" step="1000" inputmode="numeric" value="@(input.AdjustmentAmount?.ToString("0"))" />
+                    <span class="hint">Số âm để giảm trừ (ví dụ trả trước), số dương cho phát sinh.</span>
+                    <span asp-validation-for="Input.AdjustmentAmount" class="ll-error"></span>
+                </div>
+                <div class="ll-field">
+                    <label asp-for="Input.Note"></label>
+                    <input asp-for="Input.Note" maxlength="250" placeholder="Ví dụ: thu thêm tiền sửa vòi nước" />
+                    <span asp-validation-for="Input.Note" class="ll-error"></span>
+                </div>
+            </div>
+        </fieldset>
+    </div>
+    <aside aria-label="Phiếu tính tiền hóa đơn">
+        <div class="ll-bill" data-ll-calc-box aria-live="polite">
+            <h2>Bảng tính @LandlordTime.PeriodLabel(input.BillingPeriod).ToLowerInvariant()</h2>
+            @LandlordHtml.BillRow("Tiền phòng", null, b == null ? "—" : LandlordFormat.Money(b.RoomRent), "roomRent")
+            @LandlordHtml.BillRow("Điện", b == null ? "" : (b.HasMeter ? $"{LandlordFormat.Number(b.ElectricUsage)} kWh × {LandlordFormat.Number(b.ElectricPrice)}" : "Không kèm điện nước"), b == null ? "—" : LandlordFormat.Money(b.ElectricAmount), "electricAmount", "electric")
+            @LandlordHtml.BillRow("Nước", b == null ? "" : (b.HasMeter ? $"{LandlordFormat.Number(b.WaterUsage)} m³ × {LandlordFormat.Number(b.WaterPrice)}" : "Không kèm điện nước"), b == null ? "—" : LandlordFormat.Money(b.WaterAmount), "waterAmount", "water")
+            @LandlordHtml.BillRow("Dịch vụ", null, b == null ? "—" : LandlordFormat.Money(b.ServiceFee), "serviceFee")
+            @LandlordHtml.BillRow("Điều chỉnh", null, b == null ? "—" : LandlordFormat.Money(b.Adjustment), "adjustment")
+            <div class="ll-bill-total"><span>Tổng cộng</span><b data-ll-out="total">@(b == null ? "—" : LandlordFormat.Money(b.Total))</b></div>
+            <p class="ll-bill-msg" data-ll-out="message"></p>
+            @if (Model.MeterReadingId.HasValue)
+            {
+                <p style="font-size:13px;margin:8px 0 0"><a asp-controller="MeterReadings" asp-action="Details" asp-route-id="@Model.MeterReadingId">Xem phiếu chỉ số và ảnh công tơ</a></p>
+            }
+        </div>
+        <div class="ll-form-actions" style="justify-content:stretch">
+            <a class="ll-btn" href="@(creating ? Url.Action("Index") : Url.Action("Details", new { id = Model.Id }))">Hủy</a>
+            <button class="ll-btn ll-btn--primary" type="submit" style="flex:1">@(creating ? "Lập hóa đơn và gửi người thuê" : "Lưu hóa đơn")</button>
+        </div>
+    </aside>
+</form>
