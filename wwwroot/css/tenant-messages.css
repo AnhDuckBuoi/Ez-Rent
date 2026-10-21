@@ -48,3 +48,10 @@ body:not(.mobile-chat).mobile-search.compact-height .inbox-search{margin-top:12p
  .messages-page .tenant-desktop-header{display:none}.message-mobile-header{display:block}.messages-root{display:flex;flex-direction:column;flex:1;min-height:0}.message-mobile-header .header-tools{display:flex}.inbox-search input{min-height:48px}.inbox-filters a{font-size:13px;min-height:44px;padding:8px 14px}.compose-box textarea{font-size:16px}.mobile-chat .message-mobile-header{display:none}.composer-bottom>span:first-child{display:block;font-size:10px;max-width:30ch}.messages-root .tenant-pagination .button{min-width:40px;min-height:44px}.messages-problem{min-height:0;flex:1;border:0;padding:24px}.context-empty{font-size:14px}.context-booking{font-size:14px}.mobile-search.compact-height .inbox-search>svg{display:none}.inbox-heading{padding-top:12px}.page-heading p{font-size:13px}.composer{padding-top:8px}.support-result .dialog-actions{position:static}
 }
 body.mobile-chat.compact-height .composer-bottom{display:flex}body.mobile-chat.compact-height .composer-bottom>span:first-child{font-size:9px}
+
+/* Sending uses the existing composer; feedback stays next to the entered content. */
+.message-refresh{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:4px 8px;font-size:12px;color:var(--blue);white-space:nowrap;flex-shrink:0}
+.message-send-status{font-size:12px;line-height:1.6;color:var(--muted);margin:4px 0 0;overflow-wrap:anywhere}.message-send-status:empty{display:none}.message-send-status.is-error{color:var(--error)}
+.composer[aria-busy="true"] .send-button{opacity:.65}.message-read-form{margin:0;padding:0 16px 8px}.message-read-form[hidden]{display:none}.message-read-button{font:inherit;font-size:12px;min-height:44px;border:0;background:transparent;color:var(--blue);cursor:pointer}.readonly-note{font-size:13px;color:var(--muted);line-height:1.7}
+#retained-message{width:100%;font:inherit;min-height:100px}
+@media(max-width:767px){.message-refresh{font-size:11px;padding:4px}.chat-header .avatar{flex-shrink:0}.message-send-status{font-size:12px}.chat-person{min-width:0}}

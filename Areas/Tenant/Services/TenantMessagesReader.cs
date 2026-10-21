@@ -12,10 +12,21 @@ public static class TenantMessagesReader
         TenantMessagesInput input, CancellationToken ct = default)
     {
         var model = new TenantMessagesModel { Input = input };
+        RentalPost? pendingRoom = null;
+        var senderActive = await db.Users.AnyAsync(u => u.Id == userId && u.Status == UserStatus.Active, ct);
+        if (input.RentalPostId.HasValue)
+        {
+            if (input.ConversationId.HasValue) { model.Unavailable = true; return model; }
+            pendingRoom = await TenantMessagesWriter.ContactableRooms(db, userId).AsNoTracking()
+                .Include(p => p.Owner).Include(p => p.RoomImages)
+                .SingleOrDefaultAsync(p => p.RentalPostId == input.RentalPostId, ct);
+            if (pendingRoom == null) { model.Unavailable = true; return model; }
+            var existing = await TenantMessagesWriter.ForRoom(db, userId, pendingRoom.RentalPostId, pendingRoom.OwnerId)
+                .OrderBy(c => c.ConversationId).Select(c => (int?)c.ConversationId).FirstOrDefaultAsync(ct);
+            if (existing.HasValue) { input.ConversationId = existing; input.RentalPostId = null; pendingRoom = null; }
+        }
         // Membership and conversation kind are checked before selecting by ID or reading messages.
-        var own = db.Conversations.AsNoTracking().Where(c =>
-            (c.InitiatorId == userId || c.RecipientId == userId) &&
-            (c.ConversationType == ConversationType.TenantLandlord || c.ConversationType == ConversationType.TenantAdmin));
+        var own = TenantMessagesWriter.Owned(db, userId).AsNoTracking();
         if (input.ConversationId.HasValue && !await own.AnyAsync(c => c.ConversationId == input.ConversationId, ct))
         { model.Unavailable = true; return model; }
 
@@ -40,7 +51,7 @@ public static class TenantMessagesReader
         var rows = await own.Where(c => ids.Contains(c.ConversationId))
             .Include(c => c.Initiator).Include(c => c.Recipient)
             .Include(c => c.RentalPost).ThenInclude(p => p!.RoomImages).AsSplitQuery().ToListAsync(ct);
-        var selectedId = input.ConversationId ?? ids.FirstOrDefault();
+        var selectedId = input.ConversationId ?? (pendingRoom != null ? 0 : ids.FirstOrDefault());
         var selected = rows.FirstOrDefault(c => c.ConversationId == selectedId);
         if (selected == null && input.ConversationId.HasValue)
             selected = await own.Include(c => c.Initiator).Include(c => c.Recipient)
@@ -67,11 +78,19 @@ public static class TenantMessagesReader
             {
                 Id = c.ConversationId, Name = string.IsNullOrWhiteSpace(name) ? (support ? "Hỗ trợ EZ Rent" : "Chủ nhà") : name,
                 IsSupport = support, Room = c.RentalPost == null ? null : TenantRentalDiscovery.Card(c.RentalPost, false),
+                CanSend = !support && senderActive && c.Initiator.Status == UserStatus.Active && c.Recipient.Status == UserStatus.Active,
                 Unread = unread.GetValueOrDefault(c.ConversationId), LastSentAt = last?.SentAt,
                 Preview = last == null ? "Chưa có tin nhắn" : (last.SenderId == userId ? "Bạn: " : "") + last.Content
             };
         }
         model.Conversations = ids.Select(id => Map(rows.Single(c => c.ConversationId == id))).ToList();
+        if (pendingRoom != null)
+        {
+            model.ContactStamp = TenantMessagesWriter.ContactStamp(pendingRoom);
+            model.Selected = new TenantConversationModel { Name = string.IsNullOrWhiteSpace(pendingRoom.Owner.FullName) ? "Chủ nhà" : pendingRoom.Owner.FullName,
+                Room = TenantRentalDiscovery.Card(pendingRoom, false), CanSend = senderActive };
+            return model;
+        }
         if (selected == null) return model;
         model.Selected = Map(selected);
         var history = memberMessages.Where(m => m.ConversationId == selectedId);

@@ -167,7 +167,8 @@ public sealed class TenantMessagesTests : IAsyncLifetime
         Assert.Contains("&lt;img", html); Assert.Contains("&lt;script&gt;", html);
         Assert.DoesNotContain("<img src=x", html); Assert.DoesNotContain("<script>name()", html);
         Assert.Contains("2026-10-17T01:30:00+07:00", WebUtility.HtmlDecode(html));
-        Assert.Contains("Gửi tin nhắn chưa khả dụng", WebUtility.HtmlDecode(html));
+        Assert.Contains("/Tenant/Dashboard/SendMessage", WebUtility.HtmlDecode(html));
+        Assert.Contains("aria-label=\"Gửi tin nhắn\"", WebUtility.HtmlDecode(html));
         Assert.Contains("method=\"dialog\"", html);
     }
 }

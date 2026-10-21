@@ -1,5 +1,9 @@
 # Tenant security integration tests
 
+## Gửi tin Tenant — 21/10/2026
+
+`TenantMessageWriteTests` bổ sung 30 ca cho gửi/đọc trên bảng gốc: nguồn danh tính/người nhận, chủ phòng vừa đổi, quyền và loại hội thoại, tài khoản khóa, CSRF, input giả, giới hạn nội dung, XSS, form thường và cập nhật đúng ID tin nhận. `TenantMessagesTests` tiếp tục kiểm tra GET chỉ đọc; kỳ vọng nút gửi được cập nhật theo chức năng mới. Phạm vi và giới hạn: [gói gửi tin](../../docs/tenant-messages-write.md).
+
 Run from the repository root:
 
 ```powershell

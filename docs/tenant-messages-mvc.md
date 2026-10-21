@@ -1,5 +1,7 @@
 # Tin nhắn Tenant — ghép MVC, 16/10/2026
 
+> Cập nhật 21/10/2026: đã bổ sung gửi văn bản cho chủ nhà và trạng thái đọc theo phạm vi Dương duyệt. Xem [gói ghi Tin nhắn](tenant-messages-write.md). Nội dung dưới đây lưu lại checkpoint chỉ đọc trước đó.
+
 Dương đã duyệt ghép thiết kế Tin nhắn riêng vào ứng dụng, cả desktop/tablet/mobile, và yêu cầu ưu tiên tái sử dụng mã gốc. Bản này thay placeholder tại `/Tenant/Dashboard/Messages`; chưa triển khai gửi tin hoặc gửi yêu cầu hỗ trợ.
 
 ## Phần đã ghép và tái sử dụng

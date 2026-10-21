@@ -2,11 +2,15 @@
 @using System.Globalization
 @model TenantMessagesModel
 @{ Layout = "_TenantMessagesLayout"; ViewData["Title"] = "Tin nhắn"; ViewData["MobileChat"] = Model.MobileChat; var input = Model.Input; }
-<div id="messages-root" class="messages-root" data-conversation-id="@(Model.Selected?.Id ?? 0)" data-mobile-chat="@Model.MobileChat.ToString().ToLowerInvariant()">
+<div id="messages-root" class="messages-root" data-conversation-id="@(Model.Selected?.Id ?? 0)" data-draft-key="@Model.DraftKey" data-mobile-chat="@Model.MobileChat.ToString().ToLowerInvariant()">
     <div class="page-heading"><div><h1>Tin nhắn</h1><p>Trao đổi về căn phòng bạn quan tâm, theo dõi nội dung ở một nơi.</p></div><a asp-action="Help" class="compare-link">Hướng dẫn hỗ trợ @await Html.PartialAsync("_HomeIcon", "help")</a></div>
-    @if (!ViewData.ModelState.IsValid || Model.Unavailable || Model.LoadError)
+    @if ((!ViewData.ModelState.IsValid && Model.Selected == null) || Model.Unavailable || Model.LoadError)
     {
         <section class="state-panel messages-problem" role="alert"><h2>@(Model.LoadError ? "Chưa tải được hộp thư" : Model.Unavailable ? "Không mở được cuộc trò chuyện" : "Chưa mở được hộp thư")</h2><p>@(Model.LoadError ? "Hãy thử tải lại sau ít phút. Nội dung bạn đang soạn trong tab vẫn được giữ." : Model.Unavailable ? "Cuộc trò chuyện không còn khả dụng hoặc bạn không có quyền truy cập." : "Kiểm tra bộ lọc và số trang, hoặc mở lại hộp thư.")</p><div asp-validation-summary="All"></div><a asp-action="Messages" class="button primary" data-messages-link>Mở lại hộp thư</a></section>
+        @if (!string.IsNullOrEmpty(Model.AttemptedContent))
+        {
+            <label for="retained-message">Nội dung bạn đã nhập để sao chép lại</label><textarea id="retained-message" rows="4" readonly>@Model.AttemptedContent</textarea>
+        }
     }
     else
     {
