@@ -1,0 +1,47 @@
+@model RoomDetailModel
+@if (Model.Media.Count == 0)
+{
+    <div class="alert alert-secondary mb-0" data-ll-focus>Tin chưa có ảnh. Cần ít nhất 1 ảnh trước khi gửi duyệt.</div>
+}
+else
+{
+    <div class="row g-3">
+        @for (var i = 0; i < Model.Media.Count; i++)
+        {
+            var m = Model.Media[i];
+            <div class="col-6 col-md-4">
+                <div class="card ll-media h-100">
+                    @if (m.Type == MediaType.Video) { <video src="@m.Url" controls preload="metadata" aria-label="Video phòng @(i + 1)"></video> }
+                    else { <img src="@m.Url" alt="Ảnh phòng @(i + 1): @Model.Title" loading="lazy" /> }
+                    <div class="card-body p-2 d-flex flex-wrap gap-1 align-items-center">
+                        @if (m.IsPrimary) { <span class="badge bg-success me-auto">Ảnh đại diện</span> }
+                        else if (m.Type == MediaType.Image)
+                        {
+                            <form class="me-auto" method="post" asp-controller="RoomMedia" asp-action="SetPrimary" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="room-media">
+                                <input type="hidden" name="mediaId" value="@m.Id" /><button class="btn btn-link btn-sm p-0" type="submit">Đặt đại diện</button>
+                            </form>
+                        }
+                        else { <span class="me-auto"></span> }
+                        @if (i > 0)
+                        {
+                            <form method="post" asp-controller="RoomMedia" asp-action="Move" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="room-media">
+                                <input type="hidden" name="mediaId" value="@m.Id" /><input type="hidden" name="direction" value="up" />
+                                <button class="btn btn-sm btn-outline-secondary" type="submit" aria-label="Đưa file @(i + 1) lên trước">↑</button>
+                            </form>
+                        }
+                        @if (i < Model.Media.Count - 1)
+                        {
+                            <form method="post" asp-controller="RoomMedia" asp-action="Move" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="room-media">
+                                <input type="hidden" name="mediaId" value="@m.Id" /><input type="hidden" name="direction" value="down" />
+                                <button class="btn btn-sm btn-outline-secondary" type="submit" aria-label="Đưa file @(i + 1) ra sau">↓</button>
+                            </form>
+                        }
+                        <form method="post" asp-controller="RoomMedia" asp-action="Delete" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="room-media" data-ll-confirm="Xóa file này khỏi tin?">
+                            <input type="hidden" name="mediaId" value="@m.Id" /><button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Xóa file @(i + 1)">🗑</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

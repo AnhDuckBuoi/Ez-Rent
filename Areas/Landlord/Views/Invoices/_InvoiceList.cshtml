@@ -1,0 +1,65 @@
+@model InvoiceListModel
+@{
+    var input = Model.Input;
+    string TabUrl(string? s) => Url.Action("Index", new { status = s, period = input.Period })!;
+    var tabs = new List<StatusTab>
+    {
+        new("Tất cả", TabUrl(null), null, input.Status == null),
+        new("Chưa thu", TabUrl("open"), Model.Counts.GetValueOrDefault("open"), input.Status == "open"),
+        new("Chờ xác nhận tiền", TabUrl("awaiting"), Model.Counts.GetValueOrDefault("awaiting"), input.Status == "awaiting"),
+        new("Quá hạn", TabUrl("overdue"), Model.Counts.GetValueOrDefault("overdue"), input.Status == "overdue"),
+        new("Đã thanh toán", TabUrl("paid"), Model.Counts.GetValueOrDefault("paid"), input.Status == "paid"),
+        new("Đã hủy", TabUrl("cancelled"), Model.Counts.GetValueOrDefault("cancelled"), input.Status == "cancelled")
+    };
+}
+<partial name="_StatusTabs" model="@(new StatusTabsModel(tabs, "invoice-list", "Lọc theo trạng thái thanh toán"))" />
+<form class="row g-2 align-items-end mb-3" method="get" asp-action="Index" data-ll-filter="invoice-list">
+    <input type="hidden" name="status" value="@input.Status" />
+    <div class="col-md-3">
+        <label class="form-label" for="invoice-period">Kỳ thanh toán</label>
+        <input class="form-control" id="invoice-period" type="month" name="period" value="@input.Period" />
+    </div>
+    <div class="col-md-2 d-grid"><button class="btn btn-outline-primary" type="submit">🔍 Lọc</button></div>
+    <div class="col-md-7 text-md-end"><span class="text-muted">Tổng chưa thu:</span> <strong class="num">@DisplayFormat.Money(Model.OpenAmount)</strong></div>
+</form>
+@if (Model.Items.TotalItems == 0)
+{
+    <div class="card border-0 shadow-sm text-center py-5"><div class="card-body">
+        <h5 data-ll-focus>Không có hóa đơn ở mục này</h5>
+        <p class="text-muted">Ghi chỉ số điện nước rồi lập hóa đơn cho các phòng đang có hợp đồng.</p>
+        <a class="btn btn-primary" asp-action="Create">+ Lập hóa đơn</a>
+    </div></div>
+}
+else
+{
+    <p class="text-muted mb-2" data-ll-focus>Tổng <strong>@Model.Items.TotalItems</strong> hóa đơn — Trang <strong>@Model.Items.PageIndex</strong> / <strong>@Model.Items.TotalPages</strong></p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light"><tr><th>Kỳ · Phòng</th><th>Người thuê</th><th class="text-end">Tổng tiền</th><th>Hạn</th><th>Trạng thái</th><th style="width:200px">Thao tác</th></tr></thead>
+            <tbody>
+                @foreach (var i in Model.Items)
+                {
+                    <tr>
+                        <td><a class="fw-bold text-decoration-none" asp-action="Details" asp-route-id="@i.Id">@VietnamTime.PeriodLabel(i.Period)</a><div class="small text-muted">@i.RoomTitle · số @i.Id</div></td>
+                        <td>@i.TenantName</td>
+                        <td class="text-end num fw-semibold">@DisplayFormat.Money(i.Total)</td>
+                        <td class="num">@VietnamTime.Date(i.DueDate)</td>
+                        <td>@LandlordUi.Badge(LandlordLabels.Payment(i.Status, i.Overdue))
+                            @if (i.TenantConfirmedAt.HasValue && i.Status == PaymentStatus.AwaitingConfirmation) { <div class="small text-muted">Báo chuyển @VietnamTime.Stamp(i.TenantConfirmedAt)</div> }</td>
+                        <td>
+                            @if (i.Status is PaymentStatus.Unpaid or PaymentStatus.AwaitingConfirmation or PaymentStatus.Overdue)
+                            {
+                                <form class="d-inline" method="post" asp-controller="InvoicePayments" asp-action="MarkPaid" asp-route-id="@i.Id" data-ll-action data-ll-refresh="invoice-list"
+                                      data-ll-confirm="Xác nhận đã nhận đủ @DisplayFormat.Money(i.Total) cho hóa đơn số @i.Id?">
+                                    <button class="btn btn-sm btn-success" type="submit">💰 Đã nhận tiền</button>
+                                </form>
+                            }
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@i.Id">Chi tiết</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pagination" model="Model.Pager" />
+}

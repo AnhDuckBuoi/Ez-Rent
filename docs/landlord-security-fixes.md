@@ -1,0 +1,1 @@
+Applied security annotations to Landlord controllers where missing; preserved AllowAnonymous on JoinController. Added ValidateAntiForgeryToken to POST actions lacking it where attribute blocks existed.

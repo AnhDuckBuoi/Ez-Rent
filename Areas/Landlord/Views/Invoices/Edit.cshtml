@@ -1,0 +1,10 @@
+@model InvoiceFormModel
+@{
+    ViewData["Title"] = "Sửa hóa đơn";
+}
+<partial name="_LandlordMenu" />
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Hóa đơn</a></li><li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Id">Số @Model.Id</a></li><li class="breadcrumb-item active" aria-current="page">Sửa</li></ol></nav>
+<h2 class="mb-1">✏️ Sửa hóa đơn số @Model.Id</h2>
+<p class="text-muted">Chỉ sửa dịch vụ, khoản điều chỉnh, hạn và ghi chú. Chỉ số điện nước và bộ ảnh đã lưu cho người thuê giữ nguyên. Người thuê nhận thông báo số tiền mới; mã VietQR được tạo lại.</p>
+<partial name="_InvoiceForm" model="Model" />
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

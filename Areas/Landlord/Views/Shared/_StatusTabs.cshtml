@@ -1,0 +1,11 @@
+@model StatusTabsModel
+<ul class="nav nav-tabs mb-3 flex-nowrap overflow-auto" aria-label="@Model.Label">
+    @foreach (var tab in Model.Tabs)
+    {
+        <li class="nav-item">
+            <a class="nav-link text-nowrap @(tab.Active ? "active" : "")" aria-current="@(tab.Active ? "page" : null)" href="@tab.Url" data-ll-nav="@Model.Region">
+                @tab.Text @if (tab.Count.HasValue) { <span class="badge bg-secondary ms-1">@tab.Count</span> }
+            </a>
+        </li>
+    }
+</ul>
