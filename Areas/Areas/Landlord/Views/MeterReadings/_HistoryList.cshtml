@@ -1,0 +1,27 @@
+@model MeterHistoryModel
+@if (Model.Items.TotalItems == 0)
+{
+    <div class="card border-0 shadow-sm text-center py-5"><div class="card-body"><h5 data-ll-focus>Phòng chưa có chỉ số nào</h5></div></div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light"><tr><th>Kỳ</th><th>Điện (cũ → mới)</th><th>Nước (cũ → mới)</th><th>Hóa đơn</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var m in Model.Items)
+                {
+                    <tr>
+                        <td><a class="fw-bold text-decoration-none" asp-action="Details" asp-route-id="@m.Id">@VietnamTime.PeriodLabel(m.Period)</a>
+                            <div class="small text-muted">Ghi lúc @VietnamTime.Stamp(m.ReadingDate)@(m.HasPhotos ? " · đủ ảnh công tơ" : " · thiếu ảnh")</div></td>
+                        <td class="num">@MeterInput.Show(m.PrevElectric) → @MeterInput.Show(m.CurrElectric) <strong>(@DisplayFormat.Number(m.ElectricUsage) kWh)</strong></td>
+                        <td class="num">@MeterInput.Show(m.PrevWater) → @MeterInput.Show(m.CurrWater) <strong>(@DisplayFormat.Number(m.WaterUsage) m³)</strong></td>
+                        <td>@if (m.InvoiceId.HasValue) { <a asp-controller="Invoices" asp-action="Details" asp-route-id="@m.InvoiceId">Số @m.InvoiceId</a> } else { <span class="text-muted">Chưa lập</span> }</td>
+                        <td><a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@m.Id">Xem</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pagination" model="Model.Pager" />
+}

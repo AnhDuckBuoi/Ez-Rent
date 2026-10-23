@@ -1,0 +1,90 @@
+@model RoomListModel
+@{
+    var input = Model.Input;
+    string TabUrl(ApprovalStatus? s) => Url.Action("Index", new { approval = s, room = input.Room, q = input.Q })!;
+    var tabs = new List<StatusTab> { new("Tất cả", TabUrl(null), Model.Total, input.Approval == null) };
+    foreach (var s in new[] { ApprovalStatus.Draft, ApprovalStatus.Pending, ApprovalStatus.Approved, ApprovalStatus.NeedRevision, ApprovalStatus.Rejected })
+        tabs.Add(new(LandlordLabels.Approval(s).Text, TabUrl(s), Model.Counts.GetValueOrDefault(s), input.Approval == s));
+}
+<partial name="_StatusTabs" model="@(new StatusTabsModel(tabs, "room-list", "Lọc theo trạng thái duyệt"))" />
+<form class="row g-2 align-items-end mb-3" method="get" asp-action="Index" data-ll-filter="room-list" role="search">
+    <input type="hidden" name="approval" value="@input.Approval" />
+    <div class="col-md-6">
+        <label class="form-label" for="room-q">Tìm theo tiêu đề, địa chỉ</label>
+        <input class="form-control" id="room-q" name="q" value="@input.Q" maxlength="100" type="search" placeholder="Ví dụ: Cầu Giấy" />
+    </div>
+    <div class="col-md-4">
+        <label class="form-label" for="room-status">Tình trạng</label>
+        <select class="form-select" id="room-status" name="room">
+            <option value="">Tất cả</option>
+            @foreach (var s in new[] { RoomStatus.Available, RoomStatus.Rented, RoomStatus.Hidden })
+            { <option value="@s" selected="@(input.Room == s)">@LandlordLabels.Room(s).Text</option> }
+        </select>
+    </div>
+    <div class="col-md-2 d-grid"><button class="btn btn-outline-primary" type="submit">🔍 Lọc</button></div>
+</form>
+
+@if (Model.Rooms.TotalItems == 0)
+{
+    <div class="card border-0 shadow-sm text-center py-5">
+        <div class="card-body">
+            @if (Model.Total == 0)
+            {
+                <h5 data-ll-focus>Bạn chưa có tin phòng nào</h5>
+                <p class="text-muted">Đăng tin đầu tiên với ảnh thật, giá thuê và các khoản phí rõ ràng.</p>
+                <a class="btn btn-primary" asp-action="Create">+ Đăng tin phòng</a>
+            }
+            else
+            {
+                <h5 data-ll-focus>Không có tin phù hợp bộ lọc</h5>
+                <a class="btn btn-outline-secondary" asp-action="Index" data-ll-nav="room-list">Xóa bộ lọc</a>
+            }
+        </div>
+    </div>
+}
+else
+{
+    <p class="text-muted mb-2" data-ll-focus>Tổng <strong>@Model.Rooms.TotalItems</strong> tin — Trang <strong>@Model.Rooms.PageIndex</strong> / <strong>@Model.Rooms.TotalPages</strong></p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr><th>Phòng</th><th>Giá thuê</th><th>Kiểm duyệt</th><th>Tình trạng</th><th style="width:170px">Thao tác</th></tr>
+            </thead>
+            <tbody>
+                @foreach (var r in Model.Rooms)
+                {
+                    var img = DisplayFormat.SafeMediaUrl(r.ImageUrl);
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                @if (img != null) { <img class="ll-thumb" src="@img" alt="" loading="lazy" /> } else { <span class="ll-thumb d-inline-block" aria-hidden="true"></span> }
+                                <div>
+                                    <a class="fw-bold text-decoration-none" asp-action="Details" asp-route-id="@r.Id">@r.Title</a>
+                                    <div class="small text-muted">Mã tin @r.Id · @r.Address</div>
+                                    <div class="small text-muted">@LandlordLabels.RoomTypeName(r.RoomType) · @DisplayFormat.Area(r.Area)@(r.PendingViewings > 0 ? $" · {r.PendingViewings} lịch chờ" : "")@(r.Favorites > 0 ? $" · {r.Favorites} người lưu tin" : "")</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="num">@DisplayFormat.Money(r.Price)</td>
+                        <td>@LandlordUi.Badge(LandlordLabels.Approval(r.Approval))</td>
+                        <td>@LandlordUi.Badge(LandlordLabels.Room(r.Room))
+                            @if (r.TenantName != null) { <div class="small text-muted">@r.TenantName</div> }</td>
+                        <td>
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@r.Id">Chi tiết</a>
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Edit" asp-route-id="@r.Id">Sửa</a>
+                            @if (r.Room != RoomStatus.Rented)
+                            {
+                                var show = r.Room == RoomStatus.Hidden;
+                                <form class="d-inline" method="post" asp-action="Visibility" asp-route-id="@r.Id" data-ll-action data-ll-refresh="room-list">
+                                    <input type="hidden" name="visible" value="@(show ? "true" : "false")" />
+                                    <button class="btn btn-sm @(show ? "btn-success" : "btn-warning")" type="submit">@(show ? "👁 Hiện" : "🙈 Ẩn")</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pagination" model="Model.Pager" />
+}

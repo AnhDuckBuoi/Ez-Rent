@@ -1,0 +1,103 @@
+@model ViewingDetailModel
+@{
+    var v = Model.Item;
+}
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+    <div>
+        <h2 class="mb-1" data-ll-focus>@VietnamTime.LongDate(v.ViewingDate), @VietnamTime.Time(v.ViewingDate)</h2>
+        <div class="text-muted">Lịch hẹn số @v.Id · @v.RoomTitle · @Model.RoomAddress</div>
+    </div>
+    @LandlordUi.Badge(LandlordLabels.Viewing(v.Status))
+</div>
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header bg-white"><strong>Thông tin yêu cầu (BM02)</strong></div>
+            <div class="card-body">
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">Người thuê</dt><dd class="col-sm-8">@v.TenantName</dd>
+                    @if (Model.TenantPhone != null) { <dt class="col-sm-4">Điện thoại</dt><dd class="col-sm-8"><a href="tel:@Model.TenantPhone">@Model.TenantPhone</a></dd> }
+                    @if (Model.TenantEmail != null) { <dt class="col-sm-4">Email</dt><dd class="col-sm-8">@Model.TenantEmail</dd> }
+                    <dt class="col-sm-4">Phòng</dt><dd class="col-sm-8"><a asp-controller="Rooms" asp-action="Details" asp-route-id="@v.RoomId">@v.RoomTitle</a></dd>
+                    <dt class="col-sm-4">Gửi lúc</dt><dd class="col-sm-8">@VietnamTime.Stamp(v.CreatedAt)</dd>
+                    <dt class="col-sm-4">Lời nhắn</dt><dd class="col-sm-8 ll-text">@(string.IsNullOrWhiteSpace(v.Note) ? "Không có" : v.Note)</dd>
+                    <dt class="col-sm-4">Phản hồi của bạn</dt><dd class="col-sm-8 ll-text">@(string.IsNullOrWhiteSpace(v.LandlordNote) ? "Chưa có" : v.LandlordNote)</dd>
+                </dl>
+                <form class="mt-3" method="post" asp-controller="Messages" asp-action="Start">
+                    <input type="hidden" name="roomId" value="@v.RoomId" /><input type="hidden" name="tenantId" value="@Model.TenantId" />
+                    <button class="btn btn-outline-primary btn-sm" type="submit">💬 Nhắn tin cho người thuê</button>
+                </form>
+            </div>
+        </div>
+        @if (Model.SameTime.Count > 0)
+        {
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white"><strong>Lịch khác cùng giờ đến</strong></div>
+                <div class="card-body">
+                    <p class="small text-muted">Bạn là người dẫn xem cho mọi phòng của mình, nên chỉ xác nhận được một lịch tại cùng một giờ.</p>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var o in Model.SameTime)
+                        {
+                            <li class="list-group-item d-flex justify-content-between"><a asp-action="Details" asp-route-id="@o.Id">@o.TenantName · @o.RoomTitle</a>@LandlordUi.Badge(LandlordLabels.Viewing(o.Status))</li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        }
+    </div>
+    <div class="col-lg-5">
+        @if (v.Status == ViewingAppointmentStatus.Pending)
+        {
+            @if (v.ResponseLate) { <div class="alert alert-warning">Yêu cầu đã chờ hơn 2 giờ. Hãy phản hồi ngay để người thuê sắp xếp.</div> }
+            @if (!v.IsPast)
+            {
+                <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+                    <h5 class="card-title">✅ Xác nhận lịch</h5>
+                    <form method="post" asp-action="Confirm" asp-route-id="@v.Id" data-ll-action data-ll-refresh="viewing-panel">
+                        <label class="form-label" for="confirm-note">Lời nhắn (không bắt buộc)</label>
+                        <textarea class="form-control mb-2" id="confirm-note" name="Note" maxlength="500" rows="2" placeholder="Ví dụ: Gọi tôi khi tới cổng."></textarea>
+                        <div class="text-danger small" data-ll-error></div>
+                        <button class="btn btn-success" type="submit">Xác nhận lịch xem</button>
+                    </form>
+                </div></div>
+            }
+            <div class="card border-0 shadow-sm"><div class="card-body">
+                <h5 class="card-title">❌ Từ chối</h5>
+                <form method="post" asp-action="Reject" asp-route-id="@v.Id" data-ll-action data-ll-refresh="viewing-panel">
+                    <label class="form-label" for="reject-note">Lý do (bắt buộc)</label>
+                    <textarea class="form-control mb-2" id="reject-note" name="Note" maxlength="500" rows="2" required placeholder="Ví dụ: Giờ này tôi bận, bạn chọn sau 17:00 nhé."></textarea>
+                    <div class="text-danger small" data-ll-error></div>
+                    <button class="btn btn-outline-danger" type="submit">Từ chối yêu cầu</button>
+                </form>
+            </div></div>
+        }
+        else if (v.Status == ViewingAppointmentStatus.Confirmed)
+        {
+            <div class="card border-0 shadow-sm"><div class="card-body">
+                <h5 class="card-title">Sau buổi xem phòng</h5>
+                @if (v.IsPast)
+                {
+                    <form method="post" asp-action="Complete" asp-route-id="@v.Id" data-ll-action data-ll-refresh="viewing-panel">
+                        <label class="form-label" for="complete-note">Ghi chú (không bắt buộc)</label>
+                        <textarea class="form-control mb-2" id="complete-note" name="Note" maxlength="500" rows="2"></textarea>
+                        <div class="text-danger small" data-ll-error></div>
+                        <button class="btn btn-primary" type="submit">Cập nhật: Đã hoàn thành</button>
+                    </form>
+                    <a class="btn btn-link px-0 mt-2" asp-controller="Contracts" asp-action="Create" asp-route-roomId="@v.RoomId" asp-route-tenantId="@Model.TenantId">📄 Lập hợp đồng với người thuê này</a>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Lịch đã xác nhận. Bạn cập nhật “Đã hoàn thành” được sau giờ hẹn. Người thuê vẫn có thể hủy trước đó.</p>
+                }
+            </div></div>
+        }
+        else
+        {
+            <div class="alert alert-secondary">Lịch đã kết thúc ở trạng thái “@LandlordLabels.Viewing(v.Status).Text”. Bản ghi được giữ để hai bên tra cứu.</div>
+            @if (v.Status == ViewingAppointmentStatus.Completed)
+            {
+                <a class="btn btn-success" asp-controller="Contracts" asp-action="Create" asp-route-roomId="@v.RoomId" asp-route-tenantId="@Model.TenantId">📄 Lập hợp đồng</a>
+            }
+        }
+    </div>
+</div>

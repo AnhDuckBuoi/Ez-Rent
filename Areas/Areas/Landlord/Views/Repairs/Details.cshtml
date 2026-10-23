@@ -1,0 +1,9 @@
+@model RepairDetailModel
+@{
+    ViewData["Title"] = "Yêu cầu sửa chữa số " + Model.Item.Id;
+}
+<partial name="_LandlordMenu" />
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Yêu cầu sửa chữa</a></li><li class="breadcrumb-item active" aria-current="page">Số @Model.Item.Id</li></ol></nav>
+<div id="repair-panel" data-ll-region>
+    <partial name="_RepairPanel" model="Model" />
+</div>

@@ -1,0 +1,12 @@
+@model MeterIndexModel
+@{
+    ViewData["Title"] = "Điện, nước";
+}
+<partial name="_LandlordMenu" />
+<div class="mb-3">
+    <h2 class="mb-0">⚡ Quản lý điện, nước</h2>
+    <small class="text-muted">Phiếu ghi chỉ số (BM04): mỗi phòng đang có hợp đồng ghi một lần mỗi tháng; chỉ số kỳ trước được lấy tự động.</small>
+</div>
+<div id="meter-rooms" data-ll-region>
+    <partial name="_MeterRooms" model="Model" />
+</div>
