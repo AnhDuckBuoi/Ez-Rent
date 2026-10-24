@@ -1,0 +1,15 @@
+@model ViewingListModel
+@{
+    ViewData["Title"] = "Lịch xem phòng";
+}
+<partial name="_LandlordMenu" />
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <div>
+        <h2 class="mb-0">📅 Lịch xem phòng</h2>
+        <small class="text-muted">Người thuê gửi yêu cầu ở trạng thái “Chờ xác nhận”; hãy phản hồi trong 2 giờ. Người thuê không nên đến khi lịch chưa được xác nhận.</small>
+    </div>
+    <a class="btn btn-outline-primary" asp-controller="ViewingHours" asp-action="Index">🕘 Khung giờ nhận khách</a>
+</div>
+<div id="viewing-list" data-ll-region>
+    <partial name="_ViewingList" model="Model" />
+</div>

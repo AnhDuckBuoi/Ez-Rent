@@ -1,0 +1,116 @@
+@model ContractFormModel
+@using EZ_Rent.Services.Contracts
+@{
+    var input = Model.Input;
+    var creating = Model.Id == null;
+}
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white"><strong>1. Phòng và người thuê</strong></div>
+        <div class="card-body row g-3">
+            @if (Model.Rooms.Count == 0)
+            {
+                <div class="col-12"><div class="alert alert-warning mb-0">Bạn chưa có phòng nào đã được duyệt và đang trống. <a asp-controller="Rooms" asp-action="Index">Xem danh sách phòng</a>.</div></div>
+            }
+            <div class="col-12">
+                <label asp-for="Input.RentalPostId" class="form-label"></label>
+                <select asp-for="Input.RentalPostId" class="form-select" data-ll-defaults="@Url.Action("RoomDefaults")">
+                    <option value="0">— Chọn phòng —</option>
+                    @foreach (var r in Model.Rooms) { <option value="@r.Value" selected="@(r.Value == input.RentalPostId.ToString())">@r.Text — @r.Hint</option> }
+                </select>
+                <div class="form-text">Đổi phòng sẽ điền lại giá thuê, cọc, giá điện nước theo tin đăng; bạn vẫn sửa được.</div>
+                <span asp-validation-for="Input.RentalPostId" class="text-danger small"></span>
+            </div>
+            @if (creating)
+            {
+                <div class="col-md-6">
+                    <label asp-for="Input.TenantId" class="form-label"></label>
+                    <select asp-for="Input.TenantId" class="form-select">
+                        <option value="">— Người đã xem phòng / nhắn tin —</option>
+                        @foreach (var t in Model.Tenants) { <option value="@t.Value" selected="@(t.Value == input.TenantId)">@t.Text (@t.Hint)</option> }
+                    </select>
+                    <span asp-validation-for="Input.TenantId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Input.TenantEmail" class="form-label"></label>
+                    <input asp-for="Input.TenantEmail" type="email" class="form-control" autocomplete="off" placeholder="nguoithue@gmail.com" />
+                    <div class="form-text">Dùng khi người thuê chưa đặt lịch qua EZ-Rent. Tài khoản phải là người thuê.</div>
+                    <span asp-validation-for="Input.TenantEmail" class="text-danger small"></span>
+                </div>
+            }
+            else
+            {
+                <div class="col-12"><span class="form-label d-block fw-semibold">Người thuê</span>@Model.TenantName <span class="small text-muted">— muốn đổi người thuê, hãy hủy và lập hợp đồng mới.</span></div>
+            }
+        </div>
+    </div>
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white"><strong>2. Thời hạn, chi phí và thanh toán</strong></div>
+        <div class="card-body row g-3">
+            <div class="col-md-6">
+                <label asp-for="Input.StartDate" class="form-label"></label>
+                <input asp-for="Input.StartDate" type="date" class="form-control" value="@(input.StartDate?.ToString("yyyy-MM-dd"))" />
+                <span asp-validation-for="Input.StartDate" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.EndDate" class="form-label"></label>
+                <input asp-for="Input.EndDate" type="date" class="form-control" value="@(input.EndDate?.ToString("yyyy-MM-dd"))" />
+                <span asp-validation-for="Input.EndDate" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.MonthlyRent" class="form-label"></label>
+                <input asp-for="Input.MonthlyRent" type="number" min="100000" step="1000" inputmode="numeric" class="form-control" data-ll-fill="rent" value="@(input.MonthlyRent?.ToString("0"))" />
+                <span asp-validation-for="Input.MonthlyRent" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.DepositAmount" class="form-label"></label>
+                <input asp-for="Input.DepositAmount" type="number" min="0" step="1000" inputmode="numeric" class="form-control" data-ll-fill="deposit" value="@(input.DepositAmount?.ToString("0"))" />
+                <span asp-validation-for="Input.DepositAmount" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.AgreedElectricityPrice" class="form-label"></label>
+                <input asp-for="Input.AgreedElectricityPrice" type="number" min="0" step="100" inputmode="numeric" class="form-control" data-ll-fill="electricity" value="@(input.AgreedElectricityPrice?.ToString("0"))" />
+                <span asp-validation-for="Input.AgreedElectricityPrice" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.AgreedWaterPrice" class="form-label"></label>
+                <input asp-for="Input.AgreedWaterPrice" type="number" min="0" step="1000" inputmode="numeric" class="form-control" data-ll-fill="water" value="@(input.AgreedWaterPrice?.ToString("0"))" />
+                <span asp-validation-for="Input.AgreedWaterPrice" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.PaymentMethod" class="form-label"></label>
+                <select asp-for="Input.PaymentMethod" class="form-select">
+                    @foreach (var p in ContractTermsHeader.PaymentMethods) { <option value="@p.Key" selected="@(input.PaymentMethod == p.Key)">@p.Value</option> }
+                </select>
+                <span asp-validation-for="Input.PaymentMethod" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Input.SigningPlace" class="form-label"></label>
+                <input asp-for="Input.SigningPlace" class="form-control" placeholder="Ví dụ: Hà Nội" />
+                <span asp-validation-for="Input.SigningPlace" class="text-danger small"></span>
+            </div>
+        </div>
+    </div>
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-header bg-white"><strong>3. Điều khoản (BM03)</strong></div>
+        <div class="card-body">
+            <label asp-for="Input.Terms" class="form-label"></label>
+            <textarea asp-for="Input.Terms" rows="14" class="form-control"></textarea>
+            <div class="form-text">Mẫu có sẵn theo BM03: trách nhiệm hai bên, tiền cọc, báo trước khi chuyển đi. Sửa cho đúng thỏa thuận thực tế.</div>
+            <span asp-validation-for="Input.Terms" class="text-danger small"></span>
+        </div>
+    </div>
+    <div class="d-flex flex-wrap gap-2 justify-content-end mb-4">
+        <a class="btn btn-outline-secondary" href="@(creating ? Url.Action("Index") : Url.Action("Details", new { id = Model.Id }))">Hủy</a>
+        @if (creating)
+        {
+            <button class="btn btn-outline-primary" type="submit" name="intent" value="draft">💾 Lưu nháp</button>
+            <button class="btn btn-primary" type="submit" name="intent" value="send">📤 Xác nhận và gửi người thuê</button>
+        }
+        else
+        {
+            <button class="btn btn-primary" type="submit">💾 Lưu bản nháp</button>
+        }
+    </div>
+</form>

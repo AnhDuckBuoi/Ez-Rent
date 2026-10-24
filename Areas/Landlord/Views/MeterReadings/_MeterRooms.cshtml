@@ -1,0 +1,49 @@
+@model MeterIndexModel
+<form class="row g-2 align-items-end mb-3" method="get" asp-action="Index" data-ll-filter="meter-rooms">
+    <div class="col-md-3">
+        <label class="form-label" for="meter-period">Kỳ ghi nhận</label>
+        <input class="form-control" id="meter-period" type="month" name="period" value="@Model.Period" max="@Model.CurrentPeriod" />
+    </div>
+    <noscript><div class="col-md-2"><button class="btn btn-outline-primary" type="submit">Xem</button></div></noscript>
+    <div class="col-md-9"><p class="text-muted mb-1" data-ll-focus>@VietnamTime.PeriodLabel(Model.Period): đã ghi <strong>@Model.Recorded</strong>/@Model.Rooms.TotalItems phòng đang cho thuê.</p></div>
+</form>
+@if (Model.Rooms.TotalItems == 0)
+{
+    <div class="card border-0 shadow-sm text-center py-5"><div class="card-body">
+        <h5>Chưa có phòng nào đang cho thuê</h5>
+        <p class="text-muted">Phòng xuất hiện ở đây khi có hợp đồng đang hiệu lực.</p>
+        <a class="btn btn-outline-primary" asp-controller="Contracts" asp-action="Index">Xem hợp đồng</a>
+    </div></div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light"><tr><th>Phòng · Người thuê</th><th>Điện</th><th>Nước</th><th>Kỳ gần nhất</th><th style="width:240px">Thao tác</th></tr></thead>
+            <tbody>
+                @foreach (var r in Model.Rooms)
+                {
+                    <tr>
+                        <td><strong>@r.RoomTitle</strong><div class="small text-muted">@r.TenantName</div></td>
+                        <td class="num">@(r.ElectricUsage.HasValue ? DisplayFormat.Number(r.ElectricUsage.Value) + " kWh" : "—")</td>
+                        <td class="num">@(r.WaterUsage.HasValue ? DisplayFormat.Number(r.WaterUsage.Value) + " m³" : "—")</td>
+                        <td>@(r.LastPeriod == null ? "Chưa ghi lần nào" : VietnamTime.PeriodLabel(r.LastPeriod))</td>
+                        <td>
+                            @if (r.ReadingId.HasValue)
+                            {
+                                <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@r.ReadingId">Xem phiếu</a>
+                                @if (!r.HasInvoice) { <a class="btn btn-sm btn-primary" asp-controller="Invoices" asp-action="Create" asp-route-period="@Model.Period" asp-route-contractId="@r.ContractId">🧾 Lập hóa đơn</a> }
+                            }
+                            else
+                            {
+                                <a class="btn btn-sm btn-primary" asp-action="Create" asp-route-roomId="@r.RoomId" asp-route-period="@Model.Period">✍️ Ghi chỉ số</a>
+                            }
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="History" asp-route-id="@r.RoomId">Lịch sử</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pagination" model="Model.Pager" />
+}

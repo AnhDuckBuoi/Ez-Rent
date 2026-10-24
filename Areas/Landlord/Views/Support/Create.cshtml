@@ -1,0 +1,43 @@
+@model SupportFormModel
+@using EZ_Rent.Services.Support
+@{
+    ViewData["Title"] = "Gửi yêu cầu hỗ trợ";
+    var input = Model.Input;
+}
+<partial name="_LandlordMenu" />
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Hỗ trợ</a></li><li class="breadcrumb-item active" aria-current="page">Gửi yêu cầu</li></ol></nav>
+<h2 class="mb-1">❓ Gửi yêu cầu tới quản trị viên</h2>
+<p class="text-muted">Không gửi mật khẩu, số thẻ hay thông tin đăng nhập trong nội dung.</p>
+@if (!Model.AdministratorAvailable) { <div class="alert alert-warning">Chưa có tài khoản quản trị hoạt động để tiếp nhận. Bạn vẫn có thể soạn nội dung và thử lại sau.</div> }
+<form method="post" style="max-width:760px">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body row g-3">
+        <div class="col-md-6">
+            <label asp-for="Input.Category" class="form-label"></label>
+            <select asp-for="Input.Category" class="form-select">
+                @foreach (var c in LandlordSupportService.Categories) { <option value="@c.Key" selected="@(input.Category == c.Key)">@c.Value</option> }
+            </select>
+            <span asp-validation-for="Input.Category" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="Input.RoomId" class="form-label"></label>
+            <select asp-for="Input.RoomId" class="form-select">
+                <option value="">— Không gắn phòng —</option>
+                @foreach (var r in Model.Rooms) { <option value="@r.Value" selected="@(r.Value == input.RoomId?.ToString())">@r.Text</option> }
+            </select>
+            <span asp-validation-for="Input.RoomId" class="text-danger small"></span>
+        </div>
+        <div class="col-12">
+            <label asp-for="Input.Subject" class="form-label"></label>
+            <input asp-for="Input.Subject" class="form-control" placeholder="Ví dụ: Tin đăng bị từ chối nhưng chưa rõ lý do" />
+            <span asp-validation-for="Input.Subject" class="text-danger small"></span>
+        </div>
+        <div class="col-12">
+            <label asp-for="Input.Content" class="form-label"></label>
+            <textarea asp-for="Input.Content" rows="6" class="form-control"></textarea>
+            <span asp-validation-for="Input.Content" class="text-danger small"></span>
+        </div>
+    </div></div>
+    <div class="d-flex gap-2"><a class="btn btn-outline-secondary" asp-action="Index">Hủy</a><button class="btn btn-primary" type="submit">📤 Gửi yêu cầu</button></div>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

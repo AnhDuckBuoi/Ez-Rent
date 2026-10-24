@@ -1,0 +1,38 @@
+@model ContractListModel
+@{
+    string TabUrl(ContractStatus? s) => Url.Action("Index", new { status = s })!;
+    var tabs = new List<StatusTab> { new("Tất cả", TabUrl(null), Model.Counts.Values.Sum(), Model.Input.Status == null) };
+    foreach (var s in new[] { ContractStatus.Draft, ContractStatus.PendingTenant, ContractStatus.PendingLandlord, ContractStatus.Active, ContractStatus.Expired, ContractStatus.Cancelled })
+        tabs.Add(new(LandlordLabels.Contract(s).Text, TabUrl(s), Model.Counts.GetValueOrDefault(s), Model.Input.Status == s));
+}
+<partial name="_StatusTabs" model="@(new StatusTabsModel(tabs, "contract-list", "Lọc theo trạng thái hợp đồng"))" />
+@if (Model.Items.TotalItems == 0)
+{
+    <div class="card border-0 shadow-sm text-center py-5"><div class="card-body">
+        <h5 data-ll-focus>@(Model.Counts.Count == 0 ? "Chưa có hợp đồng nào" : "Không có hợp đồng ở mục này")</h5>
+        <p class="text-muted">Phòng phải được duyệt và đang trống mới lập được hợp đồng.</p>
+        <a class="btn btn-primary" asp-action="Create">+ Lập hợp đồng</a>
+    </div></div>
+}
+else
+{
+    <p class="text-muted mb-2" data-ll-focus>Tổng <strong>@Model.Items.TotalItems</strong> hợp đồng — Trang <strong>@Model.Items.PageIndex</strong> / <strong>@Model.Items.TotalPages</strong></p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light"><tr><th>Phòng · Người thuê</th><th>Thời hạn</th><th>Tiền thuê</th><th>Trạng thái</th><th style="width:100px">Thao tác</th></tr></thead>
+            <tbody>
+                @foreach (var c in Model.Items)
+                {
+                    <tr>
+                        <td><a class="fw-bold text-decoration-none" asp-action="Details" asp-route-id="@c.Id">@c.RoomTitle</a><div class="small text-muted">@c.TenantName · HĐ số @c.Id</div></td>
+                        <td class="num">@VietnamTime.Date(c.StartDate) – @VietnamTime.Date(c.EndDate)</td>
+                        <td class="num">@DisplayFormat.Money(c.MonthlyRent)</td>
+                        <td>@LandlordUi.Badge(LandlordLabels.Contract(c.Status))</td>
+                        <td><a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@c.Id">Chi tiết</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pagination" model="Model.Pager" />
+}

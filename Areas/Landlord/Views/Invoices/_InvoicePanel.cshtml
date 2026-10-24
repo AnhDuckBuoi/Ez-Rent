@@ -1,0 +1,90 @@
+@model InvoiceDetailModel
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+    <div>
+        <h2 class="mb-1" data-ll-focus>🧾 Hóa đơn @VietnamTime.PeriodLabel(Model.Period).ToLowerInvariant()</h2>
+        <div class="text-muted">Số @Model.Id · @Model.RoomTitle · @Model.TenantName</div>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+        @LandlordUi.Badge(LandlordLabels.Payment(Model.Status, Model.Overdue))
+        <button class="btn btn-outline-secondary btn-sm" type="button" data-ll-print>🖨 In hóa đơn</button>
+    </div>
+</div>
+@if (Model.Status == PaymentStatus.AwaitingConfirmation)
+{
+    <div class="alert alert-warning">Người thuê báo đã chuyển khoản lúc @VietnamTime.Stamp(Model.TenantConfirmedAt). Kiểm tra tài khoản với nội dung “@Model.TransferNote” rồi xác nhận.</div>
+}
+<div class="row g-3">
+    <div class="col-lg-7">
+        <article class="card border-0 shadow-sm ll-bill mb-3" aria-label="Chi tiết hóa đơn"><div class="card-body">
+            <h6 class="text-muted">Hóa đơn tiền phòng và dịch vụ · @Model.RoomAddress</h6>
+            @LandlordUi.BillRow("Tiền phòng", null, DisplayFormat.Money(Model.RoomRent))
+            @LandlordUi.BillRow("Điện", Model.MeterReadingId == null ? "Không kèm điện nước" : $"{MeterInput.Show(Model.PrevElectric ?? 0)} → {MeterInput.Show(Model.CurrElectric ?? 0)}: {DisplayFormat.Number(Model.ElectricUsage)} kWh × {DisplayFormat.Number(Model.ElectricPrice)}", DisplayFormat.Money(Model.ElectricAmount))
+            @LandlordUi.BillRow("Nước", Model.MeterReadingId == null ? "Không kèm điện nước" : $"{MeterInput.Show(Model.PrevWater ?? 0)} → {MeterInput.Show(Model.CurrWater ?? 0)}: {DisplayFormat.Number(Model.WaterUsage)} m³ × {DisplayFormat.Number(Model.WaterPrice)}", DisplayFormat.Money(Model.WaterAmount))
+            @LandlordUi.BillRow("Dịch vụ", null, DisplayFormat.Money(Model.ServiceFee))
+            @if (Model.Adjustment != 0) { @LandlordUi.BillRow("Điều chỉnh", null, DisplayFormat.Money(Model.Adjustment)) }
+            <div class="ll-bill-total"><span>Tổng cộng</span><b>@DisplayFormat.Money(Model.Total)</b></div>
+            @if (!string.IsNullOrWhiteSpace(Model.Note)) { <p class="small text-muted mt-2 mb-0">@Model.Note</p> }
+            <dl class="row small mt-3 mb-0">
+                <dt class="col-5">Ngày lập</dt><dd class="col-7">@VietnamTime.Stamp(Model.IssueDate)</dd>
+                <dt class="col-5">Hạn thanh toán</dt><dd class="col-7">@VietnamTime.Date(Model.DueDate)@(Model.Overdue ? " (đã quá hạn)" : "")</dd>
+                @if (Model.PaidAt.HasValue) { <dt class="col-5">Đã thanh toán</dt><dd class="col-7">@VietnamTime.Stamp(Model.PaidAt)</dd> }
+                <dt class="col-5">Chủ trọ</dt><dd class="col-7">@Model.LandlordName</dd>
+            </dl>
+        </div></article>
+        @if (Model.MeterReadingId != null)
+        {
+            <div class="card border-0 shadow-sm"><div class="card-body">
+                <h6>📷 Bộ đối chiếu chỉ số @(Model.HasEvidence ? $"(lưu lúc {VietnamTime.Stamp(Model.EvidenceCapturedAt)})" : "")</h6>
+                @if (Model.HasEvidence)
+                {
+                    <p class="small text-muted">Người thuê xem đúng bộ ảnh và chỉ số này trên trang hóa đơn của họ. Bộ đã lưu không sửa hay xóa được.</p>
+                    <div class="row g-2">
+                        <div class="col-6"><img class="ll-photo" src="@Url.Action("Evidence", "MeterPhotos", new { id = Model.Id, side = "electric" })" alt="Ảnh công tơ điện kỳ @Model.Period" loading="lazy" /><div class="small text-muted">Công tơ điện</div></div>
+                        <div class="col-6"><img class="ll-photo" src="@Url.Action("Evidence", "MeterPhotos", new { id = Model.Id, side = "water" })" alt="Ảnh đồng hồ nước kỳ @Model.Period" loading="lazy" /><div class="small text-muted">Đồng hồ nước</div></div>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-secondary small mb-0">Hóa đơn này chưa có bộ đối chiếu lưu kèm (lập trước khi có chức năng lưu ảnh). Người thuê thấy nhãn “chưa lưu bộ đối chiếu”.</div>
+                }
+            </div></div>
+        }
+    </div>
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm mb-3 ll-qr text-center"><div class="card-body">
+            <h5 class="card-title">Chuyển khoản VietQR</h5>
+            @if (Model.HasQr && Model.Status is not (PaymentStatus.Paid or PaymentStatus.Cancelled))
+            {
+                <img src="@Model.QrDataUri" alt="Mã VietQR chuyển @DisplayFormat.Money(Model.Total) cho hóa đơn số @Model.Id" />
+                @if (Model.Bank != null) { <p class="mt-2 mb-1">@Model.Bank.BankName · @Model.Bank.AccountNumber<br /><strong>@Model.Bank.AccountName</strong></p> }
+                <p class="small text-muted mb-0">Nội dung: <strong>@Model.TransferNote</strong>. Mã QR không có nghĩa là đã thanh toán.</p>
+            }
+            else if (Model.Status == PaymentStatus.Paid) { <p class="text-success mb-0">Hóa đơn đã thanh toán.</p> }
+            else if (Model.Status == PaymentStatus.Cancelled) { <p class="text-muted mb-0">Hóa đơn đã hủy.</p> }
+            else { <p class="text-muted">Chưa có mã VietQR. <a asp-controller="PaymentSettings" asp-action="Index">Cài tài khoản nhận tiền</a> rồi tạo lại mã.</p> }
+            @if (Model.Status is PaymentStatus.Unpaid or PaymentStatus.AwaitingConfirmation or PaymentStatus.Overdue)
+            {
+                <form class="mt-2 no-print" method="post" asp-controller="InvoicePayments" asp-action="RefreshQr" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="invoice-panel">
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">🔄 Tạo lại mã QR</button>
+                </form>
+            }
+        </div></div>
+        <div class="card border-0 shadow-sm no-print"><div class="card-body d-grid gap-2">
+            <h5 class="card-title">Thao tác</h5>
+            @if (Model.CanMarkPaid)
+            {
+                <form method="post" asp-controller="InvoicePayments" asp-action="MarkPaid" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="invoice-panel" data-ll-confirm="Xác nhận bạn đã nhận đủ @DisplayFormat.Money(Model.Total)?">
+                    <button class="btn btn-success w-100" type="submit">💰 Xác nhận đã nhận tiền</button>
+                </form>
+            }
+            @if (Model.CanEdit) { <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">✏️ Sửa hóa đơn</a> }
+            <a class="btn btn-outline-primary" asp-controller="Contracts" asp-action="Details" asp-route-id="@Model.ContractId">📄 Xem hợp đồng</a>
+            @if (Model.CanCancel)
+            {
+                <form method="post" asp-controller="InvoicePayments" asp-action="Cancel" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="invoice-panel" data-ll-confirm="Hủy hóa đơn này? Người thuê sẽ được báo không cần thanh toán.">
+                    <button class="btn btn-outline-danger w-100" type="submit">Hủy hóa đơn</button>
+                </form>
+            }
+        </div></div>
+    </div>
+</div>

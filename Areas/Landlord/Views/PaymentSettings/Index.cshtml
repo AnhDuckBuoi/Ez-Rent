@@ -1,0 +1,34 @@
+@model BankInput
+@{
+    ViewData["Title"] = "Tài khoản nhận tiền";
+}
+<partial name="_LandlordMenu" />
+<h2 class="mb-1">🏦 Tài khoản nhận tiền</h2>
+<p class="text-muted">Dùng để tạo mã VietQR trên hóa đơn. Người thuê quét mã bằng ứng dụng ngân hàng, số tiền và nội dung được điền sẵn theo từng hóa đơn.</p>
+<form method="post" style="max-width:720px">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="card border-0 shadow-sm mb-3"><div class="card-body row g-3">
+        <div class="col-12">
+            <label asp-for="Bin" class="form-label"></label>
+            <select asp-for="Bin" class="form-select">
+                <option value="">— Chọn ngân hàng —</option>
+                @foreach (var b in BankAccountStore.Banks) { <option value="@b.Bin" selected="@(b.Bin == Model.Bin)">@b.Name</option> }
+            </select>
+            <span asp-validation-for="Bin" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="AccountNumber" class="form-label"></label>
+            <input asp-for="AccountNumber" class="form-control" inputmode="numeric" autocomplete="off" />
+            <span asp-validation-for="AccountNumber" class="text-danger small"></span>
+        </div>
+        <div class="col-md-6">
+            <label asp-for="AccountName" class="form-label"></label>
+            <input asp-for="AccountName" class="form-control text-uppercase" autocomplete="off" placeholder="NGUYEN VAN A" />
+            <div class="form-text">Viết không dấu, đúng tên in trên tài khoản.</div>
+            <span asp-validation-for="AccountName" class="text-danger small"></span>
+        </div>
+    </div></div>
+    <div class="alert alert-info small">EZ-Rent không kết nối trực tiếp với ngân hàng: khi người thuê chuyển khoản, bạn vẫn kiểm tra tài khoản rồi bấm “Xác nhận đã nhận tiền” trên hóa đơn.</div>
+    <button class="btn btn-primary" type="submit">💾 Lưu tài khoản</button>
+</form>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
