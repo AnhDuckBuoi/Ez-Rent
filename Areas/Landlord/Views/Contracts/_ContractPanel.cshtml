@@ -1,0 +1,170 @@
+@model ContractDetailModel
+@{
+    var status = Model.Status;
+    var legal = Model.LandlordLegal;
+    string Size(long bytes) => bytes >= 1024 * 1024 ? $"{bytes / 1024d / 1024d:0.0} MB" : $"{Math.Max(1, bytes / 1024)} KB";
+    string KindName(IdentityDocumentKind? k) => k switch { IdentityDocumentKind.CitizenIdentity => "CCCD / Căn cước", IdentityDocumentKind.LegacyIdentity => "CMND", IdentityDocumentKind.Passport => "Hộ chiếu", _ => "—" };
+}
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+    <div>
+        <h2 class="mb-1" data-ll-focus>📄 Hợp đồng thuê phòng số @Model.Id</h2>
+        <div class="text-muted">@Model.RoomTitle · @Model.TenantName</div>
+    </div>
+    <div class="d-flex gap-2 align-items-center">
+        @LandlordUi.Badge(LandlordLabels.Contract(status))
+        <button class="btn btn-outline-secondary btn-sm" type="button" data-ll-print>🖨 In hợp đồng</button>
+    </div>
+</div>
+<div class="row g-3">
+    <div class="col-lg-8">
+        <article class="card border-0 shadow-sm mb-3" aria-label="Nội dung hợp đồng">
+            <div class="card-body p-4">
+                <p class="text-center fw-bold mb-0">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+                <p class="text-center mb-3">Độc lập – Tự do – Hạnh phúc</p>
+                <h3 class="text-center h4">HỢP ĐỒNG THUÊ PHÒNG TRỌ</h3>
+                <p class="text-center text-muted small">Số @Model.Id/EZ-RENT · lập ngày @VietnamTime.Date(VietnamTime.ToVietnam(Model.CreatedAt))@(Model.SigningPlace != null ? " tại " + Model.SigningPlace : "")</p>
+                <div class="row g-3 my-3">
+                    <div class="col-md-6">
+                        <h6>Bên cho thuê (Bên A)</h6>
+                        <div class="small">Ông/Bà: <strong>@Model.LandlordName</strong><br />
+                            Ngày sinh: @(legal?.DateOfBirth?.ToString("dd/MM/yyyy") ?? "—")<br />
+                            @KindName(legal?.DocumentKind): @(legal?.DocumentNumber ?? "—")@(legal?.DocumentIssuedOn != null ? $", cấp ngày {legal.DocumentIssuedOn:dd/MM/yyyy}" : "")@(legal?.DocumentIssuedAt != null ? $" tại {legal.DocumentIssuedAt}" : "")<br />
+                            Thường trú: @(legal?.PermanentAddress ?? "—")<br />
+                            Điện thoại: @(Model.LandlordPhone ?? "—")</div>
+                        @if (legal == null || legal.IsEmpty) { <div class="small text-warning no-print">Chưa có thông tin pháp lý. <a asp-controller="Account" asp-action="Index" asp-fragment="legal">Bổ sung ở trang Tài khoản</a>.</div> }
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Bên thuê (Bên B)</h6>
+                        @{ var d = Model.TenantDraft; }
+                        <div class="small">Ông/Bà: <strong>@(d?.FullName ?? Model.TenantName)</strong><br />
+                            Ngày sinh: @(d?.DateOfBirth?.ToString("dd/MM/yyyy") ?? "—")<br />
+                            @(d?.DocumentKind ?? "Giấy tờ"): @(d?.DocumentNumber ?? "—")@(d?.DocumentIssuedOn != null ? $", cấp ngày {d.DocumentIssuedOn:dd/MM/yyyy}" : "")@(d?.DocumentIssuedAt != null ? $" tại {d.DocumentIssuedAt}" : "")<br />
+                            Thường trú: @(d?.PermanentAddress ?? "—")<br />
+                            Điện thoại: @(d?.PhoneNumber ?? Model.TenantPhone ?? "—")</div>
+                        @if (d == null) { <div class="small text-muted no-print">Người thuê chưa điền bản nháp thông tin BM03.</div> }
+                        else { <div class="small text-muted no-print">Theo bản nháp lần @d.Revision người thuê tự khai lúc @VietnamTime.Stamp(d.CreatedAt), chưa xác minh.</div> }
+                    </div>
+                </div>
+                <h6>Phòng cho thuê</h6>
+                <p class="small">@Model.RoomTitle, địa chỉ @Model.RoomAddress, diện tích @DisplayFormat.Area(Model.RoomArea).</p>
+                <h6>Thời hạn, giá thuê và thanh toán</h6>
+                <dl class="row small mb-3">
+                    <dt class="col-sm-4">Thời hạn</dt><dd class="col-sm-8">Từ @VietnamTime.Date(Model.StartDate) đến @VietnamTime.Date(Model.EndDate)</dd>
+                    <dt class="col-sm-4">Giá thuê</dt><dd class="col-sm-8 num">@DisplayFormat.Money(Model.MonthlyRent)/tháng</dd>
+                    <dt class="col-sm-4">Tiền đặt cọc</dt><dd class="col-sm-8 num">@DisplayFormat.Money(Model.DepositAmount)</dd>
+                    <dt class="col-sm-4">Giá điện</dt><dd class="col-sm-8 num">@DisplayFormat.Money(Model.AgreedElectricityPrice)/kWh theo chỉ số công tơ</dd>
+                    <dt class="col-sm-4">Giá nước</dt><dd class="col-sm-8 num">@DisplayFormat.Money(Model.AgreedWaterPrice)/m³ theo chỉ số đồng hồ</dd>
+                    <dt class="col-sm-4">Hình thức thanh toán</dt><dd class="col-sm-8">@Model.PaymentMethodLabel, theo hóa đơn hằng tháng trên EZ-Rent</dd>
+                </dl>
+                <h6>Điều khoản và trách nhiệm</h6>
+                <p class="small ll-text">@Model.Terms</p>
+                <div class="row text-center mt-4 small">
+                    <div class="col-6"><strong>Bên A</strong><br />@(Model.LandlordConfirmedAt.HasValue ? "Đã xác nhận lúc " + VietnamTime.Stamp(Model.LandlordConfirmedAt) : "Chưa xác nhận")</div>
+                    <div class="col-6"><strong>Bên B</strong><br />@(Model.TenantConfirmedAt.HasValue ? "Đã xác nhận lúc " + VietnamTime.Stamp(Model.TenantConfirmedAt) : Model.CurrentVersionAcknowledgedAt.HasValue ? "Đã đối chiếu tài liệu lúc " + VietnamTime.Stamp(Model.CurrentVersionAcknowledgedAt) : "Chưa xác nhận")</div>
+                </div>
+                <p class="small text-muted mt-3 mb-0">Xác nhận trên EZ-Rent ghi nhận sự đồng ý của hai bên, không phải chữ ký số hoặc chữ ký điện tử theo quy định pháp luật.</p>
+            </div>
+        </article>
+
+        <div class="card border-0 shadow-sm no-print" id="documents">
+            <div class="card-header bg-white d-flex justify-content-between"><strong>📎 Tài liệu hợp đồng</strong><small class="text-muted">Phiên bản hiện tại: @(Model.CurrentDocumentVersion == 0 ? "chưa có" : Model.CurrentDocumentVersion.ToString())</small></div>
+            <div class="card-body">
+                <p class="small text-muted">Tải lên bản hợp đồng hai bên đã thống nhất (PDF hoặc ảnh). Mỗi lần tải tạo một phiên bản mới, bản cũ được giữ lại. Người thuê xem và bấm “đã đối chiếu” trên trang của họ — đó là điều kiện để bạn xác nhận hiệu lực.</p>
+                @if (Model.Documents.Count > 0)
+                {
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead class="table-light"><tr><th>Bản</th><th>Tệp</th><th>Gửi lúc</th><th>Người thuê</th></tr></thead>
+                            <tbody>
+                                @foreach (var doc in Model.Documents)
+                                {
+                                    <tr>
+                                        <td>@doc.Version @if (doc.Version == Model.CurrentDocumentVersion) { <span class="badge bg-primary">Hiện tại</span> }</td>
+                                        <td><a asp-controller="ContractDocuments" asp-action="Download" asp-route-id="@Model.Id" asp-route-documentId="@doc.Id">@doc.FileName</a> <span class="small text-muted">(@Size(doc.ByteLength))</span></td>
+                                        <td class="small">@VietnamTime.Stamp(doc.CreatedAt)</td>
+                                        <td>@if (doc.TenantAcknowledgedAt.HasValue) { <span class="badge bg-success">Đã đối chiếu</span> <div class="small text-muted">@VietnamTime.Stamp(doc.TenantAcknowledgedAt)</div> } else { <span class="badge bg-secondary">Chưa đối chiếu</span> }</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                @if (status is not (ContractStatus.Cancelled or ContractStatus.Expired))
+                {
+                    <form method="post" enctype="multipart/form-data" asp-controller="ContractDocuments" asp-action="Upload" asp-route-id="@Model.Id" class="row g-2 align-items-end">
+                        <input type="hidden" name="expectedVersion" value="@Model.CurrentDocumentVersion" />
+                        <div class="col-md-8">
+                            <label class="form-label" for="contract-file">Tệp hợp đồng (PDF tối đa 10 MB, PNG/JPG tối đa 5 MB)</label>
+                            <input class="form-control" id="contract-file" type="file" name="file" required accept="application/pdf,image/png,image/jpeg" data-ll-preview="#contract-file-preview" data-ll-max-image-mb="5" data-ll-max-other-mb="10" />
+                            <div id="contract-file-preview" class="ll-previews"></div>
+                        </div>
+                        <div class="col-md-4 d-grid"><button class="btn btn-outline-primary" type="submit">⬆️ Gửi bản mới</button></div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 no-print">
+        <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+            <h5 class="card-title">Bước tiếp theo</h5>
+            @switch (status)
+            {
+                case ContractStatus.Draft:
+                    <p class="small text-muted">Kiểm tra lại nội dung rồi gửi cho người thuê xem và xác nhận.</p>
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">✏️ Sửa hợp đồng</a>
+                        <form method="post" asp-action="Send" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="contract-panel" data-ll-confirm="Gửi hợp đồng cho người thuê? Bạn được tính là đã xác nhận nội dung này.">
+                            <button class="btn btn-primary w-100" type="submit">📤 Xác nhận và gửi người thuê</button>
+                        </form>
+                    </div>
+                    break;
+                case ContractStatus.PendingTenant when !Model.TenantAgreed:
+                    <p class="small text-muted">Đang chờ người thuê. Hãy tải bản hợp đồng đã thống nhất lên mục <strong>Tài liệu hợp đồng</strong>; khi người thuê đối chiếu bản mới nhất, bạn xác nhận được hiệu lực. Cần sửa điều khoản thì thu hồi về bản nháp.</p>
+                    <form method="post" asp-action="Recall" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="contract-panel">
+                        <button class="btn btn-outline-secondary w-100" type="submit">↩ Thu hồi để chỉnh sửa</button>
+                    </form>
+                    break;
+                case ContractStatus.PendingTenant:
+                case ContractStatus.PendingLandlord:
+                    <p class="small">@(Model.TenantConfirmedAt.HasValue ? $"Người thuê đã xác nhận lúc {VietnamTime.Stamp(Model.TenantConfirmedAt)}." : $"Người thuê đã đối chiếu bản số {Model.CurrentDocumentVersion} lúc {VietnamTime.Stamp(Model.CurrentVersionAcknowledgedAt)}.") Xác nhận để hợp đồng có hiệu lực, phòng chuyển “Đã cho thuê”.</p>
+                    <form method="post" asp-action="Confirm" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="contract-panel">
+                        <button class="btn btn-success w-100" type="submit">✅ Xác nhận hiệu lực</button>
+                    </form>
+                    break;
+                case ContractStatus.Active:
+                    <p class="small text-muted">Hợp đồng đang hiệu lực. Ghi điện nước và lập hóa đơn hằng tháng cho phòng này.</p>
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-outline-secondary" asp-controller="MeterReadings" asp-action="Create" asp-route-roomId="@Model.RoomId">⚡ Ghi chỉ số tháng này</a>
+                        <a class="btn btn-primary" asp-controller="Invoices" asp-action="Create" asp-route-contractId="@Model.Id">🧾 Lập hóa đơn</a>
+                    </div>
+                    break;
+                default:
+                    <p class="small text-muted mb-0">Hợp đồng đã đóng. Thông tin được lưu để tra cứu.</p>
+                    break;
+            }
+        </div></div>
+        <div class="card border-0 shadow-sm mb-3"><div class="card-body small">
+            <dl class="row mb-2">
+                <dt class="col-5">Hóa đơn</dt><dd class="col-7"><a asp-controller="Invoices" asp-action="Index">@Model.InvoiceCount hóa đơn</a>@(Model.UnpaidInvoices > 0 ? $", {Model.UnpaidInvoices} chưa thanh toán" : "")</dd>
+                <dt class="col-5">Phòng</dt><dd class="col-7"><a asp-controller="Rooms" asp-action="Details" asp-route-id="@Model.RoomId">@Model.RoomTitle</a></dd>
+            </dl>
+            <form method="post" asp-controller="Messages" asp-action="Start">
+                <input type="hidden" name="roomId" value="@Model.RoomId" /><input type="hidden" name="tenantId" value="@Model.TenantId" />
+                <button class="btn btn-outline-primary btn-sm" type="submit">💬 Nhắn tin cho người thuê</button>
+            </form>
+        </div></div>
+        @if (status is ContractStatus.Draft or ContractStatus.PendingTenant or ContractStatus.PendingLandlord)
+        {
+            <form method="post" asp-action="Cancel" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="contract-panel" data-ll-confirm="Hủy hợp đồng chưa có hiệu lực này?">
+                <button class="btn btn-outline-danger w-100" type="submit">Hủy hợp đồng</button>
+            </form>
+        }
+        @if (status == ContractStatus.Active)
+        {
+            <form method="post" asp-action="End" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="contract-panel" data-ll-confirm="Kết thúc hợp đồng? Phòng sẽ trở lại trạng thái còn trống.">
+                <button class="btn btn-outline-danger w-100" type="submit">Kết thúc hợp đồng</button>
+            </form>
+        }
+    </div>
+</div>

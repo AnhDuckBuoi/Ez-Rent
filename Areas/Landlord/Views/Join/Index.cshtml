@@ -1,0 +1,60 @@
+@model JoinInput
+@{
+    ViewData["Title"] = "Đăng ký tài khoản chủ trọ";
+    ViewData["Description"] = "Đăng ký tài khoản chủ trọ trên EZ-Rent để đăng tin phòng, nhận lịch xem, lập hợp đồng, ghi điện nước và gửi hóa đơn VietQR.";
+    var signedIn = User.Identity?.IsAuthenticated == true;
+}
+<link rel="stylesheet" href="~/css/landlord.css" asp-append-version="true" />
+<div class="row g-4 my-2">
+    <div class="col-lg-7">
+        <h1 class="h2">🏠 Đăng ký tài khoản chủ trọ</h1>
+        <p class="text-muted">Tài khoản chủ trọ dùng để đăng tin phòng, nhận lịch xem, lập hợp đồng, ghi điện nước và gửi hóa đơn có mã VietQR cho người thuê.</p>
+        @if (signedIn)
+        {
+            <div class="alert alert-warning">
+                Bạn đang đăng nhập bằng tài khoản <strong>@User.Identity!.Name</strong> (không phải chủ trọ). Hãy đăng xuất trước khi tạo tài khoản chủ trọ mới.
+                <form method="post" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index")" class="mt-2">
+                    <button class="btn btn-sm btn-outline-dark" type="submit">Đăng xuất</button>
+                </form>
+            </div>
+        }
+        else
+        {
+            <form method="post" class="card border-0 shadow-sm"><div class="card-body row g-3">
+                <div asp-validation-summary="ModelOnly" class="text-danger col-12"></div>
+                <div class="col-12"><label asp-for="FullName" class="form-label"></label>
+                    <input asp-for="FullName" class="form-control" autocomplete="name" /><span asp-validation-for="FullName" class="text-danger small"></span></div>
+                <div class="col-md-6"><label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" type="email" class="form-control" autocomplete="email" /><span asp-validation-for="Email" class="text-danger small"></span></div>
+                <div class="col-md-6"><label asp-for="PhoneNumber" class="form-label"></label>
+                    <input asp-for="PhoneNumber" type="tel" class="form-control" autocomplete="tel" /><span asp-validation-for="PhoneNumber" class="text-danger small"></span></div>
+                <div class="col-md-6"><label asp-for="Password" class="form-label"></label>
+                    <input asp-for="Password" class="form-control" autocomplete="new-password" />
+                    <div class="form-text">Ít nhất 6 ký tự, gồm chữ hoa, chữ thường, chữ số và ký tự đặc biệt.</div>
+                    <span asp-validation-for="Password" class="text-danger small"></span></div>
+                <div class="col-md-6"><label asp-for="ConfirmPassword" class="form-label"></label>
+                    <input asp-for="ConfirmPassword" class="form-control" autocomplete="new-password" /><span asp-validation-for="ConfirmPassword" class="text-danger small"></span></div>
+                <div class="col-12"><div class="form-check"><input asp-for="Agree" class="form-check-input" /><label asp-for="Agree" class="form-check-label"></label></div>
+                    <span asp-validation-for="Agree" class="text-danger small"></span></div>
+                <div class="col-12 d-flex flex-wrap gap-2 align-items-center">
+                    <button class="btn btn-primary" type="submit">Tạo tài khoản chủ trọ</button>
+                    <a class="btn btn-link" asp-area="Identity" asp-page="/Account/Register">Tôi là người thuê</a>
+                    <a class="btn btn-link" asp-area="Identity" asp-page="/Account/Login">Đã có tài khoản? Đăng nhập</a>
+                </div>
+            </div></form>
+        }
+    </div>
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm"><div class="card-body">
+            <h5 class="card-title">Sau khi đăng ký</h5>
+            <ol class="mb-0">
+                <li>Xác thực email theo thư hệ thống gửi.</li>
+                <li>Đăng tin phòng kèm ảnh thật, giá và các khoản phí.</li>
+                <li>Quản trị viên duyệt tin, tin hiện trên trang tìm phòng.</li>
+                <li>Mở khung giờ nhận khách để người thuê đặt lịch xem.</li>
+                <li>Lập hợp đồng, ghi điện nước và gửi hóa đơn VietQR hằng tháng.</li>
+            </ol>
+        </div></div>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

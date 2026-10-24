@@ -1,0 +1,9 @@
+@model ViewingDetailModel
+@{
+    ViewData["Title"] = "Lịch hẹn số " + Model.Item.Id;
+}
+<partial name="_LandlordMenu" />
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Lịch xem phòng</a></li><li class="breadcrumb-item active" aria-current="page">Lịch hẹn số @Model.Item.Id</li></ol></nav>
+<div id="viewing-panel" data-ll-region>
+    <partial name="_ViewingPanel" model="Model" />
+</div>

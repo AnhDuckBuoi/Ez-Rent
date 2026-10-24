@@ -1,0 +1,58 @@
+@model RepairListModel
+@{
+    var input = Model.Input;
+    string TabUrl(RepairRequestStatus? s) => Url.Action("Index", new { status = s, priority = input.Priority })!;
+    var tabs = new List<StatusTab> { new("Tất cả", TabUrl(null), Model.Counts.Values.Sum(), input.Status == null) };
+    foreach (var s in new[] { RepairRequestStatus.Pending, RepairRequestStatus.InProgress, RepairRequestStatus.Resolved, RepairRequestStatus.Cancelled })
+        tabs.Add(new(LandlordLabels.Repair(s).Text, TabUrl(s), Model.Counts.GetValueOrDefault(s), input.Status == s));
+}
+<partial name="_StatusTabs" model="@(new StatusTabsModel(tabs, "repair-list", "Lọc theo trạng thái xử lý"))" />
+<form class="row g-2 align-items-end mb-3" method="get" asp-action="Index" data-ll-filter="repair-list">
+    <input type="hidden" name="status" value="@input.Status" />
+    <div class="col-md-4">
+        <label class="form-label" for="repair-priority">Mức ưu tiên</label>
+        <select class="form-select" id="repair-priority" name="priority">
+            <option value="">Tất cả</option>
+            @foreach (var p in new[] { RepairPriority.Urgent, RepairPriority.High, RepairPriority.Medium, RepairPriority.Low })
+            { <option value="@p" selected="@(input.Priority == p)">@LandlordLabels.Priority(p).Text</option> }
+        </select>
+    </div>
+    <noscript><div class="col-md-2"><button class="btn btn-outline-primary" type="submit">Lọc</button></div></noscript>
+</form>
+@if (Model.Items.TotalItems == 0)
+{
+    <div class="card border-0 shadow-sm text-center py-5"><div class="card-body"><h5 data-ll-focus>Không có yêu cầu ở mục này</h5>
+        <p class="text-muted mb-0">Người thuê gửi yêu cầu cho phòng đang có hợp đồng hiệu lực.</p></div></div>
+}
+else
+{
+    <p class="text-muted mb-2" data-ll-focus>Tổng <strong>@Model.Items.TotalItems</strong> yêu cầu — Trang <strong>@Model.Items.PageIndex</strong> / <strong>@Model.Items.TotalPages</strong></p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light"><tr><th>Sự cố</th><th>Phòng · Người gửi</th><th>Ưu tiên</th><th>Trạng thái</th><th style="width:180px">Thao tác</th></tr></thead>
+            <tbody>
+                @foreach (var r in Model.Items)
+                {
+                    <tr>
+                        <td><a class="fw-bold text-decoration-none" asp-action="Details" asp-route-id="@r.Id">@r.ProblemType</a>
+                            <div class="small text-muted">@(r.Description.Length > 90 ? r.Description[..90] + "…" : r.Description)</div>
+                            <div class="small text-muted">Số @r.Id · gửi @VietnamTime.Stamp(r.CreatedAt)@(r.HasImage ? " · có ảnh" : "")</div></td>
+                        <td>@r.RoomTitle<div class="small text-muted">@r.TenantName</div></td>
+                        <td>@LandlordUi.Badge(LandlordLabels.Priority(r.Priority))</td>
+                        <td>@LandlordUi.Badge(LandlordLabels.Repair(r.Status))</td>
+                        <td>
+                            @if (r.Status == RepairRequestStatus.Pending)
+                            {
+                                <form class="d-inline" method="post" asp-action="Accept" asp-route-id="@r.Id" data-ll-action data-ll-refresh="repair-list">
+                                    <button class="btn btn-sm btn-primary" type="submit">Tiếp nhận</button>
+                                </form>
+                            }
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@r.Id">Chi tiết</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pagination" model="Model.Pager" />
+}

@@ -1,0 +1,10 @@
+@model ContractFormModel
+@{
+    ViewData["Title"] = "Lập hợp đồng";
+}
+<partial name="_LandlordMenu" />
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Hợp đồng</a></li><li class="breadcrumb-item active" aria-current="page">Lập mới</li></ol></nav>
+<h2 class="mb-1">📄 Lập hợp đồng thuê phòng</h2>
+<p class="text-muted">Lưu nháp để trao đổi thêm, hoặc xác nhận và gửi để người thuê xem lại các điều khoản trên EZ-Rent.</p>
+<partial name="_ContractForm" model="Model" />
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

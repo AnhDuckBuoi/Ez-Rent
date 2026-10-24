@@ -1,0 +1,112 @@
+@model RoomDetailModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+<partial name="_LandlordMenu" />
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Phòng trọ</a></li><li class="breadcrumb-item active" aria-current="page">Mã tin @Model.Id</li></ol></nav>
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+    <div>
+        <h2 class="mb-1">@Model.Title</h2>
+        <div class="text-muted">@Model.FullAddress</div>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">✏️ Sửa tin</a>
+        @if (Model.Approval is ApprovalStatus.Draft or ApprovalStatus.NeedRevision or ApprovalStatus.Rejected)
+        {
+            <form method="post" asp-action="Submit" asp-route-id="@Model.Id"><button class="btn btn-primary" type="submit">📤 Gửi duyệt</button></form>
+            <a class="btn btn-outline-secondary" asp-controller="Support" asp-action="Create" asp-route-roomId="@Model.Id">❓ Hỏi quản trị viên</a>
+        }
+        @if (Model.Room == RoomStatus.Available && Model.Approval == ApprovalStatus.Approved)
+        {
+            <a class="btn btn-success" asp-controller="Contracts" asp-action="Create" asp-route-roomId="@Model.Id">📄 Lập hợp đồng</a>
+        }
+    </div>
+</div>
+@if (Model.Approval is ApprovalStatus.NeedRevision or ApprovalStatus.Rejected && !string.IsNullOrWhiteSpace(Model.ApprovalNote))
+{
+    <div class="alert @(Model.Approval == ApprovalStatus.Rejected ? "alert-danger" : "alert-warning")"><strong>Quản trị viên nhắn:</strong> @Model.ApprovalNote</div>
+}
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-3" id="media">
+            <div class="card-header bg-white d-flex justify-content-between"><strong>🖼️ Ảnh & video (@Model.Media.Count/12)</strong><small class="text-muted">Ảnh đại diện hiện trên trang tìm phòng</small></div>
+            <div class="card-body">
+                <div id="room-media" data-ll-region><partial name="_Media" model="Model" /></div>
+                <form class="mt-3" method="post" enctype="multipart/form-data" asp-controller="RoomMedia" asp-action="Upload" asp-route-id="@Model.Id" data-ll-action>
+                    <label class="form-label" for="media-files">Thêm ảnh/video</label>
+                    <input class="form-control" id="media-files" type="file" name="files" multiple accept="image/jpeg,image/png,video/mp4,video/webm" data-ll-preview="#media-previews" />
+                    <div class="form-text">Ảnh JPG/PNG tối đa 5 MB (tối đa 4096 px mỗi chiều); video MP4/WebM tối đa 25 MB.</div>
+                    <div id="media-previews" class="ll-previews"></div>
+                    <div class="text-danger small" data-ll-error></div>
+                    <button class="btn btn-outline-primary mt-2" type="submit">⬆️ Tải lên</button>
+                </form>
+            </div>
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong>📝 Mô tả</strong></div>
+            <div class="card-body">
+                <p class="ll-text">@Model.Description</p>
+                @if (Model.Amenities.Count > 0)
+                {
+                    <h6 class="mt-3">Tiện ích</h6>
+                    @foreach (var a in Model.Amenities) { <span class="badge bg-light text-dark border me-1 mb-1">@a</span> }
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header bg-white"><strong>Trạng thái</strong></div>
+            <div class="card-body">
+                <dl class="row mb-0 small">
+                    <dt class="col-5">Kiểm duyệt</dt><dd class="col-7">@LandlordUi.Badge(LandlordLabels.Approval(Model.Approval))</dd>
+                    <dt class="col-5">Tình trạng</dt><dd class="col-7">@LandlordUi.Badge(LandlordLabels.Room(Model.Room))</dd>
+                    @if (Model.TenantName != null) { <dt class="col-5">Người thuê</dt><dd class="col-7"><a asp-controller="Contracts" asp-action="Details" asp-route-id="@Model.ActiveContractId">@Model.TenantName</a></dd> }
+                    <dt class="col-5">Lịch chờ</dt><dd class="col-7"><a asp-controller="Viewings" asp-action="Index" asp-route-room="@Model.Id" asp-route-status="Pending">@Model.PendingViewings yêu cầu</a></dd>
+                    <dt class="col-5">Lịch sắp tới</dt><dd class="col-7">@Model.UpcomingViewings</dd>
+                    <dt class="col-5">Quan tâm</dt><dd class="col-7">@Model.Favorites người đã lưu tin</dd>
+                    <dt class="col-5">Sự cố mở</dt><dd class="col-7">@Model.OpenRepairs</dd>
+                    <dt class="col-5">Tạo tin</dt><dd class="col-7">@VietnamTime.Stamp(Model.CreatedAt)</dd>
+                    <dt class="col-5">Cập nhật</dt><dd class="col-7">@VietnamTime.Stamp(Model.UpdatedAt ?? Model.CreatedAt)</dd>
+                </dl>
+                @if (Model.Room != RoomStatus.Rented)
+                {
+                    var show = Model.Room == RoomStatus.Hidden;
+                    <form class="mt-3" method="post" asp-action="Visibility" asp-route-id="@Model.Id">
+                        <input type="hidden" name="visible" value="@(show ? "true" : "false")" />
+                        <button class="btn btn-sm @(show ? "btn-success" : "btn-warning") w-100" type="submit">@(show ? "👁 Hiện lại trên trang tìm phòng" : "🙈 Ẩn khỏi trang tìm phòng")</button>
+                    </form>
+                }
+            </div>
+        </div>
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header bg-white"><strong>💰 Giá và chi phí</strong></div>
+            <div class="card-body">
+                <dl class="row mb-0 small">
+                    <dt class="col-6">Giá thuê</dt><dd class="col-6 num">@DisplayFormat.Money(Model.Price)/tháng</dd>
+                    <dt class="col-6">Diện tích</dt><dd class="col-6">@DisplayFormat.Area(Model.Area)</dd>
+                    <dt class="col-6">Loại phòng</dt><dd class="col-6">@LandlordLabels.RoomTypeName(Model.RoomType)</dd>
+                    <dt class="col-6">Điện</dt><dd class="col-6 num">@DisplayFormat.Money(Model.ElectricityUnitPrice)/kWh</dd>
+                    <dt class="col-6">Nước</dt><dd class="col-6 num">@DisplayFormat.Money(Model.WaterUnitPrice)/m³</dd>
+                    <dt class="col-6">Phí dịch vụ chung</dt><dd class="col-6 num">@DisplayFormat.Money(Model.ServiceFee)/tháng</dd>
+                    @foreach (var s in Model.Services) { <dt class="col-6">@s.Name</dt><dd class="col-6 num">@DisplayFormat.Money(s.UnitPrice)/@s.Unit</dd> }
+                    <dt class="col-6">Vào ở từ</dt><dd class="col-6">@VietnamTime.Date(Model.AvailableFrom)</dd>
+                    @if (Model.MapUrl != null) { <dt class="col-6">Bản đồ</dt><dd class="col-6"><a href="@Model.MapUrl" target="_blank" rel="noopener noreferrer">Mở Google Maps</a></dd> }
+                </dl>
+            </div>
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body small">
+                @if (Model.CanDelete)
+                {
+                    <p class="text-muted">Tin chưa phát sinh lịch hẹn, hợp đồng hay tin nhắn nên có thể xóa hẳn.</p>
+                    <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@Model.Id">🗑 Xóa tin</a>
+                }
+                else
+                {
+                    <p class="text-muted mb-0">Tin đã có lịch hẹn, hợp đồng hoặc dữ liệu thuê nên được giữ lại để hai bên tra cứu. Hãy ẩn tin nếu không cho thuê nữa.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>
