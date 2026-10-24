@@ -1,0 +1,100 @@
+@model ViewingHoursModel
+@using EZ_Rent.Areas.Landlord.Controllers
+@{
+    ViewData["Title"] = "Khung giờ nhận khách";
+    int[] order = [1, 2, 3, 4, 5, 6, 0];
+    string Label(string state) => state switch { "booked" => "Đã có lịch", "held" => "Đang giữ chỗ", "soon" => "Quá sát giờ", _ => "Còn trống" };
+    string Tone(string state) => state switch { "booked" => "bg-info text-dark", "held" => "bg-warning text-dark", "soon" => "bg-secondary", _ => "bg-success" };
+}
+<partial name="_LandlordMenu" />
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-controller="Viewings" asp-action="Index">Lịch xem phòng</a></li><li class="breadcrumb-item active" aria-current="page">Khung giờ nhận khách</li></ol></nav>
+<h2 class="mb-1">🕘 Khung giờ nhận khách</h2>
+<p class="text-muted">Người thuê chọn ngày rồi chọn một giờ đến trong các giờ bạn mở, gửi trước ít nhất 6 giờ. Mỗi giờ chỉ nhận một lịch cho mọi phòng của bạn; yêu cầu đang chờ được giữ chỗ tối đa 2 giờ.</p>
+@if (!Model.Configured)
+{
+    <div class="alert alert-warning">Bạn chưa mở giờ nào. Trang đặt lịch của người thuê sẽ báo phòng chưa mở lịch xem.</div>
+}
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-header bg-white"><strong>Lịch lặp hằng tuần</strong></div>
+            <div class="card-body">
+                <form method="post" asp-action="Weekly">
+                    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                    <p class="form-text">Nhập các giờ đến cách nhau bằng dấu phẩy, theo mốc 5 phút. Ví dụ: <code>08:00, 09:30, 17:30</code>. Để trống nghĩa là không nhận khách ngày đó.</p>
+                    @foreach (var day in order)
+                    {
+                        var key = $"Input.Weekly[{day}]";
+                        <div class="row g-2 align-items-center mb-2">
+                            <label class="col-sm-3 col-form-label" for="weekly-@day">@ViewingHoursController.DayName(day)</label>
+                            <div class="col-sm-9">
+                                <input class="form-control" id="weekly-@day" name="Input.Weekly[@day]" value="@Model.Input.Weekly.GetValueOrDefault(day)" maxlength="200" placeholder="Không nhận khách" autocomplete="off" />
+                                @if (ViewData.ModelState.TryGetValue(key, out var entry) && entry.Errors.Count > 0) { <span class="text-danger small">@entry.Errors[0].ErrorMessage</span> }
+                            </div>
+                        </div>
+                    }
+                    <button class="btn btn-primary mt-2" type="submit">💾 Lưu lịch hằng tuần</button>
+                </form>
+            </div>
+        </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong>Ngày nghỉ hoặc giờ riêng</strong></div>
+            <div class="card-body">
+                <form method="post" asp-action="AddException" class="row g-2 align-items-end">
+                    <div class="col-md-4">
+                        <label asp-for="Exception.Date" class="form-label"></label>
+                        <input asp-for="Exception.Date" type="date" class="form-control" min="@Model.Today.ToString("yyyy-MM-dd")" value="@(Model.Exception.Date?.ToString("yyyy-MM-dd"))" />
+                        <span asp-validation-for="Exception.Date" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="Exception.Mode" value="closed" id="mode-closed" checked="@(Model.Exception.Mode != "custom")" /><label class="form-check-label" for="mode-closed">Nghỉ cả ngày</label></div>
+                        <div class="form-check form-check-inline"><input class="form-check-input" type="radio" name="Exception.Mode" value="custom" id="mode-custom" checked="@(Model.Exception.Mode == "custom")" /><label class="form-check-label" for="mode-custom">Dùng giờ riêng</label></div>
+                    </div>
+                    <div class="col-12">
+                        <label asp-for="Exception.Times" class="form-label"></label>
+                        <input asp-for="Exception.Times" class="form-control" placeholder="Ví dụ: 19:00, 19:30 (chỉ khi chọn “Dùng giờ riêng”)" autocomplete="off" />
+                        <span asp-validation-for="Exception.Times" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12"><button class="btn btn-outline-primary" type="submit">+ Thêm ngoại lệ</button></div>
+                </form>
+                @if (Model.Exceptions.Count > 0)
+                {
+                    <ul class="list-group list-group-flush mt-3">
+                        @foreach (var (date, times) in Model.Exceptions)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div><strong>@VietnamTime.LongDate(date.ToDateTime(TimeOnly.MinValue))</strong>
+                                    <div class="small text-muted">@(times.Count == 0 ? "Nghỉ cả ngày" : "Giờ riêng: " + string.Join(", ", times))</div></div>
+                                <form method="post" asp-action="RemoveException">
+                                    <input type="hidden" name="date" value="@date.ToString("yyyy-MM-dd")" />
+                                    <button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Bỏ ngoại lệ ngày @date.ToString("dd/MM/yyyy")">Bỏ</button>
+                                </form>
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white"><strong>7 ngày tới (người thuê sẽ thấy)</strong></div>
+            <ul class="list-group list-group-flush">
+                @foreach (var day in Model.Week)
+                {
+                    <li class="list-group-item">
+                        <strong>@VietnamTime.LongDate(day.Date.ToDateTime(TimeOnly.MinValue))</strong>@(day.IsException ? " · ngoại lệ" : "")
+                        @if (day.Slots.Count == 0) { <div class="small text-muted">Không nhận khách</div> }
+                        else
+                        {
+                            <div class="d-flex flex-wrap gap-1 mt-1">
+                                @foreach (var s in day.Slots) { <span class="badge @Tone(s.State)" title="@Label(s.State)">@s.Time.ToString("HH:mm") · @Label(s.State)</span> }
+                            </div>
+                        }
+                    </li>
+                }
+            </ul>
+            <div class="card-footer bg-white small text-muted">“Quá sát giờ”: không đặt được vì cần báo trước 6 giờ.</div>
+        </div>
+    </div>
+</div>

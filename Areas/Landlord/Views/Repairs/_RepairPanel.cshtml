@@ -1,0 +1,78 @@
+@model RepairDetailModel
+@{
+    var r = Model.Item;
+}
+<div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
+    <div><h2 class="mb-1" data-ll-focus>🔧 @r.ProblemType</h2>
+        <div class="text-muted">Yêu cầu số @r.Id · @r.RoomTitle · @r.TenantName · gửi @VietnamTime.Stamp(r.CreatedAt)</div></div>
+    <div class="d-flex gap-1">@LandlordUi.Badge(LandlordLabels.Priority(r.Priority)) @LandlordUi.Badge(LandlordLabels.Repair(r.Status))</div>
+</div>
+<div class="row g-3">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+            <h5 class="card-title">Mô tả của người thuê</h5>
+            <p class="ll-text">@r.Description</p>
+            @if (Model.ImageUrl != null) { <img class="ll-photo" src="@Model.ImageUrl" alt="Ảnh sự cố do người thuê gửi" loading="lazy" referrerpolicy="no-referrer" /> }
+        </div></div>
+        <div class="card border-0 shadow-sm"><div class="card-body">
+            <h5 class="card-title">Lịch sử xử lý</h5>
+            @if (string.IsNullOrWhiteSpace(Model.ResolutionNote)) { <p class="text-muted mb-0">Chưa có cập nhật nào.</p> }
+            else
+            {
+                <ul class="list-group list-group-flush">
+                    @foreach (var line in Model.ResolutionNote.Split('\n', StringSplitOptions.RemoveEmptyEntries).Reverse()) { <li class="list-group-item px-0 small ll-text">@line</li> }
+                </ul>
+            }
+            <dl class="row small mt-2 mb-0">
+                <dt class="col-4">Cập nhật</dt><dd class="col-8">@VietnamTime.Stamp(Model.UpdatedAt ?? r.CreatedAt)</dd>
+                @if (r.ResolvedAt.HasValue) { <dt class="col-4">Hoàn tất</dt><dd class="col-8">@VietnamTime.Stamp(r.ResolvedAt)</dd> }
+            </dl>
+        </div></div>
+    </div>
+    <div class="col-lg-5">
+        @if (r.Status == RepairRequestStatus.Pending)
+        {
+            <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+                <h5 class="card-title">Tiếp nhận</h5>
+                <form method="post" asp-action="Accept" asp-route-id="@r.Id" data-ll-action data-ll-refresh="repair-panel">
+                    <label class="form-label" for="accept-note">Hẹn lịch sửa (không bắt buộc)</label>
+                    <textarea class="form-control mb-2" id="accept-note" name="Note" maxlength="1000" rows="2" placeholder="Ví dụ: Thợ đến sáng mai lúc 9 giờ."></textarea>
+                    <div class="text-danger small" data-ll-error></div>
+                    <button class="btn btn-primary" type="submit">Tiếp nhận yêu cầu</button>
+                </form>
+            </div></div>
+        }
+        @if (r.Status == RepairRequestStatus.InProgress)
+        {
+            <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+                <h5 class="card-title">Cập nhật tiến độ</h5>
+                <form method="post" asp-action="Note" asp-route-id="@r.Id" data-ll-action data-ll-refresh="repair-panel">
+                    <label class="form-label" for="progress-note">Nội dung</label>
+                    <textarea class="form-control mb-2" id="progress-note" name="Note" maxlength="1000" rows="2" required placeholder="Ví dụ: Đã mua linh kiện, chiều nay thợ đến thay."></textarea>
+                    <div class="text-danger small" data-ll-error></div>
+                    <button class="btn btn-outline-primary" type="submit">Gửi cập nhật</button>
+                </form>
+            </div></div>
+        }
+        @if (r.Status is RepairRequestStatus.Pending or RepairRequestStatus.InProgress)
+        {
+            <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+                <h5 class="card-title">Hoàn tất</h5>
+                <form method="post" asp-action="Resolve" asp-route-id="@r.Id" data-ll-action data-ll-refresh="repair-panel">
+                    <label class="form-label" for="resolve-note">Đã xử lý thế nào (bắt buộc)</label>
+                    <textarea class="form-control mb-2" id="resolve-note" name="Note" maxlength="1000" rows="2" required placeholder="Ví dụ: Đã thay bóng đèn LED mới."></textarea>
+                    <div class="text-danger small" data-ll-error></div>
+                    <button class="btn btn-success" type="submit">Đánh dấu đã xử lý</button>
+                </form>
+            </div></div>
+        }
+        else { <div class="alert alert-secondary">Yêu cầu đã ở trạng thái “@LandlordLabels.Repair(r.Status).Text”. Lịch sử được giữ để tra cứu.</div> }
+        <div class="d-flex flex-wrap gap-2">
+            <form method="post" asp-controller="Messages" asp-action="Start">
+                <input type="hidden" name="roomId" value="@r.RoomId" /><input type="hidden" name="tenantId" value="@Model.TenantId" />
+                <button class="btn btn-outline-primary btn-sm" type="submit">💬 Nhắn tin cho người thuê</button>
+            </form>
+            @if (Model.TenantPhone != null) { <a class="btn btn-outline-secondary btn-sm" href="tel:@Model.TenantPhone">📞 Gọi @Model.TenantPhone</a> }
+        </div>
+    </div>
+</div>

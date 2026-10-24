@@ -1,0 +1,29 @@
+@model SupportListModel
+@if (Model.Items.TotalItems == 0)
+{
+    <div class="card border-0 shadow-sm text-center py-5"><div class="card-body"><h5 data-ll-focus>Bạn chưa gửi yêu cầu nào</h5>
+        <a class="btn btn-primary" asp-action="Create">+ Gửi yêu cầu</a></div></div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light"><tr><th>Yêu cầu</th><th>Cập nhật</th><th>Trạng thái</th><th style="width:90px"></th></tr></thead>
+            <tbody>
+                @foreach (var s in Model.Items)
+                {
+                    <tr>
+                        <td><a class="fw-bold text-decoration-none" asp-action="Details" asp-route-id="@s.Id">@s.FirstMessage.Split('\n')[0]</a>
+                            <div class="small text-muted">Số @s.Id · gửi @VietnamTime.Stamp(s.CreatedAt)@(s.RoomTitle != null ? " · " + s.RoomTitle : "")</div></td>
+                        <td class="small">@VietnamTime.Ago(s.LastAt, DateTime.UtcNow)</td>
+                        <td>@if (s.Unread > 0) { <span class="badge bg-warning text-dark">@s.Unread phản hồi mới</span> }
+                            else if (s.LastFromMe) { <span class="badge bg-primary">Chờ phản hồi</span> }
+                            else { <span class="badge bg-success">Đã phản hồi</span> }</td>
+                        <td><a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@s.Id">Xem</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pagination" model="Model.Pager" />
+}

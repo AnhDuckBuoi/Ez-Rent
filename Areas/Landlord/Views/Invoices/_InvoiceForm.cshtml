@@ -1,0 +1,116 @@
+@model InvoiceFormModel
+@{
+    var input = Model.Input;
+    var creating = Model.Id == null;
+    var b = Model.Breakdown;
+    var calcUrl = Url.Action("Calculate", creating ? null : new { id = Model.Id });
+}
+@if (!Model.BankConfigured)
+{
+    <div class="alert alert-warning">Chưa có tài khoản nhận tiền nên hóa đơn sẽ không có mã VietQR. <a asp-controller="PaymentSettings" asp-action="Index">Cài đặt ngay</a>.</div>
+}
+@if (creating && input.RentalContractId > 0 && !input.WithoutMeter && !Model.MeterPhotosReady)
+{
+    <div class="alert alert-warning">Phiếu chỉ số kỳ này chưa có hoặc chưa đủ 2 ảnh công tơ. Hóa đơn kèm điện nước cần đủ ảnh để người thuê đối chiếu. <a asp-controller="MeterReadings" asp-action="Index" asp-route-period="@input.BillingPeriod">Mở trang điện nước</a>.</div>
+}
+<form method="post" data-ll-calc="@calcUrl">
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="card border-0 shadow-sm mb-3">
+                <div class="card-header bg-white"><strong>1. Hợp đồng và kỳ</strong></div>
+                <div class="card-body row g-3">
+                    <div class="col-12">
+                        <label asp-for="Input.RentalContractId" class="form-label"></label>
+                        @if (creating)
+                        {
+                            <select asp-for="Input.RentalContractId" class="form-select" data-ll-reload="contractId">
+                                <option value="0">— Chọn hợp đồng đang hiệu lực —</option>
+                                @foreach (var c in Model.Contracts) { <option value="@c.Value" selected="@(c.Value == input.RentalContractId.ToString())">@c.Text</option> }
+                            </select>
+                            <div class="form-text">Đổi hợp đồng sẽ tải lại danh sách dịch vụ của phòng tương ứng.</div>
+                        }
+                        else
+                        {
+                            <input type="hidden" asp-for="Input.RentalContractId" />
+                            <p class="mb-0">@(Model.Contracts.FirstOrDefault(c => c.Value == input.RentalContractId.ToString())?.Text)</p>
+                        }
+                        <span asp-validation-for="Input.RentalContractId" class="text-danger small"></span>
+                        @if (Model.ContractSummary != null) { <div class="form-text">@Model.ContractSummary</div> }
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Input.BillingPeriod" class="form-label"></label>
+                        <input asp-for="Input.BillingPeriod" type="month" class="form-control" readonly="@(!creating)" />
+                        <span asp-validation-for="Input.BillingPeriod" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Input.DueDate" class="form-label"></label>
+                        <input asp-for="Input.DueDate" type="date" class="form-control" value="@(input.DueDate?.ToString("yyyy-MM-dd"))" />
+                        <span asp-validation-for="Input.DueDate" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-check">
+                            <input asp-for="Input.WithoutMeter" class="form-check-input" disabled="@(!creating)" />
+                            <label asp-for="Input.WithoutMeter" class="form-check-label"></label>
+                        </div>
+                        <div class="form-text">Chỉ dùng khi phòng không tính điện nước theo công tơ trong kỳ này. Sau khi phát hành không đổi được.</div>
+                        <span asp-validation-for="Input.WithoutMeter" class="text-danger small"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white"><strong>2. Dịch vụ và khoản khác</strong></div>
+                <div class="card-body">
+                    <div class="form-check mb-2">
+                        <input asp-for="Input.IncludeFixedFee" class="form-check-input" />
+                        <label asp-for="Input.IncludeFixedFee" class="form-check-label">Tính phí dịch vụ chung của phòng (@DisplayFormat.Money(Model.FixedFee)/tháng)</label>
+                    </div>
+                    @if (Model.Services.Count > 0)
+                    {
+                        <div class="row g-2">
+                            @foreach (var s in Model.Services)
+                            {
+                                <div class="col-md-4 col-6">
+                                    <label class="form-label small" for="qty-@s.Id">@s.Name <span class="text-muted">(@DisplayFormat.Money(s.UnitPrice)/@s.Unit)</span></label>
+                                    <input class="form-control" id="qty-@s.Id" name="Input.Qty[@s.Id]" type="number" min="0" max="20" step="1" inputmode="numeric" value="@input.Qty.GetValueOrDefault(s.Id)" />
+                                </div>
+                            }
+                        </div>
+                        <div class="form-text">Nhập số lượng (ví dụ 2 xe). Để 0 nếu không tính dịch vụ đó kỳ này.</div>
+                        <span asp-validation-for="Input.Qty" class="text-danger small"></span>
+                    }
+                    <div class="row g-3 mt-1">
+                        <div class="col-md-6">
+                            <label asp-for="Input.AdjustmentAmount" class="form-label"></label>
+                            <input asp-for="Input.AdjustmentAmount" type="number" step="1000" inputmode="numeric" class="form-control" value="@(input.AdjustmentAmount?.ToString("0"))" />
+                            <div class="form-text">Số âm để giảm trừ, số dương cho khoản phát sinh.</div>
+                            <span asp-validation-for="Input.AdjustmentAmount" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="Input.Note" class="form-label"></label>
+                            <input asp-for="Input.Note" maxlength="250" class="form-control" placeholder="Ví dụ: thu thêm tiền sửa vòi nước" />
+                            <span asp-validation-for="Input.Note" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm ll-bill" data-ll-calc-box aria-live="polite"><div class="card-body">
+                <h6 class="text-muted">Bảng tính @VietnamTime.PeriodLabel(input.BillingPeriod).ToLowerInvariant()</h6>
+                @LandlordUi.BillRow("Tiền phòng", null, b == null ? "—" : DisplayFormat.Money(b.RoomRent), "roomRent")
+                @LandlordUi.BillRow("Điện", b == null ? "" : (b.HasMeter ? $"{DisplayFormat.Number(b.ElectricUsage)} kWh × {DisplayFormat.Number(b.ElectricPrice)}" : "Không kèm điện nước"), b == null ? "—" : DisplayFormat.Money(b.ElectricAmount), "electricAmount", "electric")
+                @LandlordUi.BillRow("Nước", b == null ? "" : (b.HasMeter ? $"{DisplayFormat.Number(b.WaterUsage)} m³ × {DisplayFormat.Number(b.WaterPrice)}" : "Không kèm điện nước"), b == null ? "—" : DisplayFormat.Money(b.WaterAmount), "waterAmount", "water")
+                @LandlordUi.BillRow("Dịch vụ", null, b == null ? "—" : DisplayFormat.Money(b.ServiceFee), "serviceFee")
+                @LandlordUi.BillRow("Điều chỉnh", null, b == null ? "—" : DisplayFormat.Money(b.Adjustment), "adjustment")
+                <div class="ll-bill-total"><span>Tổng cộng</span><b data-ll-out="total">@(b == null ? "—" : DisplayFormat.Money(b.Total))</b></div>
+                <p class="small text-warning mt-2 mb-0" data-ll-out="message"></p>
+                @if (Model.MeterReadingId.HasValue) { <p class="small mt-2 mb-0"><a asp-controller="MeterReadings" asp-action="Details" asp-route-id="@Model.MeterReadingId">Xem phiếu chỉ số và ảnh công tơ</a></p> }
+            </div></div>
+            <div class="d-grid gap-2 mt-3">
+                <button class="btn btn-primary" type="submit">@(creating ? "📤 Phát hành và gửi người thuê" : "💾 Lưu hóa đơn")</button>
+                <a class="btn btn-outline-secondary" href="@(creating ? Url.Action("Index") : Url.Action("Details", new { id = Model.Id }))">Hủy</a>
+            </div>
+        </div>
+    </div>
+</form>

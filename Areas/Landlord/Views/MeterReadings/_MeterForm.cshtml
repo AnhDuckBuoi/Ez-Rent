@@ -1,0 +1,71 @@
+@model MeterFormModel
+@{
+    var input = Model.Input;
+    var previewUrl = Url.Action("Preview", Model.Id == null ? null : new { id = Model.Id });
+}
+@* AJAX tính tiền (ví dụ chính cho Chương 4): gõ chỉ số → landlord.js chờ 350 ms rồi gọi GET Preview → server tính
+   lượng tiêu thụ × giá trong hợp đồng, trả JSON → phiếu bên phải cập nhật, không tải lại trang. Khi lưu, server tính lại từ đầu. *@
+<form method="post" enctype="multipart/form-data" data-ll-calc="@previewUrl" data-ll-calc-auto="@(Model.Id != null)">
+    <div class="row g-3">
+        <div class="col-lg-7">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Input.RentalPostId" />
+            <input type="hidden" asp-for="Input.Period" />
+            @if (!Model.HasPrevious) { <div class="alert alert-info">Đây là lần ghi đầu tiên của phòng: nhập chỉ số lúc bàn giao làm “kỳ trước”.</div> }
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100"><div class="card-body">
+                        <h5 class="card-title">⚡ Công tơ điện</h5>
+                        <label asp-for="Input.PrevElectricIndex" class="form-label"></label>
+                        <input asp-for="Input.PrevElectricIndex" inputmode="decimal" class="form-control" readonly="@Model.HasPrevious" />
+                        @if (Model.HasPrevious) { <div class="form-text">Chốt @VietnamTime.PeriodLabel(Model.PreviousPeriod).ToLowerInvariant()</div> }
+                        <span asp-validation-for="Input.PrevElectricIndex" class="text-danger small"></span>
+                        <label asp-for="Input.CurrElectricIndex" class="form-label mt-2"></label>
+                        <input asp-for="Input.CurrElectricIndex" inputmode="decimal" class="form-control" autocomplete="off" autofocus />
+                        <span asp-validation-for="Input.CurrElectricIndex" class="text-danger small"></span>
+                        <label asp-for="Input.ElectricPhoto" class="form-label mt-2"></label>
+                        <input asp-for="Input.ElectricPhoto" type="file" class="form-control" accept="image/jpeg,image/png" capture="environment" data-ll-preview="#e-preview" />
+                        <div id="e-preview" class="ll-previews">
+                            @if (Model.HasElectricPhoto && Model.Id != null) { <img src="@Url.Action("Reading", "MeterPhotos", new { id = Model.Id, side = "electric" })" alt="Ảnh công tơ điện đã lưu" /> }
+                        </div>
+                        <span asp-validation-for="Input.ElectricPhoto" class="text-danger small"></span>
+                    </div></div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100"><div class="card-body">
+                        <h5 class="card-title">💧 Đồng hồ nước</h5>
+                        <label asp-for="Input.PrevWaterIndex" class="form-label"></label>
+                        <input asp-for="Input.PrevWaterIndex" inputmode="decimal" class="form-control" readonly="@Model.HasPrevious" />
+                        <span asp-validation-for="Input.PrevWaterIndex" class="text-danger small"></span>
+                        <label asp-for="Input.CurrWaterIndex" class="form-label mt-2"></label>
+                        <input asp-for="Input.CurrWaterIndex" inputmode="decimal" class="form-control" autocomplete="off" />
+                        <span asp-validation-for="Input.CurrWaterIndex" class="text-danger small"></span>
+                        <label asp-for="Input.WaterPhoto" class="form-label mt-2"></label>
+                        <input asp-for="Input.WaterPhoto" type="file" class="form-control" accept="image/jpeg,image/png" capture="environment" data-ll-preview="#w-preview" />
+                        <div id="w-preview" class="ll-previews">
+                            @if (Model.HasWaterPhoto && Model.Id != null) { <img src="@Url.Action("Reading", "MeterPhotos", new { id = Model.Id, side = "water" })" alt="Ảnh đồng hồ nước đã lưu" /> }
+                        </div>
+                        <span asp-validation-for="Input.WaterPhoto" class="text-danger small"></span>
+                    </div></div>
+                </div>
+            </div>
+            <div class="form-text mt-2">Ảnh JPG/PNG tối đa 5 MB, lưu riêng tư (không có đường dẫn công khai). Cần đủ 2 ảnh để phát hành hóa đơn có điện nước.</div>
+            <label asp-for="Input.Note" class="form-label mt-3"></label>
+            <textarea asp-for="Input.Note" rows="2" class="form-control" placeholder="Ví dụ: công tơ đã thay mới ngày 05"></textarea>
+            <span asp-validation-for="Input.Note" class="text-danger small"></span>
+        </div>
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm ll-bill" data-ll-calc-box aria-live="polite"><div class="card-body">
+                <h6 class="text-muted">Tạm tính @VietnamTime.PeriodLabel(input.Period).ToLowerInvariant()</h6>
+                @LandlordUi.BillRow("Điện", "", "—", "electricAmount", "electricFormula")
+                @LandlordUi.BillRow("Nước", "", "—", "waterAmount", "waterFormula")
+                <div class="ll-bill-row"><span>Tiêu thụ</span><span class="ll-leader" aria-hidden="true"></span>
+                    <span class="fw-semibold"><span data-ll-out="electricUsage">—</span> · <span data-ll-out="waterUsage">—</span></span></div>
+                <div class="ll-bill-total"><span>Tiền điện nước</span><b data-ll-out="total">—</b></div>
+                <p class="small text-warning mt-2 mb-0" data-ll-out="message"></p>
+                <p class="small text-muted mt-2 mb-0">Giá theo hợp đồng: điện @DisplayFormat.Money(Model.ElectricPrice)/kWh, nước @DisplayFormat.Money(Model.WaterPrice)/m³.</p>
+            </div></div>
+            <div class="d-grid mt-3"><button class="btn btn-primary" type="submit">💾 Lưu chỉ số</button></div>
+        </div>
+    </div>
+</form>

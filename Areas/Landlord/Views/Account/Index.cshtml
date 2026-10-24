@@ -1,0 +1,87 @@
+@model LandlordAccountModel
+@{
+    ViewData["Title"] = "Tài khoản chủ trọ";
+}
+<partial name="_LandlordMenu" />
+<h2 class="mb-1">👤 Tài khoản của bạn</h2>
+<p class="text-muted">Họ tên, số điện thoại và thông tin pháp lý hiện trên hợp đồng, hóa đơn và trang liên hệ với người thuê.</p>
+<div class="row g-3">
+    <div class="col-lg-8">
+        <form method="post" asp-action="Profile" class="card border-0 shadow-sm mb-3"><div class="card-body row g-3">
+            <h5 class="card-title col-12 mb-0">Thông tin cá nhân</h5>
+            <div asp-validation-summary="ModelOnly" class="text-danger col-12"></div>
+            <span asp-validation-for="Profile" class="text-danger small"></span>
+            <div class="col-md-6"><label asp-for="Profile.FullName" class="form-label"></label>
+                <input asp-for="Profile.FullName" class="form-control" autocomplete="name" /><span asp-validation-for="Profile.FullName" class="text-danger small"></span></div>
+            <div class="col-md-6"><label asp-for="Profile.PhoneNumber" class="form-label"></label>
+                <input asp-for="Profile.PhoneNumber" type="tel" class="form-control" autocomplete="tel" /><span asp-validation-for="Profile.PhoneNumber" class="text-danger small"></span></div>
+            <div class="col-12 small">Email đăng nhập: <strong>@Model.Email</strong> @LandlordUi.Badge(Model.EmailConfirmed ? new StatusLabel("Đã xác thực", "success") : new StatusLabel("Chưa xác thực", "warning"))
+                · <a asp-area="Identity" asp-page="/Account/Manage/Email">Đổi email / gửi lại thư xác thực</a></div>
+            <div class="col-12"><button class="btn btn-primary" type="submit">💾 Lưu thông tin</button></div>
+        </div></form>
+
+        <form method="post" asp-action="Legal" class="card border-0 shadow-sm mb-3" id="legal"><div class="card-body row g-3">
+            <h5 class="card-title col-12 mb-0">Thông tin pháp lý cho hợp đồng (BM03)</h5>
+            <p class="small text-muted col-12 mb-0">Phần “Bên cho thuê” trên hợp đồng: ngày sinh, giấy tờ tùy thân, địa chỉ thường trú. Chỉ hiện trên hợp đồng của bạn.</p>
+            <div class="col-md-4"><label asp-for="Legal.DateOfBirth" class="form-label"></label>
+                <input asp-for="Legal.DateOfBirth" type="date" class="form-control" value="@(Model.Legal.DateOfBirth?.ToString("yyyy-MM-dd"))" /><span asp-validation-for="Legal.DateOfBirth" class="text-danger small"></span></div>
+            <div class="col-md-4"><label asp-for="Legal.DocumentKind" class="form-label"></label>
+                <select asp-for="Legal.DocumentKind" class="form-select">
+                    <option value="">— Chọn —</option>
+                    <option value="CitizenIdentity" selected="@(Model.Legal.DocumentKind == IdentityDocumentKind.CitizenIdentity)">CCCD / Căn cước</option>
+                    <option value="LegacyIdentity" selected="@(Model.Legal.DocumentKind == IdentityDocumentKind.LegacyIdentity)">CMND</option>
+                    <option value="Passport" selected="@(Model.Legal.DocumentKind == IdentityDocumentKind.Passport)">Hộ chiếu</option>
+                </select><span asp-validation-for="Legal.DocumentKind" class="text-danger small"></span></div>
+            <div class="col-md-4"><label asp-for="Legal.DocumentNumber" class="form-label"></label>
+                <input asp-for="Legal.DocumentNumber" class="form-control" autocomplete="off" /><span asp-validation-for="Legal.DocumentNumber" class="text-danger small"></span></div>
+            <div class="col-md-4"><label asp-for="Legal.DocumentIssuedOn" class="form-label"></label>
+                <input asp-for="Legal.DocumentIssuedOn" type="date" class="form-control" value="@(Model.Legal.DocumentIssuedOn?.ToString("yyyy-MM-dd"))" /><span asp-validation-for="Legal.DocumentIssuedOn" class="text-danger small"></span></div>
+            <div class="col-md-8"><label asp-for="Legal.DocumentIssuedAt" class="form-label"></label>
+                <input asp-for="Legal.DocumentIssuedAt" class="form-control" /><span asp-validation-for="Legal.DocumentIssuedAt" class="text-danger small"></span></div>
+            <div class="col-12"><label asp-for="Legal.PermanentAddress" class="form-label"></label>
+                <input asp-for="Legal.PermanentAddress" class="form-control" /><span asp-validation-for="Legal.PermanentAddress" class="text-danger small"></span></div>
+            <div class="col-12"><button class="btn btn-primary" type="submit">💾 Lưu thông tin pháp lý</button></div>
+        </div></form>
+
+        <form method="post" asp-action="Password" class="card border-0 shadow-sm"><div class="card-body row g-3">
+            <h5 class="card-title col-12 mb-0">Đổi mật khẩu</h5>
+            <span asp-validation-for="Password" class="text-danger small"></span>
+            @if (Model.HasPassword)
+            {
+                <div class="col-12"><label asp-for="Password.CurrentPassword" class="form-label"></label>
+                    <input asp-for="Password.CurrentPassword" class="form-control" autocomplete="current-password" /><span asp-validation-for="Password.CurrentPassword" class="text-danger small"></span></div>
+                <div class="col-md-6"><label asp-for="Password.NewPassword" class="form-label"></label>
+                    <input asp-for="Password.NewPassword" class="form-control" autocomplete="new-password" /><span asp-validation-for="Password.NewPassword" class="text-danger small"></span></div>
+                <div class="col-md-6"><label asp-for="Password.ConfirmPassword" class="form-label"></label>
+                    <input asp-for="Password.ConfirmPassword" class="form-control" autocomplete="new-password" /><span asp-validation-for="Password.ConfirmPassword" class="text-danger small"></span></div>
+                <div class="col-12"><button class="btn btn-outline-primary" type="submit">🔑 Đổi mật khẩu</button></div>
+            }
+            else { <div class="col-12 alert alert-info mb-0">Tài khoản đăng nhập bằng Google chưa có mật khẩu. <a asp-area="Identity" asp-page="/Account/Manage/SetPassword">Đặt mật khẩu</a>.</div> }
+        </div></form>
+    </div>
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-3"><div class="card-body">
+            <h5 class="card-title">Ảnh đại diện</h5>
+            @if (Model.AvatarUrl != null) { <img src="@Model.AvatarUrl" alt="Ảnh đại diện của bạn" class="rounded-circle mb-2" style="width:120px;height:120px;object-fit:cover" /> }
+            <form method="post" enctype="multipart/form-data" asp-action="Avatar">
+                <label class="form-label small" for="avatar-file">Ảnh JPG/PNG tối đa 2 MB</label>
+                <input class="form-control" id="avatar-file" type="file" name="file" accept="image/jpeg,image/png" required data-ll-preview="#avatar-preview" data-ll-max-image-mb="2" />
+                <div id="avatar-preview" class="ll-previews"></div>
+                <button class="btn btn-sm btn-outline-primary mt-2" type="submit">⬆️ Tải ảnh lên</button>
+            </form>
+            @if (Model.AvatarUrl != null)
+            {
+                <form method="post" asp-action="RemoveAvatar" class="mt-2"><button class="btn btn-link btn-sm px-0" type="submit">Bỏ ảnh đại diện</button></form>
+            }
+        </div></div>
+        <div class="card border-0 shadow-sm"><div class="card-body small">
+            <h5 class="card-title">Bảo mật nâng cao</h5>
+            <dl class="row mb-0">
+                <dt class="col-6">Xác thực 2 lớp</dt><dd class="col-6">@(Model.TwoFactorEnabled ? "Đang bật" : "Chưa bật") · <a asp-area="Identity" asp-page="/Account/Manage/TwoFactorAuthentication">Quản lý</a></dd>
+                <dt class="col-6">Đăng nhập Google</dt><dd class="col-6"><a asp-area="Identity" asp-page="/Account/Manage/ExternalLogins">Liên kết</a></dd>
+                <dt class="col-6">Ngày tạo</dt><dd class="col-6">@VietnamTime.Stamp(Model.CreatedAt)</dd>
+            </dl>
+        </div></div>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

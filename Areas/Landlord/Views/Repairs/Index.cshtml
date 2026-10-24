@@ -1,0 +1,12 @@
+@model RepairListModel
+@{
+    ViewData["Title"] = "Yêu cầu sửa chữa";
+}
+<partial name="_LandlordMenu" />
+<div class="mb-3">
+    <h2 class="mb-0">🔧 Quản lý yêu cầu sửa chữa</h2>
+    <small class="text-muted">Phiếu yêu cầu (BM06) do người thuê gửi kèm mô tả, mức ưu tiên và ảnh. Mỗi lần cập nhật được lưu thành lịch sử xử lý.</small>
+</div>
+<div id="repair-list" data-ll-region>
+    <partial name="_RepairList" model="Model" />
+</div>
