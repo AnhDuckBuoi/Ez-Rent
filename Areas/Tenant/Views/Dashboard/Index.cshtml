@@ -30,7 +30,7 @@
         <nav class="home-shortcuts" aria-label="Lối tắt Trang chủ"><h2>Của bạn</h2>
             <a asp-controller="ViewingAppointment" asp-action="Index" class="home-shortcut">@await Html.PartialAsync("_HomeIcon", "calendar")<span><strong>Lịch hẹn</strong><small>@(Model.PendingAppointments > 0 ? $"{Model.PendingAppointments} yêu cầu đang chờ" : "Theo dõi lịch của bạn")</small></span>@await Html.PartialAsync("_HomeIcon", "arrow")</a>
             <a asp-controller="Favorite" asp-action="Index" class="home-shortcut">@await Html.PartialAsync("_HomeIcon", "heart")<span><strong>Phòng đã lưu</strong><small>@Model.SavedCount phòng quan tâm</small></span>@await Html.PartialAsync("_HomeIcon", "arrow")</a>
-            <a asp-action="Messages" class="home-shortcut">@await Html.PartialAsync("_HomeIcon", "chat")<span><strong>Tin nhắn</strong><small>Trao đổi với chủ nhà</small></span>@await Html.PartialAsync("_HomeIcon", "arrow")</a>
+            <a asp-area="" asp-controller="Chat" asp-action="Index" class="home-shortcut">@await Html.PartialAsync("_HomeIcon", "chat")<span><strong>Tin nhắn</strong><small>Trao đổi với chủ nhà</small></span>@await Html.PartialAsync("_HomeIcon", "arrow")</a>
             <a asp-action="Help" class="home-shortcut">@await Html.PartialAsync("_HomeIcon", "help")<span><strong>Hỗ trợ</strong><small>Hỏi đáp và hướng dẫn</small></span>@await Html.PartialAsync("_HomeIcon", "arrow")</a>
         </nav>
         <section class="home-saved" aria-labelledby="home-saved-title"><div class="home-section-title"><h2 id="home-saved-title">Đã lưu để xem lại</h2></div><div class="home-saved-list">
