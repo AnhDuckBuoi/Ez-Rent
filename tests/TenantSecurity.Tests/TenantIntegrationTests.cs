@@ -124,6 +124,47 @@ public sealed class TenantIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Shared_chat_controller_and_service_support_all_three_roles_and_enforce_membership_and_csrf()
+    {
+        await app.WithDb(async db =>
+        {
+            db.Users.Add(new ApplicationUser { Id = "admin-1", UserName = "admin-1", FullName = "Admin EZ Rent", Status = UserStatus.Active });
+            db.Conversations.AddRange(
+                new Conversation { ConversationId = 91, InitiatorId = TenantTestApp.TenantA, RecipientId = "admin-1", ConversationType = ConversationType.TenantAdmin },
+                new Conversation { ConversationId = 92, InitiatorId = "landlord", RecipientId = "admin-1", ConversationType = ConversationType.LandlordAdmin });
+            db.Messages.AddRange(
+                new Message { MessageId = 910, ConversationId = 91, SenderId = TenantTestApp.TenantA, Content = "Hỗ trợ người thuê" },
+                new Message { MessageId = 920, ConversationId = 92, SenderId = "landlord", Content = "Hỗ trợ chủ trọ" });
+            await db.SaveChangesAsync();
+        });
+
+        app.Client.DefaultRequestHeaders.Remove("X-Test-User"); app.Client.DefaultRequestHeaders.Add("X-Test-User", "admin-1");
+        app.Client.DefaultRequestHeaders.Remove("X-Test-Role"); app.Client.DefaultRequestHeaders.Add("X-Test-Role", "Admin");
+
+        var convJson = System.Text.RegularExpressions.Regex.Unescape(await app.Client.GetStringAsync("/Chat/Conversations"));
+        Assert.Contains("Hỗ trợ người thuê", convJson);
+        Assert.Contains("Hỗ trợ chủ trọ", convJson);
+
+        var msgJson = System.Text.RegularExpressions.Regex.Unescape(await app.Client.GetStringAsync("/Chat/Messages/91"));
+        Assert.Contains("Hỗ trợ người thuê", msgJson);
+        await app.WithDb(async db => Assert.False((await db.Messages.FindAsync(910))!.IsRead));
+
+        Assert.Equal(HttpStatusCode.BadRequest, (await app.Client.PostAsync("/Chat/Send/91", new FormUrlEncodedContent(new Dictionary<string, string> { ["content"] = "No CSRF" }))).StatusCode);
+
+        using var adminReply = await app.PostWithToken("/Chat/Send/91", new() { ["content"] = "Admin đã phản hồi" }, "/Admin/RoleManager/Create");
+        Assert.Equal(HttpStatusCode.OK, adminReply.StatusCode);
+
+        using var adminRead = await app.PostWithToken("/Chat/Read", new() { ["conversationId"] = "91", ["messageIds"] = "910" }, "/Admin/RoleManager/Create");
+        Assert.Equal(HttpStatusCode.OK, adminRead.StatusCode);
+        await app.WithDb(async db => Assert.True((await db.Messages.FindAsync(910))!.IsRead));
+
+        app.Client.DefaultRequestHeaders.Remove("X-Test-User"); app.Client.DefaultRequestHeaders.Add("X-Test-User", TenantTestApp.TenantB);
+        app.Client.DefaultRequestHeaders.Remove("X-Test-Role"); app.Client.DefaultRequestHeaders.Add("X-Test-Role", "Tenant");
+        Assert.Equal(HttpStatusCode.NotFound, (await app.Client.GetAsync("/Chat/Messages/91")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await app.PostWithToken("/Chat/Send/91", new() { ["content"] = "Forged" })).StatusCode);
+    }
+
+    [Fact]
     public void Sql_server_migration_script_keeps_search_history_and_tenant_documents_without_connecting()
     {
         // These APIs generate SQL from source metadata only; never open a connection to a group database.

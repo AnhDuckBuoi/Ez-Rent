@@ -62,6 +62,7 @@ public sealed class TenantTestApp : IAsyncLifetime
         builder.Services.AddScoped<RecommendationService>();
         builder.Services.AddSignalR();
         builder.Services.AddScoped<ChatRealtime>();
+        builder.Services.AddScoped<ChatService>();
         builder.Services.Configure<RentalFileStorageOptions>(options => options.RootPath = PrivateFileRoot);
         builder.Services.AddSingleton<RentalPrivateFileStore>();
         builder.Services.AddScoped<RentalDocumentService>();

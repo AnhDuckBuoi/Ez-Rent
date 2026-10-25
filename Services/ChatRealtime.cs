@@ -37,7 +37,7 @@ public sealed class ChatRealtime(AppDbContext db, IHubContext<ChatHub> hub, ILog
         try
         {
             var conversation = await db.Conversations.AsNoTracking().Where(c => c.ConversationId == conversationId &&
-                    c.InitiatorId != c.RecipientId && (c.ConversationType == ConversationType.TenantLandlord || c.ConversationType == ConversationType.TenantAdmin))
+                    c.InitiatorId != c.RecipientId && (c.ConversationType == ConversationType.TenantLandlord || c.ConversationType == ConversationType.TenantAdmin || c.ConversationType == ConversationType.LandlordAdmin))
                 .Select(c => new { c.InitiatorId, c.RecipientId }).SingleOrDefaultAsync();
             if (conversation == null) return;
             // Recheck persisted roles/status on each delivery; socket claims may be stale after an account change.

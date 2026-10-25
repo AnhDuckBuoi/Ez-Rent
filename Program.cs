@@ -17,6 +17,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddSignalR(options => options.MaximumReceiveMessageSize = 16384);
 builder.Services.AddScoped<ChatRealtime>();
+builder.Services.AddScoped<ChatService>();
 builder.Services.AddOptions<EZ_Rent.Services.RentalFileStorageOptions>()
     .Bind(builder.Configuration.GetSection("RentalFileStorage"));
 if (datasetDemo)
