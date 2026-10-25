@@ -1,0 +1,10 @@
+@model InvoiceFormModel
+@{
+    ViewData["Title"] = "Lập hóa đơn";
+}
+<partial name="_LandlordMenu" />
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Hóa đơn</a></li><li class="breadcrumb-item active" aria-current="page">Lập mới</li></ol></nav>
+<h2 class="mb-1">🧾 Lập hóa đơn</h2>
+<p class="text-muted">Bảng tính bên phải cập nhật ngay khi bạn thay đổi dịch vụ hay khoản điều chỉnh; server tính lại khi phát hành. Hóa đơn có điện nước sẽ lưu kèm bộ chỉ số và 2 ảnh công tơ để người thuê đối chiếu.</p>
+<partial name="_InvoiceForm" model="Model" />
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

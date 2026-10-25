@@ -1,0 +1,18 @@
+@model RoomFormModel
+@{
+    ViewData["Title"] = "Sửa tin phòng";
+}
+<partial name="_LandlordMenu" />
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Phòng trọ</a></li><li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Id">Mã tin @Model.Id</a></li><li class="breadcrumb-item active" aria-current="page">Sửa</li></ol></nav>
+<h2 class="mb-1">✏️ Sửa tin phòng</h2>
+<p class="text-muted">Ảnh/video được quản lý ở trang chi tiết tin.</p>
+@if (Model.CurrentApproval == ApprovalStatus.Approved)
+{
+    <div class="alert alert-warning">Tin đang được duyệt. Nếu phòng còn trống, sau khi lưu tin chuyển về “Chờ duyệt” và tạm ẩn khỏi trang tìm phòng. Nếu phòng đang cho thuê, tin sẽ được gửi duyệt lại khi hợp đồng kết thúc.</div>
+}
+@if (!string.IsNullOrWhiteSpace(Model.ApprovalNote) && Model.CurrentApproval is ApprovalStatus.NeedRevision or ApprovalStatus.Rejected)
+{
+    <div class="alert alert-warning"><strong>Quản trị viên nhắn:</strong> @Model.ApprovalNote</div>
+}
+<partial name="_RoomForm" model="Model" />
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

@@ -1,0 +1,63 @@
+@model ViewingListModel
+@{
+    var input = Model.Input;
+    string TabUrl(ViewingAppointmentStatus? s) => Url.Action("Index", new { status = s, room = input.Room })!;
+    var tabs = new List<StatusTab> { new("Tất cả", TabUrl(null), Model.Counts.Values.Sum(), input.Status == null) };
+    foreach (var s in new[] { ViewingAppointmentStatus.Pending, ViewingAppointmentStatus.Confirmed, ViewingAppointmentStatus.Completed, ViewingAppointmentStatus.Cancelled, ViewingAppointmentStatus.Rejected })
+        tabs.Add(new(LandlordLabels.Viewing(s).Text, TabUrl(s), Model.Counts.GetValueOrDefault(s), input.Status == s));
+}
+<partial name="_StatusTabs" model="@(new StatusTabsModel(tabs, "viewing-list", "Lọc theo trạng thái lịch hẹn"))" />
+@if (Model.Rooms.Count > 1)
+{
+    <form class="row g-2 align-items-end mb-3" method="get" asp-action="Index" data-ll-filter="viewing-list">
+        <input type="hidden" name="status" value="@input.Status" />
+        <div class="col-md-6">
+            <label class="form-label" for="viewing-room">Phòng</label>
+            <select class="form-select" id="viewing-room" name="room">
+                <option value="">Tất cả phòng</option>
+                @foreach (var r in Model.Rooms) { <option value="@r.Id" selected="@(input.Room == r.Id)">@r.Title</option> }
+            </select>
+        </div>
+        <noscript><div class="col-md-2"><button class="btn btn-outline-primary" type="submit">Lọc</button></div></noscript>
+    </form>
+}
+@if (Model.Items.TotalItems == 0)
+{
+    <div class="card border-0 shadow-sm text-center py-5"><div class="card-body">
+        <h5 data-ll-focus>@(Model.Counts.Count == 0 ? "Chưa có yêu cầu xem phòng" : "Không có lịch ở mục này")</h5>
+        <p class="text-muted mb-0">Yêu cầu xuất hiện khi người thuê đặt lịch xem phòng đã được duyệt của bạn.</p>
+    </div></div>
+}
+else
+{
+    <p class="text-muted mb-2" data-ll-focus>Tổng <strong>@Model.Items.TotalItems</strong> lịch — Trang <strong>@Model.Items.PageIndex</strong> / <strong>@Model.Items.TotalPages</strong></p>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light"><tr><th>Giờ hẹn</th><th>Người thuê · Phòng</th><th>Trạng thái</th><th style="width:220px">Thao tác</th></tr></thead>
+            <tbody>
+                @foreach (var v in Model.Items)
+                {
+                    <tr>
+                        <td><a class="fw-bold text-decoration-none num" asp-action="Details" asp-route-id="@v.Id">@VietnamTime.Time(v.ViewingDate) · @VietnamTime.Date(v.ViewingDate)</a>
+                            <div class="small text-muted">@VietnamTime.LongDate(v.ViewingDate)</div></td>
+                        <td><strong>@v.TenantName</strong><div class="small text-muted">@v.RoomTitle</div>
+                            @if (!string.IsNullOrWhiteSpace(v.Note)) { <div class="small text-muted fst-italic">“@v.Note”</div> }</td>
+                        <td>@LandlordUi.Badge(LandlordLabels.Viewing(v.Status))
+                            @if (v.ResponseLate) { <div class="small text-warning">Gửi @VietnamTime.Ago(v.CreatedAt, DateTime.UtcNow), quá 2 giờ</div> }
+                            else if (v.Status == ViewingAppointmentStatus.Pending) { <div class="small text-muted">Gửi @VietnamTime.Ago(v.CreatedAt, DateTime.UtcNow)</div> }</td>
+                        <td>
+                            @if (v.Status == ViewingAppointmentStatus.Pending && !v.IsPast)
+                            {
+                                <form class="d-inline" method="post" asp-action="Confirm" asp-route-id="@v.Id" data-ll-action data-ll-refresh="viewing-list">
+                                    <button class="btn btn-sm btn-success" type="submit">✅ Xác nhận</button>
+                                </form>
+                            }
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@v.Id">@(v.Status == ViewingAppointmentStatus.Pending ? "Từ chối…" : v.Status == ViewingAppointmentStatus.Confirmed && v.IsPast ? "Hoàn thành…" : "Chi tiết")</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Pagination" model="Model.Pager" />
+}
