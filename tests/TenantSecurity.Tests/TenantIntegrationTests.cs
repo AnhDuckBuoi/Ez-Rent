@@ -165,6 +165,55 @@ public sealed class TenantIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Shared_chat_view_renders_for_all_roles_and_supports_form_send_and_read()
+    {
+        await app.WithDb(async db =>
+        {
+            db.Users.Add(new ApplicationUser { Id = "admin-1", UserName = "admin-1", FullName = "Admin EZ Rent", Status = UserStatus.Active });
+            db.Conversations.AddRange(
+                new Conversation { ConversationId = 93, InitiatorId = TenantTestApp.TenantA, RecipientId = "admin-1", ConversationType = ConversationType.TenantAdmin },
+                new Conversation { ConversationId = 94, InitiatorId = "landlord", RecipientId = "admin-1", ConversationType = ConversationType.LandlordAdmin });
+            db.Messages.AddRange(
+                new Message { MessageId = 930, ConversationId = 93, SenderId = TenantTestApp.TenantA, Content = "Câu hỏi từ người thuê" },
+                new Message { MessageId = 940, ConversationId = 94, SenderId = "landlord", Content = "Câu hỏi từ chủ trọ" });
+            await db.SaveChangesAsync();
+        });
+
+        // Admin opens /Chat?c=93
+        app.Client.DefaultRequestHeaders.Remove("X-Test-User"); app.Client.DefaultRequestHeaders.Add("X-Test-User", "admin-1");
+        app.Client.DefaultRequestHeaders.Remove("X-Test-Role"); app.Client.DefaultRequestHeaders.Add("X-Test-Role", "Admin");
+        var adminHtml = WebUtility.HtmlDecode(await app.Client.GetStringAsync("/Chat?c=93"));
+        Assert.Contains("shared-chat-root", adminHtml);
+        Assert.Contains("Câu hỏi từ người thuê", adminHtml);
+        Assert.Contains("shared-chat.js", adminHtml);
+        Assert.Contains("chat-realtime.js", adminHtml);
+
+        // Admin submits HTML form fallback (redirect=true)
+        using var sendRedirect = await app.PostWithToken("/Chat/Send/93", new()
+        {
+            ["content"] = "Phản hồi từ Admin trên View chung",
+            ["redirect"] = "true"
+        }, "/Chat?c=93");
+        Assert.Equal(HttpStatusCode.Redirect, sendRedirect.StatusCode);
+
+        using var readRedirect = await app.PostWithToken("/Chat/Read", new()
+        {
+            ["conversationId"] = "93",
+            ["messageIds"] = "930",
+            ["redirect"] = "true"
+        }, "/Chat?c=93");
+        Assert.Equal(HttpStatusCode.Redirect, readRedirect.StatusCode);
+
+        // Tenant opens /Chat?c=93 and sees "Đã xem" on message 930 and Admin's reply
+        app.Client.DefaultRequestHeaders.Remove("X-Test-User"); app.Client.DefaultRequestHeaders.Add("X-Test-User", TenantTestApp.TenantA);
+        app.Client.DefaultRequestHeaders.Remove("X-Test-Role"); app.Client.DefaultRequestHeaders.Add("X-Test-Role", "Tenant");
+        var tenantHtml = WebUtility.HtmlDecode(await app.Client.GetStringAsync("/Chat?c=93"));
+        Assert.Contains("Phản hồi từ Admin trên View chung", tenantHtml);
+        Assert.Contains("Đã xem", tenantHtml);
+        Assert.Equal(HttpStatusCode.NotFound, (await app.Client.GetAsync("/Chat?c=94")).StatusCode);
+    }
+
+    [Fact]
     public void Sql_server_migration_script_keeps_search_history_and_tenant_documents_without_connecting()
     {
         // These APIs generate SQL from source metadata only; never open a connection to a group database.

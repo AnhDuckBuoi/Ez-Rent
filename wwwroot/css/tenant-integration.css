@@ -60,4 +60,5 @@ body.tenant-app, body.landlord-chat-app { margin-bottom: 0; min-height: 100dvh; 
 }
 .tenant-surface [data-chat-retry][hidden],
 .landlord-chat-surface [data-chat-retry][hidden],
-.landlord-chat-surface #landlord-read-form[hidden] { display: none !important; }
+.landlord-chat-surface #landlord-read-form[hidden],
+.landlord-chat-surface #shared-read-form[hidden] { display: none !important; }

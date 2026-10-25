@@ -4,7 +4,9 @@
     var tenant = ViewContext.RouteData.Values["area"]?.ToString() == "Tenant";
     var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
-    var chat = (tenant && controller == "Dashboard" && action == "Messages") || (!tenant && ViewContext.RouteData.Values["area"]?.ToString() == "Landlord" && controller == "Messages");
+    var chat = (tenant && controller == "Dashboard" && action == "Messages")
+        || (!tenant && ViewContext.RouteData.Values["area"]?.ToString() == "Landlord" && controller == "Messages")
+        || (!tenant && ViewContext.RouteData.Values["area"] == null && controller == "Chat");
     var rental = tenant && controller is "MyRoom" or "Contract" or "Invoice" or "RepairRequest";
     var discovery = tenant && controller is "RentalPost" or "Favorite" or "ViewingAppointment" or "ViewingBooking";
     var surfaceClass = chat ? "main tenant-chat" : "discovery-main home-page";
@@ -100,6 +102,7 @@
                                         🏠 Chủ trọ
                                     </a>
                                     <ul class="dropdown-menu"><li><a class="dropdown-item" asp-area="Landlord" asp-controller="Messages" asp-action="Index">Tin nhắn</a></li>
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Chat" asp-action="Index">💬 Hộp thư Chat chung</a></li>
                                         <li>
                                             <a class="dropdown-item" asp-area="Landlord" asp-controller="Dashboard"
                                                asp-action="Index">
@@ -173,6 +176,12 @@
                                         🛡️ Quản trị
                                     </a>
                                     <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" asp-area="" asp-controller="Chat"
+                                               asp-action="Index">
+                                                💬 Hộp thư Chat Realtime
+                                            </a>
+                                        </li>
                                         <li>
                                             <a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard"
                                                asp-action="Index">
