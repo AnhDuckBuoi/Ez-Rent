@@ -6,7 +6,7 @@
 }
 else
 {
-    <div class="chat-header"><a href="@Url.Action("Messages", Model.Input.Routes(conversationId: selected.Id > 0 ? selected.Id : null, view: "inbox"))" data-messages-link class="icon-button mobile-back" aria-label="Về danh sách trò chuyện">@await Html.PartialAsync("_HomeIcon", "back")</a><span class="avatar @(selected.IsSupport ? "sage" : "")" aria-hidden="true">@selected.Initials</span><div class="chat-person"><h2 id="chat-person-name" tabindex="-1">@selected.Name</h2><p>@(selected.IsSupport ? selected.RoomLabel : "Chủ nhà · " + selected.RoomLabel)</p><small class="chat-connection" data-chat-connection role="status">Đang kết nối…</small></div><a href="@Url.Action("Messages", Model.Input.Routes(conversationId: selected.Id > 0 ? selected.Id : null))" data-action="refresh-messages" class="message-refresh">Tải tin mới</a><button type="button" class="icon-button context-toggle" data-action="show-context" aria-label="Thông tin cuộc trò chuyện" aria-haspopup="dialog" aria-expanded="false" aria-controls="context-dialog">@await Html.PartialAsync("_HomeIcon", "info")</button></div>
+    <div class="chat-header"><a href="@Url.Action("Messages", Model.Input.Routes(conversationId: selected.Id > 0 ? selected.Id : null, view: "inbox"))" data-messages-link class="icon-button mobile-back" aria-label="Về danh sách trò chuyện">@await Html.PartialAsync("_HomeIcon", "back")</a><span class="avatar @(selected.IsSupport ? "sage" : "")" aria-hidden="true">@selected.Initials</span><div class="chat-person"><h2 id="chat-person-name" tabindex="-1">@selected.Name</h2><p>@(selected.IsSupport ? selected.RoomLabel : "Chủ nhà · " + selected.RoomLabel)</p><small class="chat-connection" data-chat-connection role="status">Đang kết nối…</small></div><a href="@Url.Action("Messages", Model.Input.Routes(conversationId: selected.Id > 0 ? selected.Id : null))" data-action="refresh-messages" data-chat-retry class="message-refresh">Tải tin mới</a><button type="button" class="icon-button context-toggle" data-action="show-context" aria-label="Thông tin cuộc trò chuyện" aria-haspopup="dialog" aria-expanded="false" aria-controls="context-dialog">@await Html.PartialAsync("_HomeIcon", "info")</button></div>
     @if (selected.Room is { IsAvailable: true } room)
     {
         <button type="button" class="room-link" data-action="show-context" aria-haspopup="dialog" aria-controls="context-dialog"><img src="@room.ImageUrl" width="44" height="44" alt="" data-message-image /><span><strong>@room.Title</strong><small>@room.Price.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) đ / tháng · @room.Area.ToString("0.##", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) m²</small></span>@await Html.PartialAsync("_HomeIcon", "arrow")</button>
@@ -24,7 +24,7 @@ else
         @foreach (var message in Model.Messages)
         {
             @if (previousDate != message.VietnamTime.Date) { <div class="date-divider">@message.DateLabel</div> }
-            <div class="message @(message.Self ? "self" : "")" data-message-id="@message.Id" data-unread="@((!message.Self && !message.IsRead).ToString().ToLowerInvariant())"><p class="bubble">@message.Content</p><span class="message-meta"><time datetime="@message.VietnamTime.ToString("yyyy-MM-ddTHH:mm:ss+07:00")">@message.TimeLabel</time>@if (message.Self) { @await Html.PartialAsync("_HomeIcon", "check")<span>@(message.IsRead ? "Đã đọc" : "Đã gửi")</span> }</span></div>
+            <div class="message @(message.Self ? "self" : "")" data-message-id="@message.Id" data-unread="@((!message.Self && !message.IsRead).ToString().ToLowerInvariant())"><p class="bubble">@message.Content</p><span class="message-meta"><time datetime="@message.VietnamTime.ToString("yyyy-MM-ddTHH:mm:ss+07:00")">@message.TimeLabel</time>@if (message.Self) { @await Html.PartialAsync("_HomeIcon", "check")<span data-message-state>@(message.IsRead ? "Đã xem" : "Đã gửi")</span> }</span></div>
             previousDate = message.VietnamTime.Date;
         }
         @if (Model.Messages.Count == 0) { <p class="stream-start">@(selected.Id == 0 ? "Gửi tin đầu tiên để bắt đầu trao đổi về căn phòng này." : "Cuộc trò chuyện này chưa có tin nhắn.")</p> }
@@ -50,7 +50,7 @@ else
         <form asp-action="ReadMessages" method="post" id="message-read-form" class="message-read-form">
             <input type="hidden" name="ConversationId" value="@selected.Id" /><input type="hidden" name="MessagePage" value="@Model.Input.MessagePage" />
             @foreach (var incoming in Model.Messages.Where(m => !m.Self && !m.IsRead)) { <input type="hidden" name="MessageIds" value="@incoming.Id" /> }
-            <button type="submit" class="message-read-button">Đánh dấu các tin trong trang đã đọc</button>
+            <button type="submit" class="message-read-button">Đánh dấu các tin trong trang đã xem</button>
         </form>
     }
 }

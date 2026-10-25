@@ -1,24 +1,62 @@
 (() => {
     'use strict';
-    if (!window.signalR) return;
+    let state = 'connecting', label = 'Đang kết nối…', retry, suspended = false, stopping = Promise.resolve();
+
+    // A connected socket does not guarantee that the conversation GET succeeded.
+    function updateControls() {
+        window.EzRentChatStatus = label;
+        document.querySelectorAll('[data-chat-connection]').forEach(node => node.textContent = label);
+        document.querySelectorAll('[data-chat-retry]').forEach(node => {
+            const failed = node.closest('[data-chat-root]')?.dataset.chatSyncError === 'true';
+            node.hidden = !failed && ['connecting', 'connected', 'reconnecting'].includes(state);
+        });
+    }
+    window.EzRentChat = { get state() { return state; }, updateControls };
+    function setState(next, text) {
+        state = next; label = text; updateControls();
+        document.dispatchEvent(new CustomEvent('chat:state', { detail: { state } }));
+    }
+    function connected() {
+        setState('connected', 'Đã kết nối · Tin nhắn tự cập nhật');
+        // Catch up on the first connection too: a message may arrive between
+        // rendering the page and connecting its socket.
+        document.dispatchEvent(new Event('chat:connected'));
+    }
+    if (!window.signalR) {
+        setState('disconnected', 'Chưa kết nối · Bạn có thể thử tải tin mới');
+        return;
+    }
     const connection = new signalR.HubConnectionBuilder().withUrl('/hubs/chat')
-        .withAutomaticReconnect([0, 2000, 5000, 10000, 30000]).configureLogging(signalR.LogLevel.Warning).build();
-    const status = text => { window.EzRentChatStatus = text; document.querySelectorAll('[data-chat-connection]').forEach(node => node.textContent = text); };
-    let retry;
+        .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
+        .configureLogging(signalR.LogLevel.Warning).build();
     connection.on('ConversationChanged', conversationId => {
         if (Number.isSafeInteger(conversationId) && conversationId > 0)
             document.dispatchEvent(new CustomEvent('chat:changed', {detail:{conversationId}}));
     });
-    connection.onreconnecting(() => status('Đang kết nối lại…'));
-    connection.onreconnected(() => { status('Đã kết nối'); document.dispatchEvent(new Event('chat:reconnected')); });
-    connection.onclose(() => { status('Mất kết nối · Bạn có thể tải tin mới'); retry = setTimeout(start, 15000); });
+    connection.onreconnecting(() => setState('reconnecting', 'Đang kết nối lại…'));
+    connection.onreconnected(connected);
+    connection.onclose(() => {
+        if (suspended) return;
+        setState('disconnected', 'Mất kết nối · Đang thử kết nối lại');
+        retry = setTimeout(start, 15000);
+    });
     async function start() {
         clearTimeout(retry);
-        if (document.visibilityState === 'hidden' || connection.state !== signalR.HubConnectionState.Disconnected) return;
-        try { await connection.start(); status('Đã kết nối'); }
-        catch { status('Chưa kết nối · Bạn vẫn có thể gửi và tải tin mới'); retry = setTimeout(start,15000); }
+        if (suspended || document.visibilityState === 'hidden' || connection.state !== signalR.HubConnectionState.Disconnected) return;
+        setState('connecting', 'Đang kết nối…');
+        try { await connection.start(); connected(); }
+        catch {
+            if (suspended) return;
+            setState('disconnected', 'Chưa kết nối · Đang thử kết nối lại');
+            retry = setTimeout(start, 15000);
+        }
     }
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') start(); });
-    addEventListener('pagehide', () => { clearTimeout(retry); connection.stop(); });
+    addEventListener('online', start);
+    addEventListener('pageshow', () => { suspended = false; stopping.then(start); });
+    addEventListener('pagehide', () => {
+        suspended = true; clearTimeout(retry);
+        stopping = connection.stop().catch(() => { /* The page is leaving. */ });
+    });
     start();
 })();

@@ -1,0 +1,24 @@
+@model RoomDetailModel
+@{
+    ViewData["Title"] = "Xóa tin phòng";
+}
+<partial name="_LandlordMenu" />
+<h2 class="mb-3">🗑 Xóa tin phòng</h2>
+<div class="card border-0 shadow-sm" style="max-width:640px">
+    <div class="card-body">
+        <h5>“@Model.Title”</h5>
+        @if (Model.CanDelete)
+        {
+            <p class="text-muted">Tin, ảnh/video và danh sách dịch vụ sẽ bị xóa vĩnh viễn. Thao tác này không hoàn tác được.</p>
+            <form method="post" asp-action="Delete" asp-route-id="@Model.Id" class="d-flex gap-2">
+                <a class="btn btn-outline-secondary" asp-action="Details" asp-route-id="@Model.Id">Giữ lại tin</a>
+                <button class="btn btn-danger" type="submit">Xóa vĩnh viễn</button>
+            </form>
+        }
+        else
+        {
+            <p class="text-muted">Tin đã phát sinh lịch hẹn, tin nhắn, hợp đồng hoặc dữ liệu thuê nên không thể xóa. Bạn có thể ẩn tin.</p>
+            <a class="btn btn-outline-secondary" asp-action="Details" asp-route-id="@Model.Id">Quay lại tin</a>
+        }
+    </div>
+</div>

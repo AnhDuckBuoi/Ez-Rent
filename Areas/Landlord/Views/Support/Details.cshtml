@@ -1,0 +1,28 @@
+@model SupportDetailModel
+@{
+    ViewData["Title"] = "Yêu cầu hỗ trợ số " + Model.Item.Id;
+}
+<partial name="_LandlordMenu" />
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Hỗ trợ</a></li><li class="breadcrumb-item active" aria-current="page">Số @Model.Item.Id</li></ol></nav>
+<h2 class="mb-1">@Model.Item.FirstMessage.Split('\n')[0]</h2>
+<p class="text-muted">Gửi @VietnamTime.Stamp(Model.Item.CreatedAt) tới @Model.AdminName@(Model.Item.RoomTitle != null ? " · " + Model.Item.RoomTitle : "")</p>
+<div class="card border-0 shadow-sm" style="max-width:860px"><div class="card-body">
+    <ul class="list-unstyled mb-3">
+        @foreach (var m in Model.Messages)
+        {
+            <li class="d-flex @(m.Mine ? "justify-content-end" : "") mb-2">
+                <div class="p-2 rounded-3 @(m.Mine ? "bg-primary text-white" : "bg-light border")" style="max-width:80%">
+                    @if (!m.Mine) { <div class="small fw-bold">Quản trị viên</div> }
+                    <div class="ll-text">@m.Content</div>
+                    <div class="small opacity-75">@VietnamTime.Stamp(m.SentAt)</div>
+                </div>
+            </li>
+        }
+    </ul>
+    @if (Model.Messages.All(m => m.Mine)) { <div class="alert alert-secondary small">Quản trị viên chưa phản hồi. Bạn có thể bổ sung thông tin bên dưới.</div> }
+    <form method="post" asp-action="Reply" asp-route-id="@Model.Item.Id" class="d-flex gap-2 align-items-end">
+        <div class="flex-grow-1"><label class="visually-hidden" for="support-reply">Bổ sung thông tin</label>
+            <textarea class="form-control" id="support-reply" name="Content" maxlength="1000" rows="2" required placeholder="Bổ sung thông tin cho quản trị viên"></textarea></div>
+        <button class="btn btn-primary" type="submit">Gửi</button>
+    </form>
+</div></div>

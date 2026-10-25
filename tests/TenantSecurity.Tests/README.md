@@ -1,5 +1,27 @@
 # Tenant security integration tests
 
+## Bản ghép tại thư mục gốc và dataset SQL — 25/10/2026
+
+Mở `D:\Workspace\University\WebNC\BTL\Ez Rent`, nhánh `feature/tenant-integration`. Đã ghép PR #6 Landlord, giữ chat/đăng nhập đã sửa, chuyển Tenant về một luồng Home/Tìm phòng và dùng chung `RentalSearchQuery` với trang công khai. `RecommendationService` gốc giữ nguyên; gợi ý tôn trọng các điều kiện đang lọc.
+
+Kết quả cuối: **293/293 kiểm thử đạt**, không bỏ qua; **46 kiểm tra trình duyệt đạt**, không lỗi JavaScript chưa xử lý. Kiểm tra SQL thật bằng DbSeeder của nhóm gồm chat hai chiều/đã xem đúng UserId, 11 màn Landlord, các màn Admin, Home/Tìm phòng và sáu màn Tenant ở Desktop/Tablet/Mobile. Điều kiện giờ chưa mở trong test được cập nhật vì reader thật đã được đăng ký. Ca mới bắt lỗi hai action Index trùng route của Admin/Post, giữ action có search. Ảnh dataset có cơ chế thay thế khi lỗi mạng xảy ra trước khi script tải xong.
+
+Đã publish kiểm tra đủ PDF BM03, hai ảnh demo, trang review và SignalR client; không có database, App_Data, cấu hình Development/Local hoặc test fixtures trong gói publish. Có 13 cảnh báo nullable từ nền mã, không có lỗi build. Đây chưa phải xác nhận mọi môi trường triển khai hoặc thiết bị vật lý.
+
+Chạy dataset từ terminal VS Code bằng `scripts/Start-Demo.ps1`; xem [hướng dẫn và tài khoản/ID](../../docs/tenant-team-dataset.md). SQL LocalDB dùng instance/database riêng; không migrate database nhóm. Host SQLite ở các mục dưới tiếp tục dùng cho kiểm thử tự động và các checkpoint lịch sử.
+
+## Đăng nhập hai vai trò trong preview — 25/10/2026
+
+Kết quả mới nhất **283/283 kiểm thử đạt**. `TenantPreviewLoginTests` thêm 8 ca: mở Login trực tiếp với ReturnUrl Tenant/Landlord, mở Landlord khi chưa đăng nhập, khởi tạo cookie Tenant trước form, giữ đăng xuất ở cả hai vai trò, không ghi đè tài khoản chủ nhà, yêu cầu CSRF và từ chối form cũ sau khi đổi tài khoản. Thử trình duyệt có 6 kiểm tra đăng nhập đạt, gồm đi thẳng vào chat Landlord từ phiên mới.
+
+`TenantPreviewEntry` chỉ tự vào Tenant ở GET `/`, `/review/tenant` hoặc `/Tenant/...` khi chưa có phiên/marker; chuyển trang một lần để thiết lập cookie trước khi dựng form. Không tự vào Tenant tại Login, Logout, Landlord, socket, file tĩnh hoặc POST; không thay phiên đã đăng nhập. Đây là middleware riêng của test host, không đăng ký trong ứng dụng chính.
+
+Để chat hai phía: giữ Tenant ở cửa sổ thường; mở cửa sổ ẩn danh bằng Ctrl+Shift+N cho Landlord, vào `http://127.0.0.1:8771/Identity/Account/Login?ReturnUrl=%2FLandlord%2FMessages%3Fc%3D101`, dùng `chutro@example.test` / `LandlordDemo@123`. Hai tab/cửa sổ thường trong cùng hồ sơ trình duyệt dùng chung cookie và không tạo hai phiên độc lập. URL ReturnUrl trỏ Tenant không cấp quyền Tenant cho chủ nhà. Form mở trước khi tài khoản/phiên thay đổi có thể bị từ chối 400; mở lại trang đăng nhập đúng vai trò để lấy form mới, không gửi lại form cũ.
+
+## Tự nhận tin và đã xem — 25/10/2026
+
+Bộ kiểm thử mới nhất: **275/275 đạt**, không bỏ qua. `Seen_receipts_require_the_recipient_read_post_and_work_in_both_directions` xác nhận GET không tự đánh dấu và hai phía chỉ thấy Đã xem sau POST đọc đúng tin của người nhận. Trình duyệt có 16 kiểm tra đạt cho hai vai trò, đồng bộ khi bận/mất mạng, đã xem đúng vùng đọc và ba kích thước. Xem [phạm vi, giới hạn và cách thử](../../docs/tenant-chat-live.md). Đây là gói tiếp theo trên nhánh tích hợp; các số liệu ở mục cũ bên dưới thuộc checkpoint trước.
+
 ## Bản tích hợp sau review của Đức — 21/10/2026
 
 Kết quả cuối trên `feature/tenant-integration`: **274/274 đạt, không bỏ qua**; build 0 lỗi, còn 13 cảnh báo nullable từ nền mã. `TenantIntegrationTests` bổ sung kiểm tra lịch sử/gợi ý dùng dịch vụ main, tương thích Toggle yêu thích, Landlord chat/phân quyền/CSRF/GET chỉ đọc, quyền kết nối hub và tính nhất quán migration SQL Server mà không kết nối database nhóm. Trình duyệt có **38 kiểm tra đạt**: WebSocket hai chiều, người ngoài không nhận sự kiện, giữ bản nháp, kết nối lại và bảy màn ở 1440/834/390/320 px; không có lỗi JavaScript chưa xử lý.

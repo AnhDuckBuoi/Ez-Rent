@@ -77,6 +77,44 @@ public sealed class TenantIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task Seen_receipts_require_the_recipient_read_post_and_work_in_both_directions()
+    {
+        await app.WithDb(async db =>
+        {
+            db.Conversations.Add(new Conversation { ConversationId = 90, InitiatorId = TenantTestApp.TenantA,
+                RecipientId = "landlord", RentalPostId = 3, ConversationType = ConversationType.TenantLandlord });
+            db.Messages.AddRange(
+                new Message { MessageId = 901, ConversationId = 90, SenderId = TenantTestApp.TenantA, Content = "Tin của người thuê" },
+                new Message { MessageId = 902, ConversationId = 90, SenderId = "landlord", Content = "Tin của chủ nhà" });
+            await db.SaveChangesAsync();
+        });
+        var tenantPage = await app.Client.GetStringAsync("/Tenant/Dashboard/Messages?ConversationId=90");
+        Assert.DoesNotContain("Đã xem", WebUtility.HtmlDecode(tenantPage));
+        app.Client.DefaultRequestHeaders.Remove("X-Test-User"); app.Client.DefaultRequestHeaders.Add("X-Test-User", "landlord");
+        app.Client.DefaultRequestHeaders.Remove("X-Test-Role"); app.Client.DefaultRequestHeaders.Add("X-Test-Role", "Landlord");
+        var landlordPage = await app.Client.GetStringAsync("/Landlord/Messages?c=90");
+        Assert.DoesNotContain("Đã xem", WebUtility.HtmlDecode(landlordPage));
+        await app.WithDb(async db => Assert.All(await db.Messages.ToListAsync(), message => Assert.False(message.IsRead)));
+        using var readTenant = await app.PostWithToken("/Landlord/Messages/Read", new()
+        {
+            ["ConversationId"] = "90", ["MessageIds"] = "901"
+        }, "/Landlord/Messages?c=90");
+        Assert.Equal(HttpStatusCode.Redirect, readTenant.StatusCode);
+        app.Client.DefaultRequestHeaders.Remove("X-Test-User"); app.Client.DefaultRequestHeaders.Add("X-Test-User", TenantTestApp.TenantA);
+        app.Client.DefaultRequestHeaders.Remove("X-Test-Role"); app.Client.DefaultRequestHeaders.Add("X-Test-Role", "Tenant");
+        Assert.Contains("Đã xem", WebUtility.HtmlDecode(await app.Client.GetStringAsync("/Tenant/Dashboard/Messages?ConversationId=90")));
+        await app.WithDb(async db => Assert.False((await db.Messages.FindAsync(902))!.IsRead));
+        using var readLandlord = await app.PostWithToken("/Tenant/Dashboard/ReadMessages", new()
+        {
+            ["ConversationId"] = "90", ["MessageIds"] = "902"
+        }, "/Tenant/Dashboard/Messages?ConversationId=90");
+        Assert.Equal(HttpStatusCode.Redirect, readLandlord.StatusCode);
+        app.Client.DefaultRequestHeaders.Remove("X-Test-User"); app.Client.DefaultRequestHeaders.Add("X-Test-User", "landlord");
+        app.Client.DefaultRequestHeaders.Remove("X-Test-Role"); app.Client.DefaultRequestHeaders.Add("X-Test-Role", "Landlord");
+        Assert.Contains("Đã xem", WebUtility.HtmlDecode(await app.Client.GetStringAsync("/Landlord/Messages?c=90")));
+    }
+
+    [Fact]
     public async Task Hub_negotiation_requires_authentication_and_a_chat_role()
     {
         app.Client.DefaultRequestHeaders.Remove("X-Test-Role");

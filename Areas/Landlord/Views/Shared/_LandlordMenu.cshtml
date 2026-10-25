@@ -1,0 +1,39 @@
+@* Thanh chức năng chủ trọ, đặt ở đầu mỗi trang bên trong _Layout chung của main.
+   Menu thả xuống "Chủ trọ" trên header vẫn dùng được: các link cũ tự chuyển sang trang mới.
+   CSS riêng nạp tại đây (không dùng section Styles vì _Layout của main chưa có section này). *@
+@{
+    var counts = ViewData[LandlordMenuCounts.Key] as LandlordMenuCounts ?? new LandlordMenuCounts();
+    var controller = ViewContext.RouteData.Values["controller"] as string ?? "";
+    string Active(params string[] names) => names.Contains(controller, StringComparer.OrdinalIgnoreCase) ? "active" : "";
+    string? Current(params string[] names) => names.Contains(controller, StringComparer.OrdinalIgnoreCase) ? "page" : null;
+    var status = TempData[EZ_Rent.Areas.Landlord.Controllers.LandlordAreaController.StatusKey] as string;
+    var statusType = TempData[EZ_Rent.Areas.Landlord.Controllers.LandlordAreaController.StatusTypeKey] as string ?? "success";
+}
+<link rel="stylesheet" href="~/css/landlord.css" asp-append-version="true" />
+<script src="~/js/landlord.js" asp-append-version="true" defer></script>
+<nav class="ll-menu nav nav-pills flex-nowrap overflow-auto gap-1 py-2 mb-3 border-bottom no-print" aria-label="Chức năng chủ trọ">
+    <a class="nav-link @Active("Overview")" aria-current="@Current("Overview")" asp-area="Landlord" asp-controller="Overview" asp-action="Index">📊 Tổng quan</a>
+    <a class="nav-link @Active("Rooms", "RoomMedia")" aria-current="@Current("Rooms", "RoomMedia")" asp-area="Landlord" asp-controller="Rooms" asp-action="Index">🏠 Phòng trọ</a>
+    <a class="nav-link @Active("Viewings", "ViewingHours")" aria-current="@Current("Viewings", "ViewingHours")" asp-area="Landlord" asp-controller="Viewings" asp-action="Index">📅 Lịch xem phòng
+        @if (counts.PendingViewings > 0) { <span class="badge bg-danger ms-1" aria-label="@counts.PendingViewings lịch chờ xác nhận">@counts.PendingViewings</span> }</a>
+    <a class="nav-link" asp-area="Landlord" asp-controller="Messages" asp-action="Index">💬 Trò chuyện
+        @if (counts.UnreadMessages > 0) { <span class="badge bg-danger ms-1" aria-label="@counts.UnreadMessages tin chưa đọc">@(counts.UnreadMessages > 99 ? "99+" : counts.UnreadMessages.ToString())</span> }</a>
+    <a class="nav-link @Active("Contracts", "ContractDocuments")" aria-current="@Current("Contracts", "ContractDocuments")" asp-area="Landlord" asp-controller="Contracts" asp-action="Index">📄 Hợp đồng</a>
+    <a class="nav-link @Active("MeterReadings")" aria-current="@Current("MeterReadings")" asp-area="Landlord" asp-controller="MeterReadings" asp-action="Index">⚡ Điện, nước</a>
+    <a class="nav-link @Active("Invoices", "InvoicePayments")" aria-current="@Current("Invoices", "InvoicePayments")" asp-area="Landlord" asp-controller="Invoices" asp-action="Index">🧾 Hóa đơn</a>
+    <a class="nav-link @Active("Repairs")" aria-current="@Current("Repairs")" asp-area="Landlord" asp-controller="Repairs" asp-action="Index">🔧 Yêu cầu sửa chữa
+        @if (counts.OpenRepairs > 0) { <span class="badge bg-danger ms-1" aria-label="@counts.OpenRepairs yêu cầu mới">@counts.OpenRepairs</span> }</a>
+    <a class="nav-link @Active("Support")" aria-current="@Current("Support")" asp-area="Landlord" asp-controller="Support" asp-action="Index">❓ Hỗ trợ
+        @if (counts.SupportReplies > 0) { <span class="badge bg-danger ms-1" aria-label="@counts.SupportReplies phản hồi mới">@counts.SupportReplies</span> }</a>
+    <a class="nav-link @Active("PaymentSettings")" aria-current="@Current("PaymentSettings")" asp-area="Landlord" asp-controller="PaymentSettings" asp-action="Index">🏦 Nhận tiền</a>
+    <a class="nav-link @Active("Account")" aria-current="@Current("Account")" asp-area="Landlord" asp-controller="Account" asp-action="Index">👤 Tài khoản</a>
+</nav>
+<div id="ll-alerts" aria-live="polite">
+    @if (!string.IsNullOrEmpty(status))
+    {
+        <div class="alert alert-@statusType alert-dismissible fade show" role="alert">
+            @status
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+        </div>
+    }
+</div>

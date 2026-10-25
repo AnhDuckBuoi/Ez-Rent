@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
+var datasetDemo = builder.Environment.IsEnvironment("Demo");
+var demoDatabase = datasetDemo ? DatasetDemoSeed.DatabaseName(builder.Configuration.GetConnectionString("DefaultConnection")) : null;
 
 // ============================================================
 // SERVICES
@@ -15,7 +17,14 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddSignalR(options => options.MaximumReceiveMessageSize = 16384);
 builder.Services.AddScoped<ChatRealtime>();
-builder.Services.AddOptions<EZ_Rent.Services.RentalFileStorageOptions>();
+builder.Services.AddOptions<EZ_Rent.Services.RentalFileStorageOptions>()
+    .Bind(builder.Configuration.GetSection("RentalFileStorage"));
+if (datasetDemo)
+{
+    builder.Services.ConfigureApplicationCookie(options => options.Cookie.Name = "EZRent.DatasetDemo." + demoDatabase);
+    builder.Services.Configure<RentalFileStorageOptions>(options => options.RootPath ??=
+        Path.Combine(builder.Environment.ContentRootPath, "App_Data", "Demo", demoDatabase!, "RentalFiles"));
+}
 builder.Services.AddSingleton<EZ_Rent.Services.RentalPrivateFileStore>();
 builder.Services.AddScoped<EZ_Rent.Services.RentalDocumentService>();
 builder.Services.AddScoped<EZ_Rent.Areas.Tenant.Services.TenantContractDraftService>();
@@ -51,11 +60,16 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
-builder.Services.AddAuthentication()
-    .AddGoogle(options =>
+var authentication = builder.Services.AddAuthentication();
+var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
+var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+
+if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
+{
+    authentication.AddGoogle(options =>
     {
-        options.ClientId     = builder.Configuration["Authentication:Google:ClientId"]!;
-        options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"]!;
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
 
         options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
         options.ClaimActions.MapJsonKey("urn:google:locale", "locale", "string");
@@ -76,6 +90,7 @@ builder.Services.AddAuthentication()
             return Task.CompletedTask;
         };
     });
+}
 
 var app = builder.Build();
 
@@ -113,6 +128,17 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
     await DbSeeder.SeedAsync(scope.ServiceProvider);
+    if (datasetDemo)
+    {
+        var demoInfo = await DatasetDemoSeed.PrepareAsync(scope.ServiceProvider, app.Environment);
+        app.MapGet("/review/dataset", () => Results.Json(demoInfo)).AllowAnonymous();
+        app.MapGet("/review/tenant", async (HttpContext context) =>
+        {
+            context.Response.ContentType = "text/html; charset=utf-8";
+            context.Response.Headers.CacheControl = "no-store";
+            await context.Response.SendFileAsync(Path.Combine(app.Environment.ContentRootPath, "docs", "tenant-app-responsive-review.html"));
+        }).AllowAnonymous();
+    }
 }
 
 // ============================================================

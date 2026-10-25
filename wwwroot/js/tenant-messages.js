@@ -10,7 +10,7 @@
     const draftKey = () => root.dataset.draftKey;
     let readTimer, readBusy = false, scanScheduled = false;
     const visibleIncoming = new Set();
-    let contextOpener, pending;
+    let contextOpener, pending, realtimeTimer, syncRequested = false, syncFailures = 0;
     const announce = text => { document.getElementById('messages-live').textContent = text; };
     const visible = node => node?.isConnected && node.getClientRects().length;
     function keepDrafts() {
@@ -49,13 +49,14 @@
         queueReadScan();
     }
     function install() {
-        const connectionStatus = root.querySelector('[data-chat-connection]');
-        if (connectionStatus && window.EzRentChatStatus) connectionStatus.textContent = window.EzRentChatStatus;
+        window.EzRentChat?.updateControls();
         const input = $('#message-input');
         if (input && drafts.has(draftKey())) input.value = drafts.get(draftKey());
         $('#context-dialog')?.addEventListener('close', () => {
             $('.context-toggle')?.setAttribute('aria-expanded','false');
             if (visible(contextOpener)) contextOpener.focus({preventScroll:true});
+            if (syncRequested) queueSync();
+            queueReadScan();
         });
         arrange();
         const stream = $('#message-stream');
@@ -66,13 +67,13 @@
         keepDrafts();
         pending?.abort();
         const request = new AbortController(); pending = request;
+        const timeout = setTimeout(() => request.abort('timeout'), 12000);
         $('#workspace')?.setAttribute('aria-busy','true'); if (!quiet) announce('Đang tải hộp thư…');
-        const focused = document.activeElement?.id === 'message-input', selection = $('#message-input')?.selectionStart;
         const oldStream = $('#message-stream'), oldScroll = oldStream?.scrollTop || 0;
         const atBottom = !oldStream || oldStream.scrollHeight - oldStream.scrollTop - oldStream.clientHeight < 100;
         try {
-            const response = await fetch(url, {signal:request.signal,headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin'});
-            if (response.redirected || !response.headers.get('content-type')?.includes('text/html')) throw new Error('response');
+            const response = await fetch(url, {signal:request.signal,headers:{'X-Requested-With':'XMLHttpRequest'},credentials:'same-origin',cache:'no-store'});
+            if (response.redirected || (quiet && !response.ok) || !response.headers.get('content-type')?.includes('text/html')) throw new Error('response');
             const doc = new DOMParser().parseFromString(await response.text(),'text/html');
             const next = doc.getElementById('messages-root');
             if (!next) throw new Error('response');
@@ -82,17 +83,26 @@
             if (push) history.pushState(null,'',url);
             const currentFocus = document.activeElement?.id === 'message-input', currentSelection = $('#message-input')?.selectionStart;
             root.replaceWith(next); root = next; install();
+            syncFailures = 0;
+            root.dataset.chatSyncError = 'false';
+            window.EzRentChat?.updateControls();
             const target = phone.matches && root.dataset.mobileChat !== 'true' ? $('#inbox-title') : $('#chat-person-name') || root.querySelector('h2');
             if (quiet) { const stream = $("#message-stream"); if (stream && !atBottom) stream.scrollTop = oldScroll; if (currentFocus && $("#message-input")) { $("#message-input").focus({preventScroll:true}); $("#message-input").setSelectionRange(currentSelection,currentSelection); } }
             if (target && !quiet) { target.setAttribute('tabindex','-1'); target.focus({preventScroll:true}); }
             if (!quiet) announce(response.ok ? 'Đã tải nội dung hộp thư.' : 'Không mở được nội dung. Xem hướng dẫn trong hộp thư.');
             return true;
         } catch (error) {
-            if (error.name !== 'AbortError') {
+            if (error.name !== 'AbortError' || request.signal.reason === 'timeout') {
+                root.dataset.chatSyncError = 'true';
+                window.EzRentChat?.updateControls();
                 window.TenantFeedback?.show('Chưa tải được hộp thư. Hãy thử lại; bản nháp vẫn được giữ trong tab này.',true);
                 announce('Chưa tải được hộp thư. Hãy thử lại.');
             }
-        } finally { if (pending === request) { pending = null; $('#workspace')?.removeAttribute('aria-busy'); } }
+        } finally {
+            clearTimeout(timeout);
+            if (pending === request) { pending = null; $('#workspace')?.removeAttribute('aria-busy'); }
+            if (syncRequested) queueSync();
+        }
         return false;
     }
     function sendStatus(message, error = false) {
@@ -107,9 +117,10 @@
         if (!input.value.trim()) { sendStatus('Nhập nội dung tin nhắn.', true); input.focus(); return; }
         if (!form.reportValidity()) return;
         const data = new FormData(form);
+        const request = new AbortController(), timeout = setTimeout(() => request.abort(),15000);
         keepDrafts(); sending.add(key); sizeInput(); sendStatus('Đang gửi tin nhắn…');
         try {
-            const response = await fetch(form.action, {method:'POST',body:data,credentials:'same-origin',headers:{'X-Requested-With':'XMLHttpRequest'}});
+            const response = await fetch(form.action, {method:'POST',body:data,credentials:'same-origin',headers:{'X-Requested-With':'XMLHttpRequest'},signal:request.signal});
             if (response.redirected) throw new Error('Phiên đăng nhập có thể đã hết hạn. Hãy đăng nhập lại; nội dung vẫn được giữ.');
             const result = response.headers.get('content-type')?.includes('application/json') ? await response.json() : null;
             if (!response.ok) throw new Error(result?.error || 'Chưa xác nhận được kết quả gửi. Hãy tải tin mới trước khi gửi lại.');
@@ -130,7 +141,7 @@
             const message = error instanceof TypeError ? 'Chưa xác nhận được kết quả gửi do kết nối. Hãy tải tin mới để kiểm tra trước khi gửi lại; nội dung vẫn được giữ.' : error.message;
             if (draftKey() === key) sendStatus(message, true);
             else window.TenantFeedback?.show(message, true);
-        } finally { sending.delete(key); sizeInput(); }
+        } finally { clearTimeout(timeout); sending.delete(key); sizeInput(); if (syncRequested) queueSync(); queueReadScan(); }
     }
     function observeIncoming() {
         clearTimeout(readTimer); visibleIncoming.clear();
@@ -156,19 +167,20 @@
                 // Long messages can be taller than the viewport. Require a substantial visible portion.
                 if (height > 0 && width > 0 && height >= Math.min(box.height*.6, area.height*.6)) visibleIncoming.add(node.dataset.messageId);
             });
-            if (visibleIncoming.size) readTimer = setTimeout(() => markVisibleRead(), 650);
+            if (visibleIncoming.size) readTimer = setTimeout(() => markVisibleRead(), 200);
         });
     }
     async function markVisibleRead(allInPage = false) {
         const form = $('#message-read-form'), previousRoot = root;
-        if (!form || readBusy || document.visibilityState !== 'visible' || root.querySelector('dialog[open]')) return;
+        if (!form || readBusy || pending || document.visibilityState !== 'visible' || root.querySelector('dialog[open]')) return;
         const ids = allInPage ? [...form.querySelectorAll('[name="MessageIds"]')].map(node => node.value)
             : [...visibleIncoming].filter(id => $(`[data-message-id="${id}"]`)?.dataset.unread === 'true');
         if (!ids.length) return;
         const data = new FormData(form); data.delete('MessageIds'); ids.forEach(id => data.append('MessageIds',id));
+        const request = new AbortController(), timeout = setTimeout(() => request.abort(),12000);
         readBusy = true;
         try {
-            const response = await fetch(form.action,{method:'POST',body:data,credentials:'same-origin',headers:{'X-Requested-With':'XMLHttpRequest'}});
+            const response = await fetch(form.action,{method:'POST',body:data,credentials:'same-origin',headers:{'X-Requested-With':'XMLHttpRequest'},signal:request.signal});
             if (!response.ok || response.redirected || !response.headers.get('content-type')?.includes('application/json')) throw new Error('read');
             const result = await response.json();
             if (root !== previousRoot) return;
@@ -179,7 +191,7 @@
                 form.hidden = false;
                 window.TenantFeedback?.show('Chưa cập nhật được trạng thái đọc. Bạn vẫn có thể xem tin và thử lại.',true);
             }
-        } finally { readBusy = false; queueReadScan(); }
+        } finally { clearTimeout(timeout); readBusy = false; queueReadScan(); if (syncRequested) queueSync(); }
     }
     function updateUnread(result) {
         const total = $('.unread-total');
@@ -199,18 +211,29 @@
         $('.context-toggle')?.setAttribute('aria-expanded',String(!!dialog?.open));
         if (dialog?.open) $('.close-context')?.focus({preventScroll:true});
     }
-    let realtimeTimer;
-    function updateFromSocket() {
+    function queueSync(delay = 100) {
         clearTimeout(realtimeTimer);
-        realtimeTimer = setTimeout(() => {
-            if (document.visibilityState !== 'visible' || root.querySelector('dialog[open]')) return;
-            if (pending || sending.size) { realtimeTimer = setTimeout(updateFromSocket, 200); return; }
-            navigate(new URL(location.href), false, true);
-        }, 180);
+        if (syncRequested) realtimeTimer = setTimeout(flushSync, delay);
+    }
+    async function flushSync() {
+        // Keep the flag while a dialog/tab is closed to updates. Resume when it
+        // becomes readable, even if no further socket event arrives.
+        if (!syncRequested || document.visibilityState !== 'visible' || root.querySelector('dialog[open]')) return;
+        if (pending || sending.size || readBusy) { queueSync(150); return; }
+        syncRequested = false;
+        const loaded = await navigate(new URL(location.href), false, true);
+        if (!loaded) { syncRequested = true; syncFailures++; }
+        if (syncRequested) queueSync(loaded ? 100 : Math.min(15000, 1000 * 2 ** Math.min(syncFailures, 4)));
+    }
+    function updateFromSocket() {
+        syncRequested = true;
+        queueSync();
     }
     document.addEventListener('chat:changed', updateFromSocket);
-    document.addEventListener('chat:reconnected', updateFromSocket);
+    document.addEventListener('chat:connected', updateFromSocket);
     document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') updateFromSocket(); });
+    addEventListener('online', updateFromSocket);
+    addEventListener('pageshow', event => { if (event.persisted) updateFromSocket(); });
     document.addEventListener('click',event=>{
         const link=event.target.closest('a');
         if (link?.matches('[data-action="refresh-messages"]') && root.contains(link) && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && event.button === 0) {

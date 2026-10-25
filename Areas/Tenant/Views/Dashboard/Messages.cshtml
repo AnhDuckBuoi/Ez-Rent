@@ -2,7 +2,7 @@
 @using System.Globalization
 @model TenantMessagesModel
 @{ Layout = "_Layout"; ViewData["Title"] = "Tin nhắn"; ViewData["MobileChat"] = Model.MobileChat; var input = Model.Input; }
-<div id="messages-root" class="messages-root" data-conversation-id="@(Model.Selected?.Id ?? 0)" data-draft-key="@Model.DraftKey" data-mobile-chat="@Model.MobileChat.ToString().ToLowerInvariant()">
+<div id="messages-root" class="messages-root" data-chat-root data-conversation-id="@(Model.Selected?.Id ?? 0)" data-draft-key="@Model.DraftKey" data-mobile-chat="@Model.MobileChat.ToString().ToLowerInvariant()">
     <div class="page-heading"><div><h1>Tin nhắn</h1><p>Trao đổi về căn phòng bạn quan tâm, theo dõi nội dung ở một nơi.</p></div><a asp-action="Help" class="compare-link">Hướng dẫn hỗ trợ @await Html.PartialAsync("_HomeIcon", "help")</a></div>
     @if ((!ViewData.ModelState.IsValid && Model.Selected == null) || Model.Unavailable || Model.LoadError)
     {

@@ -79,13 +79,15 @@ desktop.ini
 *.bak
 *.orig
 *.cache
-# Config secret - KH�NG commit
+# Config secret - KHÔNG commit
 appsettings.Development.json
 appsettings.Local.json
 #wwwroot
 wwwroot/uploads/
-# Config secret - KH�NG commit
+# Config secret - KHÔNG commit
 # Runtime avatar uploads are user data, not source assets.
 /wwwroot/uploads/avatars/
 # Private contract and meter files are runtime user data.
 /App_Data/RentalFiles/
+/App_Data/Demo/
+/.impeccable/

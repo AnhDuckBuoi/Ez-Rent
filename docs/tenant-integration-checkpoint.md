@@ -1,5 +1,9 @@
 # Bàn giao bản tích hợp Tenant sau review của Đức
 
+> Cập nhật hiện tại: bản làm việc đã về thư mục gốc ở ổ D và ghép Landlord PR #6, dùng dataset nhóm trên SQL Server demo riêng. Xem [bàn giao dataset](tenant-team-dataset.md). Checkout ổ C và các số liệu phía dưới là lịch sử; bản ghép mới chờ review/chưa commit tiếp.
+
+> Cập nhật 25/10/2026: gói tiếp theo bổ sung tự đồng bộ tin đang chờ, ẩn nút tải khi hoạt động bình thường và nhãn Đã xem đúng vùng đọc. 275/275 kiểm thử, 16 kiểm tra trình duyệt đạt; bản sửa này chờ review/chưa commit tiếp. Xem [chat tự cập nhật](tenant-chat-live.md). Commit `8aada7f` và số liệu bên dưới là checkpoint đã push trước đó.
+
 Ngày 21/10/2026. Dương đã duyệt triển khai sau [nhận xét trên PR #2](https://github.com/AnhDuckBuoi/Ez-Rent/pull/2#issuecomment-6318613433), bổ sung yêu cầu chat realtime bằng socket. Sau khi xem bản sửa, Dương đã duyệt commit và push lên nhánh `feature/tenant-integration` để Đức review. **Chưa merge vào main.**
 
 ## Nền mã và nơi làm việc

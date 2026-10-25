@@ -10,6 +10,7 @@
 }
 <section class="discovery-intro"><p class="eyebrow">TÌM NƠI Ở PHÙ HỢP</p><h1>Phòng mới, khởi đầu mới.</h1><p>Khám phá những không gian còn trống dành cho bạn.</p></section>
 <form asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" method="get" id="rental-search" class="search-form">
+        @if (!string.IsNullOrEmpty(Model.Filters.Amenities)) { <input type="hidden" name="Amenities" value="@Model.Filters.Amenities" /> }
     <div class="search-row"><label class="search-box"><span class="sr-only">Từ khóa</span><span aria-hidden="true">⌕</span><input name="Keyword" value="@Input("Keyword", Model.Filters.Keyword)" maxlength="100" placeholder="Tên phòng hoặc địa chỉ…" /></label><button type="submit" class="button primary">Tìm phòng</button></div>
     <details class="filter-panel" open="@(Model.Filters.ActiveFilters().Any(c => c.Keys[0] != "Keyword") || !ViewData.ModelState.IsValid)">
         <summary><span>Bộ lọc tìm kiếm <span data-filter-count>@(Model.Filters.ActiveFilters().Count > 0 ? $"({Model.Filters.ActiveFilters().Count})" : "")</span></span><span aria-hidden="true">＋</span></summary>

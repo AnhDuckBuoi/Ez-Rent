@@ -3,6 +3,8 @@ using EZ_Rent.Helpers;
 using EZ_Rent.Models;
 using EZ_Rent.Models.Enums;
 using EZ_Rent.Services;
+using EZ_Rent.Services.Discovery;
+using EZ_Rent.Areas.Tenant.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -36,56 +38,30 @@ namespace EZ_Rent.Controllers
     string? sortBy,
     int page = 1)
         {
+            if (User.IsInRole("Tenant"))
+            {
+                var input = new RentalSearchInput
+                {
+                    Keyword = Request.Query["Keyword"].FirstOrDefault(), City = city, District = district,
+                    MinPrice = minPrice, MaxPrice = maxPrice, MinArea = minArea, MaxArea = maxArea,
+                    RoomType = roomType, Amenities = string.Join(",", amenities ?? []),
+                    Sort = (sortBy ?? "newest").Replace('_', '-'), Page = page
+                };
+                input.Normalize();
+                var values = input.RouteValues(); values["area"] = "Tenant";
+                return RedirectToAction("Index", "RentalPost", values);
+            }
             if (page < 1) page = 1;
 
-            var query = _context.RentalPosts
-                .Include(p => p.Owner)
-                .Include(p => p.RoomImages)
-                .Where(p => p.ApprovalStatus == ApprovalStatus.Approved &&
-                            p.RoomStatus != RoomStatus.Hidden)
-                .AsQueryable();
-
-            // FILTER
-            if (!string.IsNullOrEmpty(city))
-                query = query.Where(p => p.City == city);
-
-            if (!string.IsNullOrEmpty(district))
-                query = query.Where(p => p.District == district);
-
-            if (minPrice.HasValue)
-                query = query.Where(p => p.Price >= minPrice.Value);
-
-            if (maxPrice.HasValue)
-                query = query.Where(p => p.Price <= maxPrice.Value);
-
-            if (roomType.HasValue)
-                query = query.Where(p => p.RoomType == roomType.Value);
-
-            if (minArea.HasValue)
-                query = query.Where(p => p.Area >= minArea.Value);
-
-            if (maxArea.HasValue)
-                query = query.Where(p => p.Area <= maxArea.Value);
-
-            if (amenities != null && amenities.Length > 0)
+            var query = RentalSearchQuery.Filter(_context.RentalPosts.AsNoTracking().PublicListings()
+                .Include(p => p.Owner).Include(p => p.RoomImages), new RentalSearchCriteria
             {
-                foreach (var a in amenities)
-                {
-                    var amenity = a;
-                    query = query.Where(p => p.AmenitiesJson != null &&
-                                             p.AmenitiesJson.Contains(amenity));
-                }
-            }
-
-            // SORT
-            query = sortBy switch
-            {
-                "price_asc" => query.OrderBy(p => p.Price),
-                "price_desc" => query.OrderByDescending(p => p.Price),
-                "area_asc" => query.OrderBy(p => p.Area),
-                "area_desc" => query.OrderByDescending(p => p.Area),
-                _ => query.OrderByDescending(p => p.PostedAt ?? p.CreatedAt)
-            };
+                Keyword = Request.Query["Keyword"].FirstOrDefault(), City = city, District = district,
+                MinPrice = minPrice, MaxPrice = maxPrice, MinArea = minArea, MaxArea = maxArea,
+                RoomType = roomType, Amenities = amenities ?? []
+            });
+            query = RentalSearchQuery.Order(query, sortBy, _context.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+                .ThenByDescending(p => p.RentalPostId);
 
             var totalCount = await query.CountAsync();
             var totalPages = (int)Math.Ceiling(totalCount / (double)PAGE_SIZE);
@@ -158,6 +134,8 @@ namespace EZ_Rent.Controllers
         // GET: /RentalPost/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            if (User.IsInRole("Tenant"))
+                return RedirectToAction("Details", "RentalPost", new { area = "Tenant", id });
             if (id == null) return NotFound();
 
             var post = await _context.RentalPosts

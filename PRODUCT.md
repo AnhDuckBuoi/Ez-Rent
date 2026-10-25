@@ -2,6 +2,14 @@
 
 <!-- impeccable:product-schema 1 -->
 
+## Đồng bộ về thư mục gốc và dataset nhóm — 25/10/2026
+
+Bản làm việc hiện ở `D:\Workspace\University\WebNC\BTL\Ez Rent`, nhánh `feature/tenant-integration`. Đã ghép Landlord PR #6 vào nền Tenant và giữ sửa chat/đăng nhập local; chờ review trước khi commit/push. Demo dùng DbSeeder gốc trên SQL Server LocalDB riêng, không dùng dữ liệu hardcode của host SQLite. Giữ UI Tenant của Dương, Trang chủ công khai của nhóm và RecommendationService của Đức; dùng chung bộ lọc và điều hướng Tenant về một luồng. Xem [hướng dẫn chạy và bàn giao](docs/tenant-team-dataset.md). Các mục bên dưới là checkpoint trước.
+
+## Chat tự cập nhật và đã xem — 25/10/2026
+
+Dương duyệt tối ưu đúng phạm vi Tenant–Landlord: tự nhận tin, tự cập nhật Đã xem theo tin thực sự hiển thị, giữ các tín hiệu đang chờ và đồng bộ sau kết nối lại. Không thêm presence/đang nhập/model/migration. Giữ layout chung và SignalR hiện tại; nút tải chỉ là khôi phục khi lỗi hoặc JavaScript không hoạt động. 275/275 kiểm thử và 16 kiểm tra trình duyệt đạt; bản sửa chờ review, chưa commit tiếp. Xem [quy tắc và cách thử](docs/tenant-chat-live.md). Các checkpoint bên dưới là lịch sử.
+
 ## Bản tích hợp sau review của Đức — 21/10/2026
 
 Trạng thái hiện tại nằm trên `feature/tenant-integration`, checkout riêng dựa trên `origin/main` tại `19d0900`. Tenant dùng chính `Views/Shared/_Layout.cshtml` và menu chung của nhóm; CSS được giới hạn trong vùng nội dung Tenant. Tìm phòng tái sử dụng `RecommendationService`/SearchHistory của main. Chat Tenant–Landlord đã có gửi/nhận realtime qua SignalR/WebSocket, tái sử dụng phần chat từ nhánh Landlord, giữ bảng Conversation/Message gốc và POST có CSRF. Hỗ trợ TenantAdmin có gửi mới/gửi bổ sung, chưa có UI trả lời Admin. 274/274 kiểm thử và 38 kiểm tra trình duyệt đạt. Bản review mới ở cổng 8771; Dương đã duyệt commit/push nhánh feature để Đức review, chưa merge main hoặc thay database nhóm. Xem [bàn giao tích hợp](docs/tenant-integration-checkpoint.md); các mục bên dưới ghi lại phạm vi từng checkpoint cũ, không thay thế trạng thái mới này.

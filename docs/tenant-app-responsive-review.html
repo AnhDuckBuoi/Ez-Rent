@@ -56,7 +56,24 @@
             openLink.addEventListener('click',syncPage);
             new ResizeObserver(layout).observe(stage);
             pageSelect.value=Object.hasOwn(pages,params.get('page'))?params.get('page'):'home';
-            layout();frame.src=pages[pageSelect.value];
+            layout();
+            async function openReview() {
+                try {
+                    const response=await fetch('/review/dataset',{cache:'no-store'});
+                    if(response.ok&&response.headers.get('content-type')?.includes('application/json')){
+                        const data=await response.json();
+                        if(Number.isSafeInteger(data.conversationId))pages.messages='/Tenant/Dashboard/Messages?ConversationId='+data.conversationId+'&View=chat';
+                        if(Number.isSafeInteger(data.contractId)){
+                            pages['contract-files']='/Tenant/Contract/Details/'+data.contractId;
+                            pages['contract-draft']='/Tenant/Contract/Draft/'+data.contractId;
+                            pages.documents=pages['contract-files'];
+                            pageSelect.querySelector('[value="documents"]').textContent='Tài liệu hợp đồng · Dataset nhóm';
+                        }
+                    }
+                }catch{/* The original isolated test preview has no dataset endpoint. */}
+                frame.src=pages[pageSelect.value];
+            }
+            openReview();
         })();
     </script>
 </body>

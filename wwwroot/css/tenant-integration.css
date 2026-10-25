@@ -58,3 +58,6 @@ body.tenant-app, body.landlord-chat-app { margin-bottom: 0; min-height: 100dvh; 
 @media(max-width:767px) {
     .tenant-app.mobile-chat .tenant-surface .workspace { height:calc(var(--app-height, 100dvh) - 172px); min-height:320px; }
 }
+.tenant-surface [data-chat-retry][hidden],
+.landlord-chat-surface [data-chat-retry][hidden],
+.landlord-chat-surface #landlord-read-form[hidden] { display: none !important; }

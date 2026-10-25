@@ -1,5 +1,7 @@
 # 🚀 EZ-Rent — Hướng Dẫn Cài Đặt
 
+> Demo tích hợp mới dùng **dataset của nhóm**: xem [hướng dẫn Tenant–Landlord](docs/tenant-team-dataset.md). Trong VS Code tại folder dự án, chạy `powershell -ExecutionPolicy Bypass -File .\scripts\Start-Demo.ps1 -Database EZRent_Demo_Team_20261025`. Script dùng LocalDB và database demo riêng, không cần Node hoặc công cụ EF toàn cục để chạy demo. Phần dưới mô tả cài đặt thông thường; Google/email cần cấu hình khi sử dụng các chức năng đó.
+
 > Clone repo về và chạy được trong **10 phút**
 
 ## 📋 Yêu cầu hệ thống
@@ -82,7 +84,7 @@ dotnet ef database update
 dotnet run
 ```
 
-Mở browser: **https://localhost:7200**
+Mở địa chỉ mà terminal in ra. Profile của dự án hiện là **http://localhost:5114** hoặc **https://localhost:7279**. Chế độ dataset demo mặc định dùng **http://127.0.0.1:8771**.
 
 ## 🔐 Tài khoản mặc định
 
@@ -100,7 +102,7 @@ Mở browser: **https://localhost:7200**
 | `Cannot open database` | `sqllocaldb start mssqllocaldb` |
 | `Correlation failed` (Google) | Clear cookies trình duyệt |
 | `Tài khoản chưa xác thực email` | Tắt `RequireConfirmedEmail` trong Program.cs |
-| Port 7200 bị chiếm | Đổi port trong `launchSettings.json` |
+| Cổng đang dùng bị chiếm | Đổi cổng trong `launchSettings.json`, hoặc dùng `Start-Demo.ps1 -Port 8772` cho demo |
 
 ## 📞 Liên hệ nhóm trưởng để lấy:
 

@@ -28,17 +28,9 @@ public class HomeController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-        // ===== GỢI Ý CÁ NHÂN HÓA =====
-        if (userId != null && User.IsInRole("Tenant"))
-        {
-            ViewBag.Recommendations = await _recommender.GetRecommendationsAsync(userId, 6);
-        }
-        else
-        {
-            ViewBag.Recommendations = await _recommender.GetRecommendationsAsync("", 6);
-        }
+        if (User.IsInRole("Tenant")) return RedirectToAction("Index", "Dashboard", new { area = "Tenant" });
+        // Trang công khai giữ phần giới thiệu và gợi ý chung của nhóm.
+        ViewBag.Recommendations = await _recommender.GetRecommendationsAsync("", 6);
 
         // ===== QUICK STATS =====
         ViewBag.TotalPosts   = await _context.RentalPosts

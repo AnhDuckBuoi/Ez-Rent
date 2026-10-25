@@ -3,6 +3,7 @@ using System.Globalization;
 using EZ_Rent.Areas.Tenant.Services;
 using EZ_Rent.Models.Enums;
 using Microsoft.AspNetCore.Routing;
+using EZ_Rent.Services.Discovery;
 
 namespace EZ_Rent.Areas.Tenant.ViewModels;
 
@@ -16,18 +17,23 @@ public class RentalSearchInput : IValidatableObject
     [Range(0d, 1000000d, ErrorMessage = "Diện tích phải từ 0 đến 1.000.000 m².")] public double? MinArea { get; set; }
     [Range(0d, 1000000d, ErrorMessage = "Diện tích phải từ 0 đến 1.000.000 m².")] public double? MaxArea { get; set; }
     [EnumDataType(typeof(RoomType), ErrorMessage = "Loại phòng không hợp lệ.")] public RoomType? RoomType { get; set; }
+    [StringLength(500, ErrorMessage = "Bộ lọc tiện ích quá dài.")] public string? Amenities { get; set; }
+    public string[] AmenityValues => (Amenities ?? "").Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Distinct().ToArray();
     public string Sort { get; set; } = "newest";
     [Range(1, int.MaxValue, ErrorMessage = "Số trang phải là số nguyên dương.")] public int Page { get; set; } = 1;
 
     public void Normalize()
     {
         Keyword = Keyword?.Trim(); City = City?.Trim(); District = District?.Trim();
+        Amenities = string.Join(",", AmenityValues);
     }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         if (MinPrice > MaxPrice) yield return new("Giá tối thiểu phải nhỏ hơn hoặc bằng giá tối đa.", [nameof(MinPrice)]);
         if (MinArea > MaxArea) yield return new("Diện tích tối thiểu phải nhỏ hơn hoặc bằng diện tích tối đa.", [nameof(MinArea)]);
+        if (AmenityValues.Length > 10 || AmenityValues.Any(value => value.Length > 60))
+            yield return new("Chọn tối đa 10 tiện ích hợp lệ.", [nameof(Amenities)]);
         if ((MinArea.HasValue && !double.IsFinite(MinArea.Value)) || (MaxArea.HasValue && !double.IsFinite(MaxArea.Value)))
             yield return new("Diện tích phải là số hữu hạn.", [nameof(MinArea)]);
         if (!new[] { "newest", "price-asc", "price-desc", "area-asc", "area-desc" }.Contains(Sort))
@@ -40,7 +46,13 @@ public class RentalSearchInput : IValidatableObject
         ["MinPrice"] = MinPrice?.ToString(CultureInfo.InvariantCulture), ["MaxPrice"] = MaxPrice?.ToString(CultureInfo.InvariantCulture),
         ["MinArea"] = MinArea?.ToString(CultureInfo.InvariantCulture), ["MaxArea"] = MaxArea?.ToString(CultureInfo.InvariantCulture),
         ["RoomType"] = RoomType.HasValue ? ((int)RoomType.Value).ToString() : null,
-        ["Sort"] = Sort, ["Page"] = page ?? Page
+        ["Sort"] = Sort, ["Page"] = page ?? Page, ["Amenities"] = string.IsNullOrEmpty(Amenities) ? null : Amenities
+    };
+
+    public RentalSearchCriteria Criteria() => new()
+    {
+        Keyword = Keyword, City = City, District = District, MinPrice = MinPrice, MaxPrice = MaxPrice,
+        MinArea = MinArea, MaxArea = MaxArea, RoomType = RoomType, Amenities = AmenityValues
     };
 
     public List<RentalFilterChip> ActiveFilters()
@@ -50,6 +62,7 @@ public class RentalSearchInput : IValidatableObject
         if (!string.IsNullOrWhiteSpace(Keyword)) chips.Add(new($"Từ khóa: {Keyword}", [nameof(Keyword)]));
         if (!string.IsNullOrWhiteSpace(City)) chips.Add(new(City, [nameof(City), nameof(District)]));
         if (!string.IsNullOrWhiteSpace(District)) chips.Add(new(District, [nameof(District)]));
+        if (AmenityValues.Length > 0) chips.Add(new("Tiện ích: " + string.Join(", ", AmenityValues), [nameof(Amenities)]));
         if (MinPrice.HasValue || MaxPrice.HasValue)
         {
             var price = MinPrice.HasValue && MaxPrice.HasValue ? $"{MinPrice.Value.ToString("N0", culture)}–{MaxPrice.Value.ToString("N0", culture)} đ"

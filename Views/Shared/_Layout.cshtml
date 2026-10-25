@@ -1,3 +1,4 @@
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
 @using EZ_Rent.Areas.Tenant.ViewModels
 @{
     var tenant = ViewContext.RouteData.Values["area"]?.ToString() == "Tenant";
@@ -37,6 +38,7 @@
 </head>
 
 <body class="@(tenant ? "tenant-app" : chat ? "landlord-chat-app" : null)">
+    @if (HostEnvironment.EnvironmentName == "Demo") { <div class="alert alert-info text-center rounded-0 py-1 mb-0 small">Bản demo dùng dataset của nhóm · Dữ liệu thử riêng</div> }
     <!-- ================= HEADER ================= -->
     <header id="shared-header" class="@(tenant || chat ? "sticky-top" : null)">
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">

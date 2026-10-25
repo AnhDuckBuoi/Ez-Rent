@@ -20,7 +20,7 @@ public sealed class RentalPrivateFileStore
 
     public RentalPrivateFileStore(IWebHostEnvironment environment, IOptions<RentalFileStorageOptions> options)
     {
-        root = Path.GetFullPath(options.Value.RootPath ?? Path.Combine(environment.ContentRootPath, "App_Data", "RentalFiles"));
+        root = Path.GetFullPath(options.Value.RootPath ?? Path.Combine("App_Data", "RentalFiles"), environment.ContentRootPath);
         var webRoot = Path.GetFullPath(environment.WebRootPath ?? Path.Combine(environment.ContentRootPath, "wwwroot"));
         if (root.Equals(webRoot, StringComparison.OrdinalIgnoreCase) ||
             root.StartsWith(webRoot.TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))

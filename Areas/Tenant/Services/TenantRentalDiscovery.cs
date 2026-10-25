@@ -3,13 +3,13 @@ using EZ_Rent.Data;
 using EZ_Rent.Models;
 using EZ_Rent.Models.Enums;
 using Microsoft.EntityFrameworkCore;
+using EZ_Rent.Services.Discovery;
 
 namespace EZ_Rent.Areas.Tenant.Services;
 
 public static class TenantRentalDiscovery
 {
-    public static IQueryable<RentalPost> VisibleToTenant(this IQueryable<RentalPost> posts) => posts
-        .Where(p => p.ApprovalStatus == ApprovalStatus.Approved && p.RoomStatus == RoomStatus.Available);
+    public static IQueryable<RentalPost> VisibleToTenant(this IQueryable<RentalPost> posts) => posts.PublicListings();
 
     public static async Task<RentalSearchPageModel> SearchAsync(AppDbContext db, RentalSearchInput input, string userId, bool valid)
     {
@@ -19,26 +19,12 @@ public static class TenantRentalDiscovery
         model.Districts = await visible.Where(p => p.District != "" && (input.City == null || input.City == "" || p.City == input.City))
             .Select(p => p.District).Distinct().OrderBy(x => x).ToListAsync();
         if (!valid) return model;
-        var query = visible;
-        if (!string.IsNullOrEmpty(input.Keyword)) query = query.Where(p => p.Title.Contains(input.Keyword) || p.Address.Contains(input.Keyword));
-        if (!string.IsNullOrEmpty(input.City)) query = query.Where(p => p.City == input.City);
-        if (!string.IsNullOrEmpty(input.District)) query = query.Where(p => p.District == input.District);
-        if (input.MinPrice.HasValue) query = query.Where(p => p.Price >= input.MinPrice.Value);
-        if (input.MaxPrice.HasValue) query = query.Where(p => p.Price <= input.MaxPrice.Value);
-        if (input.MinArea.HasValue) query = query.Where(p => p.Area >= input.MinArea.Value);
-        if (input.MaxArea.HasValue) query = query.Where(p => p.Area <= input.MaxArea.Value);
-        if (input.RoomType.HasValue) query = query.Where(p => p.RoomType == input.RoomType.Value);
+        var query = RentalSearchQuery.Filter(visible, input.Criteria());
         model.TotalCount = await query.CountAsync();
         input.Page = Math.Min(input.Page, model.TotalPages);
         // SQL Server sorts decimal natively. SQLite needs a numeric cast for ordering.
         var sqlite = db.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite";
-        var ordered = input.Sort switch
-        {
-            "price-asc" => sqlite ? query.OrderBy(p => (double)p.Price) : query.OrderBy(p => p.Price),
-            "price-desc" => sqlite ? query.OrderByDescending(p => (double)p.Price) : query.OrderByDescending(p => p.Price),
-            "area-asc" => query.OrderBy(p => p.Area), "area-desc" => query.OrderByDescending(p => p.Area),
-            _ => query.OrderByDescending(p => p.PostedAt ?? p.CreatedAt)
-        };
+        var ordered = RentalSearchQuery.Order(query, input.Sort, sqlite);
         var posts = await ordered.ThenByDescending(p => p.RentalPostId).Skip((input.Page - 1) * 12).Take(12)
             .Include(p => p.RoomImages).AsSplitQuery().ToListAsync();
         var ids = posts.Select(p => p.RentalPostId).ToArray();

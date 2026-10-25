@@ -15,12 +15,12 @@ public sealed class ViewingBookingUiTests
     }
 
     [Fact]
-    public async Task Real_source_missing_shows_honest_empty_ui_without_inventing_slots_or_writes()
+    public async Task Registered_source_without_open_hours_shows_empty_ui_without_inventing_slots_or_writes()
     {
         await using var app = new TenantTestApp(); await app.InitializeAsync();
         var html = await Html(app, "/Tenant/ViewingBooking/Index/3");
         Assert.Contains("Room 3", html); Assert.Contains("Address 3", html);
-        Assert.Contains("Lịch xem phòng đang được cập nhật", html);
+        Assert.Contains("Chủ nhà chưa mở lịch ngày này", html);
         Assert.DoesNotContain("name=\"SlotId\"", html);
         Assert.DoesNotContain("Lịch minh họa để thử giao diện", html);
         Assert.Contains("Yêu cầu chưa được gửi", html);

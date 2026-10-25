@@ -45,10 +45,14 @@ public class RentalPostController : TenantControllerBase
             try {
                 if (input.Page == 1) await EZ_Rent.Services.SearchHistoryRecorder.RecordAsync(Context, recommender, CurrentUserId,
                     input.City, input.District, input.MinPrice, input.MaxPrice, input.RoomType, HttpContext.RequestAborted);
-                var recommended = await recommender.GetRecommendationsAsync(CurrentUserId, 3);
+                var recommended = await recommender.GetRecommendationsAsync(CurrentUserId, 12);
                 var savedIds = await Context.Favorites.Where(f => f.UserId == CurrentUserId).Select(f => f.RentalPostId).ToListAsync();
-                model.Recommendations = recommended.Where(p => p.ApprovalStatus == EZ_Rent.Models.Enums.ApprovalStatus.Approved &&
-                    p.RoomStatus == EZ_Rent.Models.Enums.RoomStatus.Available).Select(p => TenantRentalDiscovery.Card(p, savedIds.Contains(p.RentalPostId))).ToList();
+                var recommendedIds = recommended.Select(p => p.RentalPostId).ToArray();
+                var eligibleIds = await EZ_Rent.Services.Discovery.RentalSearchQuery.Filter(
+                    Context.RentalPosts.VisibleToTenant().Where(p => recommendedIds.Contains(p.RentalPostId)), input.Criteria())
+                    .Select(p => p.RentalPostId).ToListAsync();
+                model.Recommendations = recommended.Where(p => eligibleIds.Contains(p.RentalPostId)).Take(3)
+                    .Select(p => TenantRentalDiscovery.Card(p, savedIds.Contains(p.RentalPostId))).ToList();
             } catch (Exception ex) when (ex is not OperationCanceledException) { logger.LogWarning(ex, "Gợi ý phòng chưa sẵn sàng."); }
         }
         model.CurrentUrl = Url.Action(nameof(Index), "RentalPost", input.RouteValues())!;

@@ -1,0 +1,10 @@
+@model MeterFormModel
+@{
+    ViewData["Title"] = "Ghi chỉ số điện nước";
+}
+<partial name="_LandlordMenu" />
+<nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Điện, nước</a></li><li class="breadcrumb-item active" aria-current="page">Ghi chỉ số</li></ol></nav>
+<h2 class="mb-1">✍️ Ghi chỉ số @VietnamTime.PeriodLabel(Model.Input.Period).ToLowerInvariant()</h2>
+<p class="text-muted">@Model.RoomTitle · @Model.TenantName. Chụp ảnh công tơ để người thuê đối chiếu khi xem hóa đơn.</p>
+<partial name="_MeterForm" model="Model" />
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

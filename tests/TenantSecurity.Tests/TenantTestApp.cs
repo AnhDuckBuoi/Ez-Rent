@@ -36,6 +36,7 @@ public sealed class TenantTestApp : IAsyncLifetime
     public ITenantViewingScheduleReader? ViewingScheduleReader { get; set; }
     public TimeProvider? ViewingClock { get; set; }
     public bool UseIdentityCookies { get; set; }
+    public bool UsePreviewEntry { get; set; }
     public string PrivateFileRoot { get; } = Path.Combine(Path.GetTempPath(), "ez-rent-test-files-" + Guid.NewGuid().ToString("N"));
 
     public Task InitializeAsync() => StartAsync(false);
@@ -84,23 +85,19 @@ public sealed class TenantTestApp : IAsyncLifetime
             o.DefaultForbidScheme = preview || UseIdentityCookies ? IdentityConstants.ApplicationScheme : "Test";
         }).AddScheme<AuthenticationSchemeOptions, HeaderAuthenticationHandler>("Test", _ => { });
         app = builder.Build();
+        if (preview || UsePreviewEntry)
+        {
+            app.Use(async (context, next) =>
+            {
+                if (await TenantPreviewEntry.TryEnterAsync(context)) return;
+                await next();
+            });
+        }
         if (preview)
         {
             // Only this test executable supplies a demo identity. Production registration is unchanged.
             app.Use(async (context, next) =>
             {
-                // Sign in once for review. A marker prevents silently signing back in after logout.
-                if (!context.Request.Cookies.ContainsKey("tenant-preview-entered"))
-                {
-                    var manager = context.RequestServices.GetRequiredService<UserManager<ApplicationUser>>();
-                    var demo = await manager.FindByIdAsync(TenantA);
-                    if (demo != null)
-                    {
-                        await context.RequestServices.GetRequiredService<SignInManager<ApplicationUser>>()
-                            .SignInAsync(demo, isPersistent: false);
-                        context.Response.Cookies.Append("tenant-preview-entered", "1", new CookieOptions { HttpOnly = true, SameSite = SameSiteMode.Lax });
-                    }
-                }
                 // Same-origin review frame: anti-forgery SAMEORIGIN headers remain intact.
                 if (HttpMethods.IsGet(context.Request.Method) && context.Request.Path == "/review/tenant")
                 {
@@ -127,7 +124,7 @@ public sealed class TenantTestApp : IAsyncLifetime
                     return;
                 }
                 if (context.Request.Path == "/") { context.Response.Redirect("/Tenant/Dashboard"); return; }
-                var allowed = context.Request.Path.StartsWithSegments("/Identity/Account/Logout") || context.Request.Path.StartsWithSegments("/hubs/chat") || context.Request.Path.StartsWithSegments("/Landlord/Messages") || context.Request.Path.StartsWithSegments("/Tenant/Support") || context.Request.Path.StartsWithSegments("/Tenant/MyRoom") || context.Request.Path.StartsWithSegments("/Tenant/Contract") || context.Request.Path.StartsWithSegments("/Tenant/Invoice") || context.Request.Path.StartsWithSegments("/Tenant/RepairRequest") || context.Request.Path.StartsWithSegments("/Tenant/Account") || context.Request.Path.StartsWithSegments("/Identity/Account/Login") || context.Request.Path.StartsWithSegments("/uploads/avatars") || context.Request.Path.StartsWithSegments("/lib") || context.Request.Path.StartsWithSegments("/Tenant/Dashboard") || context.Request.Path.StartsWithSegments("/Tenant/Notification") || context.Request.Path.StartsWithSegments("/Tenant/RentalPost") || context.Request.Path.StartsWithSegments("/Tenant/Favorite") || context.Request.Path.StartsWithSegments("/Tenant/ViewingAppointment") || context.Request.Path.StartsWithSegments("/Tenant/ViewingBooking") ||
+                var allowed = context.Request.Path.StartsWithSegments("/Identity/Account/Logout") || context.Request.Path.StartsWithSegments("/Identity/Account/AccessDenied") || context.Request.Path.StartsWithSegments("/hubs/chat") || context.Request.Path.StartsWithSegments("/Landlord/Messages") || context.Request.Path.StartsWithSegments("/Tenant/Support") || context.Request.Path.StartsWithSegments("/Tenant/MyRoom") || context.Request.Path.StartsWithSegments("/Tenant/Contract") || context.Request.Path.StartsWithSegments("/Tenant/Invoice") || context.Request.Path.StartsWithSegments("/Tenant/RepairRequest") || context.Request.Path.StartsWithSegments("/Tenant/Account") || context.Request.Path.StartsWithSegments("/Identity/Account/Login") || context.Request.Path.StartsWithSegments("/uploads/avatars") || context.Request.Path.StartsWithSegments("/lib") || context.Request.Path.StartsWithSegments("/Tenant/Dashboard") || context.Request.Path.StartsWithSegments("/Tenant/Notification") || context.Request.Path.StartsWithSegments("/Tenant/RentalPost") || context.Request.Path.StartsWithSegments("/Tenant/Favorite") || context.Request.Path.StartsWithSegments("/Tenant/ViewingAppointment") || context.Request.Path.StartsWithSegments("/Tenant/ViewingBooking") ||
                     context.Request.Path.StartsWithSegments("/css") || context.Request.Path.StartsWithSegments("/js") || context.Request.Path.StartsWithSegments("/images") || context.Request.Path.StartsWithSegments("/fonts");
                 if (!allowed)
                 {
