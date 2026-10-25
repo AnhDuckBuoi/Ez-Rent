@@ -1,6 +1,5 @@
 # ============================================================
 # ASP.NET Core / .NET
-# ============================================================
 **/bin/
 **/obj/
 .vs/
@@ -20,25 +19,16 @@ x86/
 bld/
 out/
 publish/
-
-# ============================================================
 # IDE / Editor
-# ============================================================
 .idea/
 .vscode/
 *.code-workspace
-
-# ============================================================
 # NuGet
-# ============================================================
 *.nupkg
 *.snupkg
 **/[Pp]ackages/*
 !**/[Pp]ackages/build/
-
-# ============================================================
 # Node.js / npm / Gulp
-# ============================================================
 **/node_modules/
 .npm/
 .yarn/
@@ -46,31 +36,20 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnp.*
-
 # Keep package.json and package-lock.json
-
-# ============================================================
 # Logs
-# ============================================================
 **/EmailLogs/
 **/logs/
 **/Logs/
 *.log
-
-# ============================================================
 # Entity Framework Core
 # Keep Migrations/ tracked
-# ============================================================
 # Migrations/
-
 # Ignore local database files
 *.db
 *.db-shm
 *.db-wal
-
-# ============================================================
 # Configuration / secrets
-# ============================================================
 **/appsettings.Development.json
 **/appsettings.Local.json
 **/appsettings.*.local.json
@@ -79,26 +58,17 @@ yarn-error.log*
 **/.env.*
 !**/.env.example
 !**/.env.*.example
-
-# ============================================================
 # Testing / Coverage
-# ============================================================
 [Tt]est[Rr]esult*/
 coverage/
 *.coverage
 *.coveragexml
 *.trx
-
-# ============================================================
 # Publish profiles
-# ============================================================
 *.pubxml
 *.publishproj
 PublishScripts/
-
-# ============================================================
 # OS / Temporary files
-# ============================================================
 .DS_Store
 Thumbs.db
 desktop.ini
@@ -109,9 +79,15 @@ desktop.ini
 *.bak
 *.orig
 *.cache
-# Config secret - KH�NG commit
+# Config secret - KHÔNG commit
 appsettings.Development.json
 appsettings.Local.json
-
 #wwwroot
 wwwroot/uploads/
+# Config secret - KHÔNG commit
+# Runtime avatar uploads are user data, not source assets.
+/wwwroot/uploads/avatars/
+# Private contract and meter files are runtime user data.
+/App_Data/RentalFiles/
+/App_Data/Demo/
+/.impeccable/

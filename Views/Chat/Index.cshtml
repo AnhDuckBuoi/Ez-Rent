@@ -1,0 +1,215 @@
+@using EZ_Rent.Models.Enums
+@using EZ_Rent.ViewModels
+@model ChatPageViewModel
+@{
+    Layout = "_Layout";
+    var title = Model.CurrentRole == "Admin"
+        ? "Hộp thư Chat & Hỗ trợ trực tuyến"
+        : "Hộp thư Tin nhắn & Hỗ trợ";
+    ViewData["Title"] = title;
+    var input = Model.Input;
+    var selected = Model.Selected;
+    var messages = Model.Messages;
+    var unreadParam = input.UnreadOnly ? "true" : null;
+}
+<section id="shared-chat-root" class="shared-chat" data-chat-root data-conversation-id="@(selected?.Id ?? 0)" data-message-page="@input.MessagePage">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div class="d-flex align-items-center gap-2">
+            <h1 class="h3 mb-0">@title</h1>
+            @if (Model.Conversations.TotalUnreadMessages > 0)
+            {
+                <span class="badge bg-primary">@Model.Conversations.TotalUnreadMessages chưa đọc</span>
+            }
+        </div>
+        <span data-chat-connection class="chat-connection" role="status">Đang kết nối…</span>
+    </div>
+
+    <div class="shared-chat-grid">
+        <aside class="shared-chat-inbox">
+            <form method="get" asp-area="" asp-controller="Chat" asp-action="Index" class="mb-3">
+                @if (input.Type.HasValue)
+                {
+                    <input type="hidden" name="type" value="@input.Type" />
+                }
+                <label for="shared-chat-search" class="form-label">Tìm người liên hệ hoặc phòng</label>
+                <input id="shared-chat-search" type="search" name="q" maxlength="100" value="@input.Q" class="form-control" placeholder="Nhập tên hoặc tiêu đề phòng..." />
+                <div class="d-flex justify-content-between gap-2 align-items-center mt-2">
+                    <label class="form-check-label d-flex align-items-center gap-1">
+                        <input type="checkbox" class="form-check-input mt-0" name="unreadOnly" value="true" checked="@input.UnreadOnly" />
+                        <span>Chưa đọc</span>
+                    </label>
+                    <button type="submit" class="btn btn-outline-primary btn-sm">Tìm</button>
+                </div>
+            </form>
+
+            <div class="d-flex flex-wrap gap-1 mb-3" role="navigation" aria-label="Lọc loại cuộc trò chuyện">
+                <a asp-area="" asp-controller="Chat" asp-action="Index"
+                   asp-route-q="@input.Q" asp-route-unreadOnly="@unreadParam"
+                   class="btn btn-sm @(input.Type == null ? "btn-primary" : "btn-outline-secondary")">Tất cả</a>
+                @if (Model.CurrentRole != "Admin")
+                {
+                    <a asp-area="" asp-controller="Chat" asp-action="Index"
+                       asp-route-type="@ConversationType.TenantLandlord" asp-route-q="@input.Q" asp-route-unreadOnly="@unreadParam"
+                       class="btn btn-sm @(input.Type == ConversationType.TenantLandlord ? "btn-primary" : "btn-outline-secondary")">Thuê phòng</a>
+                }
+                @if (Model.CurrentRole is "Tenant" or "Admin")
+                {
+                    <a asp-area="" asp-controller="Chat" asp-action="Index"
+                       asp-route-type="@ConversationType.TenantAdmin" asp-route-q="@input.Q" asp-route-unreadOnly="@unreadParam"
+                       class="btn btn-sm @(input.Type == ConversationType.TenantAdmin ? "btn-primary" : "btn-outline-secondary")">Hỗ trợ Người thuê</a>
+                }
+                @if (Model.CurrentRole is "Landlord" or "Admin")
+                {
+                    <a asp-area="" asp-controller="Chat" asp-action="Index"
+                       asp-route-type="@ConversationType.LandlordAdmin" asp-route-q="@input.Q" asp-route-unreadOnly="@unreadParam"
+                       class="btn btn-sm @(input.Type == ConversationType.LandlordAdmin ? "btn-primary" : "btn-outline-secondary")">Hỗ trợ Chủ trọ</a>
+                }
+            </div>
+
+            @foreach (var conversation in Model.Conversations.Items)
+            {
+                <a asp-area="" asp-controller="Chat" asp-action="Index"
+                   asp-route-c="@conversation.Id"
+                   asp-route-type="@input.Type"
+                   asp-route-unreadOnly="@unreadParam"
+                   asp-route-q="@input.Q"
+                   asp-route-page="@input.Page"
+                   class="shared-chat-thread"
+                   aria-current="@(selected?.Id == conversation.Id ? "page" : null)">
+                    <div class="d-flex justify-content-between align-items-center gap-2">
+                        <strong>@conversation.OtherName</strong>
+                        <span class="badge bg-light text-secondary border">@ChatPageViewModel.TypeBadge(conversation.Type)</span>
+                    </div>
+                    @if (!string.IsNullOrWhiteSpace(conversation.RoomTitle))
+                    {
+                        <span>@conversation.RoomTitle</span>
+                    }
+                    <small>@(string.IsNullOrWhiteSpace(conversation.LastContent) ? "Chưa có tin nhắn" : (conversation.LastFromMe ? "Bạn: " + conversation.LastContent : conversation.LastContent))</small>
+                    @if (conversation.UnreadCount > 0)
+                    {
+                        <span class="badge bg-primary align-self-start">@conversation.UnreadCount chưa đọc</span>
+                    }
+                </a>
+            }
+
+            @if (Model.Conversations.TotalCount == 0)
+            {
+                <p class="text-muted small mb-0">Chưa có cuộc trò chuyện phù hợp với bộ lọc hiện tại.</p>
+            }
+
+            @if (Model.Conversations.TotalPages > 1)
+            {
+                <nav aria-label="Trang cuộc trò chuyện" class="d-flex gap-2 flex-wrap mt-3">
+                    @foreach (var n in new SortedSet<int>(Enumerable.Range(Math.Max(1, input.Page - 2), Math.Min(Model.Conversations.TotalPages, input.Page + 2) - Math.Max(1, input.Page - 2) + 1)) { 1, Model.Conversations.TotalPages })
+                    {
+                        <a asp-area="" asp-controller="Chat" asp-action="Index"
+                           asp-route-c="@selected?.Id"
+                           asp-route-type="@input.Type"
+                           asp-route-unreadOnly="@unreadParam"
+                           asp-route-q="@input.Q"
+                           asp-route-page="@n"
+                           class="btn btn-outline-primary btn-sm"
+                           aria-current="@(n == input.Page ? "page" : null)">@n</a>
+                    }
+                </nav>
+            }
+        </aside>
+
+        <div class="shared-chat-conversation">
+            @if (selected == null || messages == null)
+            {
+                <p class="p-4 text-muted mb-0">Chọn một cuộc trò chuyện để xem nội dung và phản hồi trực tiếp.</p>
+            }
+            else
+            {
+                <header class="shared-chat-heading d-flex justify-content-between align-items-start gap-3 border-bottom">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <h2 class="h5 mb-0">@selected.OtherName</h2>
+                            <span class="badge bg-light text-secondary border">@ChatPageViewModel.TypeBadge(selected.Type)</span>
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(selected.RoomTitle))
+                        {
+                            <p class="text-muted small mb-0 mt-1">@selected.RoomTitle</p>
+                        }
+                    </div>
+                    <a asp-area="" asp-controller="Chat" asp-action="Index"
+                       asp-route-c="@selected.Id"
+                       asp-route-type="@input.Type"
+                       asp-route-unreadOnly="@unreadParam"
+                       asp-route-q="@input.Q"
+                       asp-route-page="@input.Page"
+                       asp-route-messagePage="@input.MessagePage"
+                       data-chat-retry
+                       class="btn btn-outline-primary btn-sm">Tải tin mới</a>
+                </header>
+
+                @if (messages.TotalPages > 1)
+                {
+                    <nav aria-label="Trang tin nhắn" class="d-flex gap-2 flex-wrap p-3 border-bottom">
+                        @foreach (var n in new SortedSet<int>(Enumerable.Range(Math.Max(1, input.MessagePage - 2), Math.Min(messages.TotalPages, input.MessagePage + 2) - Math.Max(1, input.MessagePage - 2) + 1)) { 1, messages.TotalPages })
+                        {
+                            <a asp-area="" asp-controller="Chat" asp-action="Index"
+                               asp-route-c="@selected.Id"
+                               asp-route-type="@input.Type"
+                               asp-route-unreadOnly="@unreadParam"
+                               asp-route-q="@input.Q"
+                               asp-route-page="@input.Page"
+                               asp-route-messagePage="@n"
+                               class="btn btn-outline-primary btn-sm"
+                               aria-current="@(n == input.MessagePage ? "page" : null)">@n</a>
+                        }
+                    </nav>
+                }
+
+                <div id="shared-chat-stream" class="shared-chat-stream" aria-label="Lịch sử tin nhắn">
+                    @if (messages.Items.Count == 0)
+                    {
+                        <p class="text-muted small">Chưa có tin nhắn trong cuộc trò chuyện này.</p>
+                    }
+                    @foreach (var message in messages.Items)
+                    {
+                        <div class="shared-chat-message @(message.Mine ? "mine" : null)"
+                             data-message-id="@message.Id"
+                             data-unread="@((!message.Mine && !message.IsRead).ToString().ToLowerInvariant())">
+                            <p>@message.Content</p>
+                            <small>@ChatPageViewModel.Stamp(message.SentAt) · <span data-message-state>@(message.Mine ? (message.IsRead ? "Đã xem" : "Đã gửi") : "")</span></small>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.CanSend)
+                {
+                    <form asp-area="" asp-controller="Chat" asp-action="Send" asp-route-id="@selected.Id" method="post" id="shared-chat-form" class="shared-chat-composer border-top">
+                        <input type="hidden" name="redirect" value="true" />
+                        <label for="shared-chat-input" class="form-label">Tin nhắn</label>
+                        <textarea id="shared-chat-input" class="form-control" name="content" required maxlength="2000" rows="2" placeholder="Nhập nội dung tin nhắn..." aria-describedby="shared-send-status">@Model.AttemptedContent</textarea>
+                        <div class="d-flex justify-content-end mt-2">
+                            <button type="submit" class="btn btn-primary">Gửi tin nhắn</button>
+                        </div>
+                        <p id="shared-send-status" role="status" class="mt-2 mb-0 small text-muted">@Model.SendError</p>
+                    </form>
+                }
+                else
+                {
+                    <p class="p-3 text-muted border-top mb-0">Cuộc trò chuyện hiện chỉ đọc vì tài khoản thành viên không hoạt động.</p>
+                }
+
+                @if (messages.Items.Any(m => !m.Mine && !m.IsRead))
+                {
+                    <form asp-area="" asp-controller="Chat" asp-action="Read" method="post" id="shared-read-form" class="px-3 pb-3">
+                        <input type="hidden" name="conversationId" value="@selected.Id" />
+                        <input type="hidden" name="messagePage" value="@input.MessagePage" />
+                        <input type="hidden" name="redirect" value="true" />
+                        @foreach (var message in messages.Items.Where(m => !m.Mine && !m.IsRead))
+                        {
+                            <input type="hidden" name="messageIds" value="@message.Id" />
+                        }
+                        <button type="submit" class="btn btn-link btn-sm p-0">Đánh dấu tin trong trang đã đọc</button>
+                    </form>
+                }
+            }
+        </div>
+    </div>
+</section>
+@section Scripts { <script src="~/js/shared-chat.js" asp-append-version="true" defer></script> }

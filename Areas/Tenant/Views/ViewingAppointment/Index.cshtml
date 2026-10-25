@@ -1,77 +1,50 @@
-@model IEnumerable<EZ_Rent.Models.ViewingAppointment>
-
-@{
-    ViewData["Title"] = "Index";
+@using EZ_Rent.Areas.Tenant.ViewModels
+@model AppointmentListModel
+@{ Layout = "_Layout"; ViewData["Title"] = "Lịch hẹn của tôi"; ViewData["AppointmentsPage"] = true; }
+<section class="discovery-intro appointment-intro">
+    <p class="eyebrow">HÀNH TRÌNH TÌM NHÀ</p>
+    <h1>Lịch hẹn của tôi</h1>
+    <p>Theo dõi yêu cầu và phản hồi của chủ nhà, chuẩn bị cho lần xem phòng tiếp theo.</p>
+</section>
+<nav class="appointment-filters" aria-label="Lọc trạng thái lịch hẹn">
+    <a asp-action="Index" class="@(!Model.Input.Status.HasValue ? "selected" : "")" aria-current="@(!Model.Input.Status.HasValue ? "page" : null)">Tất cả <span>@Model.Total</span></a>
+    @foreach (var status in Enum.GetValues<ViewingAppointmentStatus>())
+    {
+        <a asp-action="Index" asp-route-Status="@((int)status)" class="@(Model.Input.Status == status ? "selected" : "")" aria-current="@(Model.Input.Status == status ? "page" : null)">@AppointmentModel.Label(status) <span>@Model.Counts.GetValueOrDefault(status)</span></a>
+    }
+</nav>
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="notice error" role="alert"><h2>Không thể lọc lịch hẹn</h2><div asp-validation-summary="All"></div><a asp-action="Index" class="button">Xem tất cả lịch hẹn</a></div>
 }
-
-<h1>Index</h1>
-
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.RentalPost)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Tenant)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.ViewingDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Note)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.LandlordNote)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Status)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreatedAt)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.UpdatedAt)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.RentalPost.Address)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Tenant.Id)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ViewingDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Note)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.LandlordNote)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Status)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreatedAt)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.UpdatedAt)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.ViewingAppointmentId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ViewingAppointmentId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ViewingAppointmentId">Delete</a>
-            </td>
-        </tr>
+else if (Model.Items.Count == 0)
+{
+    <section class="empty-state">
+        <span class="empty-symbol" aria-hidden="true">▦</span>
+        <h2>@(Model.Input.Status.HasValue ? "Chưa có lịch ở trạng thái này" : "Bạn chưa có lịch xem phòng")</h2>
+        <p>@(Model.Input.Status.HasValue ? "Thử xem tất cả để tìm các yêu cầu khác của bạn." : "Những yêu cầu xem phòng của bạn sẽ xuất hiện tại đây.")</p>
+        @if (Model.Input.Status.HasValue) { <a asp-action="Index" class="button primary">Xem tất cả lịch hẹn</a> }
+        else { <a asp-controller="RentalPost" asp-action="Index" class="button primary">Khám phá phòng</a> }
+    </section>
 }
-    </tbody>
-</table>
+else
+{
+    <div class="appointment-list-heading"><h2>@Model.FilteredTotal lịch hẹn</h2><p>Ưu tiên lịch chờ và đã xác nhận</p></div>
+    <div class="appointment-list">
+    @foreach (var item in Model.Items)
+    {
+        <article class="appointment-card" data-appointment-id="@item.Id">
+            <div class="appointment-card-top"><span class="appointment-status @item.StatusClass">@item.StatusLabel</span><span class="muted small">Lịch #@item.Id</span></div>
+            <h3><a asp-action="Details" asp-route-id="@item.Id">@item.Title</a></h3>
+            <p class="appointment-address">@item.Address</p>
+            <div class="appointment-time"><span aria-hidden="true">▦</span><div><strong>@item.TimeLabel</strong><span>@item.DateLabel</span></div></div>
+            @if (item.Status == ViewingAppointmentStatus.Pending) { <p class="appointment-hint">Chờ chủ nhà xác nhận trước khi đến xem.</p> }
+            @if (!string.IsNullOrWhiteSpace(item.LandlordNote)) { <p class="appointment-reply">Có phản hồi từ chủ nhà</p> }
+            <a asp-action="Details" asp-route-id="@item.Id" class="appointment-detail-link">Xem chi tiết <span aria-hidden="true">→</span></a>
+        </article>
+    }
+    </div>
+    @await Html.PartialAsync("_TenantPagination", new TenantPaginationModel(
+        Model.Input.Page, Model.TotalPages,
+        page => Url.Action("Index", new { Status = (int?)Model.Input.Status, Page = page }), "Trang lịch hẹn"))
+}

@@ -1,0 +1,97 @@
+@model EZ_Rent.Areas.Tenant.ViewModels.AccountSecurityModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Bảo mật & đăng nhập";
+    ViewData["AccountPage"] = true;
+    var requirements = new List<string> { $"ít nhất {Model.RequiredLength} ký tự" };
+    if (Model.RequireLowercase) requirements.Add("chữ thường");
+    if (Model.RequireUppercase) requirements.Add("chữ hoa");
+    if (Model.RequireDigit) requirements.Add("chữ số");
+    if (Model.RequireSymbol) requirements.Add("ký tự đặc biệt");
+}
+<div class="account-page">
+    <header class="account-heading">
+        <p>TÀI KHOẢN CỦA BẠN</p>
+        <h1>Bảo mật & đăng nhập</h1>
+        <span>Quản lý mật khẩu và cách bạn đăng nhập vào EZ Rent.</span>
+    </header>
+    @await Html.PartialAsync("_AccountNav", true)
+    <div asp-validation-summary="ModelOnly" class="account-error" role="alert">
+    </div>
+    <div class="account-grid">
+        <section class="account-panel" aria-labelledby="password-heading">
+            <h2 id="password-heading">@(Model.HasPassword ? "Đổi mật khẩu" : "Tạo mật khẩu")</h2>
+            <p class="account-muted" id="password-hint">Mật khẩu cần có @string.Join(", ", requirements).</p>
+            <form asp-action="UpdatePassword" method="post" class="account-form">
+                @if (Model.HasPassword)
+                {
+                    <div>
+                        <label asp-for="Password.CurrentPassword">Mật khẩu hiện tại</label>
+                        <div class="account-password">
+                            <input asp-for="Password.CurrentPassword" autocomplete="current-password" required aria-describedby="current-error" />
+                            <button type="button" data-password-toggle aria-controls="Password_CurrentPassword" aria-pressed="false" aria-label="Hiện mật khẩu hiện tại">Hiện</button>
+                        </div>
+                        <span asp-validation-for="Password.CurrentPassword" id="current-error" class="account-error"></span>
+                    </div>
+                }
+                <div>
+                    <label asp-for="Password.NewPassword">Mật khẩu mới</label>
+                    <div class="account-password">
+                        <input asp-for="Password.NewPassword" autocomplete="new-password" required minlength="@Model.RequiredLength" maxlength="100" aria-describedby="password-hint new-error" />
+                        <button type="button" data-password-toggle aria-controls="Password_NewPassword" aria-pressed="false" aria-label="Hiện mật khẩu mới">Hiện</button>
+                    </div>
+                    <span asp-validation-for="Password.NewPassword" id="new-error" class="account-error"></span>
+                </div>
+                <div>
+                    <label asp-for="Password.ConfirmPassword">Nhập lại mật khẩu mới</label>
+                    <input asp-for="Password.ConfirmPassword" autocomplete="new-password" required maxlength="100" aria-describedby="confirm-error" />
+                    <span asp-validation-for="Password.ConfirmPassword" id="confirm-error" class="account-error"></span>
+                </div>
+                <div class="account-actions">
+                    <button class="account-primary" type="submit">@(Model.HasPassword ? "Cập nhật mật khẩu" : "Tạo mật khẩu")</button>
+                </div>
+            </form>
+        </section>
+        <div class="account-security-rail">
+            <section class="account-panel" aria-labelledby="google-heading">
+                <h2 id="google-heading">Đăng nhập bằng Google</h2>
+                <p class="account-status">@(Model.GoogleLinked ? "Đã liên kết" : "Chưa liên kết")</p>
+                @if (Model.GoogleLinked)
+                {
+                    <p class="account-muted">@(Model.GoogleConfigured ? "Bạn có thể dùng Google để đăng nhập vào tài khoản này." : "Liên kết Google còn được lưu, nhưng đăng nhập Google hiện chưa khả dụng.")</p>
+                    @if (Model.CanRemoveGoogle)
+                    {
+                        <form asp-action="RemoveGoogle" method="post">
+                            <button class="account-secondary" type="submit">Gỡ liên kết Google</button>
+                        </form>
+                    }
+                    else
+                    {
+                        <p class="account-muted">Hãy tạo mật khẩu trước khi gỡ Google để luôn có cách đăng nhập.</p>
+                    }
+                }
+                else if (Model.GoogleConfigured)
+                {
+                    <p class="account-muted">Liên kết với Google để có thêm cách đăng nhập.</p>
+                    <form asp-action="LinkGoogle" method="post">
+                        <button class="account-secondary" type="submit">Liên kết Google</button>
+                    </form>
+                }
+                else
+                {
+                    <p class="account-muted">Đăng nhập Google hiện chưa khả dụng.</p>
+                }
+            </section>
+            <section class="account-panel" aria-labelledby="session-heading">
+                <h2 id="session-heading">Phiên đăng nhập</h2>
+                <p class="account-muted">Đăng xuất khi bạn dùng xong trên thiết bị dùng chung.</p>
+                <form asp-action="Logout" method="post">
+                    <button class="account-secondary" type="submit">Đăng xuất</button>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script src="~/js/tenant-account.js" asp-append-version="true" defer></script>
+}

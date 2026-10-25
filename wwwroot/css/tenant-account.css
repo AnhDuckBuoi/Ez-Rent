@@ -1,0 +1,353 @@
+.account-page:where(.tenant-surface, .tenant-surface *) {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding-bottom: 32px;
+    scroll-margin-top: 110px;
+    color: #1f2f40;
+}
+
+.account-heading:where(.tenant-surface, .tenant-surface *) {
+    margin: 6px 0 28px;
+}
+
+.account-heading p:where(.tenant-surface, .tenant-surface *) {
+    font-size: 11px;
+    letter-spacing: .11em;
+    font-weight: 700;
+    color: #356797;
+    margin: 0 0 10px;
+}
+
+.account-heading h1:where(.tenant-surface, .tenant-surface *) {
+    font-size: 30px;
+    line-height: 1.25;
+    letter-spacing: -.02em;
+    margin: 0 0 12px;
+}
+
+.account-heading>span:where(.tenant-surface, .tenant-surface *),.account-muted:where(.tenant-surface, .tenant-surface *) {
+    color: #586779;
+    font-size: 14px;
+    line-height: 1.65;
+}
+
+.account-tabs:where(.tenant-surface, .tenant-surface *) {
+    display: flex;
+    gap: 28px;
+    border-bottom: 1px solid #dce2e9;
+    margin-bottom: 28px;
+}
+
+.account-tabs a:where(.tenant-surface, .tenant-surface *) {
+    padding: 0 0 14px;
+    color: #586779;
+    text-decoration: none;
+    font-weight: 600;
+    border-bottom: 3px solid transparent;
+}
+
+.account-tabs a[aria-current=page]:where(.tenant-surface, .tenant-surface *) {
+    color: #356797;
+    border-color: #356797;
+}
+
+.account-grid:where(.tenant-surface, .tenant-surface *) {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) 320px;
+    gap: 28px;
+    align-items: start;
+}
+
+.account-grid>*:where(.tenant-surface, .tenant-surface *) {
+    min-width: 0;
+}
+
+.account-panel:where(.tenant-surface, .tenant-surface *) {
+    background: #fff;
+    border: 1px solid #e0e6ed;
+    border-radius: 14px;
+    padding: 28px;
+}
+
+.account-panel h2:where(.tenant-surface, .tenant-surface *) {
+    font-size: 19px;
+    line-height: 1.4;
+    margin: 0 0 8px;
+}
+
+.account-panel>.account-muted:where(.tenant-surface, .tenant-surface *) {
+    margin: 0 0 24px;
+}
+
+.account-form:where(.tenant-surface, .tenant-surface *) {
+    display: grid;
+    gap: 22px;
+}
+
+.account-form label:where(.tenant-surface, .tenant-surface *) {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.account-form input:where(.tenant-surface, .tenant-surface *) {
+    font: inherit;
+    font-size: 16px;
+    width: 100%;
+    min-width: 0;
+    min-height: 46px;
+    border: 1px solid #bdc8d4;
+    border-radius: 8px;
+    background: #fff;
+    color: #1f2f40;
+    padding: 10px 12px;
+    box-sizing: border-box;
+}
+
+.account-form input[readonly]:where(.tenant-surface, .tenant-surface *) {
+    background: #f6f7f9;
+    color: #586779;
+}
+
+.account-form input[type=file]:where(.tenant-surface, .tenant-surface *) {
+    padding: 8px;
+    font-size: 13px;
+}
+
+.account-form input[type=file]:where(.tenant-surface, .tenant-surface *)::file-selector-button {
+    border: 0;
+    background: #eaf0f6;
+    color: #294f75;
+    border-radius: 4px;
+    padding: 6px 8px;
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+.account-form small:where(.tenant-surface, .tenant-surface *) {
+    display: block;
+    font-size: 12px;
+    color: #586779;
+    line-height: 1.6;
+    margin-top: 7px;
+}
+
+.account-primary:where(.tenant-surface, .tenant-surface *),.account-secondary:where(.tenant-surface, .tenant-surface *),.account-text-button:where(.tenant-surface, .tenant-surface *) {
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 44px;
+    padding: 11px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    line-height: 1.5;
+}
+
+.account-primary:where(.tenant-surface, .tenant-surface *) {
+    color: #fff;
+    background: #356797;
+    border: 1px solid #356797;
+}
+
+.account-primary:hover:where(.tenant-surface, .tenant-surface *) {
+    background: #2a537b;
+}
+
+.account-secondary:where(.tenant-surface, .tenant-surface *) {
+    color: #294f75;
+    background: #fff;
+    border: 1px solid #bdc8d4;
+}
+
+.account-secondary:hover:where(.tenant-surface, .tenant-surface *) {
+    background: #f3f6fa;
+}
+
+.account-text-button:where(.tenant-surface, .tenant-surface *) {
+    background: none;
+    border: 0;
+    color: #586779;
+    padding-inline: 0;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.account-page :is(a,button,input):focus-visible:where(.tenant-surface, .tenant-surface *) {
+    outline: 3px solid #356797;
+    outline-offset: 3px;
+}
+
+.account-actions:where(.tenant-surface, .tenant-surface *) {
+    padding-top: 2px;
+    border-top: 1px solid #edf0f4;
+    margin-top: 2px;
+}
+
+.account-actions button:where(.tenant-surface, .tenant-surface *) {
+    margin-top: 18px;
+}
+
+.account-error:where(.tenant-surface, .tenant-surface *) {
+    color: #a42b30;
+    font-size: 13px;
+    line-height: 1.6;
+    display: block;
+    margin-top: 6px;
+}
+
+.account-error.validation-summary-valid:where(.tenant-surface, .tenant-surface *),.account-error.field-validation-valid:where(.tenant-surface, .tenant-surface *) {
+    display: none;
+}
+
+.account-error.validation-summary-errors:where(.tenant-surface, .tenant-surface *) {
+    padding: 12px 16px;
+    background: #fff1f1;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+.account-form .input-validation-error:where(.tenant-surface, .tenant-surface *) {
+    border-color: #a42b30;
+}
+
+.account-photo:where(.tenant-surface, .tenant-surface *) {
+    text-align: left;
+}
+
+.account-avatar:where(.tenant-surface, .tenant-surface *) {
+    width: 104px;
+    height: 104px;
+    position: relative;
+    display: grid;
+    place-items: center;
+    background: #eaf0f6;
+    border-radius: 50%;
+    color: #356797;
+    font-size: 30px;
+    font-weight: 650;
+    margin: 24px auto 14px;
+    overflow: hidden;
+}
+
+.account-avatar img:where(.tenant-surface, .tenant-surface *) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.account-name:where(.tenant-surface, .tenant-surface *) {
+    text-align: center;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    margin: 0 0 24px;
+}
+
+.account-photo [data-avatar-status]:empty:where(.tenant-surface, .tenant-surface *) {
+    display: none;
+}
+
+.account-photo .account-form:where(.tenant-surface, .tenant-surface *) {
+    gap: 14px;
+}
+
+.account-security-rail:where(.tenant-surface, .tenant-surface *) {
+    display: grid;
+    gap: 24px;
+}
+
+.account-status:where(.tenant-surface, .tenant-surface *) {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #356797;
+    background: #eaf0f6;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: 4px 0 14px;
+}
+
+.account-password:where(.tenant-surface, .tenant-surface *) {
+    display: flex;
+    border: 1px solid #bdc8d4;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.account-password input:where(.tenant-surface, .tenant-surface *) {
+    border: 0;
+    background: none;
+}
+
+.account-password button:where(.tenant-surface, .tenant-surface *) {
+    border: 0;
+    background: none;
+    color: #356797;
+    padding: 0 12px;
+    font: inherit;
+    font-size: 13px;
+    min-width: 52px;
+    cursor: pointer;
+}
+
+.account-page p:where(.tenant-surface, .tenant-surface *),.account-page small:where(.tenant-surface, .tenant-surface *) {
+    overflow-wrap: anywhere;
+}
+
+@media(max-width:999px) {
+    .account-grid:where(.tenant-surface, .tenant-surface *) {
+        grid-template-columns: minmax(0,1fr) 280px;
+        gap: 20px;
+    }
+
+    .account-panel:where(.tenant-surface, .tenant-surface *) {
+        padding: 22px;
+    }
+}
+
+@media(max-width:767px) {
+    .account-heading h1:where(.tenant-surface, .tenant-surface *) {
+        font-size: 27px;
+    }
+
+    .account-heading:where(.tenant-surface, .tenant-surface *) {
+        margin-top: 0;
+    }
+
+    .account-grid:where(.tenant-surface, .tenant-surface *) {
+        grid-template-columns: 1fr;
+    }
+
+    .account-tabs:where(.tenant-surface, .tenant-surface *) {
+        gap: 20px;
+        font-size: 13px;
+    }
+
+    .account-panel:where(.tenant-surface, .tenant-surface *) {
+        padding: 22px 20px;
+    }
+
+    .account-photo:where(.tenant-surface, .tenant-surface *) {
+        display: block;
+    }
+
+    .account-avatar:where(.tenant-surface, .tenant-surface *) {
+        margin-top: 20px;
+    }
+
+    .account-actions button:where(.tenant-surface, .tenant-surface *) {
+        width: 100%;
+    }
+
+    .account-page:where(.tenant-surface, .tenant-surface *) {
+        padding-bottom: 16px;
+    }
+}
+
+
+/* Reserve space when keyboard focus scrolls beneath the fixed mobile navigation. */
+.tenant-surface:has(.account-page):where(.tenant-surface, .tenant-surface *) {
+    scroll-padding-bottom: 100px;
+}

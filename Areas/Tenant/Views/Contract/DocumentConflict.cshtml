@@ -1,0 +1,6 @@
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Tài liệu hợp đồng vừa thay đổi";
+    ViewData["Description"] = "Hãy đối chiếu phiên bản hiện tại trước khi xác nhận.";
+}
+<section class="rental-empty"><h2>Cần xem lại bản hợp đồng mới</h2><p>@ViewData["ConflictMessage"]</p><a href="@ViewData["RecoveryUrl"]" class="rental-button primary">Mở lại hợp đồng</a></section>

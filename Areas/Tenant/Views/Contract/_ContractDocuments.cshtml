@@ -1,0 +1,53 @@
+@using EZ_Rent.Areas.Tenant.Services
+@model EZ_Rent.Areas.Tenant.ViewModels.ContractDetailsModel
+<section class="rental-panel rental-document-section" aria-labelledby="contract-documents-title">
+    <div class="rental-section-heading"><div><h2 id="contract-documents-title">Tài liệu hợp đồng</h2><p class="rental-note">Bản do chủ nhà cung cấp, được lưu theo phiên bản để hai bên đối chiếu.</p></div></div>
+    @if (Model.CurrentDocument is { } current)
+    {
+        <div class="rental-document-current" data-current-document="@current.ContractDocumentId">
+            <div><h3>Phiên bản @current.Version · @current.FileName</h3><p class="rental-note">Tải lên @TenantRentalPresentation.SentAt(current.CreatedAt) · @((current.ByteLength / 1024d).ToString("N0")) KB</p></div>
+            <a asp-action="Document" asp-route-id="@current.ContractDocumentId" asp-route-download="true" class="rental-button secondary">@(current.ContentType == "application/pdf" ? "Tải PDF để xem" : "Tải ảnh hợp đồng")</a>
+        </div>
+        @if (current.ContentType is "image/png" or "image/jpeg")
+        {
+            <a asp-action="Document" asp-route-id="@current.ContractDocumentId" class="rental-document-image" data-rental-zoom data-zoom-title="Hợp đồng · Phiên bản @current.Version"><img src="@Url.Action("Document", new { id = current.ContractDocumentId })" alt="Bản hợp đồng phiên bản @current.Version" loading="lazy" data-rental-image /><span>Mở ảnh hợp đồng</span></a>
+        }
+        @if (current.TenantAcknowledgedAt.HasValue)
+        {
+            <p class="rental-document-confirmed">Bạn đã xác nhận đối chiếu phiên bản @current.Version vào @TenantRentalPresentation.SentAt(current.TenantAcknowledgedAt.Value).</p>
+        }
+        else
+        {
+            <form asp-action="ConfirmDocument" asp-route-id="@Model.Contract.RentalContractId" method="post" class="rental-document-confirm">
+                <input type="hidden" name="documentId" value="@current.ContractDocumentId" />
+                <label><input type="checkbox" name="agreed" value="true" required />Tôi đã xem và đối chiếu đúng tài liệu hai bên thống nhất.</label>
+                <button type="submit" class="rental-button primary">Xác nhận đã đối chiếu</button>
+            </form>
+        }
+        <p class="rental-note">Thao tác này ghi nhận việc đối chiếu tài liệu, không thay đổi trạng thái ký hoặc ngày hiệu lực của hợp đồng.</p>
+    }
+    else
+    {
+        <p class="rental-document-empty">Chủ nhà chưa cung cấp tài liệu hợp đồng. Khi có tài liệu, bạn có thể mở, tải xuống và xác nhận đã đối chiếu tại đây.</p>
+    }
+    @if (Model.Documents.Count > 0)
+    {
+        <h3 class="rental-subheading">Lịch sử tài liệu</h3>
+        <ul class="rental-document-history">
+            @foreach (var document in Model.Documents)
+            {
+                <li data-document-id="@document.ContractDocumentId"><div><strong>Phiên bản @document.Version</strong><span>@document.FileName</span><small>@TenantRentalPresentation.SentAt(document.CreatedAt) · @(document.TenantAcknowledgedAt.HasValue ? "Đã đối chiếu phiên bản này" : "Chưa đối chiếu")</small></div><a asp-action="Document" asp-route-id="@document.ContractDocumentId" asp-route-download="true" class="rental-button secondary">Tải phiên bản @document.Version</a></li>
+            }
+        </ul>
+        @if (Model.DocumentPages > 1)
+        {
+            <nav aria-label="Trang lịch sử tài liệu" class="rental-document-pages">
+                @if (Model.DocumentPage > 1) { <a asp-action="Details" asp-route-id="@Model.Contract.RentalContractId" asp-route-documentPage="@(Model.DocumentPage - 1)" class="rental-button secondary">Trước</a> }
+                @for (var pageNumber = Math.Max(1, Model.DocumentPage - 2); pageNumber <= Math.Min(Model.DocumentPages, Model.DocumentPage + 2); pageNumber++)
+                { <a asp-action="Details" asp-route-id="@Model.Contract.RentalContractId" asp-route-documentPage="@pageNumber" aria-current="@(pageNumber == Model.DocumentPage ? "page" : null)" class="rental-button secondary">@(pageNumber)</a> }
+                @if (Model.DocumentPage < Model.DocumentPages) { <a asp-action="Details" asp-route-id="@Model.Contract.RentalContractId" asp-route-documentPage="@(Model.DocumentPage + 1)" class="rental-button secondary">Sau</a> }
+            </nav>
+        }
+    }
+    <details class="rental-template-reference"><summary>Mẫu BM03 của nhóm</summary><p>Bản nháp tự điền những thông tin đang có; các mục còn thiếu để trống. Tiền nước trong bản nháp đã đổi sang đ/m³ theo cách tính nhóm chốt, bản gốc được giữ nguyên để đối chiếu.</p><a asp-action="Draft" asp-route-id="@Model.Contract.RentalContractId" class="rental-button primary">Xem bản nháp BM03</a> <a asp-action="Template" asp-route-id="@Model.Contract.RentalContractId" class="rental-button secondary">Tải mẫu BM03 gốc</a></details>
+</section>

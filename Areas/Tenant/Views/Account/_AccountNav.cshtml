@@ -1,0 +1,5 @@
+@model bool
+<nav class="account-tabs" aria-label="Cài đặt tài khoản">
+    <a asp-action="Index" aria-current="@(!Model ? "page" : null)">Thông tin cá nhân</a>
+    <a asp-action="Security" aria-current="@(Model ? "page" : null)">Bảo mật & đăng nhập</a>
+</nav>

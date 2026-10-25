@@ -1,0 +1,35 @@
+@model EZ_Rent.Areas.Tenant.ViewModels.RentalSearchPageModel
+@if (!Model.IsFavorites && Model.Recommendations.Count > 0) {
+    <section class="tenant-recommendations" aria-label="Phòng gợi ý"><h2>Gợi ý cho bạn</h2><p>Dựa trên lịch sử tìm kiếm và các phòng bạn quan tâm.</p><div class="room-grid">
+    @foreach (var room in Model.Recommendations) {
+        <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Details" asp-route-id="@room.RentalPostId" asp-route-returnUrl="@Model.CurrentUrl" class="recommendation-card"><img src="@room.ImageUrl" alt="" loading="lazy" data-fallback="/images/room-placeholder.svg" /><span><strong>@room.Title</strong><small>@room.Price.ToString("N0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN")) đ / tháng</small>@if (room.IsSaved) { <small>Đã lưu</small> }</span></a>
+    }
+    </div></section>
+}
+@{ var chips = Model.IsFavorites ? new List<EZ_Rent.Areas.Tenant.ViewModels.RentalFilterChip>() : Model.Filters.ActiveFilters(); }
+@if (chips.Count > 0)
+{
+    <nav class="active-filters" aria-label="Điều kiện đang áp dụng">
+        @foreach (var chip in chips)
+        {
+            <a href="@Url.Action("Index", "RentalPost", Model.Filters.WithoutFilter(chip.Keys))" data-filter-link data-filter-key="@chip.Keys[0]" class="filter-chip" aria-label="Bỏ điều kiện @chip.Label"><span>@chip.Label</span><span aria-hidden="true">×</span></a>
+        }
+        <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" data-filter-link class="clear-filters">Xóa tất cả</a>
+    </nav>
+}
+<div class="result-heading"><div><p class="eyebrow">@(Model.IsFavorites ? "PHÒNG CỦA BẠN" : "KHÔNG GIAN ĐANG CHỜ BẠN")</p><h2>@(Model.IsFavorites ? "Phòng đã lưu" : "Kết quả tìm phòng") <span>(@Model.TotalCount)</span></h2></div></div>
+<div asp-validation-summary="All" class="validation-errors" role="alert"></div>
+@if (Model.Rooms.Count == 0)
+{
+    <div class="empty-state"><span class="empty-symbol" aria-hidden="true">⌕</span><h3>@(Model.IsFavorites ? "Bạn chưa lưu phòng nào" : "Chưa tìm thấy phòng phù hợp")</h3><p>@(Model.IsFavorites ? "Lưu những căn phòng bạn thích để xem lại và so sánh dễ dàng." : "Thử thay đổi khu vực, mức giá hoặc xóa bộ lọc để xem thêm lựa chọn.")</p><a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" class="button primary">@(Model.IsFavorites ? "Khám phá phòng" : "Xóa bộ lọc")</a></div>
+}
+else
+{
+    <div class="rental-grid">@foreach (var room in Model.Rooms) { <partial name="~/Areas/Tenant/Views/Shared/_RentalCard.cshtml" model="room" /> }</div>
+}
+@await Html.PartialAsync("_TenantPagination", new EZ_Rent.Areas.Tenant.ViewModels.TenantPaginationModel(
+    Model.Filters.Page, Model.TotalPages,
+    page => Model.IsFavorites ? Url.Action("Index", "Favorite", new { page }) : Url.Action("Index", "RentalPost", Model.Filters.RouteValues(page)),
+    "Phân trang phòng", true))
+<template id="district-options"><option value="">Tất cả quận/huyện</option>@foreach (var district in Model.Districts) { <option value="@district" selected="@(district == Model.Filters.District)">@district</option> }</template>
+<span data-current-url="@Model.CurrentUrl" data-filter-count-value="@chips.Count" hidden></span>

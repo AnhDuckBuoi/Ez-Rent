@@ -1,0 +1,45 @@
+/* Shared Tenant navigation: one top header from 768px, including narrow desktop windows. */
+.tenant-desktop-header{display:none;font:15px/1.55 "Segoe UI",Arial,sans-serif;color:#192330;flex-shrink:0}
+.tenant-feedback{display:flex;align-items:center;justify-content:space-between;gap:16px;background:#fff3cd;color:#664d03;border:1px solid #ffecb5;border-radius:6px;padding:12px 12px 12px 16px;margin-bottom:20px;font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+.tenant-feedback>span{min-width:0;flex:1}.tenant-feedback>button{display:grid;place-items:center;flex-shrink:0;width:36px;height:36px;padding:0;border:0;background:transparent;color:inherit;font:26px/1 Arial,sans-serif;border-radius:4px}
+.tenant-feedback>button:hover{background:#664d0310}.tenant-feedback.is-error{background:#f8d7da;border-color:#f5c2c7;color:#842029}
+.tenant-pagination{gap:8px;row-gap:10px}.tenant-pagination .button{min-width:42px;min-height:44px;padding:8px 12px;font-size:14px;border-radius:8px}
+.tenant-pagination .page-current{background:#356797;border-color:#356797;color:white;font-weight:650}.tenant-pagination .page-disabled{color:#697586;background:transparent;border-color:transparent}
+.tenant-pagination .page-gap{padding:0 3px}.tenant-pagination .page-summary{flex-basis:100%;text-align:center;color:#586779;font-size:12px}
+@media(min-width:768px){
+ html:has(.tenant-desktop-header){scroll-padding-top:104px}
+ body:has(.tenant-desktop-header){background:#f6f7f9}
+ .tenant-desktop-header{display:block;position:sticky;top:0;z-index:20;background:white;border-bottom:1px solid #e0e4e9}
+ .tenant-desktop-inner{max-width:1280px;margin:auto;min-height:84px;padding:15px 30px;display:flex;align-items:center;gap:28px}
+ .tenant-desktop-header svg{display:block;width:21px;height:21px;flex-shrink:0}
+ .tenant-desktop-brand{display:flex;align-items:center;gap:10px;flex-shrink:0}.tenant-desktop-brand>span{display:grid;place-items:center;width:40px;height:40px;border-radius:11px;background:#edf4fc;color:#356797}.tenant-desktop-brand strong{font-size:18px;letter-spacing:-.4px}
+ .tenant-desktop-links{display:flex;align-items:center;gap:28px;margin-left:auto}.tenant-desktop-links>a{display:flex;align-items:center;min-height:44px;color:#586779;font-size:14px;white-space:nowrap}.tenant-desktop-links [aria-current=page]{color:#356797;font-weight:650}
+ .tenant-desktop-bell{position:relative;display:grid;place-items:center;flex-shrink:0;width:44px;height:44px;border:1px solid #e3eaf2;border-radius:50%;color:#526579}.tenant-desktop-bell[aria-current=page]{border-color:#356797;color:#356797;background:#edf4fc}
+ .tenant-desktop-count{position:absolute;top:-3px;right:-2px;display:grid;place-items:center;min-width:19px;height:19px;padding:0 4px;border:2px solid white;border-radius:10px;background:#356797;color:white;font-size:10px;font-weight:700}
+ .tenant-desktop-account{display:grid;place-items:center;flex-shrink:0;width:36px;height:36px;color:#356797}
+ .tenant-desktop-header a:focus-visible{outline:3px solid #356797;outline-offset:4px}.tenant-desktop-links>a:hover{color:#28557e;text-decoration:underline;text-underline-offset:5px}
+ .tenant-legacy-header,.tenant-nav,.bottom-nav{display:none!important}
+}
+@media(min-width:768px) and (max-width:1023px){
+ .tenant-desktop-inner{min-height:76px;padding:12px 20px;gap:16px}
+ .tenant-desktop-brand>span{width:36px;height:36px}
+ .tenant-desktop-brand strong{font-size:17px}
+ .tenant-desktop-links{gap:16px}
+ .tenant-desktop-links>a{font-size:13px}
+}
+/* Keep content sizing changes at the original breakpoint. */
+@media(min-width:1024px){
+ body:has(.tenant-desktop-header)>.discovery-main{max-width:1280px;padding:38px 30px 48px;color:#1f2f40}
+ body:has(.tenant-desktop-header) .button.primary{background:#356797;border-color:#356797}
+ body:has(.tenant-desktop-header) #rental-results{scroll-margin-top:20px}
+}
+
+/* One set of mobile destinations across Tenant layouts. Chat keeps its existing hidden-nav rule. */
+@media(max-width:767px) {
+    .tenant-mobile-nav { font-family: "Segoe UI", Arial, sans-serif; padding-bottom: env(safe-area-inset-bottom, 0px); }
+    .tenant-mobile-nav>a { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px; min-width: 0; min-height: 64px; flex: 1; color: #586779; }
+    .tenant-mobile-nav>a>svg { width: 21px; height: 21px; display: block; }
+    .tenant-mobile-nav>a>span { font-size: 10px; line-height: 1.35; font-weight: 400; text-align: center; }
+    .tenant-mobile-nav>a[aria-current=page] { color: #356797; }
+    .tenant-mobile-nav>a[aria-current=page]>span { font-weight: 600; }
+}

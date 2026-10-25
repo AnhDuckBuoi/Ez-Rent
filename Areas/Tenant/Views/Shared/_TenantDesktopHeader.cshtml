@@ -1,0 +1,21 @@
+@model EZ_Rent.Areas.Tenant.ViewModels.TenantHeaderModel
+@{
+    var links = new[] { ("Dashboard", "Index", "Trang chủ"), ("RentalPost", "Index", "Tìm phòng"), ("MyRoom", "Index", "Phòng đang ở"), ("ViewingAppointment", "Index", "Lịch hẹn"), ("Favorite", "Index", "Đã lưu"), ("Dashboard", "Messages", "Tin nhắn") };
+}
+<header class="tenant-desktop-header">
+    <div class="tenant-desktop-inner">
+        <a asp-area="Tenant" asp-controller="Dashboard" asp-action="Index" class="tenant-desktop-brand"><span>@await Html.PartialAsync("_HomeIcon", "home")</span><strong>EZ Rent</strong></a>
+        <nav class="tenant-desktop-links" aria-label="Điều hướng người thuê">
+            @foreach (var (controller, action, label) in links)
+            {
+                var active = Model.Controller == controller && (controller != "Dashboard" || Model.Action == action);
+                <a asp-area="Tenant" asp-controller="@controller" asp-action="@action" aria-current="@(active ? "page" : null)">@label</a>
+            }
+        </nav>
+        <a asp-area="Tenant" asp-controller="Notification" asp-action="Index" class="tenant-desktop-bell" aria-current="@(Model.Controller == "Notification" ? "page" : null)" aria-label="Thông báo, @Model.UnreadCount chưa đọc">
+            @await Html.PartialAsync("_HomeIcon", "bell")
+            @if (Model.UnreadCount > 0) { <span class="tenant-desktop-count">@(Model.UnreadCount > 99 ? "99+" : Model.UnreadCount.ToString())</span> }
+        </a>
+        <a asp-area="Tenant" asp-controller="Account" asp-action="Index" aria-current="@(Model.Controller == "Account" ? "page" : null)" class="tenant-desktop-account" aria-label="Tài khoản của tôi">@await Html.PartialAsync("_HomeIcon", "user")</a>
+    </div>
+</header>

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Hợp đồng và ảnh công tơ · Bản thử EZ Rent</title>
+    <link rel="stylesheet" href="/css/tenant-shell.css">
+    <link rel="stylesheet" href="/review/tenant-documents.css">
+    <script src="/review/tenant-documents.js" defer></script>
+</head>
+<body>
+    <a class="skip-link" href="#main">Đến nội dung</a>
+    <p class="preview-notice">Bản thử giao diện · Dữ liệu minh họa · Tệp chỉ mở trong trình duyệt, chưa lưu lên hệ thống</p>
+    <!-- The preview follows the existing header geometry; production still uses its shared Razor component. -->
+    <header class="tenant-desktop-header">
+        <div class="tenant-desktop-inner">
+            <a class="tenant-desktop-brand" href="/Tenant/Dashboard"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m3 10 9-7 9 7M5 9v12h14V9M9 21v-8h6v8"/></svg></span><strong>EZ Rent</strong></a>
+            <nav class="tenant-desktop-links" aria-label="Điều hướng người thuê">
+                <a href="/Tenant/Dashboard">Trang chủ</a><a href="/Tenant/RentalPost">Tìm phòng</a><a href="/Tenant/MyRoom" aria-current="page">Phòng đang ở</a><a href="/Tenant/ViewingAppointment">Lịch hẹn</a><a href="/Tenant/Favorite">Đã lưu</a><a href="/Tenant/Dashboard/Messages">Tin nhắn</a>
+            </nav>
+            <a class="tenant-desktop-bell" href="/Tenant/Notification" aria-label="Thông báo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 16h14l-2-3V9a5 5 0 0 0-10 0v4zm5 3a2 2 0 0 0 4 0"/></svg></a>
+            <a class="tenant-desktop-account" href="/Tenant/Account" aria-label="Tài khoản"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="12" cy="7" r="4"/><path d="M5 22v-3a7 7 0 0 1 14 0v3"/></svg></a>
+        </div>
+    </header>
+    <header class="mobile-header"><a href="/Tenant/MyRoom">← Phòng đang ở</a><strong>EZ Rent</strong></header>
+    <main id="main" class="workspace">
+        <a class="back-link" href="/Tenant/MyRoom">← Về phòng đang ở</a>
+        <div class="page-heading"><div><h1>Hồ sơ thuê phòng</h1><p>Phòng ban công tại Cầu Giấy · Ngõ 68, phố Cầu Giấy, Hà Nội</p></div><span class="status">Bản thử để review</span></div>
+        <nav class="section-tabs" aria-label="Hồ sơ thuê phòng">
+            <a href="#contract" data-section="contract" aria-current="page">Hợp đồng</a>
+            <a href="#invoice" data-section="invoice">Hóa đơn &amp; công tơ</a>
+        </nav>
+
+        <section id="contract" aria-labelledby="contract-title">
+            <div class="section-heading"><div><h2 id="contract-title">Chuẩn bị và lưu hợp đồng</h2><p>Điền thông tin, tạo mẫu để ký bên ngoài và lưu lại tài liệu hai bên đối chiếu.</p></div></div>
+            <ol class="workflow" aria-label="Các bước hợp đồng"><li><span>1</span>Điền thông tin</li><li><span>2</span>Xem mẫu &amp; tải xuống</li><li><span>3</span>Lưu bản đã ký bên ngoài</li></ol>
+            <div class="contract-grid">
+                <section class="form-panel" aria-labelledby="form-title">
+                    <h3 id="form-title">Thông tin điền vào mẫu</h3>
+                    <p class="muted">Dữ liệu bên dưới là minh họa, có thể sửa để thử. Không cập nhật hồ sơ tài khoản.</p>
+                    <form id="contract-form">
+                        <fieldset><legend>Người thuê</legend>
+                            <label for="tenant-name">Họ và tên <span class="required">(bắt buộc)</span></label><input id="tenant-name" name="tenantName" value="Trần Minh Anh" maxlength="80" required autocomplete="off">
+                            <label for="tenant-phone">Số điện thoại</label><input id="tenant-phone" name="tenantPhone" type="tel" value="" placeholder="Nhập để bổ sung vào mẫu" maxlength="20" autocomplete="off">
+                            <label for="tenant-address">Địa chỉ liên hệ</label><textarea id="tenant-address" name="tenantAddress" rows="2" maxlength="250" placeholder="Địa chỉ do người thuê cung cấp" autocomplete="off"></textarea>
+                        </fieldset>
+                        <fieldset><legend>Chủ nhà</legend>
+                            <label for="landlord-name">Họ và tên <span class="required">(bắt buộc)</span></label><input id="landlord-name" name="landlordName" value="Nguyễn Minh" maxlength="80" required autocomplete="off">
+                            <label for="landlord-phone">Số điện thoại</label><input id="landlord-phone" name="landlordPhone" type="tel" maxlength="20" placeholder="Nhập để bổ sung vào mẫu" autocomplete="off">
+                        </fieldset>
+                        <fieldset><legend>Thỏa thuận thuê</legend>
+                            <div class="field-pair"><div><label for="start-date">Ngày bắt đầu</label><input id="start-date" name="startDate" type="date" value="2026-10-01" required></div><div><label for="end-date">Ngày kết thúc</label><input id="end-date" name="endDate" type="date" value="2027-09-30" required></div></div>
+                            <div class="field-pair"><div><label for="rent">Tiền thuê (đ/tháng)</label><input id="rent" name="rent" type="number" min="1" max="1000000000" step="1" value="3500000" required></div><div><label for="deposit">Tiền cọc (đ)</label><input id="deposit" name="deposit" type="number" min="0" max="1000000000" step="1" value="3500000" required></div></div>
+                            <label for="terms">Nội dung cần hai bên thống nhất</label><textarea id="terms" name="terms" rows="3" maxlength="2000" placeholder="Ví dụ: ngày thanh toán, bàn giao, hoàn cọc…"></textarea>
+                        </fieldset>
+                        <p id="form-error" class="form-error" role="alert" hidden></p>
+                        <button class="button primary full-width" type="submit">Tạo bản xem trước</button>
+                        <p id="draft-state" class="muted" role="status">Bản bên cạnh đang dùng thông tin minh họa ban đầu.</p>
+                    </form>
+                </section>
+                <div class="document-column">
+                    <section class="document-panel" aria-labelledby="document-title">
+                        <div class="document-toolbar"><div><h3 id="document-title">Bản xem trước</h3><p id="version-label" class="muted">Bản nháp 1 · Chưa ký</p></div><button id="print-contract" class="button secondary" type="button">In / Lưu PDF</button></div>
+                        <p class="template-note">Mẫu bố cục để review. Nội dung hợp đồng cần nhóm bổ sung và chốt trước khi sử dụng.</p>
+                        <article class="contract-paper" id="contract-paper" aria-label="Nội dung mẫu hợp đồng">
+                            <p class="paper-country">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p><p class="paper-motto">Độc lập – Tự do – Hạnh phúc</p>
+                            <h2>HỢP ĐỒNG THUÊ PHÒNG</h2><p class="paper-caption">BẢN NHÁP MINH HỌA · CHƯA KÝ</p>
+                            <h3>Các bên tham gia</h3>
+                            <p><strong>Bên cho thuê:</strong> <span data-value="landlordName"></span><br>Điện thoại: <span data-value="landlordPhone"></span></p>
+                            <p><strong>Bên thuê:</strong> <span data-value="tenantName"></span><br>Điện thoại: <span data-value="tenantPhone"></span><br>Địa chỉ liên hệ: <span data-value="tenantAddress"></span></p>
+                            <h3>Phòng và thời hạn thuê</h3>
+                            <p>Phòng ban công tại Cầu Giấy, Ngõ 68, phố Cầu Giấy, Hà Nội.</p>
+                            <p>Thời hạn dự kiến: từ <span data-value="startDate"></span> đến <span data-value="endDate"></span>.</p>
+                            <h3>Các khoản đã thỏa thuận</h3>
+                            <dl class="paper-charges"><div><dt>Tiền thuê mỗi tháng</dt><dd data-value="rent"></dd></div><div><dt>Tiền đặt cọc</dt><dd data-value="deposit"></dd></div><div><dt>Đơn giá điện minh họa</dt><dd>3.500 đ/kWh</dd></div><div><dt>Đơn giá nước minh họa</dt><dd>18.000 đ/m³</dd></div></dl>
+                            <h3>Nội dung cần thống nhất</h3><p data-value="terms" class="preserve-lines"></p>
+                            <p class="paper-note">Mẫu này chưa có đầy đủ nội dung hợp đồng. Ngày hiệu lực, thông tin định danh, quyền và nghĩa vụ, điều kiện chấm dứt cùng các nội dung khác cần được hai bên bổ sung, kiểm tra trước khi ký.</p>
+                            <div class="signature-spaces"><p><strong>Bên cho thuê</strong><br><span>Ký bên ngoài ứng dụng</span></p><p><strong>Bên thuê</strong><br><span>Ký bên ngoài ứng dụng</span></p></div>
+                        </article>
+                    </section>
+                    <section class="archive-panel" aria-labelledby="archive-title">
+                        <div class="section-heading"><div><h3 id="archive-title">Bản hợp đồng tải lên</h3><p>Chọn bản đã ký bên ngoài để thử xem và đối chiếu tài liệu.</p></div></div>
+                        <p class="archive-empty" id="archive-empty">Chưa có tài liệu. Hãy chọn tệp PDF, JPG hoặc PNG, tối đa 10 MB.</p>
+                        <label for="contract-file" class="file-label">Chọn tài liệu hợp đồng</label><input id="contract-file" type="file" accept="application/pdf,image/jpeg,image/png" aria-describedby="contract-file-note contract-file-error">
+                        <p id="contract-file-note" class="muted">Tệp không được tải lên máy chủ. Tải lại trang sẽ xóa phiên thử.</p><p id="contract-file-error" class="form-error" role="alert" hidden></p>
+                        <div id="archive-detail" hidden>
+                            <div class="file-summary"><div><strong id="file-name"></strong><p id="file-meta" class="muted"></p></div><button id="open-contract" type="button" class="button secondary">Mở tài liệu</button></div>
+                            <label class="checkbox-label"><input id="confirm-document" type="checkbox">Tôi đã đối chiếu và xác nhận đây là tài liệu hai bên thống nhất.</label>
+                            <p id="confirmation-state" class="muted" role="status">Chưa xác nhận đối chiếu trong phiên thử.</p>
+                            <h4>Lịch sử chọn tài liệu trong phiên thử</h4><ol class="file-history" id="file-history"></ol>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </section>
+
+        <section id="invoice" aria-labelledby="invoice-title" hidden>
+            <div class="section-heading"><div><h2 id="invoice-title">Hóa đơn tháng 10/2026</h2><p>Đối chiếu số tiền với chỉ số và ảnh công tơ của cùng phòng, cùng kỳ.</p></div><span class="status pending">Chưa thanh toán · Minh họa</span></div>
+            <div class="invoice-grid">
+                <section class="invoice-summary" aria-labelledby="charges-title"><h3 id="charges-title">Chi tiết khoản thu</h3><p class="muted">Ngày lập: 01/10/2026 · Hạn thanh toán: 05/10/2026</p>
+                    <dl class="charge-list"><div><dt>Tiền phòng</dt><dd>3.500.000 đ</dd></div><div><dt>Tiền điện <small>120 kWh × 3.500 đ</small></dt><dd>420.000 đ</dd></div><div><dt>Tiền nước <small>6 m³ × 18.000 đ</small></dt><dd>108.000 đ</dd></div><div><dt>Phí dịch vụ</dt><dd>100.000 đ</dd></div><div class="total"><dt>Tổng tiền</dt><dd>4.128.000 đ</dd></div></dl>
+                    <p class="muted">Số liệu cố định để review bố cục. Ảnh bạn chọn ở đây không làm thay đổi khoản thu.</p>
+                    <a class="button secondary full-width" href="#contract" data-section="contract">Xem hợp đồng liên quan</a>
+                </section>
+                <section class="meter-panel" aria-labelledby="meter-title"><h3 id="meter-title">Chỉ số điện nước &amp; ảnh đối chiếu</h3><p class="muted">Kỳ 10/2026 · Ghi ngày 01/10/2026 · Người ghi: Nguyễn Minh (minh họa)</p>
+                    <div class="meter-entry" data-meter="electric"><div class="meter-heading"><h4>Điện</h4><strong>120 <span>kWh sử dụng</span></strong></div>
+                        <dl class="meter-values"><div><dt>Kỳ trước</dt><dd>1.500 <small>kWh</small></dd></div><div><dt>Kỳ này</dt><dd>1.620 <small>kWh</small></dd></div></dl>
+                        <div class="photo-placeholder" data-empty><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 7h4l2-3h6l2 3h4v14H3z"/><circle cx="12" cy="13" r="4"/></svg><strong>Chưa có ảnh công tơ điện</strong><span>Chọn ảnh để thử cách người thuê đối chiếu.</span></div>
+                        <button class="meter-photo" data-photo type="button" aria-label="Phóng to ảnh công tơ điện" hidden><img alt="Ảnh công tơ điện được chọn trong phiên thử"><span>Phóng to ảnh</span></button>
+                        <label for="electric-image" class="file-label">Thử chọn ảnh công tơ điện</label><input id="electric-image" data-image-input type="file" accept="image/jpeg,image/png" aria-describedby="electric-error"><p id="electric-error" data-image-error class="form-error" role="alert" hidden></p>
+                    </div>
+                    <div class="meter-entry" data-meter="water"><div class="meter-heading"><h4>Nước</h4><strong>6 <span>m³ sử dụng</span></strong></div>
+                        <dl class="meter-values"><div><dt>Kỳ trước</dt><dd>25 <small>m³</small></dd></div><div><dt>Kỳ này</dt><dd>31 <small>m³</small></dd></div></dl>
+                        <div class="photo-placeholder" data-empty><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 7h4l2-3h6l2 3h4v14H3z"/><circle cx="12" cy="13" r="4"/></svg><strong>Chưa có ảnh đồng hồ nước</strong><span>Ảnh điện và nước được lưu thành hai mục riêng.</span></div>
+                        <button class="meter-photo" data-photo type="button" aria-label="Phóng to ảnh đồng hồ nước" hidden><img alt="Ảnh đồng hồ nước được chọn trong phiên thử"><span>Phóng to ảnh</span></button>
+                        <label for="water-image" class="file-label">Thử chọn ảnh đồng hồ nước</label><input id="water-image" data-image-input type="file" accept="image/jpeg,image/png" aria-describedby="water-error"><p id="water-error" data-image-error class="form-error" role="alert" hidden></p>
+                    </div>
+                    <p class="meter-note">JPG hoặc PNG, tối đa 5 MB mỗi ảnh. Bản thử cho chọn ảnh để review; ở luồng thật, chủ nhà cung cấp ảnh và người thuê chỉ xem, đối chiếu.</p>
+                </section>
+            </div>
+        </section>
+        <noscript><p class="form-error">Bản thử cần JavaScript để điền mẫu và mở tệp cục bộ. Các trang Tenant hiện tại vẫn dùng được qua menu.</p></noscript>
+    </main>
+    <dialog id="image-dialog" aria-labelledby="image-dialog-title"><div class="dialog-heading"><h2 id="image-dialog-title">Ảnh đối chiếu</h2><button type="button" class="button secondary" data-close-dialog>Đóng</button></div><img id="large-image" alt=""><p>Ảnh được chọn trong phiên thử · Kỳ 10/2026</p></dialog>
+    <dialog id="contract-dialog" aria-labelledby="contract-dialog-title"><div class="dialog-heading"><h2 id="contract-dialog-title">Tài liệu đã chọn</h2><button type="button" class="button secondary" data-close-dialog>Đóng</button></div><div id="contract-viewer"></div><a id="download-original" class="button secondary" download>Tải tệp gốc</a><p class="muted">Chưa tải lên hệ thống. Với PDF, bạn có thể tải tệp gốc nếu trình duyệt không xem được.</p></dialog>
+</body>
+</html>

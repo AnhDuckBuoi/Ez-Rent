@@ -1,0 +1,13 @@
+@model IReadOnlyList<EZ_Rent.Areas.Tenant.ViewModels.TenantNoticeModel>
+<div class="home-notices">
+    @foreach (var notice in Model)
+    {
+        <form asp-controller="Notification" asp-action="Open" asp-route-id="@notice.Id" method="post" class="home-notice-form">
+            <button type="submit" class="home-notice @(notice.IsRead ? "" : "unread")" data-notice-id="@notice.Id">
+                <span class="notice-state">@await Html.PartialAsync("_HomeIcon", "bell")</span>
+                <span class="home-notice-copy"><strong>@notice.Title</strong><span>@notice.Content</span><time>@notice.CreatedLabel · Giờ Việt Nam</time></span>
+                @if (!notice.IsRead) { <span class="notice-unread" aria-label="Chưa đọc"></span> }
+            </button>
+        </form>
+    }
+</div>

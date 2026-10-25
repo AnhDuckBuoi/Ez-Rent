@@ -16,7 +16,7 @@
     <a class="nav-link @Active("Rooms", "RoomMedia")" aria-current="@Current("Rooms", "RoomMedia")" asp-area="Landlord" asp-controller="Rooms" asp-action="Index">🏠 Phòng trọ</a>
     <a class="nav-link @Active("Viewings", "ViewingHours")" aria-current="@Current("Viewings", "ViewingHours")" asp-area="Landlord" asp-controller="Viewings" asp-action="Index">📅 Lịch xem phòng
         @if (counts.PendingViewings > 0) { <span class="badge bg-danger ms-1" aria-label="@counts.PendingViewings lịch chờ xác nhận">@counts.PendingViewings</span> }</a>
-    <a class="nav-link" asp-area="Landlord" asp-controller="Messages" asp-action="Index">💬 Trò chuyện
+    <a class="nav-link @Active("Chat", "Messages")" aria-current="@Current("Chat", "Messages")" asp-area="" asp-controller="Chat" asp-action="Index">💬 Trò chuyện
         @if (counts.UnreadMessages > 0) { <span class="badge bg-danger ms-1" aria-label="@counts.UnreadMessages tin chưa đọc">@(counts.UnreadMessages > 99 ? "99+" : counts.UnreadMessages.ToString())</span> }</a>
     <a class="nav-link @Active("Contracts", "ContractDocuments")" aria-current="@Current("Contracts", "ContractDocuments")" asp-area="Landlord" asp-controller="Contracts" asp-action="Index">📄 Hợp đồng</a>
     <a class="nav-link @Active("MeterReadings")" aria-current="@Current("MeterReadings")" asp-area="Landlord" asp-controller="MeterReadings" asp-action="Index">⚡ Điện, nước</a>

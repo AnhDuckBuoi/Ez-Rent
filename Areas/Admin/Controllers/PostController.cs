@@ -28,7 +28,8 @@ namespace EZ_Rent.Areas.Admin.Controllers
         // ============================================================
         // GET: /Admin/Post?status=Pending&page=1
         // ============================================================
-        public async Task<IActionResult> Index(string? status, int page = 1)
+        [HttpGet]
+        public async Task<IActionResult> Index(string? status, string? search, int page = 1)
         {
             if (page < 1) page = 1;
 
@@ -36,16 +37,28 @@ namespace EZ_Rent.Areas.Admin.Controllers
                 .Include(p => p.Owner)
                 .AsQueryable();
 
-            // ===== FILTER theo ApprovalStatus =====
+            // Filter status
             if (Enum.TryParse<ApprovalStatus>(status, out var st))
                 query = query.Where(p => p.ApprovalStatus == st);
+
+            // ⭐ SEARCH
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var s = search.Trim().ToLower();
+                query = query.Where(p =>
+                    p.Title.ToLower().Contains(s) ||
+                    p.Address.ToLower().Contains(s) ||
+                    p.City.ToLower().Contains(s) ||
+                    (p.District != null && p.District.ToLower().Contains(s)) ||
+                    (p.Owner != null && p.Owner.FullName.ToLower().Contains(s)));
+            }
 
             query = query.OrderByDescending(p => p.CreatedAt);
 
             var paginatedPosts = await PaginatedList<RentalPost>.CreateAsync(
                 query, page, PAGE_SIZE);
 
-            // ===== Đếm số lượng theo từng status (cho tabs) =====
+            // Counts cho tabs
             ViewBag.CountAll = await _context.RentalPosts.CountAsync();
             ViewBag.CountPending = await _context.RentalPosts.CountAsync(p => p.ApprovalStatus == ApprovalStatus.Pending);
             ViewBag.CountApproved = await _context.RentalPosts.CountAsync(p => p.ApprovalStatus == ApprovalStatus.Approved);
@@ -54,6 +67,7 @@ namespace EZ_Rent.Areas.Admin.Controllers
             ViewBag.CountDraft = await _context.RentalPosts.CountAsync(p => p.ApprovalStatus == ApprovalStatus.Draft);
 
             ViewBag.StatusFilter = status;
+            ViewBag.Search = search;
 
             return View(paginatedPosts);
         }
@@ -182,48 +196,7 @@ namespace EZ_Rent.Areas.Admin.Controllers
 
             return Json(ApiResult.Ok($"Đã hủy duyệt bài viết \"{post.Title}\""));
         }
-        public async Task<IActionResult> Index(string? status, string? search, int page = 1)
-        {
-            if (page < 1) page = 1;
 
-            var query = _context.RentalPosts
-                .Include(p => p.Owner)
-                .AsQueryable();
-
-            // Filter status
-            if (Enum.TryParse<ApprovalStatus>(status, out var st))
-                query = query.Where(p => p.ApprovalStatus == st);
-
-            // ⭐ SEARCH
-            if (!string.IsNullOrWhiteSpace(search))
-            {
-                var s = search.Trim().ToLower();
-                query = query.Where(p =>
-                    p.Title.ToLower().Contains(s) ||
-                    p.Address.ToLower().Contains(s) ||
-                    p.City.ToLower().Contains(s) ||
-                    (p.District != null && p.District.ToLower().Contains(s)) ||
-                    (p.Owner != null && p.Owner.FullName.ToLower().Contains(s)));
-            }
-
-            query = query.OrderByDescending(p => p.CreatedAt);
-
-            var paginatedPosts = await PaginatedList<RentalPost>.CreateAsync(
-                query, page, PAGE_SIZE);
-
-            // Counts cho tabs
-            ViewBag.CountAll = await _context.RentalPosts.CountAsync();
-            ViewBag.CountPending = await _context.RentalPosts.CountAsync(p => p.ApprovalStatus == ApprovalStatus.Pending);
-            ViewBag.CountApproved = await _context.RentalPosts.CountAsync(p => p.ApprovalStatus == ApprovalStatus.Approved);
-            ViewBag.CountRejected = await _context.RentalPosts.CountAsync(p => p.ApprovalStatus == ApprovalStatus.Rejected);
-            ViewBag.CountNeedRevision = await _context.RentalPosts.CountAsync(p => p.ApprovalStatus == ApprovalStatus.NeedRevision);
-            ViewBag.CountDraft = await _context.RentalPosts.CountAsync(p => p.ApprovalStatus == ApprovalStatus.Draft);
-
-            ViewBag.StatusFilter = status;
-            ViewBag.Search = search;
-
-            return View(paginatedPosts);
-        }
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Remove(int id, string? note)

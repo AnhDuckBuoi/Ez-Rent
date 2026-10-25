@@ -18,7 +18,7 @@ namespace EZ_Rent.Areas.Landlord.Controllers;
 /// </summary>
 [Area("Landlord")]
 [Authorize(Roles = "Landlord")]
-public sealed class SupportController(AppDbContext db, TimeProvider? clock = null) : LandlordAreaController(db, clock)
+public sealed class SupportController(AppDbContext db, EZ_Rent.Services.ChatRealtime? realtime = null, TimeProvider? clock = null) : LandlordAreaController(db, clock)
 {
     private IQueryable<Conversation> MySupport => Db.Conversations.Where(c =>
         c.ConversationType == ConversationType.LandlordAdmin && c.InitiatorId == CurrentUserId);
@@ -54,6 +54,7 @@ public sealed class SupportController(AppDbContext db, TimeProvider? clock = nul
         switch (result)
         {
             case SupportCreateResult.Saved:
+                if (realtime != null) await realtime.ChangedAsync(conversationId);
                 return Done("Đã gửi yêu cầu tới quản trị viên. Phản hồi sẽ hiện trong mục Hỗ trợ.", Back(nameof(Details), new { id = conversationId }));
             case SupportCreateResult.NotYourRoom:
                 ModelState.AddModelError("Input.RoomId", "Chọn phòng của bạn."); break;
@@ -96,6 +97,7 @@ public sealed class SupportController(AppDbContext db, TimeProvider? clock = nul
         Db.Messages.Add(new Message { ConversationId = id, SenderId = CurrentUserId, Content = content, SentAt = UtcNow, IsRead = false });
         conversation.UpdatedAt = UtcNow;
         await Db.SaveChangesAsync();
+        if (realtime != null) await realtime.ChangedAsync(id);
         return Done("Đã gửi bổ sung cho quản trị viên.", back);
     }
 

@@ -1,171 +1,77 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using EZ_Rent.Data;
+using EZ_Rent.Areas.Tenant.ViewModels;
+using EZ_Rent.Areas.Tenant.Services;
 using EZ_Rent.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using EZ_Rent.Services;
 
-namespace EZ_Rent.Areas_Tenant_Controllers
+namespace EZ_Rent.Areas.Tenant.Controllers;
+
+[Area("Tenant")]
+[Authorize(Roles = "Tenant")]
+[ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
+public class InvoiceController : TenantControllerBase
 {
-    [Area("Tenant")]
-    public class InvoiceController : Controller
+    private readonly RentalPrivateFileStore files;
+    public InvoiceController(AppDbContext context, RentalPrivateFileStore files) : base(context) => this.files = files;
+
+    private IQueryable<Invoice> MyInvoices => Context.Invoices.AsNoTracking()
+        .Where(i => i.RentalContract.TenantId == CurrentUserId)
+        .Include(i => i.RentalContract).ThenInclude(c => c.RentalPost);
+
+    [HttpGet]
+    public async Task<IActionResult> Index([FromQuery] InvoiceListInput input)
     {
-        private readonly AppDbContext _context;
-
-        public InvoiceController(AppDbContext context)
+        if (!ModelState.IsValid)
         {
-            _context = context;
+            Response.StatusCode = StatusCodes.Status400BadRequest;
+            return View(new InvoiceListModel(input, [], 0, 1));
         }
-
-        // GET: Invoice
-        public async Task<IActionResult> Index()
-        {
-            var appDbContext = _context.Invoices.Include(i => i.MeterReading).Include(i => i.RentalContract);
-            return View(await appDbContext.ToListAsync());
-        }
-
-        // GET: Invoice/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var invoice = await _context.Invoices
-                .Include(i => i.MeterReading)
-                .Include(i => i.RentalContract)
-                .FirstOrDefaultAsync(m => m.InvoiceId == id);
-            if (invoice == null)
-            {
-                return NotFound();
-            }
-
-            return View(invoice);
-        }
-
-        // GET: Invoice/Create
-        public IActionResult Create()
-        {
-            ViewData["MeterReadingId"] = new SelectList(_context.MeterReadings, "MeterReadingId", "Period");
-            ViewData["RentalContractId"] = new SelectList(_context.RentalContracts, "RentalContractId", "RentalContractId");
-            return View();
-        }
-
-        // POST: Invoice/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("InvoiceId,RentalContractId,MeterReadingId,BillingPeriod,RoomRentAmount,ElectricUsage,ElectricAmount,WaterUsage,WaterAmount,ServiceFeeAmount,AdjustmentAmount,TotalAmount,IssueDate,DueDate,PaymentStatus,VietQRContent,TenantConfirmedAt,PaidAt,Note,CreatedAt,UpdatedAt")] Invoice invoice)
-        {
-            if (ModelState.IsValid)
-            {
-                _context.Add(invoice);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["MeterReadingId"] = new SelectList(_context.MeterReadings, "MeterReadingId", "Period", invoice.MeterReadingId);
-            ViewData["RentalContractId"] = new SelectList(_context.RentalContracts, "RentalContractId", "RentalContractId", invoice.RentalContractId);
-            return View(invoice);
-        }
-
-        // GET: Invoice/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var invoice = await _context.Invoices.FindAsync(id);
-            if (invoice == null)
-            {
-                return NotFound();
-            }
-            ViewData["MeterReadingId"] = new SelectList(_context.MeterReadings, "MeterReadingId", "Period", invoice.MeterReadingId);
-            ViewData["RentalContractId"] = new SelectList(_context.RentalContracts, "RentalContractId", "RentalContractId", invoice.RentalContractId);
-            return View(invoice);
-        }
-
-        // POST: Invoice/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("InvoiceId,RentalContractId,MeterReadingId,BillingPeriod,RoomRentAmount,ElectricUsage,ElectricAmount,WaterUsage,WaterAmount,ServiceFeeAmount,AdjustmentAmount,TotalAmount,IssueDate,DueDate,PaymentStatus,VietQRContent,TenantConfirmedAt,PaidAt,Note,CreatedAt,UpdatedAt")] Invoice invoice)
-        {
-            if (id != invoice.InvoiceId)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(invoice);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!InvoiceExists(invoice.InvoiceId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["MeterReadingId"] = new SelectList(_context.MeterReadings, "MeterReadingId", "Period", invoice.MeterReadingId);
-            ViewData["RentalContractId"] = new SelectList(_context.RentalContracts, "RentalContractId", "RentalContractId", invoice.RentalContractId);
-            return View(invoice);
-        }
-
-        // GET: Invoice/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var invoice = await _context.Invoices
-                .Include(i => i.MeterReading)
-                .Include(i => i.RentalContract)
-                .FirstOrDefaultAsync(m => m.InvoiceId == id);
-            if (invoice == null)
-            {
-                return NotFound();
-            }
-
-            return View(invoice);
-        }
-
-        // POST: Invoice/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
-        {
-            var invoice = await _context.Invoices.FindAsync(id);
-            if (invoice != null)
-            {
-                _context.Invoices.Remove(invoice);
-            }
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-
-        private bool InvoiceExists(int id)
-        {
-            return _context.Invoices.Any(e => e.InvoiceId == id);
-        }
+        if (input.ContractId.HasValue && !await Context.RentalContracts.AnyAsync(c =>
+            c.RentalContractId == input.ContractId && c.TenantId == CurrentUserId)) return NotFound();
+        var query = MyInvoices;
+        if (input.ContractId.HasValue) query = query.Where(i => i.RentalContractId == input.ContractId);
+        if (input.Status.HasValue) query = query.Where(i => i.PaymentStatus == input.Status);
+        var total = await query.CountAsync();
+        var pages = TenantRentalPresentation.Pages(total);
+        input.Page = Math.Min(input.Page, pages);
+        var items = await query.OrderByDescending(i => i.BillingPeriod).ThenByDescending(i => i.InvoiceId)
+            .Skip((input.Page - 1) * TenantRentalPresentation.PageSize).Take(TenantRentalPresentation.PageSize).ToListAsync();
+        return View(new InvoiceListModel(input, items, total, pages));
     }
+
+    [HttpGet]
+    public async Task<IActionResult> Details([FromRoute] int? id)
+    {
+        var invoice = await MyInvoices.Include(i => i.MeterReading).FirstOrDefaultAsync(i => i.InvoiceId == id);
+        if (invoice == null) return NotFound();
+        // Do not show another room/period if a legacy record has an inconsistent meter reference.
+        if (invoice.MeterReading != null && (invoice.MeterReading.RentalPostId != invoice.RentalContract.RentalPostId ||
+            invoice.MeterReading.Period != invoice.BillingPeriod)) invoice.MeterReading = null;
+        var evidence = await Context.InvoiceMeterEvidence.AsNoTracking().SingleOrDefaultAsync(e => e.InvoiceId == invoice.InvoiceId && e.TenantId == CurrentUserId &&
+            e.RentalPostId == invoice.RentalContract.RentalPostId && e.Period == invoice.BillingPeriod);
+        return View(new InvoiceDetailsModel(invoice, evidence));
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> MeterImage(int id, string kind, bool download = false)
+    {
+        if (kind is not ("electric" or "water")) return NotFound();
+        var evidence = await Context.InvoiceMeterEvidence.AsNoTracking().SingleOrDefaultAsync(e => e.InvoiceId == id &&
+            e.Invoice.RentalContract.TenantId == CurrentUserId && e.TenantId == CurrentUserId && e.RentalPostId == e.Invoice.RentalContract.RentalPostId &&
+            e.Period == e.Invoice.BillingPeriod);
+        if (evidence == null) return NotFound();
+        var key = kind == "electric" ? evidence.ElectricStorageKey : evidence.WaterStorageKey;
+        var type = kind == "electric" ? evidence.ElectricContentType : evidence.WaterContentType;
+        if (key == null || type is not ("image/png" or "image/jpeg")) return NotFound();
+        var stream = files.OpenRead(key);
+        if (stream == null) return NotFound();
+        Response.Headers["X-Content-Type-Options"] = "nosniff";
+        Response.Headers["Content-Security-Policy"] = "default-src 'none'; frame-ancestors 'self'; sandbox";
+        return download ? File(stream, type, $"cong-to-{kind}-{id}{Path.GetExtension(key)}") : File(stream, type);
+    }
+
+    // Amounts and PaidAt can only be changed by the future server payment workflow.
 }

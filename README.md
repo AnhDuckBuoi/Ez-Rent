@@ -1,5 +1,7 @@
 # 🏠 EZ-Rent
 
+> Bản tích hợp Tenant–Landlord hiện tại: xem [hướng dẫn demo với dataset của nhóm](docs/tenant-team-dataset.md). Mở dự án tại thư mục gốc ở ổ D, chạy `scripts/Start-Demo.ps1`. Database demo được tách riêng; tài khoản/ID được lấy từ DbSeeder của nhóm.
+
 Ứng dụng tìm kiếm và quản lý phòng trọ — BTL Lập trình Web Nâng cao.
 
 **Nhóm WNC.G07 — Đại học Mở Hà Nội**

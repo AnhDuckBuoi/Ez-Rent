@@ -1,0 +1,707 @@
+/* Rental pages extend the existing Tenant palette and shared shell. */
+.rental-document-section:where(.tenant-surface, .tenant-surface *) { margin-top: 28px; }
+.rental-document-current:where(.tenant-surface, .tenant-surface *) { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 18px; }
+.rental-document-current > div:where(.tenant-surface, .tenant-surface *) { min-width: 0; flex: 1 1 240px; }
+.rental-document-current h3:where(.tenant-surface, .tenant-surface *) { margin-top: 0; }
+.rental-document-current p:where(.tenant-surface, .tenant-surface *) { margin-bottom: 0; }
+.rental-document-empty:where(.tenant-surface, .tenant-surface *), .rental-meter-missing:where(.tenant-surface, .tenant-surface *) { padding: 18px; background: #f6f8fa; border: 1px dashed #b8c6d4; border-radius: 8px; color: #586779; font-size: 14px; }
+.rental-document-confirm:where(.tenant-surface, .tenant-surface *) { margin: 22px 0 16px; }
+.rental-document-confirm label:where(.tenant-surface, .tenant-surface *) { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; font-size: 14px; }
+.rental-page .rental-document-confirm input[type=checkbox]:where(.tenant-surface, .tenant-surface *) { width: 20px; height: 20px; min-height: 20px; margin: 2px 0 0; flex-shrink: 0; }
+.rental-document-confirmed:where(.tenant-surface, .tenant-surface *) { color: #236044; padding: 18px 0; font-size: 14px; }
+.rental-document-history:where(.tenant-surface, .tenant-surface *) { list-style: none; margin: 0; padding: 0; }
+.rental-document-history li:where(.tenant-surface, .tenant-surface *) { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; padding: 18px 0; border-bottom: 1px solid #dce2e9; }
+.rental-document-history li > div:where(.tenant-surface, .tenant-surface *) { min-width: 0; flex: 1 1 200px; }
+.rental-document-history :is(strong, span, small):where(.tenant-surface, .tenant-surface *) { display: block; overflow-wrap: anywhere; }
+.rental-document-history strong:where(.tenant-surface, .tenant-surface *) { font-size: 15px; }
+.rental-document-history span:where(.tenant-surface, .tenant-surface *) { font-size: 14px; margin-top: 4px; }
+.rental-document-history small:where(.tenant-surface, .tenant-surface *) { color: #586779; font-size: 12px; margin-top: 6px; }
+.rental-document-pages:where(.tenant-surface, .tenant-surface *) { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 20px; }
+.rental-document-pages [aria-current=page]:where(.tenant-surface, .tenant-surface *) { background: #356797; color: white; }
+.rental-template-reference:where(.tenant-surface, .tenant-surface *) { margin-top: 26px; border-top: 1px solid #dce2e9; padding-top: 20px; font-size: 14px; }
+.rental-template-reference summary:where(.tenant-surface, .tenant-surface *) { cursor: pointer; min-height: 44px; color: #356797; font-weight: 600; }
+.rental-template-reference summary:focus-visible:where(.tenant-surface, .tenant-surface *) { outline: 3px solid #356797; outline-offset: 3px; }
+.rental-template-reference p:where(.tenant-surface, .tenant-surface *) { max-width: 72ch; }
+.rental-evidence-state:where(.tenant-surface, .tenant-surface *) { color: #586779; font-size: 13px; padding-bottom: 18px; border-bottom: 1px solid #dce2e9; }
+.rental-meter-section:where(.tenant-surface, .tenant-surface *) { margin-bottom: 26px; }
+.rental-page .rental-meter-section h3:where(.tenant-surface, .tenant-surface *) { margin: 20px 0 12px; }
+.rental-meter-image:where(.tenant-surface, .tenant-surface *), .rental-document-image:where(.tenant-surface, .tenant-surface *) { display: block; border: 1px solid #dce2e9; border-radius: 8px; overflow: hidden; margin: 16px 0; text-align: center; }
+.rental-meter-image img:where(.tenant-surface, .tenant-surface *) { display: block; width: 100%; height: 200px; object-fit: contain; background: #f6f8fa; }
+.rental-document-image img:where(.tenant-surface, .tenant-surface *) { display: block; width: 100%; height: 360px; object-fit: contain; background: #f6f8fa; }
+.rental-meter-image span:where(.tenant-surface, .tenant-surface *), .rental-document-image span:where(.tenant-surface, .tenant-surface *) { display: block; padding: 12px; font-size: 13px; }
+.rental-image-dialog:where(.tenant-surface, .tenant-surface *) { width: min(960px, calc(100vw - 28px)); max-width: calc(100vw - 28px); max-height: calc(100dvh - 28px); padding: 20px; border: 1px solid #dce2e9; border-radius: 14px; color: #1f2f40; font: 15px/1.6 "Segoe UI", Arial, sans-serif; }
+.rental-image-dialog:where(.tenant-surface, .tenant-surface *)::backdrop { background: #142536b8; }
+.rental-dialog-heading:where(.tenant-surface, .tenant-surface *) { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.rental-dialog-heading h2:where(.tenant-surface, .tenant-surface *) { margin: 0; font-size: 18px; }
+.rental-image-dialog img:where(.tenant-surface, .tenant-surface *) { display: block; max-width: 100%; max-height: 70dvh; object-fit: contain; margin: auto; }
+.rental-image-dialog [hidden]:where(.tenant-surface, .tenant-surface *) { display: none; }
+.rental-page:where(.tenant-surface, .tenant-surface *) {
+    max-width: 1160px;
+    margin: auto;
+    padding-bottom: 32px;
+    color: #1f2f40;
+}
+.rental-page h1:where(.tenant-surface, .tenant-surface *) {
+    font-size: 30px;
+    line-height: 1.3;
+    letter-spacing: -.02em;
+    margin: 0 0 10px;
+}
+.rental-page h2:where(.tenant-surface, .tenant-surface *) {
+    font-size: 20px;
+    line-height: 1.4;
+    margin: 0;
+}
+.rental-page h3:where(.tenant-surface, .tenant-surface *) {
+    font-size: 16px;
+    margin: 26px 0 10px;
+}
+.rental-heading:where(.tenant-surface, .tenant-surface *) {
+    margin: 4px 0 28px;
+}
+.rental-heading p:where(.tenant-surface, .tenant-surface *) {
+    margin: 0;
+    font-size: 14px;
+    color: #586779;
+}
+.rental-tabs:where(.tenant-surface, .tenant-surface *) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 28px;
+    border-bottom: 1px solid #dce2e9;
+    margin-bottom: 28px;
+}
+.rental-tabs a:where(.tenant-surface, .tenant-surface *) {
+    display: flex;
+    align-items: center;
+    min-height: 46px;
+    padding: 0 0 10px;
+    border-bottom: 3px solid transparent;
+    color: #586779;
+    font-size: 14px;
+    font-weight: 600;
+}
+.rental-tabs a[aria-current=page]:where(.tenant-surface, .tenant-surface *) {
+    color: #356797;
+    border-color: #356797;
+}
+.rental-page a:not(.rental-button):hover:where(.tenant-surface, .tenant-surface *) {
+    color: #28557e;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+}
+.rental-page :is(a,button,input,select,textarea):focus-visible:where(.tenant-surface, .tenant-surface *) {
+    outline: 3px solid #356797;
+    outline-offset: 3px;
+}
+.rental-page :is(p,dd,h1,h2,h3,small,a):where(.tenant-surface, .tenant-surface *) {
+    overflow-wrap: anywhere;
+}
+.rental-page :where(.tenant-surface, .tenant-surface *)::selection {
+    background: #cddff0;
+    color: #173858;
+}
+.rental-page :is(input,textarea,select):where(.tenant-surface, .tenant-surface *) {
+    accent-color: #356797;
+    caret-color: #356797;
+}
+.rental-room-picker:where(.tenant-surface, .tenant-surface *),.rental-filter:where(.tenant-surface, .tenant-surface *) {
+    display: flex;
+    align-items: end;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+}
+.rental-room-picker label:where(.tenant-surface, .tenant-surface *) {
+    align-self: center;
+    font-size: 14px;
+    font-weight: 600;
+}
+.rental-room-picker select:where(.tenant-surface, .tenant-surface *) {
+    flex: 1;
+    min-width: 0;
+    max-width: 480px;
+}
+.rental-filter label:where(.tenant-surface, .tenant-surface *) {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 7px;
+}
+.rental-filter span:where(.tenant-surface, .tenant-surface *) {
+    color: #586779;
+    font-size: 13px;
+    align-self: center;
+    margin-left: auto;
+}
+.rental-filter-context:where(.tenant-surface, .tenant-surface *) {
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+.rental-filter-context a:where(.tenant-surface, .tenant-surface *) {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.rental-page :is(input,select,textarea):where(.tenant-surface, .tenant-surface *) {
+    font: inherit;
+    font-size: 16px;
+    min-height: 46px;
+    color: #1f2f40;
+    background: #fff;
+    padding: 10px 12px;
+    border: 1px solid #bdc8d4;
+    border-radius: 8px;
+}
+.rental-page select:where(.tenant-surface, .tenant-surface *) {
+    max-width: 100%;
+}
+.rental-page input:disabled:where(.tenant-surface, .tenant-surface *),.rental-page select:disabled:where(.tenant-surface, .tenant-surface *) {
+    background: #f6f7f9;
+    color: #586779;
+    opacity: 1;
+}
+.rental-button:where(.tenant-surface, .tenant-surface *) {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.5;
+    min-height: 44px;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    border: 1px solid transparent;
+    text-decoration: none;
+}
+.rental-button.primary:where(.tenant-surface, .tenant-surface *) {
+    background: #356797;
+    border-color: #356797;
+    color: #fff;
+}
+.rental-button.primary:hover:where(.tenant-surface, .tenant-surface *) {
+    background: #2a537b;
+}
+.rental-button.secondary:where(.tenant-surface, .tenant-surface *) {
+    border-color: #bdc8d4;
+    color: #294f75;
+    background: #fff;
+}
+.rental-button.secondary:hover:where(.tenant-surface, .tenant-surface *) {
+    background: #edf3f9;
+}
+.rental-button.danger:where(.tenant-surface, .tenant-surface *) {
+    background: #a42b30;
+    color: #fff;
+}
+.rental-button.danger:hover:where(.tenant-surface, .tenant-surface *) {
+    background: #872127;
+}
+.rental-button.quiet-danger:where(.tenant-surface, .tenant-surface *) {
+    color: #a42b30;
+    background: #fff;
+    border-color: #dec4c6;
+}
+.rental-actions:where(.tenant-surface, .tenant-surface *) {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 24px;
+}
+.rental-list-actions:where(.tenant-surface, .tenant-surface *) {
+    display: flex;
+    justify-content: end;
+    margin: 0 0 20px;
+}
+.rental-room-overview:where(.tenant-surface, .tenant-surface *) {
+    display: grid;
+    grid-template-columns: minmax(0, .9fr) minmax(0, 1.2fr);
+    background: #fff;
+    border: 1px solid #dce2e9;
+    border-radius: 14px;
+    overflow: hidden;
+}
+.rental-room-photo:where(.tenant-surface, .tenant-surface *) {
+    position: relative;
+    min-height: 330px;
+}
+.rental-room-photo>img:where(.tenant-surface, .tenant-surface *) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.rental-room-info:where(.tenant-surface, .tenant-surface *) {
+    padding: 30px;
+    min-width: 0;
+}
+.rental-room-info h2:where(.tenant-surface, .tenant-surface *) {
+    font-size: 24px;
+    margin: 14px 0 10px;
+}
+.rental-address:where(.tenant-surface, .tenant-surface *) {
+    font-size: 14px;
+    color: #586779;
+    margin: 0 0 24px;
+}
+.rental-facts:where(.tenant-surface, .tenant-surface *) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 20px 0 26px;
+}
+.rental-facts dt:where(.tenant-surface, .tenant-surface *) {
+    font-size: 12px;
+    color: #586779;
+    margin-bottom: 5px;
+}
+.rental-facts dd:where(.tenant-surface, .tenant-surface *) {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+.rental-summary:where(.tenant-surface, .tenant-surface *) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin: 0 0 32px;
+    padding: 24px 0;
+    border-bottom: 1px solid #dce2e9;
+}
+.rental-summary p:where(.tenant-surface, .tenant-surface *) {
+    display: flex;
+    gap: 7px;
+    flex-direction: column;
+    margin: 0;
+}
+.rental-summary strong:where(.tenant-surface, .tenant-surface *) {
+    font-size: 20px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+}
+.rental-summary span:where(.tenant-surface, .tenant-surface *) {
+    font-size: 13px;
+    color: #586779;
+}
+.rental-overview-columns:where(.tenant-surface, .tenant-surface *) {
+    display: grid;
+    grid-template-columns: minmax(0,1.1fr) minmax(0,1fr);
+    gap: 40px;
+}
+.rental-section-heading:where(.tenant-surface, .tenant-surface *) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 0 0 18px;
+}
+.rental-section-heading>a:where(.tenant-surface, .tenant-surface *) {
+    color: #356797;
+    font-size: 13px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+}
+.rental-row:where(.tenant-surface, .tenant-surface *) {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px 0;
+    border-bottom: 1px solid #dce2e9;
+}
+.rental-row-main:where(.tenant-surface, .tenant-surface *) {
+    flex: 1;
+    min-width: 0;
+}
+.rental-row-title:where(.tenant-surface, .tenant-surface *) {
+    color: #1f2f40;
+    font-size: 16px;
+    line-height: 1.5;
+    font-weight: 600;
+}
+.rental-row p:where(.tenant-surface, .tenant-surface *) {
+    margin: 8px 0;
+    color: #586779;
+    font-size: 14px;
+}
+.rental-row small:where(.tenant-surface, .tenant-surface *) {
+    display: block;
+    font-size: 12px;
+    color: #586779;
+}
+.rental-row-end:where(.tenant-surface, .tenant-surface *) {
+    display: flex;
+    align-items: end;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+    max-width: 45%;
+}
+.rental-row-end>a:where(.tenant-surface, .tenant-surface *) {
+    color: #356797;
+    font-size: 13px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    margin-top: auto;
+}
+.rental-amount:where(.tenant-surface, .tenant-surface *) {
+    font-size: 18px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+}
+.rental-preview-text:where(.tenant-surface, .tenant-surface *) {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+.rental-status:where(.tenant-surface, .tenant-surface *) {
+    display: inline-block;
+    width: fit-content;
+    padding: 4px 9px;
+    border-radius: 5px;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+.rental-status.success:where(.tenant-surface, .tenant-surface *) {
+    color: #256046;
+    background: #eaf4ee;
+}
+.rental-status.waiting:where(.tenant-surface, .tenant-surface *) {
+    color: #795514;
+    background: #faf1de;
+}
+.rental-status.progress:where(.tenant-surface, .tenant-surface *) {
+    color: #285980;
+    background: #eaf0f6;
+}
+.rental-status.danger:where(.tenant-surface, .tenant-surface *) {
+    color: #9c2f38;
+    background: #f9ecee;
+}
+.rental-status.neutral:where(.tenant-surface, .tenant-surface *) {
+    color: #586779;
+    background: #edf0f4;
+}
+.rental-empty:where(.tenant-surface, .tenant-surface *) {
+    text-align: center;
+    padding: 48px 24px;
+    border: 1px solid #dce2e9;
+    background: #fff;
+    border-radius: 14px;
+}
+.rental-empty>svg:where(.tenant-surface, .tenant-surface *) {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 18px;
+    color: #356797;
+}
+.rental-empty p:where(.tenant-surface, .tenant-surface *) {
+    color: #586779;
+    max-width: 560px;
+    margin: 14px auto 22px;
+    font-size: 14px;
+}
+.rental-empty .rental-actions:where(.tenant-surface, .tenant-surface *) {
+    justify-content: center;
+}
+.rental-empty-inline:where(.tenant-surface, .tenant-surface *) {
+    padding: 24px 0;
+    font-size: 14px;
+    color: #586779;
+}
+.rental-back:where(.tenant-surface, .tenant-surface *) {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    color: #356797;
+    margin: -8px 0 20px;
+    font-size: 14px;
+}
+.rental-detail-grid:where(.tenant-surface, .tenant-surface *) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: 28px;
+    align-items: start;
+}
+.rental-detail-grid>*:where(.tenant-surface, .tenant-surface *) {
+    min-width: 0;
+}
+.rental-panel:where(.tenant-surface, .tenant-surface *) {
+    background: #fff;
+    border: 1px solid #dce2e9;
+    border-radius: 14px;
+    padding: 28px;
+}
+.rental-panel>p:where(.tenant-surface, .tenant-surface *) {
+    font-size: 14px;
+    margin: 14px 0;
+}
+.rental-panel>.rental-button:where(.tenant-surface, .tenant-surface *) {
+    display: flex;
+    margin: 14px 0;
+}
+.rental-detail-facts:where(.tenant-surface, .tenant-surface *) {
+    margin: 20px 0;
+}
+.rental-detail-facts>div:where(.tenant-surface, .tenant-surface *) {
+    display: grid;
+    grid-template-columns: minmax(110px, .8fr) minmax(0,1.2fr);
+    gap: 20px;
+    padding: 12px 0;
+    border-bottom: 1px solid #edf0f4;
+    font-size: 14px;
+}
+.rental-detail-facts dt:where(.tenant-surface, .tenant-surface *) {
+    color: #586779;
+}
+.rental-detail-facts dd:where(.tenant-surface, .tenant-surface *) {
+    margin: 0;
+    font-weight: 600;
+}
+.rental-panel .rental-subheading:where(.tenant-surface, .tenant-surface *) {
+    margin-top: 30px;
+}
+.rental-prose:where(.tenant-surface, .tenant-surface *) {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    line-height: 1.75;
+    max-width: 75ch;
+}
+.rental-note:where(.tenant-surface, .tenant-surface *) {
+    color: #586779;
+    font-size: 13px;
+    line-height: 1.7;
+    padding-top: 20px;
+    border-top: 1px solid #e0e6ed;
+}
+.rental-charges:where(.tenant-surface, .tenant-surface *) {
+    margin: 26px 0;
+}
+.rental-charges>div:where(.tenant-surface, .tenant-surface *) {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between;
+    padding: 13px 0;
+}
+.rental-charges dd:where(.tenant-surface, .tenant-surface *) {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    margin: 0;
+    text-align: right;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+.rental-charges small:where(.tenant-surface, .tenant-surface *) {
+    display: block;
+    font-size: 12px;
+    color: #586779;
+    margin-top: 5px;
+}
+.rental-charge-total:where(.tenant-surface, .tenant-surface *) {
+    border-top: 1px solid #dce2e9;
+    margin-top: 14px;
+    font-size: 20px;
+}
+.rental-meter>div:where(.tenant-surface, .tenant-surface *) {
+    grid-template-columns: 1fr;
+    gap: 5px;
+}
+.rental-evidence:where(.tenant-surface, .tenant-surface *) {
+    margin: 24px 0;
+}
+.rental-evidence img:where(.tenant-surface, .tenant-surface *) {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: 8px;
+    background: #f6f7f9;
+}
+.rental-evidence figcaption:where(.tenant-surface, .tenant-surface *) {
+    font-size: 12px;
+    color: #586779;
+    margin-top: 8px;
+}
+.rental-form:where(.tenant-surface, .tenant-surface *) {
+    display: grid;
+    gap: 22px;
+    margin-top: 24px;
+}
+.rental-form label:where(.tenant-surface, .tenant-surface *) {
+    display: block;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+.rental-form :is(input,select,textarea):where(.tenant-surface, .tenant-surface *) {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+}
+.rental-form textarea:where(.tenant-surface, .tenant-surface *) {
+    resize: vertical;
+    line-height: 1.65;
+}
+.rental-form small:where(.tenant-surface, .tenant-surface *) {
+    display: block;
+    font-size: 12px;
+    color: #586779;
+    line-height: 1.65;
+    margin-top: 7px;
+}
+.rental-form .rental-actions:where(.tenant-surface, .tenant-surface *) {
+    padding-top: 20px;
+    margin-top: 0;
+    border-top: 1px solid #e0e6ed;
+}
+.rental-field-error:where(.tenant-surface, .tenant-surface *) {
+    display: block;
+    font-size: 13px;
+    color: #a42b30;
+    margin-top: 7px;
+}
+.rental-field-error.field-validation-valid:where(.tenant-surface, .tenant-surface *),.rental-validation.validation-summary-valid:where(.tenant-surface, .tenant-surface *) {
+    display: none;
+}
+.rental-page .input-validation-error:where(.tenant-surface, .tenant-surface *) {
+    border-color: #a42b30;
+}
+.rental-validation.validation-summary-errors:where(.tenant-surface, .tenant-surface *) {
+    color: #a42b30;
+    background: #fff1f1;
+    padding: 12px 16px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+.rental-confirmation:where(.tenant-surface, .tenant-surface *) {
+    max-width: 720px;
+}
+.tenant-surface:has(.rental-page):where(.tenant-surface, .tenant-surface *) {
+    scroll-padding-bottom: 100px;
+}
+@media(max-width:999px) {
+    .rental-room-overview:where(.tenant-surface, .tenant-surface *) {
+        grid-template-columns: minmax(0,.85fr) minmax(0,1fr);
+    }
+    .rental-room-info:where(.tenant-surface, .tenant-surface *) {
+        padding: 24px;
+    }
+    .rental-room-info h2:where(.tenant-surface, .tenant-surface *) {
+        font-size: 21px;
+    }
+    .rental-facts:where(.tenant-surface, .tenant-surface *) {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+    .rental-detail-grid:where(.tenant-surface, .tenant-surface *) {
+        grid-template-columns: minmax(0,1fr) 260px;
+        gap: 20px;
+    }
+    .rental-panel:where(.tenant-surface, .tenant-surface *) {
+        padding: 22px;
+    }
+    .rental-overview-columns:where(.tenant-surface, .tenant-surface *) {
+        grid-template-columns: 1fr;
+        gap: 32px;
+    }
+}
+@media(max-width:767px) {
+    .rental-page h1:where(.tenant-surface, .tenant-surface *) {
+        font-size: 27px;
+    }
+    .rental-page h2:where(.tenant-surface, .tenant-surface *) {
+        font-size: 19px;
+    }
+    .rental-tabs:where(.tenant-surface, .tenant-surface *) {
+        gap: 4px 20px;
+    }
+    .rental-tabs a:where(.tenant-surface, .tenant-surface *) {
+        font-size: 13px;
+    }
+    .rental-room-overview:where(.tenant-surface, .tenant-surface *),.rental-detail-grid:where(.tenant-surface, .tenant-surface *) {
+        grid-template-columns: 1fr;
+    }
+    .rental-room-photo:where(.tenant-surface, .tenant-surface *) {
+        height: 210px;
+        min-height: 0;
+    }
+    .rental-room-info:where(.tenant-surface, .tenant-surface *),.rental-panel:where(.tenant-surface, .tenant-surface *) {
+        padding: 22px 20px;
+    }
+    .rental-summary:where(.tenant-surface, .tenant-surface *) {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .rental-room-picker:where(.tenant-surface, .tenant-surface *) {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+    .rental-room-picker select:where(.tenant-surface, .tenant-surface *) {
+        width: 100%;
+        max-width: none;
+    }
+    .rental-filter>div:where(.tenant-surface, .tenant-surface *) {
+        flex: 1;
+        min-width: 0;
+    }
+    .rental-filter select:where(.tenant-surface, .tenant-surface *) {
+        width: 100%;
+    }
+    .rental-filter>span:where(.tenant-surface, .tenant-surface *) {
+        flex-basis: 100%;
+    }
+    .rental-row:where(.tenant-surface, .tenant-surface *) {
+        gap: 14px;
+    }
+    .rental-row-end:where(.tenant-surface, .tenant-surface *) {
+        max-width: 44%;
+    }
+    .rental-row-title:where(.tenant-surface, .tenant-surface *) {
+        font-size: 15px;
+    }
+    .rental-amount:where(.tenant-surface, .tenant-surface *) {
+        font-size: 15px;
+    }
+    .rental-detail-facts>div:where(.tenant-surface, .tenant-surface *) {
+        grid-template-columns: 1fr;
+        gap: 5px;
+    }
+    .rental-page .rental-actions:where(.tenant-surface, .tenant-surface *) {
+        align-items: stretch;
+    }
+    .rental-form .rental-actions:where(.tenant-surface, .tenant-surface *) {
+        flex-direction: column;
+    }
+    .rental-list-actions:where(.tenant-surface, .tenant-surface *) {
+        justify-content: start;
+    }
+    .rental-charge-total:where(.tenant-surface, .tenant-surface *) {
+        font-size: 18px;
+    }
+}
+@media(max-width:359px) {
+    .rental-row:where(.tenant-surface, .tenant-surface *) {
+        flex-direction: column;
+    }
+    .rental-row-end:where(.tenant-surface, .tenant-surface *) {
+        max-width: none;
+        align-items: start;
+        gap: 6px;
+    }
+    .rental-row-end>a:where(.tenant-surface, .tenant-surface *) {
+        margin-top: 0;
+    }
+}

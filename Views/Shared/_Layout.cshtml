@@ -1,4 +1,17 @@
-﻿
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
+@using EZ_Rent.Areas.Tenant.ViewModels
+@{
+    var tenant = ViewContext.RouteData.Values["area"]?.ToString() == "Tenant";
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var chat = (tenant && controller == "Dashboard" && action == "Messages")
+        || (!tenant && ViewContext.RouteData.Values["area"]?.ToString() == "Landlord" && controller == "Messages")
+        || (!tenant && ViewContext.RouteData.Values["area"] == null && controller == "Chat");
+    var rental = tenant && controller is "MyRoom" or "Contract" or "Invoice" or "RepairRequest";
+    var discovery = tenant && controller is "RentalPost" or "Favorite" or "ViewingAppointment" or "ViewingBooking";
+    var surfaceClass = chat ? "main tenant-chat" : "discovery-main home-page";
+}
+
 <!DOCTYPE html>
 <html lang="vi">
 
@@ -9,16 +22,32 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/EZ_Rent.styles.css" asp-append-version="true" />
+    @if (tenant) {
+        @if (chat) { <link rel="stylesheet" href="~/css/tenant-messages.css" asp-append-version="true" /> }
+        else {
+            <link rel="stylesheet" href="~/css/tenant-discovery.css" asp-append-version="true" />
+            <link rel="stylesheet" href="~/css/tenant-home.css" asp-append-version="true" />
+            @if (discovery) { <link rel="stylesheet" href="~/css/tenant-appointments.css" asp-append-version="true" /> }
+            @if (controller == "ViewingBooking") { <link rel="stylesheet" href="~/css/tenant-booking.css" asp-append-version="true" /> }
+            @if (rental) { <link rel="stylesheet" href="~/css/tenant-rental.css" asp-append-version="true" /> }
+            @if (action is "Draft" or "DraftHistory") { <link rel="stylesheet" href="~/css/tenant-contract-draft.css" asp-append-version="true" /> }
+            @if (controller == "Account") { <link rel="stylesheet" href="~/css/tenant-account.css" asp-append-version="true" /> }
+            @if (controller == "Support") { <link rel="stylesheet" href="~/css/tenant-support.css" asp-append-version="true" /> }
+        }
+    }
+    @if (tenant || chat) { <link rel="stylesheet" href="~/css/tenant-integration.css" asp-append-version="true" /> }
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 
-<body>
+<body class="@(tenant ? "tenant-app" : chat ? "landlord-chat-app" : null)">
+    @if (HostEnvironment.EnvironmentName == "Demo") { <div class="alert alert-info text-center rounded-0 py-1 mb-0 small">Bản demo dùng dataset của nhóm · Dữ liệu thử riêng</div> }
     <!-- ================= HEADER ================= -->
-    <header>
+    <header id="shared-header" class="@(tenant || chat ? "sticky-top" : null)">
         <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
 
                 <!-- ===== Logo ===== -->
-                <a class="navbar-brand fw-bold" asp-area="" asp-controller="Home" asp-action="Index">
+                <a class="navbar-brand fw-bold" asp-area="@(User.IsInRole("Tenant") ? "Tenant" : "")" asp-controller="@(User.IsInRole("Tenant") ? "Dashboard" : "Home")" asp-action="Index">
                     🏠 EZ-Rent
                 </a>
 
@@ -34,14 +63,14 @@
 
                         <!-- Trang chủ -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+                            <a class="nav-link text-dark" asp-area="@(User.IsInRole("Tenant") ? "Tenant" : "")" asp-controller="@(User.IsInRole("Tenant") ? "Dashboard" : "Home")" asp-action="Index">
                                 Trang chủ
                             </a>
                         </li>
 
                         <!-- Tìm phòng -->
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="RentalPost" asp-action="Index">
+                            <a class="nav-link text-dark" aria-current="@(tenant && controller is "RentalPost" or "ViewingBooking" ? "page" : null)" asp-area="@(User.IsInRole("Tenant") ? "Tenant" : "")" asp-controller="RentalPost" asp-action="Index">
                                 🔍 Tìm phòng
                             </a>
                         </li>
@@ -58,47 +87,7 @@
                                        data-bs-toggle="dropdown">
                                         🏡 Người thuê
                                     </a>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Tenant" asp-controller="Dashboard"
-                                               asp-action="Index">
-                                                📊 Dashboard
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <hr class="dropdown-divider" />
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Tenant" asp-controller="Favorite"
-                                               asp-action="Index">
-                                                ❤️ Phòng yêu thích
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Tenant" asp-controller="ViewingAppointment"
-                                               asp-action="Index">
-                                                📅 Lịch xem phòng
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Tenant" asp-controller="Contract"
-                                               asp-action="Index">
-                                                📄 Hợp đồng
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Tenant" asp-controller="Invoice"
-                                               asp-action="Index">
-                                                💰 Hóa đơn
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Tenant" asp-controller="RepairRequest"
-                                               asp-action="Index">
-                                                🔧 Yêu cầu sửa chữa
-                                            </a>
-                                        </li>
-                                    </ul>
+                                    @await Html.PartialAsync("~/Areas/Tenant/Views/Shared/_TenantSharedMenu.cshtml")
                                 </li>
                             }
 
@@ -113,6 +102,7 @@
                                         🏠 Chủ trọ
                                     </a>
                                     <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-area="" asp-controller="Chat" asp-action="Index">💬 Tin nhắn</a></li>
                                         <li>
                                             <a class="dropdown-item" asp-area="Landlord" asp-controller="Dashboard"
                                                asp-action="Index">
@@ -186,6 +176,12 @@
                                         🛡️ Quản trị
                                     </a>
                                     <ul class="dropdown-menu">
+                                        <li>
+                                            <a class="dropdown-item" asp-area="" asp-controller="Chat"
+                                               asp-action="Index">
+                                                💬 Tin nhắn
+                                            </a>
+                                        </li>
                                         <li>
                                             <a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard"
                                                asp-action="Index">
@@ -269,9 +265,11 @@
     </header>
 
     <!-- ================= MAIN ================= -->
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
+    <div class="@(tenant || chat ? "container-fluid tenant-container" : "container")">
+        <main id="main" role="main" class="pb-3 @(tenant ? "tenant-surface " + surfaceClass : chat ? "landlord-chat-surface" : "")">
+            @if (tenant) { @await Html.PartialAsync("~/Areas/Tenant/Views/Shared/_TenantFeedback.cshtml") }
+            @if (rental) { @await Html.PartialAsync("~/Areas/Tenant/Views/Shared/_TenantRentalNavigation.cshtml") }
+            <div class="@(rental ? "rental-page" : null)">@RenderBody()</div>
         </main>
     </div>
 
@@ -287,6 +285,20 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    @if (tenant) {
+        <script src="~/js/tenant-shell.js" asp-append-version="true" defer></script>
+        @if (chat) { <script src="~/js/tenant-messages.js" asp-append-version="true" defer></script> }
+        else {
+            <script src="~/js/tenant-home.js" asp-append-version="true" defer></script>
+            @if (discovery) { <script src="~/js/tenant-discovery.js" asp-append-version="true" defer></script> }
+            @if (controller == "ViewingBooking") { <script src="~/js/tenant-booking.js" asp-append-version="true" defer></script> }
+            @if (rental) { <script src="~/js/tenant-rental.js" asp-append-version="true" defer></script> }
+        }
+    }
+    @if (chat) {
+        <script src="~/lib/signalr/signalr.min.js" asp-append-version="true" defer></script>
+        <script src="~/js/chat-realtime.js" asp-append-version="true" defer></script>
+    }
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 

@@ -1,0 +1,26 @@
+@using System.Globalization
+@using EZ_Rent.Areas.Tenant.Services
+@model EZ_Rent.Areas.Tenant.ViewModels.RentalCardModel
+<article class="rental-card" data-post-id="@Model.RentalPostId">
+    <div class="card-photo">
+        @if (Model.IsAvailable)
+        {
+            <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Details" asp-route-id="@Model.RentalPostId" asp-route-returnUrl="@Model.ReturnUrl" aria-label="Xem @Model.Title"><img src="@Model.ImageUrl" alt="@Model.Title" loading="lazy" data-fallback="/images/room-placeholder.svg" /></a>
+        }
+        else { <img src="/images/room-placeholder.svg" alt="Tin không còn khả dụng" /> }
+        <form asp-area="Tenant" asp-controller="Favorite" asp-action="Set" method="post" class="favorite-form card-favorite" data-favorite-form>
+            <input type="hidden" name="RentalPostId" value="@Model.RentalPostId" /><input type="hidden" name="Saved" value="@((!Model.IsSaved).ToString().ToLowerInvariant())" /><input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
+            <button type="submit" class="heart @(Model.IsSaved ? "is-saved" : "")" aria-pressed="@Model.IsSaved.ToString().ToLowerInvariant()" aria-label="@(Model.IsSaved ? "Bỏ lưu " : "Lưu ")@Model.Title"><span data-heart aria-hidden="true">@(Model.IsSaved ? "♥" : "♡")</span></button>
+        </form>
+        <span class="room-badge">@(Model.IsAvailable ? RentalPresentation.RoomTypeName(Model.RoomType) : "Không còn khả dụng")</span>
+    </div>
+    <div class="card-copy">
+        @if (Model.IsAvailable)
+        {
+            <div class="card-price"><strong>@Model.Price.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) đ</strong><span>/ tháng</span></div>
+            <h3><a asp-area="Tenant" asp-controller="RentalPost" asp-action="Details" asp-route-id="@Model.RentalPostId" asp-route-returnUrl="@Model.ReturnUrl">@Model.Title</a></h3>
+            <p class="card-address">@Model.Address</p><div class="card-meta"><span>@Model.Area.ToString("0.##", CultureInfo.GetCultureInfo("vi-VN")) m²</span><span class="available-dot">Còn trống</span></div>
+        }
+        else { <h3>Tin không còn khả dụng</h3><p class="card-address">@Model.Address</p> }
+    </div>
+</article>

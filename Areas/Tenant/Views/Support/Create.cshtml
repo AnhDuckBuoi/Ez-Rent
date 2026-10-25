@@ -1,0 +1,24 @@
+@using EZ_Rent.Areas.Tenant.ViewModels
+@using EZ_Rent.Areas.Tenant.Services
+@model TenantSupportModel
+@{ Layout = "_Layout"; ViewData["Title"] = "Gửi hỗ trợ, phản ánh"; ViewData["SupportPage"] = true; }
+<div class="support-page">
+    <a asp-controller="Dashboard" asp-action="Messages" class="back-link">@await Html.PartialAsync("_HomeIcon", "back") Quay lại Tin nhắn</a>
+    <div class="support-heading"><div><h1>Gửi hỗ trợ, phản ánh</h1><p>Cho EZ Rent biết vấn đề bạn gặp phải để cùng làm rõ.</p></div><a asp-controller="Dashboard" asp-action="Messages" asp-route-Filter="support" asp-route-View="inbox" class="button">Yêu cầu đã gửi @await Html.PartialAsync("_HomeIcon", "arrow")</a></div>
+    <div class="support-layout">
+        <form asp-action="Create" method="post" id="tenant-support-form" class="support-form">
+            <p id="support-status" class="support-status" role="status" aria-live="polite" tabindex="-1" hidden="@(Model.Error == null)">@Model.Error</p>
+            <div asp-validation-summary="ModelOnly" class="support-errors"></div>
+            <div class="support-fields">
+                <div class="support-field"><label asp-for="Input.Category">Vấn đề cần hỗ trợ <span>(bắt buộc)</span></label><select asp-for="Input.Category" required aria-describedby="category-error"><option value="">Chọn vấn đề</option>@foreach (var category in TenantSupportService.Categories) { <option value="@category.Key">@category.Value</option> }</select><span asp-validation-for="Input.Category" id="category-error"></span></div>
+                <div class="support-field"><label asp-for="Input.RentalPostId">Phòng liên quan <span>(không bắt buộc)</span></label><select asp-for="Input.RentalPostId" aria-describedby="room-hint room-error"><option value="">Không liên quan đến phòng</option>@foreach (var room in Model.Rooms) { <option value="@room.Id">@room.Title</option> }</select><small id="room-hint">Gồm phòng đang thuê, phòng đã lưu và phòng bạn mở yêu cầu từ đó.</small><span asp-validation-for="Input.RentalPostId" id="room-error"></span></div>
+            </div>
+            <div class="support-field"><label asp-for="Input.Subject">Tiêu đề <span>(bắt buộc)</span></label><input asp-for="Input.Subject" required maxlength="100" autocomplete="off" placeholder="Ví dụ: Thông tin phí dịch vụ chưa rõ" aria-describedby="subject-hint subject-error" /><small id="subject-hint">Tóm tắt vấn đề trong tối đa 100 ký tự.</small><span asp-validation-for="Input.Subject" id="subject-error"></span></div>
+            <div class="support-field"><label asp-for="Input.Description">Mô tả chi tiết <span>(bắt buộc)</span></label><textarea asp-for="Input.Description" required maxlength="1000" rows="7" autocomplete="off" placeholder="Chuyện gì đã xảy ra? Bạn mong muốn được hỗ trợ như thế nào?" aria-describedby="description-hint description-error support-count"></textarea><div class="support-field-bottom"><small id="description-hint">Không gửi mật khẩu, mã OTP hoặc thông tin thẻ ngân hàng.</small><small id="support-count">@(Model.Input.Description?.Length ?? 0)/1.000</small></div><span asp-validation-for="Input.Description" id="description-error"></span></div>
+            <div class="support-actions"><a asp-controller="Dashboard" asp-action="Messages" class="button">Để sau</a><button type="submit" class="button primary" id="support-submit" disabled="@(!Model.CanSubmit)">Gửi yêu cầu @await Html.PartialAsync("_HomeIcon", "send")</button></div>
+            <p class="support-save-note">Sau khi gửi thành công, bạn có thể bổ sung nội dung trong cuộc trò chuyện hỗ trợ.</p>
+        </form>
+        <aside class="support-guide" aria-labelledby="support-guide-title"><h2 id="support-guide-title">Để trao đổi thuận tiện hơn</h2><p>Mỗi yêu cầu mở một cuộc trò chuyện riêng với bộ phận hỗ trợ. Nội dung đã gửi được giữ trong Tin nhắn.</p><h3>Bạn có thể mô tả</h3><ul><li>Thời điểm và nơi xảy ra vấn đề.</li><li>Thông tin cần được làm rõ.</li><li>Cách bạn mong muốn được hỗ trợ.</li></ul><h3>Nếu phòng có sự cố</h3><p>Điện, nước hoặc thiết bị hỏng nên gửi qua mục sửa chữa để chủ nhà theo dõi xử lý.</p><a asp-controller="RepairRequest" asp-action="Index">Đến yêu cầu sửa chữa @await Html.PartialAsync("_HomeIcon", "arrow")</a><p class="support-scope-note">Bạn có thể xem nội dung đã gửi và bổ sung thông tin tại Tin nhắn.</p></aside>
+    </div>
+</div>
+@section Scripts { <script src="~/js/tenant-support.js" asp-append-version="true" defer></script> }

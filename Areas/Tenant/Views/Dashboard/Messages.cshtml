@@ -1,0 +1,47 @@
+@using EZ_Rent.Areas.Tenant.ViewModels
+@using System.Globalization
+@model TenantMessagesModel
+@{ Layout = "_Layout"; ViewData["Title"] = "Tin nhắn"; ViewData["MobileChat"] = Model.MobileChat; var input = Model.Input; }
+<div id="messages-root" class="messages-root" data-chat-root data-conversation-id="@(Model.Selected?.Id ?? 0)" data-draft-key="@Model.DraftKey" data-mobile-chat="@Model.MobileChat.ToString().ToLowerInvariant()">
+    <div class="page-heading"><div><h1>Tin nhắn</h1><p>Trao đổi về căn phòng bạn quan tâm, theo dõi nội dung ở một nơi.</p></div><a asp-action="Help" class="compare-link">Hướng dẫn hỗ trợ @await Html.PartialAsync("_HomeIcon", "help")</a></div>
+    @if ((!ViewData.ModelState.IsValid && Model.Selected == null) || Model.Unavailable || Model.LoadError)
+    {
+        <section class="state-panel messages-problem" role="alert"><h2>@(Model.LoadError ? "Chưa tải được hộp thư" : Model.Unavailable ? "Không mở được cuộc trò chuyện" : "Chưa mở được hộp thư")</h2><p>@(Model.LoadError ? "Hãy thử tải lại sau ít phút. Nội dung bạn đang soạn trong tab vẫn được giữ." : Model.Unavailable ? "Cuộc trò chuyện không còn khả dụng hoặc bạn không có quyền truy cập." : "Kiểm tra bộ lọc và số trang, hoặc mở lại hộp thư.")</p><div asp-validation-summary="All"></div><a asp-action="Messages" class="button primary" data-messages-link>Mở lại hộp thư</a></section>
+        @if (!string.IsNullOrEmpty(Model.AttemptedContent))
+        {
+            <label for="retained-message">Nội dung bạn đã nhập để sao chép lại</label><textarea id="retained-message" rows="4" readonly>@Model.AttemptedContent</textarea>
+        }
+    }
+    else
+    {
+        <div class="workspace" id="workspace">
+            <aside class="inbox-pane" aria-labelledby="inbox-title">
+                <div class="inbox-heading"><h2 id="inbox-title" tabindex="-1">Trò chuyện</h2>@if (Model.UnreadCount > 0) { <span class="unread-total" aria-label="@Model.UnreadCount cuộc trò chuyện chưa đọc">@Model.UnreadCount</span> }</div>
+                <form asp-action="Messages" method="get" class="inbox-search-form" data-message-search>
+                    <input type="hidden" name="Filter" value="@input.Filter" /><input type="hidden" name="View" value="inbox" />
+                    <div class="inbox-search"><button type="button" class="search-back icon-button" data-action="exit-search" aria-label="Thoát tìm kiếm">@await Html.PartialAsync("_HomeIcon", "back")</button>@await Html.PartialAsync("_HomeIcon", "search")<label class="sr-only" for="inbox-search">Tìm cuộc trò chuyện theo tên hoặc phòng</label><input id="inbox-search" name="Query" type="search" value="@input.Query" maxlength="100" placeholder="Tìm tên hoặc phòng…" autocomplete="off" /><button type="submit" class="search-submit icon-button" aria-label="Tìm cuộc trò chuyện">@await Html.PartialAsync("_HomeIcon", "arrow")</button></div>
+                </form>
+                <nav class="inbox-filters" aria-label="Lọc cuộc trò chuyện"><a href="@Url.Action("Messages", input.Routes(filter: "all", page: 1, view: "inbox"))" aria-current="@(input.Filter == "all" ? "page" : null)" data-messages-link>Tất cả</a><a href="@Url.Action("Messages", input.Routes(filter: "unread", page: 1, view: "inbox"))" aria-current="@(input.Filter == "unread" ? "page" : null)" data-messages-link>Chưa đọc <span>@Model.UnreadCount</span></a><a href="@Url.Action("Messages", new { Filter = "support", View = "inbox" })" aria-current="@(input.Filter == "support" ? "page" : null)" data-messages-link>Hỗ trợ</a></nav>
+                <div class="thread-list" id="thread-list">
+                    @foreach (var item in Model.Conversations)
+                    {
+                        <a href="@Url.Action("Messages", input.Routes(conversationId: item.Id, messagePage: 1, view: "chat"))" class="thread @(item.Unread > 0 ? "unread" : "")" aria-current="@(Model.Selected?.Id == item.Id ? "true" : null)" data-messages-link data-thread="@item.Id">
+                            <span class="avatar @(item.IsSupport ? "sage" : "")" aria-hidden="true">@item.Initials</span><span class="thread-copy"><span class="thread-title"><strong>@item.Name</strong>@if (item.LastSentAt.HasValue) { <time>@item.LastSentAt.Value.AddHours(7).ToString("dd/MM", CultureInfo.InvariantCulture)</time> }</span><span class="thread-room">@item.RoomLabel</span><span class="thread-last"><span>@item.Preview</span>@if (item.Unread > 0) { <span class="thread-unread" aria-label="@item.Unread tin chưa đọc">@(item.Unread > 99 ? "99+" : item.Unread.ToString())</span> }</span></span>
+                        </a>
+                    }
+                    @if (Model.Conversations.Count == 0)
+                    {
+                        <div class="list-empty"><strong>@(input.Query != null || input.Filter == "unread" ? "Không có trò chuyện phù hợp" : "Chưa có cuộc trò chuyện")</strong><span>@(input.Query != null || input.Filter == "unread" ? "Thử bỏ bộ lọc hoặc tìm bằng tên khác." : "Các cuộc trò chuyện của bạn sẽ xuất hiện tại đây khi được kết nối.")</span><a asp-action="Messages" class="button" data-messages-link>Xem hộp thư</a></div>
+                    }
+                    @await Html.PartialAsync("_TenantPagination", new TenantPaginationModel(input.Page, Model.TotalPages, page => Url.Action("Messages", input.Routes(page: page, view: "inbox")), "Trang cuộc trò chuyện"))
+                </div>
+                <a asp-controller="Support" asp-action="Create" id="open-support" class="support-entry"><span class="support-symbol">@await Html.PartialAsync("_HomeIcon", "support")</span><span><strong>Hỗ trợ &amp; phản ánh</strong><small>Gửi yêu cầu, xem phản hồi</small></span>@await Html.PartialAsync("_HomeIcon", "arrow")</a>
+            </aside>
+            <section class="chat-pane" id="conversation" aria-label="Cuộc trò chuyện đang mở" tabindex="-1">@await Html.PartialAsync("_MessageConversation", Model)</section>
+            <aside class="context-pane" id="room-context" aria-label="Thông tin liên quan">@await Html.PartialAsync("_MessageContext", Model)</aside>
+        </div>
+        <dialog id="context-dialog" class="context-dialog" aria-label="Thông tin cuộc trò chuyện"></dialog>
+    }
+</div>
+
+<p class="sr-only" id="messages-live" role="status" aria-live="polite"></p>
