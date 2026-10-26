@@ -15,7 +15,7 @@
             <div class="row g-3">
                 <div class="col-md-6">
                     <div class="card border-0 shadow-sm h-100"><div class="card-body">
-                        <h5 class="card-title">⚡ Công tơ điện</h5>
+                        <h5 class="card-title">Công tơ điện</h5>
                         <label asp-for="Input.PrevElectricIndex" class="form-label"></label>
                         <input asp-for="Input.PrevElectricIndex" inputmode="decimal" class="form-control" readonly="@Model.HasPrevious" />
                         @if (Model.HasPrevious) { <div class="form-text">Chốt @VietnamTime.PeriodLabel(Model.PreviousPeriod).ToLowerInvariant()</div> }
@@ -33,7 +33,7 @@
                 </div>
                 <div class="col-md-6">
                     <div class="card border-0 shadow-sm h-100"><div class="card-body">
-                        <h5 class="card-title">💧 Đồng hồ nước</h5>
+                        <h5 class="card-title">Đồng hồ nước</h5>
                         <label asp-for="Input.PrevWaterIndex" class="form-label"></label>
                         <input asp-for="Input.PrevWaterIndex" inputmode="decimal" class="form-control" readonly="@Model.HasPrevious" />
                         <span asp-validation-for="Input.PrevWaterIndex" class="text-danger small"></span>
@@ -65,7 +65,7 @@
                 <p class="small text-warning mt-2 mb-0" data-ll-out="message"></p>
                 <p class="small text-muted mt-2 mb-0">Giá theo hợp đồng: điện @DisplayFormat.Money(Model.ElectricPrice)/kWh, nước @DisplayFormat.Money(Model.WaterPrice)/m³.</p>
             </div></div>
-            <div class="d-grid mt-3"><button class="btn btn-primary" type="submit">💾 Lưu chỉ số</button></div>
+            <div class="d-grid mt-3"><button class="btn btn-primary" type="submit">Lưu chỉ số</button></div>
         </div>
     </div>
 </form>

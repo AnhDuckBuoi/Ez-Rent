@@ -4,12 +4,19 @@
     ViewData["Title"] = "Thêm người dùng";
 }
 
-<h1>➕ Thêm người dùng mới</h1>
+<partial name="_AdminMenu" />
 
-<div class="row">
+<div class="ez-page-header mb-4">
+    <div>
+        <span class="ez-eyebrow">Quản lý tài khoản</span>
+        <h1 class="ez-page-title">Thêm người dùng mới</h1>
+    </div>
+</div>
+
+<div class="row g-4">
     <div class="col-md-8">
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
+        <div class="card">
+            <div class="card-header">
                 <strong>Thông tin người dùng</strong>
             </div>
             <div class="card-body">
@@ -20,7 +27,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label asp-for="FullName" class="form-label">
-                                <strong>Họ và tên</strong> <span class="text-danger">*</span>
+                                Họ và tên <span class="text-danger">*</span>
                             </label>
                             <input asp-for="FullName" class="form-control" placeholder="Nguyễn Văn A" />
                             <span asp-validation-for="FullName" class="text-danger small"></span>
@@ -28,7 +35,7 @@
 
                         <div class="col-md-6 mb-3">
                             <label asp-for="Email" class="form-label">
-                                <strong>Email</strong> <span class="text-danger">*</span>
+                                Email <span class="text-danger">*</span>
                             </label>
                             <input asp-for="Email" type="email" class="form-control" placeholder="user@example.com" />
                             <span asp-validation-for="Email" class="text-danger small"></span>
@@ -38,7 +45,7 @@
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label for="Password" class="form-label">
-                                <strong>Mật khẩu</strong> <span class="text-danger">*</span>
+                                Mật khẩu <span class="text-danger">*</span>
                             </label>
                             <input type="password" name="password" id="Password" class="form-control"
                                    placeholder="Ít nhất 6 ký tự" required />
@@ -49,7 +56,7 @@
 
                         <div class="col-md-6 mb-3">
                             <label asp-for="PhoneNumber" class="form-label">
-                                <strong>Số điện thoại</strong>
+                                Số điện thoại
                             </label>
                             <input asp-for="PhoneNumber" class="form-control" placeholder="0912345678" />
                             <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
@@ -59,9 +66,7 @@
                     <hr />
 
                     <div class="mb-3">
-                        <label class="form-label">
-                            <strong>Vai trò</strong>
-                        </label>
+                        <label class="form-label">Vai trò</label>
                         <div class="border rounded p-3 bg-light">
                             <partial name="_RoleCheckboxes" />
                         </div>
@@ -69,7 +74,7 @@
 
                     <div class="d-flex gap-2 mt-4">
                         <button type="submit" class="btn btn-primary">
-                            💾 Tạo người dùng
+                            Tạo người dùng
                         </button>
                         <a asp-action="Index" class="btn btn-outline-secondary">
                             ← Quay lại danh sách
@@ -82,11 +87,11 @@
     </div>
 
     <div class="col-md-4">
-        <div class="card shadow-sm border-info">
-            <div class="card-header bg-info text-white">
-                <strong>💡 Gợi ý</strong>
+        <div class="card">
+            <div class="card-header">
+                <strong>Lưu ý khi tạo tài khoản</strong>
             </div>
-            <div class="card-body small">
+            <div class="card-body small text-muted">
                 <ul class="mb-0 ps-3">
                     <li>Email phải là duy nhất trong hệ thống.</li>
                     <li>Mật khẩu cần đủ mạnh để bảo mật.</li>

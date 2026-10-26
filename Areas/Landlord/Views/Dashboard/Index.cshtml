@@ -4,20 +4,20 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="mb-0">🏠 Dashboard Chủ trọ</h2>
+        <h2 class="mb-0">Dashboard Chủ trọ</h2>
         <small class="text-muted">Xin chào, @User.Identity?.Name</small>
     </div>
     <a asp-area="Landlord" asp-controller="Post" asp-action="Create"
        class="btn btn-primary">
-        ➕ Đăng tin mới
+        Đăng tin mới
     </a>
 </div>
 
 <!-- ========== HÀNG 1: PHÒNG ========== -->
-<h6 class="text-uppercase text-muted mb-2">🏘️ Phòng của tôi</h6>
+<h6 class="text-uppercase text-muted mb-2">Phòng của tôi</h6>
 <div class="row g-3 mb-4">
     <div class="col-md-3">
-        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+        <div class="card border-0 shadow-sm" style="background: var(--ez-blue, #356797); color: white;">
             <div class="card-body">
                 <div class="text-uppercase small opacity-75">Tổng phòng</div>
                 <h2 class="mb-0 mt-1">@ViewBag.TotalPosts</h2>
@@ -51,12 +51,12 @@
 </div>
 
 <!-- ========== HÀNG 2: HOẠT ĐỘNG ========== -->
-<h6 class="text-uppercase text-muted mb-2">📊 Hoạt động</h6>
+<h6 class="text-uppercase text-muted mb-2">Hoạt động</h6>
 <div class="row g-3 mb-4">
     <div class="col-md-3">
         <div class="card border-0 shadow-sm border-start border-warning border-4">
             <div class="card-body">
-                <div class="text-muted small">📅 Lịch hẹn chờ</div>
+                <div class="text-muted small">Lịch hẹn chờ</div>
                 <h3 class="mb-0 text-warning">@ViewBag.PendingViewings</h3>
             </div>
         </div>
@@ -64,7 +64,7 @@
     <div class="col-md-3">
         <div class="card border-0 shadow-sm border-start border-info border-4">
             <div class="card-body">
-                <div class="text-muted small">📄 Hợp đồng active</div>
+                <div class="text-muted small">Hợp đồng active</div>
                 <h3 class="mb-0 text-info">@ViewBag.ActiveContracts</h3>
             </div>
         </div>
@@ -72,7 +72,7 @@
     <div class="col-md-3">
         <div class="card border-0 shadow-sm border-start border-danger border-4">
             <div class="card-body">
-                <div class="text-muted small">💰 Hóa đơn chưa thu</div>
+                <div class="text-muted small">Hóa đơn chưa thu</div>
                 <h3 class="mb-0 text-danger">@ViewBag.UnpaidInvoices</h3>
             </div>
         </div>
@@ -80,7 +80,7 @@
     <div class="col-md-3">
         <div class="card border-0 shadow-sm border-start border-secondary border-4">
             <div class="card-body">
-                <div class="text-muted small">🔧 Sự cố mở</div>
+                <div class="text-muted small">Sự cố mở</div>
                 <h3 class="mb-0 text-secondary">@ViewBag.OpenRepairs</h3>
             </div>
         </div>
@@ -90,9 +90,9 @@
 <!-- ========== HÀNG 3: DOANH THU ========== -->
 <div class="row g-3 mb-4">
     <div class="col-md-6">
-        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #11998e, #38ef7d); color: white;">
+        <div class="card border-0 shadow-sm" style="background: #23744b; color: white;">
             <div class="card-body">
-                <div class="text-uppercase small opacity-75">💵 Doanh thu tháng @DateTime.Now.ToString("MM/yyyy")</div>
+                <div class="text-uppercase small opacity-75">Doanh thu tháng @DateTime.Now.ToString("MM/yyyy")</div>
                 <h2 class="mb-0 mt-2">@(((decimal)ViewBag.MonthRevenue).ToString("N0")) đ</h2>
                 <small class="opacity-75">(Tổng hóa đơn đã thanh toán)</small>
             </div>
@@ -101,23 +101,23 @@
     <div class="col-md-6">
         <div class="card border-0 shadow-sm bg-light">
             <div class="card-body">
-                <h6>⚡ Lối tắt nhanh</h6>
+                <h6>Lối tắt nhanh</h6>
                 <div class="row g-2 mt-2">
                     <div class="col-6">
                         <a asp-area="Landlord" asp-controller="MeterReading" asp-action="Create"
-                           class="btn btn-outline-primary btn-sm w-100">⚡ Ghi điện nước</a>
+                           class="btn btn-outline-primary btn-sm w-100">Ghi điện nước</a>
                     </div>
                     <div class="col-6">
                         <a asp-area="Landlord" asp-controller="Invoice" asp-action="Create"
-                           class="btn btn-outline-success btn-sm w-100">💰 Tạo hóa đơn</a>
+                           class="btn btn-outline-success btn-sm w-100">Tạo hóa đơn</a>
                     </div>
                     <div class="col-6">
                         <a asp-area="Landlord" asp-controller="Contract" asp-action="Index"
-                           class="btn btn-outline-info btn-sm w-100">📄 Hợp đồng</a>
+                           class="btn btn-outline-info btn-sm w-100">Hợp đồng</a>
                     </div>
                     <div class="col-6">
                         <a asp-area="Landlord" asp-controller="ViewingAppointment" asp-action="Index"
-                           class="btn btn-outline-warning btn-sm w-100">📅 Lịch hẹn</a>
+                           class="btn btn-outline-warning btn-sm w-100">Lịch hẹn</a>
                     </div>
                 </div>
             </div>
@@ -130,7 +130,7 @@
     <div class="col-md-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">📅 Lịch hẹn chờ xác nhận</h6>
+                <h6 class="mb-0">Lịch hẹn chờ xác nhận</h6>
                 <a asp-area="Landlord" asp-controller="ViewingAppointment" asp-action="Index"
                    class="btn btn-sm btn-outline-primary">Xem tất cả</a>
             </div>
@@ -144,7 +144,7 @@
                                 <div>
                                     <strong>@v.RentalPost?.Title</strong>
                                     <br /><small class="text-muted">
-                                        👤 @v.Tenant?.FullName — @v.ViewingDate.ToString("dd/MM HH:mm")
+                                        @v.Tenant?.FullName — @v.ViewingDate.ToString("dd/MM HH:mm")
                                     </small>
                                 </div>
                                 <a asp-area="Landlord" asp-controller="ViewingAppointment"
@@ -156,7 +156,7 @@
                 }
                 else
                 {
-                    <p class="text-muted text-center py-4 mb-0">✅ Không có lịch hẹn nào đang chờ.</p>
+                    <p class="text-muted text-center py-4 mb-0">Không có lịch hẹn nào đang chờ.</p>
                 }
             </div>
         </div>
@@ -165,7 +165,7 @@
     <div class="col-md-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">🔧 Sự cố cần xử lý</h6>
+                <h6 class="mb-0">Sự cố cần xử lý</h6>
                 <a asp-area="Landlord" asp-controller="RepairRequest" asp-action="Index"
                    class="btn btn-sm btn-outline-danger">Xem tất cả</a>
             </div>
@@ -196,7 +196,7 @@
                 }
                 else
                 {
-                    <p class="text-muted text-center py-4 mb-0">✅ Không có sự cố nào.</p>
+                    <p class="text-muted text-center py-4 mb-0">Không có sự cố nào.</p>
                 }
             </div>
         </div>

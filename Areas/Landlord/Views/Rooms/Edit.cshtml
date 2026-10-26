@@ -4,7 +4,7 @@
 }
 <partial name="_LandlordMenu" />
 <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Phòng trọ</a></li><li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Id">Mã tin @Model.Id</a></li><li class="breadcrumb-item active" aria-current="page">Sửa</li></ol></nav>
-<h2 class="mb-1">✏️ Sửa tin phòng</h2>
+<h2 class="mb-1">Sửa tin phòng</h2>
 <p class="text-muted">Ảnh/video được quản lý ở trang chi tiết tin.</p>
 @if (Model.CurrentApproval == ApprovalStatus.Approved)
 {

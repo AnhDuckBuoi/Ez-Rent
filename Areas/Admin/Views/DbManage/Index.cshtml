@@ -14,10 +14,18 @@
     var counts = ViewBag.TableCounts as Dictionary<string, int> ?? new Dictionary<string, int>();
 }
 
-<h1>🛠️ Quản lý Database</h1>
+<partial name="_AdminMenu" />
+
+<div class="ez-page-header mb-4">
+    <div>
+        <div class="ez-eyebrow">Hạ tầng dữ liệu</div>
+        <h1 class="ez-page-title">Quản lý Database</h1>
+        <p class="ez-page-subtitle">Kiểm tra kết nối cơ sở dữ liệu, theo dõi lịch sử migration và số lượng bản ghi.</p>
+    </div>
+</div>
 
 <div class="alert alert-warning alert-dismissible fade show" role="alert">
-    <strong>⚠️ Cảnh báo:</strong> Trang này chỉ dùng cho Development. Các thao tác ở đây có thể <strong>XÓA TOÀN BỘ DỮ LIỆU</strong>.
+    <strong>Lưu ý môi trường:</strong> Trang này dành cho môi trường phát triển. Các thao tác xóa cơ sở dữ liệu sẽ làm mất toàn bộ dữ liệu hiện tại.
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
 </div>
 
@@ -25,31 +33,28 @@
     <partial name="_StatusMessage" />
 </div>
 
-@* ============================================================ *@
-@*  THÔNG TIN KẾT NỐI                                            *@
-@* ============================================================ *@
 <div class="card mb-4">
-    <div class="card-header"><strong>📌 Thông tin kết nối</strong></div>
+    <div class="card-header"><strong>Thông tin kết nối</strong></div>
     <div class="card-body">
         <dl class="row mb-0">
-            <dt class="col-sm-3">Database</dt>
+            <dt class="col-sm-3 text-muted">Database</dt>
             <dd class="col-sm-9"><code>@dbName</code></dd>
 
-            <dt class="col-sm-3">Data Source</dt>
+            <dt class="col-sm-3 text-muted">Data Source</dt>
             <dd class="col-sm-9">@dataSource</dd>
 
-            <dt class="col-sm-3">Provider</dt>
+            <dt class="col-sm-3 text-muted">Provider</dt>
             <dd class="col-sm-9">@provider</dd>
 
-            <dt class="col-sm-3">Trạng thái kết nối</dt>
+            <dt class="col-sm-3 text-muted">Trạng thái kết nối</dt>
             <dd class="col-sm-9">
                 @if (canConnect)
                 {
-                    <span class="badge bg-success">✅ Kết nối được</span>
+                    <span class="badge bg-success">Đã kết nối</span>
                 }
                 else
                 {
-                    <span class="badge bg-danger">❌ Không kết nối được</span>
+                    <span class="badge bg-danger">Không kết nối được</span>
                 }
             </dd>
         </dl>
@@ -58,21 +63,16 @@
 
 @if (canConnect)
 {
-    @* ============================================================ *@
-    @*  SỐ RECORD MỖI BẢNG                                           *@
-    @* ============================================================ *@
     <div class="card mb-4">
-        <div class="card-header"><strong>📊 Số bản ghi trong các bảng chính</strong></div>
+        <div class="card-header"><strong>Số bản ghi trong các bảng chính</strong></div>
         <div class="card-body">
             <div class="row g-3">
                 @foreach (var kv in counts)
                 {
                     <div class="col-md-4 col-lg-2">
-                        <div class="card border-0 bg-light text-center h-100">
-                            <div class="card-body py-3">
-                                <div class="fs-3 fw-bold">@kv.Value</div>
-                                <small class="text-muted">@kv.Key</small>
-                            </div>
+                        <div class="ez-kpi-card h-100">
+                            <span class="ez-kpi-label">@kv.Key</span>
+                            <div class="ez-kpi-value" style="font-size: 1.5rem;">@kv.Value</div>
                         </div>
                     </div>
                 }
@@ -80,12 +80,9 @@
         </div>
     </div>
 
-    @* ============================================================ *@
-    @*  MIGRATIONS                                                    *@
-    @* ============================================================ *@
     <div class="card mb-4">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <strong>🔄 Migrations</strong>
+            <strong>Migrations</strong>
             @if (pending.Any())
             {
                 <span class="badge bg-warning text-dark">@pending.Count migration đang chờ</span>
@@ -105,16 +102,16 @@
                 <ul class="list-group list-group-flush">
                     @foreach (var m in applied)
                     {
-                        <li class="list-group-item d-flex justify-content-between">
-                            <span>✅ @m</span>
-                            <small class="text-muted">Đã áp dụng</small>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                            <span class="font-monospace small">@m</span>
+                            <span class="badge bg-light text-secondary border">Đã áp dụng</span>
                         </li>
                     }
                     @foreach (var m in pending)
                     {
-                        <li class="list-group-item d-flex justify-content-between bg-warning bg-opacity-10">
-                            <span>⏳ @m</span>
-                            <small class="text-warning fw-bold">Đang chờ</small>
+                        <li class="list-group-item d-flex justify-content-between align-items-center px-0 bg-warning bg-opacity-10">
+                            <span class="font-monospace small">@m</span>
+                            <span class="badge bg-warning text-dark">Đang chờ</span>
                         </li>
                     }
                 </ul>
@@ -125,28 +122,25 @@
                 <form asp-action="Migrate" method="post" class="mt-3">
                     @Html.AntiForgeryToken()
                     <button type="submit" class="btn btn-success">
-                        ⚙️ Chạy migration (@pending.Count bản)
+                        Chạy migration (@pending.Count bản)
                     </button>
                 </form>
             }
         </div>
     </div>
 
-    @* ============================================================ *@
-    @*  DANGER ZONE                                                   *@
-    @* ============================================================ *@
     <div class="card border-danger mb-4">
-        <div class="card-header bg-danger text-white">
-            <strong>🚨 DANGER ZONE</strong>
+        <div class="card-header bg-white text-danger border-bottom">
+            <strong>Khu vực nguy hiểm (Danger Zone)</strong>
         </div>
         <div class="card-body">
-            <h6 class="text-danger">Xóa toàn bộ Database</h6>
+            <h6 class="text-danger fw-bold">Xóa toàn bộ Database</h6>
             <p class="text-muted small mb-3">
                 Hành động này sẽ <strong>xóa toàn bộ database</strong> và <strong>không thể hoàn tác</strong>.
                 Mọi dữ liệu (users, posts, contracts, invoices, ...) sẽ bị mất vĩnh viễn.
             </p>
-            <a asp-action="DeleteDb" class="btn btn-danger">
-                🗑️ Xóa Database: @dbName
+            <a asp-action="DeleteDb" class="btn btn-outline-danger">
+                Xóa Database: @dbName
             </a>
         </div>
     </div>
@@ -154,7 +148,7 @@
 else
 {
     <div class="alert alert-danger">
-        <strong>❌ Không thể kết nối tới Database.</strong>
+        <strong>Không thể kết nối tới Database.</strong>
         Vui lòng kiểm tra connection string hoặc chạy migration để tạo database.
     </div>
 }

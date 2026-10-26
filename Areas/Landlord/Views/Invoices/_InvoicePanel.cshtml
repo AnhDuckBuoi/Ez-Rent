@@ -1,12 +1,12 @@
 @model InvoiceDetailModel
 <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
     <div>
-        <h2 class="mb-1" data-ll-focus>🧾 Hóa đơn @VietnamTime.PeriodLabel(Model.Period).ToLowerInvariant()</h2>
+        <h2 class="mb-1" data-ll-focus>Hóa đơn @VietnamTime.PeriodLabel(Model.Period).ToLowerInvariant()</h2>
         <div class="text-muted">Số @Model.Id · @Model.RoomTitle · @Model.TenantName</div>
     </div>
     <div class="d-flex gap-2 align-items-center">
         @LandlordUi.Badge(LandlordLabels.Payment(Model.Status, Model.Overdue))
-        <button class="btn btn-outline-secondary btn-sm" type="button" data-ll-print>🖨 In hóa đơn</button>
+        <button class="btn btn-outline-secondary btn-sm" type="button" data-ll-print>In hóa đơn</button>
     </div>
 </div>
 @if (Model.Status == PaymentStatus.AwaitingConfirmation)
@@ -34,7 +34,7 @@
         @if (Model.MeterReadingId != null)
         {
             <div class="card border-0 shadow-sm"><div class="card-body">
-                <h6>📷 Bộ đối chiếu chỉ số @(Model.HasEvidence ? $"(lưu lúc {VietnamTime.Stamp(Model.EvidenceCapturedAt)})" : "")</h6>
+                <h6>Bộ đối chiếu chỉ số @(Model.HasEvidence ? $"(lưu lúc {VietnamTime.Stamp(Model.EvidenceCapturedAt)})" : "")</h6>
                 @if (Model.HasEvidence)
                 {
                     <p class="small text-muted">Người thuê xem đúng bộ ảnh và chỉ số này trên trang hóa đơn của họ. Bộ đã lưu không sửa hay xóa được.</p>
@@ -65,7 +65,7 @@
             @if (Model.Status is PaymentStatus.Unpaid or PaymentStatus.AwaitingConfirmation or PaymentStatus.Overdue)
             {
                 <form class="mt-2 no-print" method="post" asp-controller="InvoicePayments" asp-action="RefreshQr" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="invoice-panel">
-                    <button class="btn btn-sm btn-outline-secondary" type="submit">🔄 Tạo lại mã QR</button>
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">Tạo lại mã QR</button>
                 </form>
             }
         </div></div>
@@ -74,11 +74,11 @@
             @if (Model.CanMarkPaid)
             {
                 <form method="post" asp-controller="InvoicePayments" asp-action="MarkPaid" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="invoice-panel" data-ll-confirm="Xác nhận bạn đã nhận đủ @DisplayFormat.Money(Model.Total)?">
-                    <button class="btn btn-success w-100" type="submit">💰 Xác nhận đã nhận tiền</button>
+                    <button class="btn btn-success w-100" type="submit">Xác nhận đã nhận tiền</button>
                 </form>
             }
-            @if (Model.CanEdit) { <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">✏️ Sửa hóa đơn</a> }
-            <a class="btn btn-outline-primary" asp-controller="Contracts" asp-action="Details" asp-route-id="@Model.ContractId">📄 Xem hợp đồng</a>
+            @if (Model.CanEdit) { <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Sửa hóa đơn</a> }
+            <a class="btn btn-outline-primary" asp-controller="Contracts" asp-action="Details" asp-route-id="@Model.ContractId">Xem hợp đồng</a>
             @if (Model.CanCancel)
             {
                 <form method="post" asp-controller="InvoicePayments" asp-action="Cancel" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="invoice-panel" data-ll-confirm="Hủy hóa đơn này? Người thuê sẽ được báo không cần thanh toán.">

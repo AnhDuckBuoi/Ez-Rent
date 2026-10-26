@@ -8,86 +8,99 @@
     var protectedRoles = new[] { "Admin", "Landlord", "Tenant" };
 }
 
-<h1>Quản lý Role</h1>
+<partial name="_AdminMenu" />
+
+<div class="ez-page-header mb-4">
+    <div>
+        <div class="ez-eyebrow">Phân quyền hệ thống</div>
+        <h1 class="ez-page-title">Quản lý Role</h1>
+        <p class="ez-page-subtitle">Quản lý các nhóm quyền truy cập trên toàn hệ thống EZ Rent.</p>
+    </div>
+    <div>
+        <a asp-action="Create" class="btn btn-primary">+ Tạo Role</a>
+    </div>
+</div>
 
 <div id="alertContainer">
     <partial name="_StatusMessage" />
 </div>
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <p class="text-muted mb-0">
+    <p class="text-muted small mb-0">
         Tổng <strong id="total-roles">@Model.Count()</strong> role
     </p>
-    <a asp-action="Create" class="btn btn-primary">+ Tạo Role</a>
 </div>
 
-<table class="table table-hover align-middle">
-    <thead class="table-light">
-        <tr>
-            <th>Role Name</th>
-            <th style="width:140px">Số user</th>
-            <th>Loại</th>
-            <th style="width:200px">Thao tác</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var role in Model)
-        {
-            var isProtected = protectedRoles.Contains(role.Name ?? "", StringComparer.OrdinalIgnoreCase);
-            var userCount = role.Name != null && roleUserCounts.ContainsKey(role.Name)
-                            ? roleUserCounts[role.Name]
-                            : 0;
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Role Name</th>
+                    <th style="width:140px">Số user</th>
+                    <th>Loại</th>
+                    <th style="width:200px">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var role in Model)
+                {
+                    var isProtected = protectedRoles.Contains(role.Name ?? "", StringComparer.OrdinalIgnoreCase);
+                    var userCount = role.Name != null && roleUserCounts.ContainsKey(role.Name)
+                                    ? roleUserCounts[role.Name]
+                                    : 0;
 
-            <tr id="role-row-@role.Id" data-id="@role.Id">
-                <td>
-                    <span class="fw-bold">@role.Name</span>
-                </td>
+                    <tr id="role-row-@role.Id" data-id="@role.Id">
+                        <td>
+                            <span class="fw-bold">@role.Name</span>
+                        </td>
 
-                <td>
-                    <span class="badge bg-primary">@userCount</span> user
-                </td>
+                        <td>
+                            <span class="badge bg-primary">@userCount</span> user
+                        </td>
 
-                <td>
-                    @if (isProtected)
-                    {
-                        <span class="badge bg-info text-dark">🔒 Hệ thống</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-secondary">Tùy chỉnh</span>
-                    }
-                </td>
+                        <td>
+                            @if (isProtected)
+                            {
+                                <span class="badge bg-info text-dark">Hệ thống</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-secondary">Tùy chỉnh</span>
+                            }
+                        </td>
 
-                <td class="action-cell">
-                    @if (isProtected)
-                    {
-                        <button type="button" class="btn btn-sm btn-outline-secondary" disabled
-                                title="Không thể xóa role hệ thống">
-                            🔒 Không thể xóa
-                        </button>
-                    }
-                    else if (userCount > 0)
-                    {
-                        <button type="button" class="btn btn-sm btn-outline-warning" disabled
-                                title="Còn @userCount user đang giữ role này">
-                            ⚠️ Còn @userCount user
-                        </button>
-                    }
-                    else
-                    {
-                        <button type="button" class="btn btn-sm btn-outline-danger btn-delete-role"
-                                data-id="@role.Id"
-                                data-name="@role.Name">
-                            🗑️ Xóa
-                        </button>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                        <td class="action-cell">
+                            @if (isProtected)
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-secondary" disabled
+                                        title="Không thể xóa role hệ thống">
+                                    Không thể xóa
+                                </button>
+                            }
+                            else if (userCount > 0)
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-warning" disabled
+                                        title="Còn @userCount user đang giữ role này">
+                                    Còn @userCount user
+                                </button>
+                            }
+                            else
+                            {
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-delete-role"
+                                        data-id="@role.Id"
+                                        data-name="@role.Name">
+                                    Xóa
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
 
-@* Form ẩn — chứa AntiForgeryToken cho AJAX *@
 <form id="afForm" style="display:none">
     @Html.AntiForgeryToken()
 </form>
@@ -101,7 +114,6 @@
 
             const alertContainer = document.getElementById('alertContainer');
 
-            // ================= Alert =================
             function showAlert(message, type = 'warning') {
                 const html = `
                     <div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -116,7 +128,6 @@
                 }, 4000);
             }
 
-            // ================= POST helper =================
             async function postAction(url) {
                 const body = new URLSearchParams({
                     __RequestVerificationToken: AF_TOKEN
@@ -132,7 +143,6 @@
                 return await res.json();
             }
 
-            // ================= UPDATE TOTAL COUNT =================
             function updateTotalRoles(delta) {
                 const el = document.getElementById('total-roles');
                 if (!el) return;
@@ -141,19 +151,17 @@
                 el.textContent = Math.max(0, cur + delta);
             }
 
-            // ================= DELETE ROLE =================
             async function doDelete(id, name, btn) {
                 if (!confirm(`Xóa role "${name}"?\n\nHành động này không thể hoàn tác!`)) return;
 
                 btn.disabled = true;
                 const originalHtml = btn.innerHTML;
-                btn.innerHTML = '⏳ Đang xóa...';
+                btn.innerHTML = 'Đang xóa...';
 
                 try {
                     const data = await postAction(`/Admin/RoleManager/Delete/${id}`);
 
                     if (data.success) {
-                        // ⭐ Fade out row rồi xóa khỏi DOM
                         const row = document.getElementById(`role-row-${id}`);
                         if (row) {
                             row.style.transition = 'opacity 0.4s';
@@ -161,9 +169,7 @@
                             setTimeout(() => row.remove(), 400);
                         }
 
-                        // ⭐ Giảm tổng số role
                         updateTotalRoles(-1);
-
                         showAlert(data.message, 'success');
                     } else {
                         showAlert(data.message, 'danger');
@@ -178,7 +184,6 @@
                 }
             }
 
-            // ================= BIND EVENTS =================
             document.querySelectorAll('.btn-delete-role').forEach(function (btn) {
                 btn.addEventListener('click', function () {
                     doDelete(btn.dataset.id, btn.dataset.name, btn);

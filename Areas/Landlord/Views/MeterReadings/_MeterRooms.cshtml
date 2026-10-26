@@ -32,11 +32,11 @@ else
                             @if (r.ReadingId.HasValue)
                             {
                                 <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@r.ReadingId">Xem phiếu</a>
-                                @if (!r.HasInvoice) { <a class="btn btn-sm btn-primary" asp-controller="Invoices" asp-action="Create" asp-route-period="@Model.Period" asp-route-contractId="@r.ContractId">🧾 Lập hóa đơn</a> }
+                                @if (!r.HasInvoice) { <a class="btn btn-sm btn-primary" asp-controller="Invoices" asp-action="Create" asp-route-period="@Model.Period" asp-route-contractId="@r.ContractId">Lập hóa đơn</a> }
                             }
                             else
                             {
-                                <a class="btn btn-sm btn-primary" asp-action="Create" asp-route-roomId="@r.RoomId" asp-route-period="@Model.Period">✍️ Ghi chỉ số</a>
+                                <a class="btn btn-sm btn-primary" asp-action="Create" asp-route-roomId="@r.RoomId" asp-route-period="@Model.Period">Ghi chỉ số</a>
                             }
                             <a class="btn btn-sm btn-outline-secondary" asp-action="History" asp-route-id="@r.RoomId">Lịch sử</a>
                         </td>

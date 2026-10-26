@@ -112,7 +112,7 @@
                             <input class="form-control" id="Input_Services_@(i)__UnitPrice" name="Input.Services[@i].UnitPrice" value="@(input.Services[i].UnitPrice?.ToString("0"))" type="number" min="0" step="1000" inputmode="numeric" /></div>
                         <div class="col-md-3 col-6"><label class="form-label small" for="Input_Services_@(i)__Unit">Tính theo</label>
                             <input class="form-control" id="Input_Services_@(i)__Unit" name="Input.Services[@i].Unit" value="@(input.Services[i].Unit ?? "tháng")" maxlength="30" /></div>
-                        <div class="col-md-1"><button type="button" class="btn btn-outline-danger w-100" data-ll-repeat-remove aria-label="Bỏ dịch vụ này">✕</button></div>
+                        <div class="col-md-1"><button type="button" class="btn btn-outline-danger w-100" data-ll-repeat-remove aria-label="Bỏ dịch vụ này"></button></div>
                         <span asp-validation-for="Input.Services[i].Name" class="text-danger small"></span>
                         <span asp-validation-for="Input.Services[i].UnitPrice" class="text-danger small"></span>
                     </div>
@@ -125,7 +125,7 @@
                             <input class="form-control" id="Input_Services___i____UnitPrice" name="Input.Services[__i__].UnitPrice" type="number" min="0" step="1000" inputmode="numeric" /></div>
                         <div class="col-md-3 col-6"><label class="form-label small" for="Input_Services___i____Unit">Tính theo</label>
                             <input class="form-control" id="Input_Services___i____Unit" name="Input.Services[__i__].Unit" value="tháng" maxlength="30" /></div>
-                        <div class="col-md-1"><button type="button" class="btn btn-outline-danger w-100" data-ll-repeat-remove aria-label="Bỏ dịch vụ này">✕</button></div>
+                        <div class="col-md-1"><button type="button" class="btn btn-outline-danger w-100" data-ll-repeat-remove aria-label="Bỏ dịch vụ này"></button></div>
                     </div>
                 </template>
             </div>
@@ -165,20 +165,20 @@
         @if (creating)
         {
             <a class="btn btn-outline-secondary" asp-action="Index">Hủy</a>
-            <button class="btn btn-outline-primary" type="submit" name="intent" value="draft">💾 Lưu nháp</button>
-            <button class="btn btn-primary" type="submit" name="intent" value="submit">📤 Gửi duyệt</button>
+            <button class="btn btn-outline-primary" type="submit" name="intent" value="draft">Lưu nháp</button>
+            <button class="btn btn-primary" type="submit" name="intent" value="submit">Gửi duyệt</button>
         }
         else
         {
             <a class="btn btn-outline-secondary" asp-action="Details" asp-route-id="@Model.Id">Hủy</a>
             @if (Model.CurrentApproval == ApprovalStatus.Draft)
             {
-                <button class="btn btn-outline-primary" type="submit" name="intent" value="draft">💾 Lưu nháp</button>
-                <button class="btn btn-primary" type="submit" name="intent" value="submit">📤 Lưu và gửi duyệt</button>
+                <button class="btn btn-outline-primary" type="submit" name="intent" value="draft">Lưu nháp</button>
+                <button class="btn btn-primary" type="submit" name="intent" value="submit">Lưu và gửi duyệt</button>
             }
             else
             {
-                <button class="btn btn-primary" type="submit" name="intent" value="submit">💾 Lưu thay đổi</button>
+                <button class="btn btn-primary" type="submit" name="intent" value="submit">Lưu thay đổi</button>
             }
         }
     </div>

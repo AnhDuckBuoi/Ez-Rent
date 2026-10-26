@@ -49,7 +49,7 @@ else
                             @if (v.Status == ViewingAppointmentStatus.Pending && !v.IsPast)
                             {
                                 <form class="d-inline" method="post" asp-action="Confirm" asp-route-id="@v.Id" data-ll-action data-ll-refresh="viewing-list">
-                                    <button class="btn btn-sm btn-success" type="submit">✅ Xác nhận</button>
+                                    <button class="btn btn-sm btn-success" type="submit">Xác nhận</button>
                                 </form>
                             }
                             <a class="btn btn-sm btn-outline-primary" asp-action="Details" asp-route-id="@v.Id">@(v.Status == ViewingAppointmentStatus.Pending ? "Từ chối…" : v.Status == ViewingAppointmentStatus.Confirmed && v.IsPast ? "Hoàn thành…" : "Chi tiết")</a>

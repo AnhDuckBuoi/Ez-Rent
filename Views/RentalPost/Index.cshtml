@@ -11,190 +11,206 @@
 
     var allAmenities = new[] { "Wifi", "Điều hòa", "Nóng lạnh", "Tủ lạnh", "Máy giặt",
                                "Ban công", "Thang máy", "Chỗ đậu xe", "Bếp riêng", "Camera an ninh" };
+
+    string RoomTypeLabel(RoomType type) => type switch
+    {
+        RoomType.Room => "Phòng trọ",
+        RoomType.Apartment => "Căn hộ mini",
+        RoomType.House => "Nhà nguyên căn",
+        RoomType.Dormitory => "Ký túc xá / Ở ghép",
+        _ => type.ToString()
+    };
 }
 
-<h1>🏠 Tìm phòng trọ</h1>
+<section class="ez-discovery-intro">
+    <div>
+        <p class="eyebrow">TÌM NƠI Ở PHÙ HỢP</p>
+        <h1>Phòng mới, khởi đầu mới.</h1>
+        <p>Khám phá những không gian còn trống dành cho bạn.</p>
+    </div>
+</section>
 
-<div class="row">
-    @* ============================================================ *@
-    @*  SIDEBAR FILTER                                               *@
-    @* ============================================================ *@
-    <div class="col-md-3">
-        <form method="get" asp-action="Index">
-            <div class="card mb-3">
-                <div class="card-header"><strong>Bộ lọc</strong></div>
-                <div class="card-body">
-
-                    @* Thành phố *@
-                    <div class="mb-3">
-                        <label class="form-label">Thành phố</label>
-                        <select name="city" class="form-select">
-                            <option value="">-- Tất cả --</option>
-                            @foreach (var c in cities)
-                            {
-                                <option value="@c" selected="@(ViewBag.City == c)">@c</option>
-                            }
-                        </select>
-                    </div>
-
-                    @* Quận *@
-                    <div class="mb-3">
-                        <label class="form-label">Quận / Huyện</label>
-                        <select name="district" class="form-select">
-                            <option value="">-- Tất cả --</option>
-                            @foreach (var d in districts)
-                            {
-                                <option value="@d" selected="@(ViewBag.District == d)">@d</option>
-                            }
-                        </select>
-                    </div>
-
-                    @* Khoảng giá *@
-                    <div class="mb-3">
-                        <label class="form-label">Khoảng giá (đ/tháng)</label>
-                        <div class="d-flex gap-2">
-                            <input type="number" name="minPrice" class="form-control"
-                                   placeholder="Từ" value="@ViewBag.MinPrice" step="100000" />
-                            <input type="number" name="maxPrice" class="form-control"
-                                   placeholder="Đến" value="@ViewBag.MaxPrice" step="100000" />
-                        </div>
-                    </div>
-
-                    @* Loại phòng *@
-                    <div class="mb-3">
-                        <label class="form-label">Loại phòng</label>
-                        <select name="roomType" class="form-select">
-                            <option value="">-- Tất cả --</option>
-                            @foreach (RoomType t in Enum.GetValues(typeof(RoomType)))
-                            {
-                                <option value="@((int)t)" selected="@(ViewBag.RoomType?.Equals(t) == true)">
-                                    @t
-                                </option>
-                            }
-                        </select>
-                    </div>
-
-                    @* Diện tích *@
-                    <div class="mb-3">
-                        <label class="form-label">Diện tích (m²)</label>
-                        <div class="d-flex gap-2">
-                            <input type="number" name="minArea" class="form-control"
-                                   placeholder="Từ" value="@ViewBag.MinArea" />
-                            <input type="number" name="maxArea" class="form-control"
-                                   placeholder="Đến" value="@ViewBag.MaxArea" />
-                        </div>
-                    </div>
-
-                    @* Tiện ích *@
-                    <div class="mb-3">
-                        <label class="form-label">Tiện ích</label>
-                        @foreach (var a in allAmenities)
-                        {
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox"
-                                       name="amenities" value="@a"
-                                       checked="@selectedAmenities.Contains(a)" />
-                                <label class="form-check-label">@a</label>
-                            </div>
-                        }
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100">🔍 Tìm kiếm</button>
-                    <a asp-action="Index" class="btn btn-outline-secondary w-100 mt-2">Xóa bộ lọc</a>
-                </div>
-            </div>
-        </form>
+<!-- ================= HORIZONTAL SEARCH & FILTER PANEL (Matched to Tenant) ================= -->
+<form method="get" asp-action="Index" class="ez-search-surface mb-4">
+    <div class="ez-search-grid">
+        <div>
+            <label class="form-label" for="rp-search">Từ khóa</label>
+            <input id="rp-search" type="text" name="search" class="form-control"
+                   placeholder="Tên phòng, đường, phường…" value="@ViewBag.Search" />
+        </div>
+        <div>
+            <label class="form-label" for="citySelect">Tỉnh / Thành phố</label>
+            <select name="city" id="citySelect" class="form-select">
+                <option value="">Tất cả khu vực</option>
+                @foreach (var c in cities)
+                {
+                    <option value="@c" selected="@(ViewBag.City == c)">@c</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label class="form-label" for="districtSelect">Quận / Huyện</label>
+            <select name="district" id="districtSelect" class="form-select">
+                <option value="">Tất cả quận/huyện</option>
+                @foreach (var d in districts)
+                {
+                    <option value="@d" selected="@(ViewBag.District == d)">@d</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label class="form-label" for="rp-type">Loại phòng</label>
+            <select id="rp-type" name="roomType" class="form-select">
+                <option value="">Tất cả loại phòng</option>
+                @foreach (RoomType t in Enum.GetValues(typeof(RoomType)))
+                {
+                    <option value="@((int)t)" selected="@(ViewBag.RoomType != null && (RoomType)ViewBag.RoomType == t)">
+                        @RoomTypeLabel(t)
+                    </option>
+                }
+            </select>
+        </div>
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" style="min-height: 42px; padding: 9px 18px;">Tìm phòng</button>
+            <a asp-action="Index" class="btn btn-outline-secondary" style="min-height: 42px; padding: 9px 14px;">Đặt lại</a>
+        </div>
     </div>
 
-    @* ============================================================ *@
-    @*  RESULTS                                                     *@
-    @* ============================================================ *@
-    <div class="col-md-9">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5>@Model.TotalItems kết quả (Trang @Model.PageIndex / @Model.TotalPages)</h5>
-
-            <form method="get" asp-action="Index" class="d-flex gap-2">
-                @* Giữ filter khi đổi sort *@
-                <input type="hidden" name="city" value="@ViewBag.City" />
-                <input type="hidden" name="district" value="@ViewBag.District" />
-                <input type="hidden" name="minPrice" value="@ViewBag.MinPrice" />
-                <input type="hidden" name="maxPrice" value="@ViewBag.MaxPrice" />
-                <input type="hidden" name="roomType" value="@((int?)ViewBag.RoomType)" />
-
-                <select name="sortBy" class="form-select" onchange="this.form.submit()">
-                    <option value="">Mới nhất</option>
-                    <option value="price_asc"  selected="@(ViewBag.SortBy == "price_asc")">Giá thấp → cao</option>
-                    <option value="price_desc" selected="@(ViewBag.SortBy == "price_desc")">Giá cao → thấp</option>
-                    <option value="area_asc"   selected="@(ViewBag.SortBy == "area_asc")">Diện tích nhỏ → lớn</option>
-                    <option value="area_desc"  selected="@(ViewBag.SortBy == "area_desc")">Diện tích lớn → nhỏ</option>
+    <details class="mt-3 pt-3 border-top" open="@(ViewBag.MinPrice != null || ViewBag.MaxPrice != null || ViewBag.MinArea != null || ViewBag.MaxArea != null || selectedAmenities.Length > 0)">
+        <summary class="small fw-semibold" style="cursor: pointer; color: var(--ez-ink);">
+            Bộ lọc nâng cao (Khoảng giá, diện tích, tiện ích, sắp xếp)
+        </summary>
+        <div class="row g-3 mt-1">
+            <div class="col-6 col-md-2">
+                <label class="form-label">Giá từ (đ)</label>
+                <input type="number" name="minPrice" class="form-control" placeholder="Không giới hạn" value="@ViewBag.MinPrice" step="500000" min="0" />
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label">Giá đến (đ)</label>
+                <input type="number" name="maxPrice" class="form-control" placeholder="Không giới hạn" value="@ViewBag.MaxPrice" step="500000" min="0" />
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label">Diện tích từ (m²)</label>
+                <input type="number" name="minArea" class="form-control" placeholder="Tối thiểu" value="@ViewBag.MinArea" min="0" />
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="form-label">Diện tích đến (m²)</label>
+                <input type="number" name="maxArea" class="form-control" placeholder="Tối đa" value="@ViewBag.MaxArea" min="0" />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Sắp xếp</label>
+                <select name="sortBy" class="form-select">
+                    <option value="" selected="@(string.IsNullOrEmpty(ViewBag.SortBy))">Mới nhất</option>
+                    <option value="price_asc" selected="@(ViewBag.SortBy == "price_asc")">Giá thấp đến cao</option>
+                    <option value="price_desc" selected="@(ViewBag.SortBy == "price_desc")">Giá cao đến thấp</option>
+                    <option value="area_desc" selected="@(ViewBag.SortBy == "area_desc")">Diện tích lớn nhất</option>
                 </select>
-            </form>
-        </div>
-
-        @if (!Model.Any())
-        {
-            <div class="alert alert-info">
-                Không tìm thấy phòng nào phù hợp. Vui lòng thử lại với bộ lọc khác.
             </div>
-        }
-        else
-        {
-            <div class="row g-3">
-                @foreach (var post in Model)
-                {
-                    var thumb = post.RoomImages?.FirstOrDefault(i => i.IsPrimary)?.MediaUrl
-                                ?? post.RoomImages?.FirstOrDefault()?.MediaUrl
-                                ?? "https://via.placeholder.com/300x200";
-
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 shadow-sm">
-                            <img src="@thumb" class="card-img-top"
-                                 style="height:180px; object-fit:cover;" />
-                            <div class="card-body">
-                                <h6 class="card-title">@post.Title</h6>
-                                <p class="text-danger fw-bold mb-1">
-                                    @post.Price.ToString("N0")đ/tháng
-                                </p>
-                                <p class="text-muted small mb-1">
-                                    📍 @post.District, @post.City
-                                </p>
-                                <p class="text-muted small mb-0">
-                                    📐 @post.Area m² · @post.RoomType
-                                </p>
-                            </div>
-                            <div class="card-footer bg-white">
-                                <a asp-action="Details" asp-route-id="@post.RentalPostId"
-                                   class="btn btn-sm btn-outline-primary w-100">
-                                    Xem chi tiết
-                                </a>
-                            </div>
+            <div class="col-12">
+                <label class="form-label d-block mb-2">Tiện ích đi kèm</label>
+                <div class="d-flex flex-wrap gap-3">
+                    @foreach (var a in allAmenities)
+                    {
+                        var isChecked = selectedAmenities.Contains(a);
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="amenities" value="@a" id="am_@a.GetHashCode()" checked="@isChecked" />
+                            <label class="form-check-label small" for="am_@a.GetHashCode()">@a</label>
                         </div>
-                    </div>
-                }
+                    }
+                </div>
             </div>
-        }
+        </div>
+    </details>
+</form>
+
+<!-- ================= RESULTS ================= -->
+<div class="d-flex justify-content-between align-items-end mb-3">
+    <div>
+        <p class="eyebrow">KHÔNG GIAN ĐANG CHỜ BẠN</p>
+        <h2 class="mb-0">Kết quả tìm phòng <span class="text-muted fw-normal fs-6">(@Model.TotalItems)</span></h2>
     </div>
 </div>
 
-@* ============================================================ *@
-@*  PAGINATION                                                   *@
-@* ============================================================ *@
-@{
+@if (!Model.Any())
+{
+    <div class="card p-5 text-center">
+        <h3 class="h5 mb-2">Chưa tìm thấy phòng phù hợp</h3>
+        <p class="text-muted small mb-3">Thử thay đổi khu vực, mức giá hoặc xóa bộ lọc để xem thêm lựa chọn.</p>
+        <div>
+            <a asp-action="Index" class="btn btn-primary">Xóa bộ lọc</a>
+        </div>
+    </div>
+}
+else
+{
+    <div class="ez-rental-grid mb-4">
+        @foreach (var item in Model)
+        {
+            var thumb = item.RoomImages?.FirstOrDefault(i => i.IsPrimary)?.MediaUrl
+                        ?? item.RoomImages?.FirstOrDefault()?.MediaUrl
+                        ?? "/images/room-placeholder.svg";
+
+            <article class="ez-rental-card">
+                <a asp-action="Details" asp-route-id="@item.RentalPostId" class="ez-card-photo" aria-label="Xem @item.Title">
+                    <img src="@thumb" alt="@item.Title" loading="lazy" />
+                    <span class="ez-room-badge">@RoomTypeLabel(item.RoomType)</span>
+                </a>
+                <div class="ez-card-copy">
+                    <div class="ez-card-price">
+                        <strong>@item.Price.ToString("N0") đ</strong>
+                        <span>/ tháng</span>
+                    </div>
+                    <h3>
+                        <a asp-action="Details" asp-route-id="@item.RentalPostId">@item.Title</a>
+                    </h3>
+                    <p class="ez-card-address">@item.Address, @item.District, @item.City</p>
+                    <div class="ez-card-meta">
+                        <span class="num">@item.Area.ToString("0.##") m²</span>
+                        <span class="ez-available-dot">Còn trống</span>
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+
     var routeValues = new Dictionary<string, string?>
     {
+        ["search"]   = ViewBag.Search,
         ["city"]     = ViewBag.City,
         ["district"] = ViewBag.District,
+        ["roomType"] = ViewBag.RoomType != null ? ((int)(RoomType)ViewBag.RoomType).ToString() : null,
         ["minPrice"] = ViewBag.MinPrice?.ToString(),
         ["maxPrice"] = ViewBag.MaxPrice?.ToString(),
-        ["roomType"] = ViewBag.RoomType?.ToString(),
         ["minArea"]  = ViewBag.MinArea?.ToString(),
         ["maxArea"]  = ViewBag.MaxArea?.ToString(),
         ["sortBy"]   = ViewBag.SortBy
     };
+
+    @await Html.PartialAsync("_Pagination", PaginationInfo.From(
+        Model,
+        action: "Index",
+        controller: "RentalPost",
+        routeValues: routeValues))
 }
 
-@await Html.PartialAsync("_Pagination", PaginationInfo.From(
-    Model,
-    action: "Index",
-    controller: "RentalPost",
-    routeValues: routeValues))
+@section Scripts {
+    <script>
+        document.getElementById('citySelect')?.addEventListener('change', async function () {
+            const city = this.value;
+            const districtSelect = document.getElementById('districtSelect');
+            districtSelect.innerHTML = '<option value="">Tất cả quận/huyện</option>';
+
+            if (!city) return;
+
+            const res = await fetch(`/RentalPost/GetDistricts?city=${encodeURIComponent(city)}`);
+            const districts = await res.json();
+
+            districts.forEach(d => {
+                const opt = document.createElement('option');
+                opt.value = d;
+                opt.textContent = d;
+                districtSelect.appendChild(opt);
+            });
+        });
+    </script>
+}

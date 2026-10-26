@@ -21,7 +21,7 @@
             { <option value="@s" selected="@(input.Room == s)">@LandlordLabels.Room(s).Text</option> }
         </select>
     </div>
-    <div class="col-md-2 d-grid"><button class="btn btn-outline-primary" type="submit">🔍 Lọc</button></div>
+    <div class="col-md-2 d-grid"><button class="btn btn-outline-primary" type="submit">Lọc</button></div>
 </form>
 
 @if (Model.Rooms.TotalItems == 0)
@@ -77,7 +77,7 @@ else
                                 var show = r.Room == RoomStatus.Hidden;
                                 <form class="d-inline" method="post" asp-action="Visibility" asp-route-id="@r.Id" data-ll-action data-ll-refresh="room-list">
                                     <input type="hidden" name="visible" value="@(show ? "true" : "false")" />
-                                    <button class="btn btn-sm @(show ? "btn-success" : "btn-warning")" type="submit">@(show ? "👁 Hiện" : "🙈 Ẩn")</button>
+                                    <button class="btn btn-sm @(show ? "btn-success" : "btn-warning")" type="submit">@(show ? "Hiện" : "Ẩn")</button>
                                 </form>
                             }
                         </td>

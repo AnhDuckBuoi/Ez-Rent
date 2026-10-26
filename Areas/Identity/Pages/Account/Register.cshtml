@@ -1,70 +1,105 @@
-﻿@page
+@page
 @model RegisterModel
 @{
-    ViewData["Title"] = "Register";
+    ViewData["Title"] = "Đăng ký";
 }
 
-<h1>@ViewData["Title"]</h1>
+<div class="ez-auth-shell">
+    <section class="ez-auth-visual">
+        <img src="~/images/brand/city-ong.png" alt="EZ-Rent - Khám phá không gian sống phù hợp" class="ez-auth-visual-img" />
+        <div class="ez-auth-visual-copy">
+            <div>
+                <p class="eyebrow mb-1">THAM GIA CỘNG ĐỒNG EZ-RENT</p>
+                <h2 class="h5 mb-2">Khởi tạo tài khoản miễn phí trong chưa đầy 1 phút</h2>
+                <p class="text-muted small mb-0">
+                    Lưu danh sách phòng yêu thích, đặt lịch hẹn xem trực tiếp với chủ trọ và theo dõi hợp đồng, hóa đơn điện nước minh bạch.
+                </p>
+            </div>
+            <div class="d-flex flex-wrap gap-3 pt-3 mt-3 border-top small text-muted">
+                <span>Đặt lịch xem phòng</span>
+                <span>·</span>
+                <span>Lưu tin yêu thích</span>
+                <span>·</span>
+                <span>Đăng ký làm chủ trọ</span>
+            </div>
+        </div>
+    </section>
 
-<div class="row">
-    <div class="col-md-4">
+    <section class="ez-auth-card">
+        <div class="mb-3">
+            <p class="eyebrow mb-1">TÀI KHOẢN MỚI</p>
+            <h1 class="h4 mb-0">Đăng ký tài khoản</h1>
+        </div>
+
         <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a new account.</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.FullName" class="form-control" autocomplete="fullname" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.FullName">Họ và tên</label>
-                <span asp-validation-for="Input.FullName" class="text-danger"></span>
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="Input.FullName" class="form-label">Họ và tên</label>
+                <input asp-for="Input.FullName" class="form-control" autocomplete="fullname" aria-required="true" placeholder="Nguyễn Văn A" />
+                <span asp-validation-for="Input.FullName" class="text-danger small"></span>
             </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email">Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
+
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label">Email</label>
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="tenban@email.com" />
+                <span asp-validation-for="Input.Email" class="text-danger small"></span>
             </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.Password">Password</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
+
+            <div class="row g-2 mb-3">
+                <div class="col-sm-6">
+                    <label asp-for="Input.Password" class="form-label">Mật khẩu</label>
+                    <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Tối thiểu 6 ký tự" />
+                    <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="Input.ConfirmPassword" class="form-label">Xác nhận mật khẩu</label>
+                    <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="Nhập lại mật khẩu" />
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                </div>
             </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
+
+            <button id="registerSubmit" type="submit" class="w-100 btn btn-primary">
+                Tạo tài khoản
+            </button>
         </form>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to register.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
+
+        <div class="ez-auth-divider">Hoặc tiếp tục với</div>
+
+        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+            {
+                @foreach (var provider in Model.ExternalLogins!)
                 {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
-                        </div>
-                    </form>
+                    <button type="submit" class="ez-google-btn" name="provider" value="@provider.Name" title="Đăng ký bằng tài khoản @provider.DisplayName">
+                        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+                            <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                            <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                            <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                            <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                        </svg>
+                        <span>Đăng ký bằng @provider.DisplayName</span>
+                    </button>
                 }
             }
-        </section>
-    </div>
+            else
+            {
+                <button type="submit" class="ez-google-btn" name="provider" value="Google" title="Đăng ký bằng tài khoản Google">
+                    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+                        <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                        <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                        <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                        <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                    </svg>
+                    <span>Đăng ký bằng Google</span>
+                </button>
+            }
+        </form>
+
+        <div class="pt-3 mt-3 border-top small text-center">
+            <span class="text-muted">Đã có tài khoản? <a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl" class="fw-semibold">Đăng nhập ngay</a></span>
+        </div>
+    </section>
 </div>
 
 @section Scripts {

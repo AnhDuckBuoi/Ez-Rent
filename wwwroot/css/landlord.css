@@ -1,35 +1,102 @@
-/* EZ-Rent · Chủ trọ. Bổ sung nhỏ trên nền Bootstrap 5 của _Layout chung (main), cùng phong cách với khu Admin.
-   Chỉ định nghĩa những gì Bootstrap không có sẵn: phiếu tính tiền, ảnh QR, ảnh công tơ, thanh chức năng cuộn ngang, bản in. */
-.ll-menu { scrollbar-width: thin; }
-.ll-menu .nav-link { white-space: nowrap; }
-[data-ll-region] { position: relative; transition: opacity .15s; }
-[data-ll-region].is-loading { opacity: .5; pointer-events: none; }
-form.is-busy { opacity: .65; pointer-events: none; }
-
-.ll-thumb { width: 72px; height: 54px; object-fit: cover; border-radius: .5rem; background: var(--bs-light); flex-shrink: 0; }
-.ll-media img, .ll-media video { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; background: #e9ecef; }
-.ll-photo { max-height: 260px; width: 100%; object-fit: contain; background: var(--bs-light); border-radius: .5rem; }
-.ll-previews { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .5rem; }
-.ll-previews img { width: 92px; height: 70px; object-fit: cover; border-radius: .5rem; border: 1px solid var(--bs-border-color); }
-
-/* Phiếu tính tiền điện nước / hóa đơn: số căn phải, dòng chấm dẫn như hóa đơn giấy. */
-.ll-bill { font-variant-numeric: tabular-nums; }
-.ll-bill-row { display: flex; align-items: baseline; gap: .5rem; padding: .35rem 0; }
-.ll-leader { flex: 1; border-bottom: 1px dotted var(--bs-secondary-color); transform: translateY(-.25rem); min-width: .75rem; }
-.ll-bill-total { display: flex; justify-content: space-between; align-items: baseline; border-top: 2px solid var(--bs-body-color); margin-top: .5rem; padding-top: .6rem; }
-.ll-bill-total b { font-size: 1.6rem; }
-.ll-qr img { width: 220px; height: 220px; image-rendering: pixelated; border: 6px solid #fff; border-radius: .5rem; box-shadow: 0 0 0 1px var(--bs-border-color); }
-.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
-.ll-text { white-space: pre-line; overflow-wrap: anywhere; }
-
-@media (max-width: 575.98px) {
-  .ll-bill-total b { font-size: 1.35rem; }
-  .table-responsive .btn-sm { margin-bottom: .25rem; }
+/* Landlord Area Styles — Synchronized with EZ-Rent Architectural Editorial System */
+.ll-stat {
+    background: var(--ez-surface, #ffffff);
+    border: 1px solid var(--ez-line, #dce2e9);
+    border-radius: var(--ez-radius, 14px);
+    padding: 18px 20px;
+    transition: border-color 0.15s ease;
 }
 
-/* In hợp đồng (BM03) / hóa đơn (BM05): ẩn header, footer, menu của layout chung. */
+a:hover > .ll-stat,
+a.ll-stat:hover {
+    border-color: var(--ez-blue, #356797);
+}
+
+.ll-thumb {
+    width: 68px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 7px;
+    background: var(--ez-soft, #eaf0f6);
+    border: 1px solid var(--ez-line, #dce2e9);
+    flex-shrink: 0;
+}
+
+.ll-cover {
+    width: 100%;
+    height: 190px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: var(--ez-soft, #eaf0f6);
+}
+
+.ll-qr {
+    max-width: 220px;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--ez-line, #dce2e9);
+    border-radius: 10px;
+    padding: 8px;
+    background: #fff;
+}
+
+.ll-chat-box {
+    max-height: 460px;
+    overflow-y: auto;
+    background: var(--ez-bg, #f6f7f9);
+}
+
+.ll-msg {
+    max-width: 75%;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.ll-bill-row {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.ll-bill-row .ll-leader {
+    flex: 1;
+    border-bottom: 1px dashed #cbd5e1;
+    min-width: 16px;
+}
+
+.num,
+.table td.num,
+.table th.num {
+    font-variant-numeric: tabular-nums;
+}
+
+.ll-menu :focus-visible,
+[data-ll-region] :focus-visible {
+    outline: 2px solid var(--ez-blue, #356797);
+    outline-offset: 2px;
+}
+
+[data-ll-region][aria-busy="true"] {
+    opacity: 0.65;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
 @media print {
-  header, footer, .ll-menu, .no-print, .btn, .breadcrumb { display: none !important; }
-  .card { border: 0 !important; box-shadow: none !important; }
-  a { color: inherit; text-decoration: none; }
+    header,
+    footer,
+    .ll-menu,
+    .no-print,
+    .btn,
+    form {
+        display: none !important;
+    }
+    main {
+        padding: 0 !important;
+    }
+    .card {
+        border: 1px solid #000 !important;
+        box-shadow: none !important;
+    }
 }

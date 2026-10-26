@@ -6,7 +6,6 @@ using EZ_Rent.Models;
 using EZ_Rent.Models.Enums;
 using EZ_Rent.Services;
 using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
 
 namespace EZ_Rent.Controllers;
 
@@ -67,6 +66,26 @@ public class HomeController : Controller
             .Take(4)
             .ToListAsync();
 
+        return View();
+    }
+
+    public IActionResult About()
+    {
+        return View();
+    }
+
+    public IActionResult Guide()
+    {
+        return View();
+    }
+
+    public IActionResult Help()
+    {
+        return View();
+    }
+
+    public IActionResult Terms()
+    {
         return View();
     }
 

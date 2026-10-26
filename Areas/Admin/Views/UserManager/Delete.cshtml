@@ -9,58 +9,61 @@
         : "?";
 }
 
-<h1>🗑️ Xóa người dùng</h1>
+<partial name="_AdminMenu" />
 
-<div class="row">
+<div class="ez-page-header mb-4">
+    <div>
+        <span class="ez-eyebrow">Quản lý tài khoản</span>
+        <h1 class="ez-page-title">Xóa người dùng</h1>
+    </div>
+</div>
+
+<div class="row g-4">
     <div class="col-md-8">
-        <div class="card border-danger shadow-sm">
-            <div class="card-header bg-danger text-white">
-                <strong>⚠️ Xác nhận xóa</strong>
+        <div class="card border-danger">
+            <div class="card-header text-danger">
+                <strong>Xác nhận xóa người dùng</strong>
             </div>
             <div class="card-body">
 
                 <div class="alert alert-danger mb-4">
                     <strong>Bạn có chắc chắn muốn xóa người dùng này?</strong>
-                    <p class="mb-0 mt-2">
-                        Hành động này <strong>không thể hoàn tác</strong>. Mọi dữ liệu liên quan
-                        (bài đăng, hợp đồng, khiếu nại, tin nhắn...) có thể bị ảnh hưởng.
+                    <p class="mb-0 mt-1 small">
+                        Hành động này không thể hoàn tác. Mọi dữ liệu liên quan (bài đăng, hợp đồng, khiếu nại, tin nhắn...) có thể bị ảnh hưởng.
                     </p>
                 </div>
 
                 <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-light rounded">
-                    @* ⭐ Avatar chữ cái đầu *@
                     <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
-                         style="width:80px; height:80px;
-                                background: linear-gradient(135deg, #667eea, #764ba2);
-                                color:white; font-size:32px; font-weight:bold;">
+                         style="width:72px; height:72px; background: var(--ez-soft); color: var(--ez-blue); font-size:28px; font-weight:700;">
                         @initial
                     </div>
                     <div>
                         <h5 class="mb-1">@Model.FullName</h5>
-                        <p class="text-muted mb-0">📧 @Model.Email</p>
+                        <p class="text-muted mb-0 small">@Model.Email</p>
                         @if (!string.IsNullOrEmpty(Model.PhoneNumber))
                         {
-                            <p class="text-muted mb-0">📞 @Model.PhoneNumber</p>
+                            <p class="text-muted mb-0 small">@Model.PhoneNumber</p>
                         }
-                        <p class="text-muted small mb-0">
+                        <p class="text-muted small mb-0 num">
                             Tham gia: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
                         </p>
                     </div>
                 </div>
 
                 <dl class="row mb-4">
-                    <dt class="col-sm-3">Username</dt>
+                    <dt class="col-sm-3 text-muted">Username</dt>
                     <dd class="col-sm-9"><code>@Model.UserName</code></dd>
 
-                    <dt class="col-sm-3">Trạng thái</dt>
+                    <dt class="col-sm-3 text-muted">Trạng thái</dt>
                     <dd class="col-sm-9">
                         @if (Model.Status == UserStatus.Locked)
                         {
-                            <span class="badge bg-danger">🔒 Đã khóa</span>
+                            <span class="badge bg-danger">Đã khóa</span>
                         }
                         else
                         {
-                            <span class="badge bg-success">✅ Hoạt động</span>
+                            <span class="badge bg-success">Hoạt động</span>
                         }
                     </dd>
                 </dl>
@@ -71,7 +74,7 @@
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-danger"
                                 onclick="return confirm('XÓA VĨNH VIỄN người dùng @Model.FullName?\n\nHành động này không thể hoàn tác!');">
-                            🗑️ Xác nhận xóa
+                            Xác nhận xóa
                         </button>
                         <a asp-action="Index" class="btn btn-outline-secondary">
                             ← Hủy, quay lại
@@ -84,16 +87,16 @@
     </div>
 
     <div class="col-md-4">
-        <div class="card border-warning shadow-sm">
-            <div class="card-header bg-warning text-dark">
-                <strong>💡 Cân nhắc</strong>
+        <div class="card">
+            <div class="card-header">
+                <strong>Lưu ý trước khi xóa</strong>
             </div>
-            <div class="card-body small">
+            <div class="card-body small text-muted">
                 <p class="mb-2">Trước khi xóa, hãy cân nhắc:</p>
                 <ul class="mb-0 ps-3">
-                    <li><strong>Khóa tài khoản</strong> thay vì xóa — giữ được dữ liệu.</li>
-                    <li>User có hợp đồng Active → không nên xóa.</li>
-                    <li>User là Admin → hệ thống sẽ chặn xóa.</li>
+                    <li><strong>Khóa tài khoản</strong> thay vì xóa — giữ được dữ liệu lịch sử.</li>
+                    <li>Người dùng đang có hợp đồng hiệu lực không nên xóa.</li>
+                    <li>Tài khoản Admin sẽ được hệ thống bảo vệ.</li>
                 </ul>
             </div>
         </div>

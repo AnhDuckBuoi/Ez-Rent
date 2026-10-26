@@ -3,23 +3,21 @@
 @inject SignInManager<ApplicationUser> SignInManager
 @{
     var hasExternalLogins = (await SignInManager.GetExternalAuthenticationSchemesAsync()).Any();
-    var isLandlord = User.IsInRole("Landlord");
-    var isTenant = User.IsInRole("Tenant");
 }
-<ul class="nav nav-pills flex-column">
+<ul class="nav flex-column gap-1">
     <li class="nav-item">
         <a class="nav-link @ManageNavPages.IndexNavClass(ViewContext)"
-           id="profile" asp-page="./Index">👤 Hồ sơ cá nhân</a>
+           id="profile" asp-page="./Index">Hồ sơ cá nhân</a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)"
-           id="email" asp-page="./Email">📧 Email</a>
+           id="email" asp-page="./Email">Email</a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)"
-           id="change-password" asp-page="./ChangePassword">🔒 Mật khẩu</a>
+           id="change-password" asp-page="./ChangePassword">Mật khẩu</a>
     </li>
 
     @if (hasExternalLogins)
@@ -27,45 +25,25 @@
         <li id="external-logins" class="nav-item">
             <a id="external-login"
                class="nav-link @ManageNavPages.ExternalLoginsNavClass(ViewContext)"
-               asp-page="./ExternalLogins">🔗 Đăng nhập liên kết</a>
+               asp-page="./ExternalLogins">Đăng nhập liên kết</a>
         </li>
     }
 
     <li class="nav-item">
         <a class="nav-link @ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)"
-           id="two-factor" asp-page="./TwoFactorAuthentication">🔐 Xác thực 2 bước</a>
+           id="two-factor" asp-page="./TwoFactorAuthentication">Xác thực 2 bước</a>
     </li>
 
     <li class="nav-item">
         <a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)"
-           id="personal-data" asp-page="./PersonalData">📦 Dữ liệu cá nhân</a>
+           id="personal-data" asp-page="./PersonalData">Dữ liệu cá nhân</a>
     </li>
 
-    @* ===== Mục riêng cho EZ-Rent ===== *@
-    @if (isLandlord)
-    {
-        <li class="nav-item mt-3">
-            <hr />
-            <small class="text-muted px-3">Chủ trọ</small>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" asp-controller="My" asp-action="Posts" asp-area="">
-                📝 Tin đăng của tôi
-            </a>
-        </li>
-    }
-
-    @if (isLandlord || isTenant)
-    {
-        <li class="nav-item">
-            <a class="nav-link" asp-controller="My" asp-action="Contracts" asp-area="">
-                📄 Hợp đồng của tôi
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" asp-controller="My" asp-action="Invoices" asp-area="">
-                💰 Hóa đơn của tôi
-            </a>
-        </li>
-    }
+    <li class="nav-item mt-2 pt-2 border-top">
+        <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post">
+            <button type="submit" class="btn btn-outline-danger btn-sm w-100 text-start">
+                Đăng xuất
+            </button>
+        </form>
+    </li>
 </ul>

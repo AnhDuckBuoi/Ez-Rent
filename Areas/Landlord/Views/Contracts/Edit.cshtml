@@ -4,6 +4,6 @@
 }
 <partial name="_LandlordMenu" />
 <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Hợp đồng</a></li><li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Id">Số @Model.Id</a></li><li class="breadcrumb-item active" aria-current="page">Sửa</li></ol></nav>
-<h2 class="mb-3">✏️ Sửa hợp đồng nháp số @Model.Id</h2>
+<h2 class="mb-3">Sửa hợp đồng nháp số @Model.Id</h2>
 <partial name="_ContractForm" model="Model" />
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

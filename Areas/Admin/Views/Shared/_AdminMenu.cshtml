@@ -1,0 +1,15 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"] as string ?? "";
+    string Active(params string[] names) => names.Contains(controller, StringComparer.OrdinalIgnoreCase) ? "active" : "";
+    string? Current(params string[] names) => names.Contains(controller, StringComparer.OrdinalIgnoreCase) ? "page" : null;
+}
+<link rel="stylesheet" href="~/css/landlord.css" asp-append-version="true" />
+<nav class="ll-menu nav nav-pills flex-nowrap overflow-auto gap-1 mb-4 no-print" aria-label="Chức năng quản trị">
+    <a class="nav-link @Active("Dashboard")" aria-current="@Current("Dashboard")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Tổng quan</a>
+    <a class="nav-link @Active("Post")" aria-current="@Current("Post")" asp-area="Admin" asp-controller="Post" asp-action="Index">Kiểm duyệt tin đăng</a>
+    <a class="nav-link @Active("UserManager")" aria-current="@Current("UserManager")" asp-area="Admin" asp-controller="UserManager" asp-action="Index">Người dùng</a>
+    <a class="nav-link @Active("RoleManager")" aria-current="@Current("RoleManager")" asp-area="Admin" asp-controller="RoleManager" asp-action="Index">Vai trò</a>
+    <a class="nav-link @Active("Support")" aria-current="@Current("Support")" asp-area="Admin" asp-controller="Support" asp-action="Index">Khiếu nại sửa chữa</a>
+    <a class="nav-link @Active("Chat")" aria-current="@Current("Chat")" asp-area="" asp-controller="Chat" asp-action="Index">Hộp thư Chat</a>
+    <a class="nav-link @Active("DbManage")" aria-current="@Current("DbManage")" asp-area="Admin" asp-controller="DbManage" asp-action="Index">Cơ sở dữ liệu</a>
+</nav>

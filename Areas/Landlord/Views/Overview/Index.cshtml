@@ -3,13 +3,14 @@
     ViewData["Title"] = "Tổng quan chủ trọ";
 }
 <partial name="_LandlordMenu" />
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+
+<div class="ez-page-header">
     <div>
-        <h2 class="mb-0">📊 Tổng quan chủ trọ</h2>
-        <small class="text-muted">Xin chào @(string.IsNullOrWhiteSpace(Model.Name) ? "bạn" : Model.Name) — @VietnamTime.PeriodLabel(Model.Period)</small>
+        <h2>Tổng quan vận hành</h2>
+        <p class="ez-page-subtitle">Xin chào @(string.IsNullOrWhiteSpace(Model.Name) ? "bạn" : Model.Name) · @VietnamTime.PeriodLabel(Model.Period)</p>
     </div>
     <div class="d-flex gap-2">
-        <a class="btn btn-outline-secondary btn-sm" asp-controller="MeterReadings" asp-action="Index">⚡ Ghi điện nước</a>
+        <a class="btn btn-outline-secondary btn-sm" asp-controller="MeterReadings" asp-action="Index">Ghi điện nước</a>
         <a class="btn btn-primary btn-sm" asp-controller="Rooms" asp-action="Create">+ Đăng tin phòng</a>
     </div>
 </div>
@@ -27,97 +28,141 @@
     <div class="alert alert-info">Quản trị viên đã trả lời <a asp-controller="Support" asp-action="Index">@Model.SupportReplies tin trong mục Hỗ trợ</a>.</div>
 }
 
-<h6 class="text-uppercase text-muted mb-2">🏠 Phòng và lịch xem</h6>
+<div class="ez-section-label">Phòng trọ và lịch xem</div>
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
-        <a class="card border-0 shadow-sm text-decoration-none h-100" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;" asp-controller="Rooms" asp-action="Index">
-            <div class="card-body"><div class="text-uppercase small opacity-75">Tin phòng</div><h2 class="mb-0 mt-1">@Model.Rooms</h2>
-                <small class="opacity-75">@Model.Rented đang cho thuê · @Model.Available còn trống</small></div>
+        <a class="ez-kpi-card is-accent" asp-controller="Rooms" asp-action="Index">
+            <div>
+                <div class="ez-kpi-label">Tổng tin phòng</div>
+                <div class="ez-kpi-value num">@Model.Rooms</div>
+            </div>
+            <div class="ez-kpi-meta num">@Model.Rented đang thuê · @Model.Available còn trống</div>
         </a>
     </div>
     <div class="col-6 col-md-3">
-        <a class="card border-0 shadow-sm text-decoration-none h-100" style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white;" asp-controller="Viewings" asp-action="Index" asp-route-status="Pending">
-            <div class="card-body"><div class="text-uppercase small opacity-75">Lịch xem chờ xác nhận</div><h2 class="mb-0 mt-1">@Model.PendingViewings</h2></div>
+        <a class="ez-kpi-card @(Model.PendingViewings > 0 ? "is-warning" : "")" asp-controller="Viewings" asp-action="Index" asp-route-status="Pending">
+            <div>
+                <div class="ez-kpi-label">Lịch xem chờ xác nhận</div>
+                <div class="ez-kpi-value num">@Model.PendingViewings</div>
+            </div>
+            <div class="ez-kpi-meta">Phản hồi sớm để giữ lịch</div>
         </a>
     </div>
     <div class="col-6 col-md-3">
-        <a class="card border-0 shadow-sm h-100 border-start border-primary border-4 text-decoration-none text-body" asp-controller="Rooms" asp-action="Index" asp-route-approval="Pending">
-            <div class="card-body"><div class="text-muted small">Tin chờ duyệt</div><h3 class="mb-0">@Model.WaitingApproval</h3></div>
+        <a class="ez-kpi-card" asp-controller="Rooms" asp-action="Index" asp-route-approval="Pending">
+            <div>
+                <div class="ez-kpi-label">Tin chờ kiểm duyệt</div>
+                <div class="ez-kpi-value num">@Model.WaitingApproval</div>
+            </div>
+            <div class="ez-kpi-meta">Đang chờ Quản trị viên duyệt</div>
         </a>
     </div>
     <div class="col-6 col-md-3">
-        <a class="card border-0 shadow-sm h-100 border-start border-warning border-4 text-decoration-none text-body" asp-controller="Rooms" asp-action="Index" asp-route-approval="NeedRevision">
-            <div class="card-body"><div class="text-muted small">Tin cần sửa / bị từ chối</div><h3 class="mb-0">@Model.NeedsAttention</h3></div>
+        <a class="ez-kpi-card @(Model.NeedsAttention > 0 ? "is-danger" : "")" asp-controller="Rooms" asp-action="Index" asp-route-approval="NeedRevision">
+            <div>
+                <div class="ez-kpi-label">Tin cần sửa / từ chối</div>
+                <div class="ez-kpi-value num">@Model.NeedsAttention</div>
+            </div>
+            <div class="ez-kpi-meta">Cần cập nhật lại nội dung</div>
         </a>
     </div>
 </div>
 
-<h6 class="text-uppercase text-muted mb-2">🧾 Hợp đồng và thanh toán — @VietnamTime.PeriodLabel(Model.Period).ToLowerInvariant()</h6>
+<div class="ez-section-label">Hợp đồng và thanh toán · @VietnamTime.PeriodLabel(Model.Period).ToLowerInvariant()</div>
 <div class="row g-3 mb-4">
     <div class="col-6 col-md-3">
-        <a class="card border-0 shadow-sm text-decoration-none h-100" style="background: linear-gradient(135deg, #4facfe, #00f2fe); color: white;" asp-controller="Invoices" asp-action="Index" asp-route-status="open">
-            <div class="card-body"><div class="text-uppercase small opacity-75">Chưa thu</div><h4 class="mb-0 mt-1 num">@DisplayFormat.Money(Model.OutstandingAmount)</h4>
-                <small class="opacity-75">@Model.OpenInvoices hóa đơn</small></div>
+        <a class="ez-kpi-card is-accent" asp-controller="Invoices" asp-action="Index" asp-route-status="open">
+            <div>
+                <div class="ez-kpi-label">Khoản chưa thu</div>
+                <div class="ez-kpi-value num" style="font-size: 1.45rem;">@DisplayFormat.Money(Model.OutstandingAmount)</div>
+            </div>
+            <div class="ez-kpi-meta num">@Model.OpenInvoices hóa đơn đang mở</div>
         </a>
     </div>
     <div class="col-6 col-md-3">
-        <a class="card border-0 shadow-sm h-100 border-start border-success border-4 text-decoration-none text-body" asp-controller="Invoices" asp-action="Index" asp-route-status="paid" asp-route-period="@Model.Period">
-            <div class="card-body"><div class="text-muted small">Đã thu kỳ này</div><h4 class="mb-0 num">@DisplayFormat.Money(Model.CollectedThisPeriod)</h4></div>
+        <a class="ez-kpi-card is-success" asp-controller="Invoices" asp-action="Index" asp-route-status="paid" asp-route-period="@Model.Period">
+            <div>
+                <div class="ez-kpi-label">Đã thu trong kỳ</div>
+                <div class="ez-kpi-value num" style="font-size: 1.45rem;">@DisplayFormat.Money(Model.CollectedThisPeriod)</div>
+            </div>
+            <div class="ez-kpi-meta">Đã xác nhận thanh toán</div>
         </a>
     </div>
     <div class="col-6 col-md-3">
-        <a class="card border-0 shadow-sm h-100 border-start border-danger border-4 text-decoration-none text-body" asp-controller="Invoices" asp-action="Index" asp-route-status="overdue">
-            <div class="card-body"><div class="text-muted small">Hóa đơn quá hạn · chờ xác nhận tiền</div><h3 class="mb-0">@Model.OverdueInvoices · @Model.AwaitingPayment</h3></div>
+        <a class="ez-kpi-card @(Model.OverdueInvoices > 0 ? "is-danger" : "")" asp-controller="Invoices" asp-action="Index" asp-route-status="overdue">
+            <div>
+                <div class="ez-kpi-label">Quá hạn · Chờ đối soát</div>
+                <div class="ez-kpi-value num">@Model.OverdueInvoices · @Model.AwaitingPayment</div>
+            </div>
+            <div class="ez-kpi-meta">Cần kiểm tra chuyển khoản</div>
         </a>
     </div>
     <div class="col-6 col-md-3">
-        <a class="card border-0 shadow-sm h-100 border-start border-info border-4 text-decoration-none text-body" asp-controller="MeterReadings" asp-action="Index">
-            <div class="card-body"><div class="text-muted small">Phòng chưa ghi điện nước</div><h3 class="mb-0">@Model.MissingReadings</h3>
-                <small class="text-muted">@Model.ActiveContracts hợp đồng hiệu lực</small></div>
+        <a class="ez-kpi-card" asp-controller="MeterReadings" asp-action="Index">
+            <div>
+                <div class="ez-kpi-label">Phòng chưa ghi điện nước</div>
+                <div class="ez-kpi-value num">@Model.MissingReadings</div>
+            </div>
+            <div class="ez-kpi-meta num">@Model.ActiveContracts hợp đồng hiệu lực</div>
         </a>
     </div>
 </div>
 
 <div class="row g-3">
     <div class="col-lg-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white d-flex justify-content-between"><strong>📅 Yêu cầu xem phòng mới</strong><a class="small" asp-controller="Viewings" asp-action="Index" asp-route-status="Pending">Xem tất cả</a></div>
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Yêu cầu xem phòng mới</span>
+                <a class="small" asp-controller="Viewings" asp-action="Index" asp-route-status="Pending">Xem tất cả</a>
+            </div>
             <ul class="list-group list-group-flush">
                 @if (Model.PendingViewingList.Count == 0) { <li class="list-group-item text-muted">Không có yêu cầu nào đang chờ.</li> }
                 @foreach (var v in Model.PendingViewingList)
                 {
                     <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
-                        <div><a class="fw-bold" asp-controller="Viewings" asp-action="Details" asp-route-id="@v.Id">@v.TenantName</a>
-                            <div class="small text-muted">@v.RoomTitle · @VietnamTime.Full(v.ViewingDate)</div></div>
-                        @if (v.ResponseLate) { <span class="badge bg-warning text-dark">Quá 2 giờ</span> } else { @LandlordUi.Badge(LandlordLabels.Viewing(v.Status)) }
+                        <div>
+                            <a class="fw-semibold" asp-controller="Viewings" asp-action="Details" asp-route-id="@v.Id">@v.TenantName</a>
+                            <div class="small text-muted">@v.RoomTitle · @VietnamTime.Full(v.ViewingDate)</div>
+                        </div>
+                        @if (v.ResponseLate) { <span class="badge bg-warning">Quá 2 giờ</span> } else { @LandlordUi.Badge(LandlordLabels.Viewing(v.Status)) }
                     </li>
                 }
             </ul>
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white d-flex justify-content-between"><strong>🗓️ Lịch đã hẹn sắp tới</strong><a class="small" asp-controller="Viewings" asp-action="Index" asp-route-status="Confirmed">Xem tất cả</a></div>
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Lịch đã hẹn sắp tới</span>
+                <a class="small" asp-controller="Viewings" asp-action="Index" asp-route-status="Confirmed">Xem tất cả</a>
+            </div>
             <ul class="list-group list-group-flush">
                 @if (Model.NextViewings.Count == 0) { <li class="list-group-item text-muted">Chưa có lịch đã xác nhận.</li> }
                 @foreach (var v in Model.NextViewings)
                 {
-                    <li class="list-group-item"><a class="fw-bold" asp-controller="Viewings" asp-action="Details" asp-route-id="@v.Id">@VietnamTime.LongDate(v.ViewingDate), @VietnamTime.Time(v.ViewingDate)</a>
-                        <div class="small text-muted">@v.TenantName · @v.RoomTitle</div></li>
+                    <li class="list-group-item">
+                        <a class="fw-semibold" asp-controller="Viewings" asp-action="Details" asp-route-id="@v.Id">@VietnamTime.LongDate(v.ViewingDate), @VietnamTime.Time(v.ViewingDate)</a>
+                        <div class="small text-muted">@v.TenantName · @v.RoomTitle</div>
+                    </li>
                 }
             </ul>
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white d-flex justify-content-between"><strong>🧾 Hóa đơn cần kiểm tra</strong><a class="small" asp-controller="Invoices" asp-action="Index" asp-route-status="open">Xem tất cả</a></div>
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Hóa đơn cần kiểm tra</span>
+                <a class="small" asp-controller="Invoices" asp-action="Index" asp-route-status="open">Xem tất cả</a>
+            </div>
             <ul class="list-group list-group-flush">
                 @if (Model.InvoicesToCheck.Count == 0) { <li class="list-group-item text-muted">Không có hóa đơn quá hạn hay chờ xác nhận.</li> }
                 @foreach (var i in Model.InvoicesToCheck)
                 {
                     <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
-                        <div><a class="fw-bold" asp-controller="Invoices" asp-action="Details" asp-route-id="@i.Id">@i.TenantName</a>
-                            <div class="small text-muted">@i.RoomTitle · @VietnamTime.PeriodLabel(i.Period) · <span class="num">@DisplayFormat.Money(i.Total)</span></div></div>
+                        <div>
+                            <a class="fw-semibold" asp-controller="Invoices" asp-action="Details" asp-route-id="@i.Id">@i.TenantName</a>
+                            <div class="small text-muted">@i.RoomTitle · @VietnamTime.PeriodLabel(i.Period) · <span class="num">@DisplayFormat.Money(i.Total)</span></div>
+                        </div>
                         @LandlordUi.Badge(LandlordLabels.Payment(i.Status, i.Overdue))
                     </li>
                 }
@@ -125,15 +170,20 @@
         </div>
     </div>
     <div class="col-lg-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white d-flex justify-content-between"><strong>🔧 Sự cố chưa xử lý xong</strong><a class="small" asp-controller="Repairs" asp-action="Index">Xem tất cả</a></div>
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Sự cố chưa xử lý xong</span>
+                <a class="small" asp-controller="Repairs" asp-action="Index">Xem tất cả</a>
+            </div>
             <ul class="list-group list-group-flush">
                 @if (Model.UrgentRepairs.Count == 0) { <li class="list-group-item text-muted">Không có sự cố nào đang mở.</li> }
                 @foreach (var r in Model.UrgentRepairs)
                 {
                     <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
-                        <div><a class="fw-bold" asp-controller="Repairs" asp-action="Details" asp-route-id="@r.Id">@r.ProblemType</a>
-                            <div class="small text-muted">@r.RoomTitle · @r.TenantName · @LandlordLabels.Repair(r.Status).Text</div></div>
+                        <div>
+                            <a class="fw-semibold" asp-controller="Repairs" asp-action="Details" asp-route-id="@r.Id">@r.ProblemType</a>
+                            <div class="small text-muted">@r.RoomTitle · @r.TenantName · @LandlordLabels.Repair(r.Status).Text</div>
+                        </div>
                         @LandlordUi.Badge(LandlordLabels.Priority(r.Priority))
                     </li>
                 }
@@ -141,21 +191,24 @@
         </div>
     </div>
 </div>
+
 @if (Model.RoomsToFix.Count > 0 || Model.ContractsWaiting > 0 || Model.UnreadMessages > 0)
 {
-    <div class="card border-0 shadow-sm mt-3">
-        <div class="card-header bg-white"><strong>📌 Việc khác</strong></div>
+    <div class="card mt-3">
+        <div class="card-header">Cần lưu ý thêm</div>
         <ul class="list-group list-group-flush">
             @foreach (var room in Model.RoomsToFix)
             {
                 <li class="list-group-item d-flex justify-content-between align-items-center gap-2">
-                    <div><a asp-controller="Rooms" asp-action="Details" asp-route-id="@room.Id">@room.Title</a>
-                        @if (!string.IsNullOrWhiteSpace(room.ApprovalNote)) { <div class="small text-muted">Quản trị viên: @room.ApprovalNote</div> }</div>
+                    <div>
+                        <a asp-controller="Rooms" asp-action="Details" asp-route-id="@room.Id">@room.Title</a>
+                        @if (!string.IsNullOrWhiteSpace(room.ApprovalNote)) { <div class="small text-muted">Quản trị viên: @room.ApprovalNote</div> }
+                    </div>
                     @LandlordUi.Badge(LandlordLabels.Approval(room.Approval))
                 </li>
             }
             @if (Model.ContractsWaiting > 0) { <li class="list-group-item"><a asp-controller="Contracts" asp-action="Index">@Model.ContractsWaiting hợp đồng đang chờ xác nhận</a></li> }
-            @if (Model.UnreadMessages > 0) { <li class="list-group-item"><a asp-controller="Messages" asp-action="Index" asp-route-filter="unread">@Model.UnreadMessages tin nhắn chưa đọc</a></li> }
+            @if (Model.UnreadMessages > 0) { <li class="list-group-item"><a asp-area="" asp-controller="Chat" asp-action="Index" asp-route-unreadOnly="true">@Model.UnreadMessages tin nhắn chưa đọc</a></li> }
         </ul>
     </div>
 }

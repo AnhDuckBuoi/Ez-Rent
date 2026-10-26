@@ -1,29 +1,34 @@
-﻿@{
+@{
     ViewData["Title"] = "Xóa Database";
     var dbName = ViewBag.DbName as string ?? "";
 }
 
-<h1>🗑️ Xóa Database</h1>
+<partial name="_AdminMenu" />
+
+<div class="ez-page-header mb-4">
+    <div>
+        <span class="ez-eyebrow">Hạ tầng dữ liệu</span>
+        <h1 class="ez-page-title">Xóa Database</h1>
+    </div>
+</div>
 
 <div class="card border-danger">
-    <div class="card-header bg-danger text-white">
-        <strong>⚠️ CẢNH BÁO NGUY HIỂM</strong>
+    <div class="card-header text-danger">
+        <strong>Cảnh báo thao tác nguy hiểm</strong>
     </div>
     <div class="card-body">
 
         <div class="alert alert-danger mb-4">
-            <h5 class="mb-3">Bạn đang chuẩn bị xóa database:</h5>
-            <p class="fs-3 mb-3 text-center">
+            <h5 class="mb-2">Bạn đang chuẩn bị xóa database:</h5>
+            <p class="fs-4 mb-3">
                 <code class="text-danger">@dbName</code>
             </p>
-            <p class="mb-2">
-                <strong>Hành động này sẽ:</strong>
-            </p>
-            <ul class="mb-2">
-                <li>❌ Xóa toàn bộ users (landlord, tenant, admin)</li>
-                <li>❌ Xóa toàn bộ bài đăng, hợp đồng, hóa đơn</li>
-                <li>❌ Xóa toàn bộ khiếu nại, thông báo, tin nhắn</li>
-                <li>❌ <strong>KHÔNG THỂ HOÀN TÁC</strong></li>
+            <p class="mb-2"><strong>Hành động này sẽ:</strong></p>
+            <ul class="mb-0 small">
+                <li>Xóa toàn bộ tài khoản người dùng (Landlord, Tenant, Admin)</li>
+                <li>Xóa toàn bộ bài đăng, hợp đồng, hóa đơn</li>
+                <li>Xóa toàn bộ khiếu nại, thông báo, tin nhắn</li>
+                <li><strong>Không thể hoàn tác</strong></li>
             </ul>
         </div>
 
@@ -33,12 +38,12 @@
             <div class="mb-4">
                 <label for="confirmName" class="form-label">
                     Để xác nhận, vui lòng nhập chính xác tên database:
-                    <code class="text-danger fs-5">@dbName</code>
+                    <code class="text-danger">@dbName</code>
                 </label>
                 <input type="text"
                        id="confirmName"
                        name="confirmName"
-                       class="form-control form-control-lg"
+                       class="form-control"
                        placeholder="Nhập tên database..."
                        autocomplete="off"
                        required />
@@ -46,12 +51,12 @@
 
             <div class="d-flex gap-2">
                 <button type="submit"
-                        class="btn btn-danger btn-lg"
+                        class="btn btn-danger"
                         id="btnDelete"
                         disabled>
-                    🗑️ Xóa vĩnh viễn
+                    Xóa vĩnh viễn
                 </button>
-                <a asp-action="Index" class="btn btn-outline-secondary btn-lg">
+                <a asp-action="Index" class="btn btn-outline-secondary">
                     ← Quay lại
                 </a>
             </div>
@@ -67,13 +72,11 @@
             const btn = document.getElementById('btnDelete');
             const expected = '@dbName';
 
-            // Bật nút Xóa chỉ khi nhập đúng tên DB
             input.addEventListener('input', function () {
                 const match = input.value.trim().toLowerCase() === expected.toLowerCase();
                 btn.disabled = !match;
             });
 
-            // Confirm lần cuối
             btn.addEventListener('click', function (e) {
                 if (!confirm(`XÓA VĨNH VIỄN database "${expected}"?\n\nHành động này KHÔNG THỂ HOÀN TÁC!`)) {
                     e.preventDefault();

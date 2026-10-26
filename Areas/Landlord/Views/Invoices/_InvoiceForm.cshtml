@@ -108,7 +108,7 @@
                 @if (Model.MeterReadingId.HasValue) { <p class="small mt-2 mb-0"><a asp-controller="MeterReadings" asp-action="Details" asp-route-id="@Model.MeterReadingId">Xem phiếu chỉ số và ảnh công tơ</a></p> }
             </div></div>
             <div class="d-grid gap-2 mt-3">
-                <button class="btn btn-primary" type="submit">@(creating ? "📤 Phát hành và gửi người thuê" : "💾 Lưu hóa đơn")</button>
+                <button class="btn btn-primary" type="submit">@(creating ? "Phát hành và gửi người thuê" : "Lưu hóa đơn")</button>
                 <a class="btn btn-outline-secondary" href="@(creating ? Url.Action("Index") : Url.Action("Details", new { id = Model.Id }))">Hủy</a>
             </div>
         </div>

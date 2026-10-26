@@ -7,12 +7,12 @@
 }
 <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
     <div>
-        <h2 class="mb-1" data-ll-focus>📄 Hợp đồng thuê phòng số @Model.Id</h2>
+        <h2 class="mb-1" data-ll-focus>Hợp đồng thuê phòng số @Model.Id</h2>
         <div class="text-muted">@Model.RoomTitle · @Model.TenantName</div>
     </div>
     <div class="d-flex gap-2 align-items-center">
         @LandlordUi.Badge(LandlordLabels.Contract(status))
-        <button class="btn btn-outline-secondary btn-sm" type="button" data-ll-print>🖨 In hợp đồng</button>
+        <button class="btn btn-outline-secondary btn-sm" type="button" data-ll-print>In hợp đồng</button>
     </div>
 </div>
 <div class="row g-3">
@@ -67,7 +67,7 @@
         </article>
 
         <div class="card border-0 shadow-sm no-print" id="documents">
-            <div class="card-header bg-white d-flex justify-content-between"><strong>📎 Tài liệu hợp đồng</strong><small class="text-muted">Phiên bản hiện tại: @(Model.CurrentDocumentVersion == 0 ? "chưa có" : Model.CurrentDocumentVersion.ToString())</small></div>
+            <div class="card-header bg-white d-flex justify-content-between"><strong>Tài liệu hợp đồng</strong><small class="text-muted">Phiên bản hiện tại: @(Model.CurrentDocumentVersion == 0 ? "chưa có" : Model.CurrentDocumentVersion.ToString())</small></div>
             <div class="card-body">
                 <p class="small text-muted">Tải lên bản hợp đồng hai bên đã thống nhất (PDF hoặc ảnh). Mỗi lần tải tạo một phiên bản mới, bản cũ được giữ lại. Người thuê xem và bấm “đã đối chiếu” trên trang của họ — đó là điều kiện để bạn xác nhận hiệu lực.</p>
                 @if (Model.Documents.Count > 0)
@@ -98,7 +98,7 @@
                             <input class="form-control" id="contract-file" type="file" name="file" required accept="application/pdf,image/png,image/jpeg" data-ll-preview="#contract-file-preview" data-ll-max-image-mb="5" data-ll-max-other-mb="10" />
                             <div id="contract-file-preview" class="ll-previews"></div>
                         </div>
-                        <div class="col-md-4 d-grid"><button class="btn btn-outline-primary" type="submit">⬆️ Gửi bản mới</button></div>
+                        <div class="col-md-4 d-grid"><button class="btn btn-outline-primary" type="submit">⬆Gửi bản mới</button></div>
                     </form>
                 }
             </div>
@@ -113,9 +113,9 @@
                 case ContractStatus.Draft:
                     <p class="small text-muted">Kiểm tra lại nội dung rồi gửi cho người thuê xem và xác nhận.</p>
                     <div class="d-grid gap-2">
-                        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">✏️ Sửa hợp đồng</a>
+                        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Sửa hợp đồng</a>
                         <form method="post" asp-action="Send" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="contract-panel" data-ll-confirm="Gửi hợp đồng cho người thuê? Bạn được tính là đã xác nhận nội dung này.">
-                            <button class="btn btn-primary w-100" type="submit">📤 Xác nhận và gửi người thuê</button>
+                            <button class="btn btn-primary w-100" type="submit">Xác nhận và gửi người thuê</button>
                         </form>
                     </div>
                     break;
@@ -129,14 +129,14 @@
                 case ContractStatus.PendingLandlord:
                     <p class="small">@(Model.TenantConfirmedAt.HasValue ? $"Người thuê đã xác nhận lúc {VietnamTime.Stamp(Model.TenantConfirmedAt)}." : $"Người thuê đã đối chiếu bản số {Model.CurrentDocumentVersion} lúc {VietnamTime.Stamp(Model.CurrentVersionAcknowledgedAt)}.") Xác nhận để hợp đồng có hiệu lực, phòng chuyển “Đã cho thuê”.</p>
                     <form method="post" asp-action="Confirm" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="contract-panel">
-                        <button class="btn btn-success w-100" type="submit">✅ Xác nhận hiệu lực</button>
+                        <button class="btn btn-success w-100" type="submit">Xác nhận hiệu lực</button>
                     </form>
                     break;
                 case ContractStatus.Active:
                     <p class="small text-muted">Hợp đồng đang hiệu lực. Ghi điện nước và lập hóa đơn hằng tháng cho phòng này.</p>
                     <div class="d-grid gap-2">
-                        <a class="btn btn-outline-secondary" asp-controller="MeterReadings" asp-action="Create" asp-route-roomId="@Model.RoomId">⚡ Ghi chỉ số tháng này</a>
-                        <a class="btn btn-primary" asp-controller="Invoices" asp-action="Create" asp-route-contractId="@Model.Id">🧾 Lập hóa đơn</a>
+                        <a class="btn btn-outline-secondary" asp-controller="MeterReadings" asp-action="Create" asp-route-roomId="@Model.RoomId">Ghi chỉ số tháng này</a>
+                        <a class="btn btn-primary" asp-controller="Invoices" asp-action="Create" asp-route-contractId="@Model.Id">Lập hóa đơn</a>
                     </div>
                     break;
                 default:
@@ -151,7 +151,7 @@
             </dl>
             <form method="post" asp-controller="Messages" asp-action="Start">
                 <input type="hidden" name="roomId" value="@Model.RoomId" /><input type="hidden" name="tenantId" value="@Model.TenantId" />
-                <button class="btn btn-outline-primary btn-sm" type="submit">💬 Nhắn tin cho người thuê</button>
+                <button class="btn btn-outline-primary btn-sm" type="submit">Nhắn tin cho người thuê</button>
             </form>
         </div></div>
         @if (status is ContractStatus.Draft or ContractStatus.PendingTenant or ContractStatus.PendingLandlord)

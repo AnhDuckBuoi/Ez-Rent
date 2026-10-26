@@ -4,7 +4,7 @@
 }
 <partial name="_LandlordMenu" />
 <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Điện, nước</a></li><li class="breadcrumb-item"><a asp-action="Details" asp-route-id="@Model.Id">Phiếu số @Model.Id</a></li><li class="breadcrumb-item active" aria-current="page">Sửa</li></ol></nav>
-<h2 class="mb-1">✏️ Sửa chỉ số @VietnamTime.PeriodLabel(Model.Input.Period).ToLowerInvariant()</h2>
+<h2 class="mb-1">Sửa chỉ số @VietnamTime.PeriodLabel(Model.Input.Period).ToLowerInvariant()</h2>
 <p class="text-muted">@Model.RoomTitle. Chọn ảnh mới nếu muốn thay ảnh đã lưu.</p>
 <partial name="_MeterForm" model="Model" />
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

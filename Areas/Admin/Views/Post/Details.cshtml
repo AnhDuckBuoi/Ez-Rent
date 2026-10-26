@@ -10,7 +10,14 @@
         : returnUrl;
 }
 
-<h1>Chi tiết tin đăng</h1>
+<partial name="_AdminMenu" />
+
+<div class="ez-page-header mb-3">
+    <div>
+        <span class="ez-eyebrow">Kiểm duyệt tin đăng</span>
+        <h1 class="ez-page-title">Chi tiết tin đăng</h1>
+    </div>
+</div>
 
 <div id="alertContainer">
     <partial name="_StatusMessage" />
@@ -25,15 +32,15 @@
     @if (Model.ApprovalStatus == ApprovalStatus.Pending)
     {
         <button type="button" class="btn btn-success btn-approve" data-id="@Model.RentalPostId">
-            ✅ Duyệt
+            Duyệt
         </button>
 
         <button type="button" class="btn btn-danger btn-reject" data-id="@Model.RentalPostId" data-title="@Model.Title">
-            ❌ Từ chối
+            Từ chối
         </button>
 
         <button type="button" class="btn btn-warning btn-revision" data-id="@Model.RentalPostId" data-title="@Model.Title">
-            🔄 Yêu cầu sửa
+            Yêu cầu sửa
         </button>
     }
     else if (Model.ApprovalStatus == ApprovalStatus.Approved)
@@ -46,7 +53,7 @@
         <button type="button" class="btn btn-dark btn-remove"
                 data-id="@Model.RentalPostId"
                 data-title="@Model.Title">
-            🗑️ Gỡ bài
+            Gỡ bài
         </button>
     }
     else if (Model.ApprovalStatus == ApprovalStatus.Rejected)
@@ -58,7 +65,7 @@
         <button type="button" class="btn btn-dark btn-remove"
                 data-id="@Model.RentalPostId"
                 data-title="@Model.Title">
-            🗑️ Gỡ bài
+            Gỡ bài
         </button>
     }
     else if (Model.ApprovalStatus == ApprovalStatus.NeedRevision)
@@ -74,18 +81,18 @@
         <button type="button" class="btn btn-dark btn-remove"
                 data-id="@Model.RentalPostId"
                 data-title="@Model.Title">
-            🗑️ Gỡ bài
+            Gỡ bài
         </button>
     }
     else if (Model.ApprovalStatus == ApprovalStatus.Removed)
     {
         <div class="alert alert-dark mb-0 d-inline-block">
-            🗑️ Bài viết đã bị gỡ khỏi hệ thống
+            Bài viết đã bị gỡ khỏi hệ thống
         </div>
 
         @* Cho phép khôi phục *@
         <button type="button" class="btn btn-success btn-approve" data-id="@Model.RentalPostId">
-            ♻️ Khôi phục (duyệt lại)
+            Khôi phục (duyệt lại)
         </button>
     }
 </div>
@@ -100,22 +107,22 @@
             @switch (Model.ApprovalStatus)
             {
                 case ApprovalStatus.Pending:
-                    <span class="badge bg-warning text-dark fs-6">⏳ Chờ duyệt</span>
+                    <span class="badge bg-warning text-dark fs-6">Chờ duyệt</span>
                     break;
                 case ApprovalStatus.Approved:
-                    <span class="badge bg-success fs-6">✅ Đã duyệt</span>
+                    <span class="badge bg-success fs-6">Đã duyệt</span>
                     break;
                 case ApprovalStatus.Rejected:
-                    <span class="badge bg-danger fs-6">❌ Từ chối</span>
+                    <span class="badge bg-danger fs-6">Từ chối</span>
                     break;
                 case ApprovalStatus.NeedRevision:
-                    <span class="badge bg-info text-dark fs-6">🔄 Cần sửa</span>
+                    <span class="badge bg-info text-dark fs-6">Cần sửa</span>
                     break;
                 case ApprovalStatus.Removed:
-                    <span class="badge bg-dark fs-6">🗑️ Đã gỡ</span>
+                    <span class="badge bg-dark fs-6">Đã gỡ</span>
                     break;
                 case ApprovalStatus.Draft:
-                    <span class="badge bg-secondary fs-6">📝 Nháp</span>
+                    <span class="badge bg-secondary fs-6">Nháp</span>
                     break;
             }
         </div>
@@ -141,7 +148,7 @@
                         @if (!string.IsNullOrEmpty(Model.MapLocation))
                         {
                             <br />
-                            <a href="@Model.MapLocation" target="_blank">📍 Xem trên Google Maps</a>
+                            <a href="@Model.MapLocation" target="_blank">Xem trên Google Maps</a>
                         }
                     </dd>
 
@@ -153,13 +160,13 @@
                         @switch (Model.RoomStatus)
                         {
                             case RoomStatus.Available:
-                                <span class="badge bg-success">🟢 Còn trống</span>
+                                <span class="badge bg-success">Còn trống</span>
                                 break;
                             case RoomStatus.Rented:
-                                <span class="badge bg-danger">🔴 Đã thuê</span>
+                                <span class="badge bg-danger">Đã thuê</span>
                                 break;
                             case RoomStatus.Hidden:
-                                <span class="badge bg-secondary">⚫ Ẩn</span>
+                                <span class="badge bg-secondary">Ẩn</span>
                                 break;
                         }
                     </dd>
@@ -194,7 +201,7 @@
                         <div class="d-flex align-items-center gap-2">
                             <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0"
                                  style="width:46px; height:46px;
-                                        background: linear-gradient(135deg, #667eea, #764ba2);
+                                        background: var(--ez-blue, #356797);
                                         color:white; font-size:20px; font-weight:bold;">
                                 @ownerInitial
                             </div>
@@ -351,7 +358,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title">🗑️ Gỡ bài viết</h5>
+                <h5 class="modal-title">Gỡ bài viết</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -359,7 +366,7 @@
                 <p><strong>Tin:</strong> <span id="removeTitle"></span></p>
 
                 <div class="alert alert-warning">
-                    <strong>⚠️ Lưu ý:</strong>
+                    <strong>Lưu ý:</strong>
                     Bài viết sẽ bị <strong>gỡ khỏi hệ thống</strong> và không hiển thị với người thuê.
                     Chủ trọ vẫn có thể thấy tin này nhưng không thể chỉnh sửa để đăng lại.
                     Admin có thể <strong>khôi phục</strong> nếu cần.
@@ -374,7 +381,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                 <button type="button" class="btn btn-dark" id="btnConfirmRemove">
-                    🗑️ Xác nhận gỡ
+                    Xác nhận gỡ
                 </button>
             </div>
         </div>
@@ -431,28 +438,28 @@
             function renderApprovalBadge(status) {
                 switch (status) {
                     case 'Pending':
-                        return '<span class="badge bg-warning text-dark fs-6">⏳ Chờ duyệt</span>';
+                        return '<span class="badge bg-warning text-dark fs-6">Chờ duyệt</span>';
                     case 'Approved':
-                        return '<span class="badge bg-success fs-6">✅ Đã duyệt</span>';
+                        return '<span class="badge bg-success fs-6">Đã duyệt</span>';
                     case 'Rejected':
-                        return '<span class="badge bg-danger fs-6">❌ Từ chối</span>';
+                        return '<span class="badge bg-danger fs-6">Từ chối</span>';
                     case 'NeedRevision':
-                        return '<span class="badge bg-info text-dark fs-6">🔄 Cần sửa</span>';
+                        return '<span class="badge bg-info text-dark fs-6">Cần sửa</span>';
                     case 'Removed':
-                        return '<span class="badge bg-dark fs-6">🗑️ Đã gỡ</span>';
+                        return '<span class="badge bg-dark fs-6">Đã gỡ</span>';
                     default:
-                        return '<span class="badge bg-secondary fs-6">📝 Nháp</span>';
+                        return '<span class="badge bg-secondary fs-6">Nháp</span>';
                 }
             }
 
             function renderRoomStatusBadge(status) {
                 switch (status) {
                     case 'Available':
-                        return '<span class="badge bg-success">🟢 Còn trống</span>';
+                        return '<span class="badge bg-success">Còn trống</span>';
                     case 'Rented':
-                        return '<span class="badge bg-danger">🔴 Đã thuê</span>';
+                        return '<span class="badge bg-danger">Đã thuê</span>';
                     case 'Hidden':
-                        return '<span class="badge bg-secondary">⚫ Ẩn</span>';
+                        return '<span class="badge bg-secondary">Ẩn</span>';
                     default:
                         return status;
                 }
@@ -461,13 +468,13 @@
             // ================= RENDER ACTIONS =================
             function renderActions(id, status, title) {
                 const backBtn = `<a href="@backUrl" class="btn btn-outline-secondary">← Quay lại danh sách</a>`;
-                const removeBtn = `<button type="button" class="btn btn-dark btn-remove" data-id="${id}" data-title="${title}">🗑️ Gỡ bài</button>`;
+                const removeBtn = `<button type="button" class="btn btn-dark btn-remove" data-id="${id}" data-title="${title}">Gỡ bài</button>`;
 
                 if (status === 'Pending') {
                     return backBtn + `
-                        <button type="button" class="btn btn-success btn-approve" data-id="${id}">✅ Duyệt</button>
-                        <button type="button" class="btn btn-danger btn-reject" data-id="${id}" data-title="${title}">❌ Từ chối</button>
-                        <button type="button" class="btn btn-warning btn-revision" data-id="${id}" data-title="${title}">🔄 Yêu cầu sửa</button>`;
+                        <button type="button" class="btn btn-success btn-approve" data-id="${id}">Duyệt</button>
+                        <button type="button" class="btn btn-danger btn-reject" data-id="${id}" data-title="${title}">Từ chối</button>
+                        <button type="button" class="btn btn-warning btn-revision" data-id="${id}" data-title="${title}">Yêu cầu sửa</button>`;
                 }
                 if (status === 'Approved') {
                     return backBtn + `
@@ -487,8 +494,8 @@
                 }
                 if (status === 'Removed') {
                     return backBtn + `
-                        <div class="alert alert-dark mb-0 d-inline-block">🗑️ Bài viết đã bị gỡ khỏi hệ thống</div>
-                        <button type="button" class="btn btn-success btn-approve" data-id="${id}">♻️ Khôi phục (duyệt lại)</button>`;
+                        <div class="alert alert-dark mb-0 d-inline-block">Bài viết đã bị gỡ khỏi hệ thống</div>
+                        <button type="button" class="btn btn-success btn-approve" data-id="${id}">Khôi phục (duyệt lại)</button>`;
                 }
                 return backBtn;
             }
@@ -530,7 +537,7 @@
                 if (!confirm('Duyệt bài viết này?')) return;
 
                 btn.disabled = true;
-                btn.innerHTML = '⏳...';
+                btn.innerHTML = '...';
 
                 try {
                     const data = await postAction(`/Admin/Post/Approve/${id}`);
@@ -593,7 +600,7 @@
 
                 const btn = document.getElementById('btnConfirmReject');
                 btn.disabled = true;
-                btn.innerHTML = '⏳ Đang xử lý...';
+                btn.innerHTML = 'Đang xử lý...';
 
                 try {
                     const data = await postAction(`/Admin/Post/Reject/${id}`, { note });
@@ -634,7 +641,7 @@
 
                 const btn = document.getElementById('btnConfirmRevision');
                 btn.disabled = true;
-                btn.innerHTML = '⏳ Đang xử lý...';
+                btn.innerHTML = 'Đang xử lý...';
 
                 try {
                     const data = await postAction(`/Admin/Post/NeedRevision/${id}`, { note });
@@ -675,7 +682,7 @@
 
                 const btn = document.getElementById('btnConfirmRemove');
                 btn.disabled = true;
-                btn.innerHTML = '⏳ Đang xử lý...';
+                btn.innerHTML = 'Đang xử lý...';
 
                 try {
                     const data = await postAction(`/Admin/Post/Remove/${id}`, { note });
@@ -693,7 +700,7 @@
                     showAlert('Lỗi kết nối: ' + err.message, 'danger');
                 } finally {
                     btn.disabled = false;
-                    btn.innerHTML = '🗑️ Xác nhận gỡ';
+                    btn.innerHTML = 'Xác nhận gỡ';
                 }
             }
 

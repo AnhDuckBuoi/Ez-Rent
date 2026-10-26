@@ -10,15 +10,15 @@
         <div class="text-muted">@Model.FullAddress</div>
     </div>
     <div class="d-flex flex-wrap gap-2">
-        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">✏️ Sửa tin</a>
+        <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Sửa tin</a>
         @if (Model.Approval is ApprovalStatus.Draft or ApprovalStatus.NeedRevision or ApprovalStatus.Rejected)
         {
-            <form method="post" asp-action="Submit" asp-route-id="@Model.Id"><button class="btn btn-primary" type="submit">📤 Gửi duyệt</button></form>
-            <a class="btn btn-outline-secondary" asp-controller="Support" asp-action="Create" asp-route-roomId="@Model.Id">❓ Hỏi quản trị viên</a>
+            <form method="post" asp-action="Submit" asp-route-id="@Model.Id"><button class="btn btn-primary" type="submit">Gửi duyệt</button></form>
+            <a class="btn btn-outline-secondary" asp-controller="Support" asp-action="Create" asp-route-roomId="@Model.Id">Hỏi quản trị viên</a>
         }
         @if (Model.Room == RoomStatus.Available && Model.Approval == ApprovalStatus.Approved)
         {
-            <a class="btn btn-success" asp-controller="Contracts" asp-action="Create" asp-route-roomId="@Model.Id">📄 Lập hợp đồng</a>
+            <a class="btn btn-success" asp-controller="Contracts" asp-action="Create" asp-route-roomId="@Model.Id">Lập hợp đồng</a>
         }
     </div>
 </div>
@@ -29,7 +29,7 @@
 <div class="row g-3">
     <div class="col-lg-8">
         <div class="card border-0 shadow-sm mb-3" id="media">
-            <div class="card-header bg-white d-flex justify-content-between"><strong>🖼️ Ảnh & video (@Model.Media.Count/12)</strong><small class="text-muted">Ảnh đại diện hiện trên trang tìm phòng</small></div>
+            <div class="card-header bg-white d-flex justify-content-between"><strong>Ảnh & video (@Model.Media.Count/12)</strong><small class="text-muted">Ảnh đại diện hiện trên trang tìm phòng</small></div>
             <div class="card-body">
                 <div id="room-media" data-ll-region><partial name="_Media" model="Model" /></div>
                 <form class="mt-3" method="post" enctype="multipart/form-data" asp-controller="RoomMedia" asp-action="Upload" asp-route-id="@Model.Id" data-ll-action>
@@ -38,12 +38,12 @@
                     <div class="form-text">Ảnh JPG/PNG tối đa 5 MB (tối đa 4096 px mỗi chiều); video MP4/WebM tối đa 25 MB.</div>
                     <div id="media-previews" class="ll-previews"></div>
                     <div class="text-danger small" data-ll-error></div>
-                    <button class="btn btn-outline-primary mt-2" type="submit">⬆️ Tải lên</button>
+                    <button class="btn btn-outline-primary mt-2" type="submit">⬆Tải lên</button>
                 </form>
             </div>
         </div>
         <div class="card border-0 shadow-sm">
-            <div class="card-header bg-white"><strong>📝 Mô tả</strong></div>
+            <div class="card-header bg-white"><strong>Mô tả</strong></div>
             <div class="card-body">
                 <p class="ll-text">@Model.Description</p>
                 @if (Model.Amenities.Count > 0)
@@ -74,13 +74,13 @@
                     var show = Model.Room == RoomStatus.Hidden;
                     <form class="mt-3" method="post" asp-action="Visibility" asp-route-id="@Model.Id">
                         <input type="hidden" name="visible" value="@(show ? "true" : "false")" />
-                        <button class="btn btn-sm @(show ? "btn-success" : "btn-warning") w-100" type="submit">@(show ? "👁 Hiện lại trên trang tìm phòng" : "🙈 Ẩn khỏi trang tìm phòng")</button>
+                        <button class="btn btn-sm @(show ? "btn-success" : "btn-warning") w-100" type="submit">@(show ? "Hiện lại trên trang tìm phòng" : "Ẩn khỏi trang tìm phòng")</button>
                     </form>
                 }
             </div>
         </div>
         <div class="card border-0 shadow-sm mb-3">
-            <div class="card-header bg-white"><strong>💰 Giá và chi phí</strong></div>
+            <div class="card-header bg-white"><strong>Giá và chi phí</strong></div>
             <div class="card-body">
                 <dl class="row mb-0 small">
                     <dt class="col-6">Giá thuê</dt><dd class="col-6 num">@DisplayFormat.Money(Model.Price)/tháng</dd>
@@ -100,7 +100,7 @@
                 @if (Model.CanDelete)
                 {
                     <p class="text-muted">Tin chưa phát sinh lịch hẹn, hợp đồng hay tin nhắn nên có thể xóa hẳn.</p>
-                    <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@Model.Id">🗑 Xóa tin</a>
+                    <a class="btn btn-sm btn-outline-danger" asp-action="Delete" asp-route-id="@Model.Id">Xóa tin</a>
                 }
                 else
                 {

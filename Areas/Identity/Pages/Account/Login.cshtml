@@ -1,81 +1,118 @@
-﻿@page
+@page
 @model LoginModel
 
 @{
-    ViewData["Title"] = "Log in";
+    ViewData["Title"] = "Đăng nhập";
+    var oauthError = Request.Query["error"].ToString();
 }
 
-<h1>@ViewData["Title"]</h1>
-<div class="row">
-    <div class="col-md-4">
-        <section>
-            <form id="account" method="post">
-                <h2>Use a local account to log in.</h2>
-                <hr />
-                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label asp-for="Input.Email" class="form-label">Email</label>
-                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+<div class="ez-auth-shell">
+    <section class="ez-auth-visual">
+        <img src="~/images/brand/city-ong.png" alt="EZ-Rent - Tìm phòng trọ minh bạch" class="ez-auth-visual-img" />
+        <div class="ez-auth-visual-copy">
+            <div>
+                <p class="eyebrow mb-1">KHÔNG GIAN THUÊ TRỌ MINH BẠCH</p>
+                <h2 class="h5 mb-2">Tìm đúng phòng, hẹn đúng lịch, quản lý hợp đồng rõ ràng</h2>
+                <p class="text-muted small mb-0">
+                    EZ-Rent kết nối trực tiếp người thuê, chủ nhà và quản trị viên trên cùng một nền tảng thống nhất.
+                </p>
+            </div>
+            <div class="d-flex flex-wrap gap-3 pt-3 mt-3 border-top small text-muted">
+                <span>Tin đăng đã kiểm duyệt</span>
+                <span>·</span>
+                <span>Hợp đồng &amp; hóa đơn số</span>
+                <span>·</span>
+                <span>Nhắn tin trực tiếp</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="ez-auth-card">
+        <div class="mb-3">
+            <p class="eyebrow mb-1">TÀI KHOẢN EZ-RENT</p>
+            <h1 class="h4 mb-0">Đăng nhập</h1>
+        </div>
+
+        @if (oauthError == "cancelled")
+        {
+            <div class="alert alert-warning small py-2 mb-3">
+                Bạn đã hủy phiên đăng nhập bằng Google. Vui lòng thử lại hoặc đăng nhập bằng email.
+            </div>
+        }
+        else if (oauthError == "failed")
+        {
+            <div class="alert alert-danger small py-2 mb-3">
+                Không thể kết nối với Google lúc này. Vui lòng kiểm tra cấu hình Google OAuth hoặc đăng nhập bằng email.
+            </div>
+        }
+
+        <form id="account" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger small mb-3" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Email" class="form-label">Email</label>
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="tenban@email.com" />
+                <span asp-validation-for="Input.Email" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <label asp-for="Input.Password" class="form-label mb-1">Mật khẩu</label>
+                    <a id="forgot-password" asp-page="./ForgotPassword" class="small">Quên mật khẩu?</a>
                 </div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label asp-for="Input.Password" class="form-label">Password</label>
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
-                </div>
-                <div class="checkbox mb-3">
-                    <label asp-for="Input.RememberMe" class="form-label">
-                        <input class="form-check-input" asp-for="Input.RememberMe" />
-                        @Html.DisplayNameFor(m => m.Input.RememberMe)
-                    </label>
-                </div>
-                <div>
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
-                </div>
-                <div>
-                    <p>
-                        <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-                    </p>
-                    <p>
-                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
-                    </p>
-                    <p>
-                        <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
-                    </p>
-                </div>
-            </form>
-        </section>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to log in.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Nhập mật khẩu" />
+                <span asp-validation-for="Input.Password" class="text-danger small"></span>
+            </div>
+
+            <div class="form-check mb-3">
+                <input class="form-check-input" asp-for="Input.RememberMe" />
+                <label asp-for="Input.RememberMe" class="form-check-label small">
+                    Duy trì đăng nhập trên thiết bị này
+                </label>
+            </div>
+
+            <button id="login-submit" type="submit" class="w-100 btn btn-primary">
+                Đăng nhập
+            </button>
+        </form>
+
+        <div class="ez-auth-divider">Hoặc tiếp tục với</div>
+
+        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+            {
+                @foreach (var provider in Model.ExternalLogins!)
                 {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
-                    </div>
-                }
-                else
-                {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
-                        </div>
-                    </form>
+                    <button type="submit" class="ez-google-btn" name="provider" value="@provider.Name" title="Đăng nhập bằng tài khoản @provider.DisplayName">
+                        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+                            <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                            <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                            <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                            <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                        </svg>
+                        <span>Đăng nhập bằng @provider.DisplayName</span>
+                    </button>
                 }
             }
-        </section>
-    </div>
+            else
+            {
+                <button type="submit" class="ez-google-btn" name="provider" value="Google" title="Đăng nhập bằng tài khoản Google">
+                    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+                        <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                        <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                        <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                        <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                    </svg>
+                    <span>Đăng nhập bằng Google</span>
+                </button>
+            }
+        </form>
+
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pt-3 mt-3 border-top small">
+            <span class="text-muted">Chưa có tài khoản? <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl" class="fw-semibold">Đăng ký ngay</a></span>
+            <a id="resend-confirmation" asp-page="./ResendEmailConfirmation" class="text-muted">Gửi lại email xác nhận</a>
+        </div>
+    </section>
 </div>
 
 @section Scripts {

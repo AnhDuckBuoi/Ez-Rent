@@ -3,7 +3,7 @@
     var r = Model.Item;
 }
 <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-    <div><h2 class="mb-1" data-ll-focus>🔧 @r.ProblemType</h2>
+    <div><h2 class="mb-1" data-ll-focus>@r.ProblemType</h2>
         <div class="text-muted">Yêu cầu số @r.Id · @r.RoomTitle · @r.TenantName · gửi @VietnamTime.Stamp(r.CreatedAt)</div></div>
     <div class="d-flex gap-1">@LandlordUi.Badge(LandlordLabels.Priority(r.Priority)) @LandlordUi.Badge(LandlordLabels.Repair(r.Status))</div>
 </div>
@@ -70,9 +70,9 @@
         <div class="d-flex flex-wrap gap-2">
             <form method="post" asp-controller="Messages" asp-action="Start">
                 <input type="hidden" name="roomId" value="@r.RoomId" /><input type="hidden" name="tenantId" value="@Model.TenantId" />
-                <button class="btn btn-outline-primary btn-sm" type="submit">💬 Nhắn tin cho người thuê</button>
+                <button class="btn btn-outline-primary btn-sm" type="submit">Nhắn tin cho người thuê</button>
             </form>
-            @if (Model.TenantPhone != null) { <a class="btn btn-outline-secondary btn-sm" href="tel:@Model.TenantPhone">📞 Gọi @Model.TenantPhone</a> }
+            @if (Model.TenantPhone != null) { <a class="btn btn-outline-secondary btn-sm" href="tel:@Model.TenantPhone">Gọi @Model.TenantPhone</a> }
         </div>
     </div>
 </div>

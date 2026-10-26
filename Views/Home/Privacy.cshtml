@@ -1,6 +1,62 @@
-﻿@{
-    ViewData["Title"] = "Privacy Policy";
+@{
+    ViewData["Title"] = "Chính sách bảo mật";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<section class="ez-discovery-intro">
+    <div>
+        <p class="eyebrow">AN TOÀN DỮ LIỆU</p>
+        <h1>Chính sách bảo mật thông tin</h1>
+        <p>Cam kết của EZ-Rent trong việc thu thập, lưu trữ và bảo vệ dữ liệu cá nhân của người dùng.</p>
+    </div>
+</section>
+
+<div class="ez-editorial-layout" style="margin-top: 24px; padding-top: 24px;">
+    <div class="card p-4">
+        <h2 class="h5 mb-2">1. Phạm vi thu thập thông tin</h2>
+        <p class="text-muted small mb-4" style="line-height: 1.8;">
+            EZ-Rent chỉ thu thập các thông tin cần thiết phục vụ trực tiếp cho việc kết nối thuê phòng và thiết lập hợp đồng: họ tên, địa chỉ email, số điện thoại liên hệ và thông tin pháp lý trên hợp đồng thuê nhà (chỉ hiển thị giữa hai bên ký kết hợp đồng).
+        </p>
+
+        <h2 class="h5 mb-2">2. Lưu trữ hồ sơ hợp đồng &amp; hình ảnh công tơ</h2>
+        <p class="text-muted small mb-4" style="line-height: 1.8;">
+            Các tệp hợp đồng PDF, bản nháp BM03 và ảnh chụp chỉ số công tơ điện nước được lưu trữ trong vùng dữ liệu riêng biệt có kiểm soát quyền truy cập nghiêm ngặt. Chỉ Chủ trọ sở hữu phòng và Người thuê đứng tên trên hợp đồng mới có quyền xem hoặc tải xuống tài liệu của mình.
+        </p>
+
+        <h2 class="h5 mb-2">3. Bảo mật tài khoản &amp; xác thực</h2>
+        <p class="text-muted small mb-4" style="line-height: 1.8;">
+            Mật khẩu người dùng được mã hóa một chiều theo chuẩn ASP.NET Core Identity. Hệ thống hỗ trợ đăng nhập qua Google OAuth 2.0, xác thực hai lớp (2FA) và tự động tạm khóa bảo vệ khi phát hiện đăng nhập sai nhiều lần liên tiếp.
+        </p>
+
+        <h2 class="h5 mb-2">4. Quyền làm chủ dữ liệu cá nhân</h2>
+        <p class="text-muted small mb-0" style="line-height: 1.8;">
+            Người dùng có toàn quyền chỉnh sửa hồ sơ, cập nhật thông tin liên hệ hoặc tải xuống dữ liệu cá nhân của mình bất kỳ lúc nào tại mục <strong>Cài đặt tài khoản → Dữ liệu cá nhân</strong>.
+        </p>
+    </div>
+
+    <aside class="ez-editorial-aside">
+        <h2 class="h6 mb-2">Liên kết liên quan</h2>
+        <div>
+            <a asp-controller="Home" asp-action="Terms" class="ez-plain-row">
+                <span>
+                    <strong>Điều khoản sử dụng</strong>
+                    <small>Quy chế hoạt động nền tảng</small>
+                </span>
+                <span class="text-muted">→</span>
+            </a>
+            <a asp-controller="Home" asp-action="Help" class="ez-plain-row">
+                <span>
+                    <strong>Trung tâm trợ giúp</strong>
+                    <small>Giải đáp thắc mắc thường gặp</small>
+                </span>
+                <span class="text-muted">→</span>
+            </a>
+            <a asp-controller="Home" asp-action="About" class="ez-plain-row">
+                <span>
+                    <strong>Về EZ-Rent</strong>
+                    <small>Giới thiệu nền tảng</small>
+                </span>
+                <span class="text-muted">→</span>
+            </a>
+        </div>
+    </aside>
+</div>

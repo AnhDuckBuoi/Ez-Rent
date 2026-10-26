@@ -61,37 +61,43 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
-var authentication = builder.Services.AddAuthentication();
-var googleClientId = builder.Configuration["Authentication:Google:ClientId"];
-var googleClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
-
-if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
+if (!builder.Environment.IsDevelopment())
 {
-    authentication.AddGoogle(options =>
-    {
-        options.ClientId = googleClientId;
-        options.ClientSecret = googleClientSecret;
-
-        options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
-        options.ClaimActions.MapJsonKey("urn:google:locale", "locale", "string");
-
-        options.Scope.Add("profile");
-        options.Scope.Add("email");
-
-        options.Events.OnRemoteFailure = context =>
-        {
-            var error = context.Request.Query["error"].ToString();
-
-            if (error == "access_denied")
-                context.Response.Redirect("/Identity/Account/Login?error=cancelled");
-            else
-                context.Response.Redirect("/Identity/Account/Login?error=failed");
-
-            context.HandleResponse();
-            return Task.CompletedTask;
-        };
-    });
+    builder.Configuration.AddUserSecrets<Program>(optional: true);
 }
+
+var authentication = builder.Services.AddAuthentication();
+var googleClientId = string.IsNullOrWhiteSpace(builder.Configuration["Authentication:Google:ClientId"])
+    ? "ezrent-google-client-id"
+    : builder.Configuration["Authentication:Google:ClientId"]!;
+var googleClientSecret = string.IsNullOrWhiteSpace(builder.Configuration["Authentication:Google:ClientSecret"])
+    ? "ezrent-google-client-secret"
+    : builder.Configuration["Authentication:Google:ClientSecret"]!;
+
+authentication.AddGoogle(options =>
+{
+    options.ClientId = googleClientId;
+    options.ClientSecret = googleClientSecret;
+
+    options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
+    options.ClaimActions.MapJsonKey("urn:google:locale", "locale", "string");
+
+    options.Scope.Add("profile");
+    options.Scope.Add("email");
+
+    options.Events.OnRemoteFailure = context =>
+    {
+        var error = context.Request.Query["error"].ToString();
+
+        if (error == "access_denied")
+            context.Response.Redirect("/Identity/Account/Login?error=cancelled");
+        else
+            context.Response.Redirect("/Identity/Account/Login?error=failed");
+
+        context.HandleResponse();
+        return Task.CompletedTask;
+    };
+});
 
 var app = builder.Build();
 

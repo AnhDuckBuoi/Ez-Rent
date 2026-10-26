@@ -37,7 +37,7 @@ else
                             </form>
                         }
                         <form method="post" asp-controller="RoomMedia" asp-action="Delete" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="room-media" data-ll-confirm="Xóa file này khỏi tin?">
-                            <input type="hidden" name="mediaId" value="@m.Id" /><button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Xóa file @(i + 1)">🗑</button>
+                            <input type="hidden" name="mediaId" value="@m.Id" /><button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Xóa file @(i + 1)"></button>
                         </form>
                     </div>
                 </div>

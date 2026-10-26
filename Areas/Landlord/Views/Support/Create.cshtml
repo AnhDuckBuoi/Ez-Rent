@@ -6,7 +6,7 @@
 }
 <partial name="_LandlordMenu" />
 <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index">Hỗ trợ</a></li><li class="breadcrumb-item active" aria-current="page">Gửi yêu cầu</li></ol></nav>
-<h2 class="mb-1">❓ Gửi yêu cầu tới quản trị viên</h2>
+<h2 class="mb-1">Gửi yêu cầu tới quản trị viên</h2>
 <p class="text-muted">Không gửi mật khẩu, số thẻ hay thông tin đăng nhập trong nội dung.</p>
 @if (!Model.AdministratorAvailable) { <div class="alert alert-warning">Chưa có tài khoản quản trị hoạt động để tiếp nhận. Bạn vẫn có thể soạn nội dung và thử lại sau.</div> }
 <form method="post" style="max-width:760px">
@@ -38,6 +38,6 @@
             <span asp-validation-for="Input.Content" class="text-danger small"></span>
         </div>
     </div></div>
-    <div class="d-flex gap-2"><a class="btn btn-outline-secondary" asp-action="Index">Hủy</a><button class="btn btn-primary" type="submit">📤 Gửi yêu cầu</button></div>
+    <div class="d-flex gap-2"><a class="btn btn-outline-secondary" asp-action="Index">Hủy</a><button class="btn btn-primary" type="submit">Gửi yêu cầu</button></div>
 </form>
 @section Scripts { <partial name="_ValidationScriptsPartial" /> }

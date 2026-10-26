@@ -1,243 +1,233 @@
 @using EZ_Rent.Models.Enums
 @{
-    ViewData["Title"] = "Dashboard Quản trị";
+    ViewData["Title"] = "Tổng quan quản trị";
 }
+<partial name="_AdminMenu" />
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="ez-page-header">
     <div>
-        <h2 class="mb-0">📊 Dashboard Quản trị</h2>
-        <small class="text-muted">Tổng quan hệ thống EZ-Rent — @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</small>
+        <h2>Tổng quan hệ thống</h2>
+        <p class="ez-page-subtitle">Theo dõi người dùng, tin đăng, hợp đồng và các yêu cầu cần xử lý · @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
     </div>
-    <a asp-area="Admin" asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary btn-sm">
-        🔄 Làm mới
+    <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="btn btn-outline-secondary btn-sm">
+        Làm mới dữ liệu
     </a>
 </div>
 
 <!-- ========== HÀNG 1: NGƯỜI DÙNG ========== -->
-<h6 class="text-uppercase text-muted mb-2">👥 Người dùng</h6>
+<div class="ez-section-label">Tài khoản người dùng</div>
 <div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <div class="text-uppercase small opacity-75">Tổng người dùng</div>
-                        <h2 class="mb-0 mt-1">@ViewBag.TotalUsers</h2>
-                    </div>
-                    <div class="fs-1 opacity-50">👥</div>
-                </div>
+    <div class="col-6 col-md-3">
+        <a asp-area="Admin" asp-controller="UserManager" asp-action="Index" class="ez-kpi-card is-accent">
+            <div>
+                <div class="ez-kpi-label">Tổng người dùng</div>
+                <div class="ez-kpi-value num">@ViewBag.TotalUsers</div>
             </div>
+            <div class="ez-kpi-meta">Toàn bộ tài khoản trên hệ thống</div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="ez-kpi-card">
+            <div>
+                <div class="ez-kpi-label">Chủ trọ</div>
+                <div class="ez-kpi-value num">@ViewBag.TotalLandlords</div>
+            </div>
+            <div class="ez-kpi-meta">Tài khoản đăng tin & quản lý phòng</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #f093fb, #f5576c); color: white;">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <div class="text-uppercase small opacity-75">Chủ trọ</div>
-                        <h2 class="mb-0 mt-1">@ViewBag.TotalLandlords</h2>
-                    </div>
-                    <div class="fs-1 opacity-50">🏠</div>
-                </div>
+    <div class="col-6 col-md-3">
+        <div class="ez-kpi-card">
+            <div>
+                <div class="ez-kpi-label">Người thuê</div>
+                <div class="ez-kpi-value num">@ViewBag.TotalTenants</div>
             </div>
+            <div class="ez-kpi-meta">Tài khoản tìm và thuê phòng</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm" style="background: linear-gradient(135deg, #4facfe, #00f2fe); color: white;">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <div class="text-uppercase small opacity-75">Người thuê</div>
-                        <h2 class="mb-0 mt-1">@ViewBag.TotalTenants</h2>
-                    </div>
-                    <div class="fs-1 opacity-50">🏡</div>
-                </div>
+    <div class="col-6 col-md-3">
+        <div class="ez-kpi-card @((ViewBag.LockedUsers ?? 0) > 0 ? "is-danger" : "")">
+            <div>
+                <div class="ez-kpi-label">Tài khoản bị khóa</div>
+                <div class="ez-kpi-value num">@ViewBag.LockedUsers</div>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm bg-secondary text-white">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div>
-                        <div class="text-uppercase small opacity-75">Tài khoản bị khóa</div>
-                        <h2 class="mb-0 mt-1">@ViewBag.LockedUsers</h2>
-                    </div>
-                    <div class="fs-1 opacity-50">🔒</div>
-                </div>
-            </div>
+            <div class="ez-kpi-meta">Tạm ngừng quyền truy cập</div>
         </div>
     </div>
 </div>
 
 <!-- ========== HÀNG 2: TIN ĐĂNG ========== -->
-<h6 class="text-uppercase text-muted mb-2">📝 Tin đăng</h6>
+<div class="ez-section-label">Kiểm duyệt tin đăng</div>
 <div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm border-start border-primary border-4">
-            <div class="card-body">
-                <div class="text-muted small">Tổng tin đăng</div>
-                <h3 class="mb-0">@ViewBag.TotalPosts</h3>
+    <div class="col-6 col-md-3">
+        <a asp-area="Admin" asp-controller="Post" asp-action="Index" class="ez-kpi-card">
+            <div>
+                <div class="ez-kpi-label">Tổng tin đăng</div>
+                <div class="ez-kpi-value num">@ViewBag.TotalPosts</div>
             </div>
-        </div>
+            <div class="ez-kpi-meta">Tất cả trạng thái</div>
+        </a>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm border-start border-warning border-4">
-            <div class="card-body">
-                <div class="text-muted small">⏳ Chờ duyệt</div>
-                <h3 class="mb-0 text-warning">@ViewBag.PendingPosts</h3>
+    <div class="col-6 col-md-3">
+        <a asp-area="Admin" asp-controller="Post" asp-action="Index" asp-route-status="Pending" class="ez-kpi-card is-warning">
+            <div>
+                <div class="ez-kpi-label">Chờ duyệt</div>
+                <div class="ez-kpi-value num">@ViewBag.PendingPosts</div>
             </div>
-        </div>
+            <div class="ez-kpi-meta">Cần kiểm duyệt nội dung</div>
+        </a>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm border-start border-success border-4">
-            <div class="card-body">
-                <div class="text-muted small">✅ Đã duyệt</div>
-                <h3 class="mb-0 text-success">@ViewBag.ApprovedPosts</h3>
+    <div class="col-6 col-md-3">
+        <a asp-area="Admin" asp-controller="Post" asp-action="Index" asp-route-status="Approved" class="ez-kpi-card is-success">
+            <div>
+                <div class="ez-kpi-label">Đã duyệt</div>
+                <div class="ez-kpi-value num">@ViewBag.ApprovedPosts</div>
             </div>
-        </div>
+            <div class="ez-kpi-meta">Đang hiển thị công khai</div>
+        </a>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm border-start border-danger border-4">
-            <div class="card-body">
-                <div class="text-muted small">❌ Từ chối</div>
-                <h3 class="mb-0 text-danger">@ViewBag.RejectedPosts</h3>
+    <div class="col-6 col-md-3">
+        <a asp-area="Admin" asp-controller="Post" asp-action="Index" asp-route-status="Rejected" class="ez-kpi-card is-danger">
+            <div>
+                <div class="ez-kpi-label">Từ chối</div>
+                <div class="ez-kpi-value num">@ViewBag.RejectedPosts</div>
             </div>
-        </div>
+            <div class="ez-kpi-meta">Không đạt tiêu chuẩn hiển thị</div>
+        </a>
     </div>
 </div>
 
 <!-- ========== HÀNG 3: HỢP ĐỒNG + SỰ CỐ ========== -->
-<h6 class="text-uppercase text-muted mb-2">📄 Hợp đồng & Sự cố</h6>
+<div class="ez-section-label">Hợp đồng & Sự cố vận hành</div>
 <div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm bg-info text-white">
-            <div class="card-body">
-                <div class="text-uppercase small opacity-75">Tổng hợp đồng</div>
-                <h3 class="mb-0">@ViewBag.TotalContracts</h3>
+    <div class="col-6 col-md-3">
+        <div class="ez-kpi-card">
+            <div>
+                <div class="ez-kpi-label">Tổng hợp đồng</div>
+                <div class="ez-kpi-value num">@ViewBag.TotalContracts</div>
             </div>
+            <div class="ez-kpi-meta">Lưu trữ trên hệ thống</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm bg-success text-white">
-            <div class="card-body">
-                <div class="text-uppercase small opacity-75">Hợp đồng active</div>
-                <h3 class="mb-0">@ViewBag.ActiveContracts</h3>
+    <div class="col-6 col-md-3">
+        <div class="ez-kpi-card is-success">
+            <div>
+                <div class="ez-kpi-label">Hợp đồng đang hiệu lực</div>
+                <div class="ez-kpi-value num">@ViewBag.ActiveContracts</div>
             </div>
+            <div class="ez-kpi-meta">Đang trong kỳ thuê</div>
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm bg-warning text-dark">
-            <div class="card-body">
-                <div class="text-uppercase small opacity-75">Sự cố mở</div>
-                <h3 class="mb-0">@ViewBag.OpenRepairs</h3>
+    <div class="col-6 col-md-3">
+        <a asp-area="Admin" asp-controller="Support" asp-action="Index" class="ez-kpi-card is-warning">
+            <div>
+                <div class="ez-kpi-label">Sự cố đang mở</div>
+                <div class="ez-kpi-value num">@ViewBag.OpenRepairs</div>
             </div>
-        </div>
+            <div class="ez-kpi-meta">Chờ xử lý hoặc đang sửa</div>
+        </a>
     </div>
-    <div class="col-md-3">
-        <div class="card border-0 shadow-sm bg-danger text-white">
-            <div class="card-body">
-                <div class="text-uppercase small opacity-75">🚨 Khẩn cấp</div>
-                <h3 class="mb-0">@ViewBag.UrgentRepairs</h3>
+    <div class="col-6 col-md-3">
+        <a asp-area="Admin" asp-controller="Support" asp-action="Index" class="ez-kpi-card is-danger">
+            <div>
+                <div class="ez-kpi-label">Sự cố mức khẩn cấp</div>
+                <div class="ez-kpi-value num">@ViewBag.UrgentRepairs</div>
             </div>
-        </div>
+            <div class="ez-kpi-meta">Ưu tiên kiểm tra ngay</div>
+        </a>
     </div>
 </div>
 
 <!-- ========== LỐI TẮT ========== -->
-<h6 class="text-uppercase text-muted mb-2">⚡ Lối tắt</h6>
+<div class="ez-section-label">Lối tắt quản trị</div>
 <div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <a asp-area="Admin" asp-controller="Post" asp-action="Index"
-           class="card border-0 shadow-sm text-decoration-none h-100">
-            <div class="card-body text-center py-3">
-                <div class="fs-1">📝</div>
-                <div class="fw-bold mt-2 text-dark">Kiểm duyệt tin</div>
-            </div>
+    <div class="col-6 col-md-3">
+        <a asp-area="Admin" asp-controller="Post" asp-action="Index" class="ez-shortcut-card h-100">
+            <span class="ez-shortcut-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            </span>
+            <span>Kiểm duyệt tin đăng</span>
         </a>
     </div>
-    <div class="col-md-3">
-        <a asp-area="Admin" asp-controller="UserManager" asp-action="Index"
-           class="card border-0 shadow-sm text-decoration-none h-100">
-            <div class="card-body text-center py-3">
-                <div class="fs-1">👥</div>
-                <div class="fw-bold mt-2 text-dark">Quản lý user</div>
-            </div>
+    <div class="col-6 col-md-3">
+        <a asp-area="Admin" asp-controller="UserManager" asp-action="Index" class="ez-shortcut-card h-100">
+            <span class="ez-shortcut-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            </span>
+            <span>Quản lý người dùng</span>
         </a>
     </div>
-    <div class="col-md-3">
-        <a asp-area="Admin" asp-controller="RoleManager" asp-action="Index"
-           class="card border-0 shadow-sm text-decoration-none h-100">
-            <div class="card-body text-center py-3">
-                <div class="fs-1">🎭</div>
-                <div class="fw-bold mt-2 text-dark">Quản lý role</div>
-            </div>
+    <div class="col-6 col-md-3">
+        <a asp-area="" asp-controller="Chat" asp-action="Index" class="ez-shortcut-card h-100">
+            <span class="ez-shortcut-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </span>
+            <span>Hộp thư hỗ trợ</span>
         </a>
     </div>
-    <div class="col-md-3">
-        <a asp-area="Admin" asp-controller="Support" asp-action="Index"
-           class="card border-0 shadow-sm text-decoration-none h-100">
-            <div class="card-body text-center py-3">
-                <div class="fs-1">💬</div>
-                <div class="fw-bold mt-2 text-dark">Hỗ trợ</div>
-            </div>
+    <div class="col-6 col-md-3">
+        <a asp-area="Admin" asp-controller="Support" asp-action="Index" class="ez-shortcut-card h-100">
+            <span class="ez-shortcut-icon" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            </span>
+            <span>Khiếu nại sửa chữa</span>
         </a>
     </div>
 </div>
 
-<!-- ========== BẢNG: TIN CHỜ DUYỆT ========== -->
+<!-- ========== BẢNG: TIN CHỜ DUYỆT & SỰ CỐ ========== -->
 <div class="row g-4">
-    <div class="col-md-7">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">⏳ Tin đăng chờ duyệt</h6>
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Tin đăng chờ duyệt gần đây</span>
                 <a asp-area="Admin" asp-controller="Post" asp-action="Index"
                    class="btn btn-sm btn-outline-primary">Xem tất cả</a>
             </div>
             <div class="card-body p-0">
                 @if (ViewBag.RecentPendingPosts != null && ((List<RentalPost>)ViewBag.RecentPendingPosts).Any())
                 {
-                    <table class="table table-hover align-middle mb-0">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Tiêu đề</th>
-                                <th>Chủ trọ</th>
-                                <th>Giá</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var post in (List<RentalPost>)ViewBag.RecentPendingPosts)
-                            {
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 border-0">
+                            <thead class="table-light">
                                 <tr>
-                                    <td class="text-truncate" style="max-width: 250px;">@post.Title</td>
-                                    <td>@post.Owner?.FullName</td>
-                                    <td class="text-primary fw-bold">@post.Price.ToString("N0") đ</td>
-                                    <td>
-                                        <a asp-area="Admin" asp-controller="Post" asp-action="Details"
-                                           asp-route-id="@post.RentalPostId"
-                                           class="btn btn-sm btn-primary">Xem</a>
-                                    </td>
+                                    <th>Tiêu đề</th>
+                                    <th>Chủ trọ</th>
+                                    <th>Giá thuê</th>
+                                    <th class="text-end">Thao tác</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach (var post in (List<RentalPost>)ViewBag.RecentPendingPosts)
+                                {
+                                    <tr>
+                                        <td class="text-truncate fw-medium" style="max-width: 240px;">@post.Title</td>
+                                        <td>@post.Owner?.FullName</td>
+                                        <td class="num fw-semibold" style="color: var(--ez-blue);">@post.Price.ToString("N0") đ</td>
+                                        <td class="text-end">
+                                            <a asp-area="Admin" asp-controller="Post" asp-action="Details"
+                                               asp-route-id="@post.RentalPostId"
+                                               class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
                 }
                 else
                 {
-                    <p class="text-muted text-center py-4 mb-0">✅ Không có tin nào đang chờ duyệt.</p>
+                    <p class="text-muted text-center py-4 mb-0">Hiện không có tin đăng nào đang chờ duyệt.</p>
                 }
             </div>
         </div>
     </div>
 
-    <!-- ========== BẢNG: SỰ CỐ ========== -->
-    <div class="col-md-5">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">🔧 Sự cố cần xử lý</h6>
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Sự cố cần theo dõi</span>
                 <a asp-area="Admin" asp-controller="Support" asp-action="Index"
-                   class="btn btn-sm btn-outline-danger">Xem</a>
+                   class="btn btn-sm btn-outline-secondary">Xem tất cả</a>
             </div>
             <div class="card-body p-0">
                 @if (ViewBag.RecentRepairs != null && ((List<RepairRequest>)ViewBag.RecentRepairs).Any())
@@ -246,27 +236,27 @@
                         @foreach (var repair in (List<RepairRequest>)ViewBag.RecentRepairs)
                         {
                             <li class="list-group-item">
-                                <div class="d-flex justify-content-between">
+                                <div class="d-flex justify-content-between align-items-center">
                                     <strong>@repair.ProblemType</strong>
                                     @if (repair.Priority == RepairPriority.Urgent)
                                     {
-                                        <span class="badge bg-danger">Khẩn</span>
+                                        <span class="badge bg-danger">Khẩn cấp</span>
                                     }
                                     else if (repair.Priority == RepairPriority.High)
                                     {
-                                        <span class="badge bg-warning text-dark">Cao</span>
+                                        <span class="badge bg-warning">Ưu tiên cao</span>
                                     }
                                 </div>
-                                <small class="text-muted">
-                                    @repair.RentalPost?.Title — @repair.Tenant?.FullName
-                                </small>
+                                <div class="small text-muted mt-1">
+                                    @repair.RentalPost?.Title · @repair.Tenant?.FullName
+                                </div>
                             </li>
                         }
                     </ul>
                 }
                 else
                 {
-                    <p class="text-muted text-center py-4 mb-0">✅ Không có sự cố nào.</p>
+                    <p class="text-muted text-center py-4 mb-0">Không có sự cố nào đang mở.</p>
                 }
             </div>
         </div>
