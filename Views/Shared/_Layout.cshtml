@@ -109,26 +109,45 @@
                                 </li>
                             }
 
-                            <!-- DROPDOWN LANDLORD -->
+                            <!-- MENU CHỦ TRỌ: dàn ra theo nhóm, mục liên quan nằm chung một chỗ -->
                             @if (User.IsInRole("Landlord"))
                             {
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle @(landlord ? "active" : null)" href="#" role="button" data-bs-toggle="dropdown">
-                                        Chủ trọ
+                                    <a class="nav-link dropdown-toggle @(landlord && controller is "Overview" or "Repairs" or "Support" ? "active" : null)" href="#" role="button" data-bs-toggle="dropdown">
+                                        Tổng quan
                                     </a>
                                     <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Overview" asp-action="Index">Tổng quan</a></li>
-                                        <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Rooms" asp-action="Index">Phòng trọ</a></li>
+                                        <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Overview" asp-action="Index">Bảng tổng quan</a></li>
+                                        <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Repairs" asp-action="Index">Yêu cầu sửa chữa</a></li>
+                                        <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Support" asp-action="Index">Hỗ trợ từ quản trị viên</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle @(landlord && controller is "Rooms" or "RoomMedia" or "Viewings" or "ViewingHours" ? "active" : null)" href="#" role="button" data-bs-toggle="dropdown">
+                                        Phòng trọ
+                                    </a>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Rooms" asp-action="Index">Danh sách phòng</a></li>
+                                        <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Rooms" asp-action="Create">Đăng tin mới</a></li>
+                                        <li><hr class="dropdown-divider" /></li>
                                         <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Viewings" asp-action="Index">Lịch xem phòng</a></li>
+                                        <li><a class="dropdown-item" asp-area="Landlord" asp-controller="ViewingHours" asp-action="Index">Khung giờ nhận khách</a></li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle @(landlord && controller is "Contracts" or "ContractDocuments" or "MeterReadings" or "Invoices" or "InvoicePayments" or "PaymentSettings" ? "active" : null)" href="#" role="button" data-bs-toggle="dropdown">
+                                        Hợp đồng
+                                    </a>
+                                    <ul class="dropdown-menu">
                                         <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Contracts" asp-action="Index">Hợp đồng</a></li>
                                         <li><a class="dropdown-item" asp-area="Landlord" asp-controller="MeterReadings" asp-action="Index">Điện, nước</a></li>
                                         <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Invoices" asp-action="Index">Hóa đơn</a></li>
-                                        <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Repairs" asp-action="Index">Yêu cầu sửa chữa</a></li>
                                         <li><hr class="dropdown-divider" /></li>
-                                        <li><a class="dropdown-item" asp-area="Landlord" asp-controller="PaymentSettings" asp-action="Index">Nhận tiền</a></li>
-                                        <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Support" asp-action="Index">Hỗ trợ</a></li>
-                                        <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Account" asp-action="Index">Tài khoản chủ trọ</a></li>
+                                        <li><a class="dropdown-item" asp-area="Landlord" asp-controller="PaymentSettings" asp-action="Index">Tài khoản nhận tiền</a></li>
                                     </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link @(landlord && controller == "Account" ? "active" : null)" asp-area="Landlord" asp-controller="Account" asp-action="Index">Tài khoản</a>
                                 </li>
                             }
 
