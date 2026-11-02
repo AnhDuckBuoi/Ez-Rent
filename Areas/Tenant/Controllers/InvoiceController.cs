@@ -6,6 +6,11 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using EZ_Rent.Services;
+<<<<<<< HEAD
+=======
+using EZ_Rent.Services.Payments;
+using EZ_Rent.Models.Enums;
+>>>>>>> feature/ez-rent-update
 
 namespace EZ_Rent.Areas.Tenant.Controllers;
 
@@ -52,9 +57,43 @@ public class InvoiceController : TenantControllerBase
             invoice.MeterReading.Period != invoice.BillingPeriod)) invoice.MeterReading = null;
         var evidence = await Context.InvoiceMeterEvidence.AsNoTracking().SingleOrDefaultAsync(e => e.InvoiceId == invoice.InvoiceId && e.TenantId == CurrentUserId &&
             e.RentalPostId == invoice.RentalContract.RentalPostId && e.Period == invoice.BillingPeriod);
+<<<<<<< HEAD
         return View(new InvoiceDetailsModel(invoice, evidence));
     }
 
+=======
+        // R36/R37: người thuê xem mã VietQR và thông tin chuyển khoản ngay trên hóa đơn.
+        if (!string.IsNullOrEmpty(invoice.VietQRContent) &&
+            invoice.PaymentStatus is PaymentStatus.Unpaid or PaymentStatus.Overdue or PaymentStatus.AwaitingConfirmation)
+        {
+            var png = VietQr.Png(invoice.VietQRContent);
+            if (png != null) ViewData["QrDataUri"] = "data:image/png;base64," + Convert.ToBase64String(png);
+            ViewData["TransferNote"] = VietQr.Description(invoice.InvoiceId, invoice.BillingPeriod);
+            ViewData["Bank"] = await BankAccountStore.ReadAsync(Context, invoice.RentalContract.LandlordId);
+        }
+        return View(new InvoiceDetailsModel(invoice, evidence));
+    }
+
+    /// <summary>
+    /// R38 bước 1: người thuê báo đã chuyển khoản. Chỉ hóa đơn của chính mình, đang "Chưa thanh toán"/"Quá hạn";
+    /// hóa đơn chuyển "Chờ xác nhận" và chủ trọ đối soát rồi bấm "Đã nhận tiền" (bước 2). Cập nhật có điều kiện trạng thái.
+    /// </summary>
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> ReportPaid([FromRoute] int id)
+    {
+        var now = DateTime.UtcNow;
+        var changed = await Context.Invoices.Where(i => i.InvoiceId == id && i.RentalContract.TenantId == CurrentUserId &&
+                (i.PaymentStatus == PaymentStatus.Unpaid || i.PaymentStatus == PaymentStatus.Overdue))
+            .ExecuteUpdateAsync(s => s.SetProperty(i => i.PaymentStatus, PaymentStatus.AwaitingConfirmation)
+                .SetProperty(i => i.TenantConfirmedAt, now).SetProperty(i => i.UpdatedAt, now));
+        if (changed == 0 && !await Context.Invoices.AnyAsync(i => i.InvoiceId == id && i.RentalContract.TenantId == CurrentUserId)) return NotFound();
+        TempData["DiscoveryMessage"] = changed > 0
+            ? "Đã báo chủ nhà bạn đã chuyển khoản. Hóa đơn sẽ chuyển \"Đã thanh toán\" khi chủ nhà xác nhận đã nhận tiền."
+            : "Hóa đơn này không còn ở trạng thái chờ thanh toán.";
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+>>>>>>> feature/ez-rent-update
     [HttpGet]
     public async Task<IActionResult> MeterImage(int id, string kind, bool download = false)
     {

@@ -12,7 +12,11 @@
             <form method="get" asp-action="Index" class="mb-3"><label for="chat-search" class="form-label">Tìm người thuê hoặc phòng</label><input id="chat-search" type="search" name="q" maxlength="100" value="@input.Q" class="form-control" /><div class="d-flex gap-2 align-items-center mt-2"><label><input type="checkbox" name="filter" value="unread" checked="@(input.Filter == "unread")" /> Chưa đọc</label><button type="submit" class="btn btn-outline-primary btn-sm">Tìm</button></div></form>
             @foreach (var conversation in Model.Conversations.Items)
             {
+<<<<<<< HEAD
                 <a asp-action="Index" asp-route-c="@conversation.Id" asp-route-page="@input.Page" asp-route-q="@input.Q" asp-route-filter="@input.Filter" class="shared-chat-thread" aria-current="@(selected?.Id == conversation.Id ? "page" : null)"><strong>@conversation.OtherName</strong><span>@conversation.RoomTitle</span><small>@conversation.LastContent</small>@if (conversation.Unread > 0) { <span class="badge bg-primary">@conversation.Unread chưa đọc</span> }</a>
+=======
+                <a asp-action="Index" asp-route-c="@conversation.Id" asp-route-page="@input.Page" asp-route-q="@input.Q" asp-route-filter="@input.Filter" class="shared-chat-thread" aria-current="@(selected?.Id == conversation.Id ? "page" : null)"><strong>@conversation.OtherName</strong><span>@conversation.RoomTitle</span><small>@EZ_Rent.Services.Chat.ChatContent.Preview(conversation.LastContent)</small>@if (conversation.Unread > 0) { <span class="badge bg-primary">@conversation.Unread chưa đọc</span> }</a>
+>>>>>>> feature/ez-rent-update
             }
             @if (Model.Conversations.Total == 0) { <p>Chưa có cuộc trò chuyện. Tin nhắn từ người thuê sẽ xuất hiện tại đây.</p> }
             @if (Model.Conversations.TotalPages > 1)
@@ -36,7 +40,11 @@
             <div id="landlord-message-stream" class="shared-chat-stream" aria-label="Lịch sử tin nhắn">
                 @foreach (var message in Model.Messages.Items)
                 {
+<<<<<<< HEAD
                     <div class="shared-chat-message @(message.Mine ? "mine" : null)" data-message-id="@message.Id" data-unread="@((!message.Mine && !message.IsRead).ToString().ToLowerInvariant())"><p>@message.Content</p><small>@LandlordTime.Stamp(message.SentAt) · <span data-message-state>@(message.Mine ? message.IsRead ? "Đã xem" : "Đã gửi" : "")</span></small></div>
+=======
+                    <div class="shared-chat-message @(message.Mine ? "mine" : null)" data-message-id="@message.Id" data-unread="@((!message.Mine && !message.IsRead).ToString().ToLowerInvariant())"><p>@if (EZ_Rent.Services.Chat.ChatContent.IsImage(message.Content)) { <a href="@Url.Action("Image", "Chat", new { area = "", id = message.Id })" target="_blank" rel="noopener"><img src="@Url.Action("Image", "Chat", new { area = "", id = message.Id })" alt="Ảnh trong tin nhắn" loading="lazy" style="max-width:min(240px,100%);max-height:240px;border-radius:10px;display:block" /></a> } else { @EZ_Rent.Services.Chat.ChatContent.Preview(message.Content) }</p><small>@LandlordTime.Stamp(message.SentAt) · <span data-message-state>@(message.Mine ? message.IsRead ? "Đã xem" : "Đã gửi" : "")</span></small></div>
+>>>>>>> feature/ez-rent-update
                 }
             </div>
             @if (Model.CanSend) { <form asp-action="Send" asp-route-id="@selected.Id" method="post" id="landlord-message-form" class="shared-chat-composer"><label for="landlord-message-input" class="form-label">Tin nhắn</label><textarea id="landlord-message-input" class="form-control" name="Content" required maxlength="2000" rows="2" aria-describedby="landlord-send-status">@Model.AttemptedContent</textarea><div class="d-flex justify-content-end mt-2"><button type="submit" class="btn btn-primary">Gửi tin nhắn</button></div><p id="landlord-send-status" role="status" class="mt-2">@Model.SendError</p></form> } else { <p class="p-3">Cuộc trò chuyện hiện chỉ đọc vì tài khoản người nhận không hoạt động.</p> }

@@ -29,6 +29,10 @@
                     <a href="@DayUrl(day)" data-booking-date class="booking-day" aria-current="@(day == Model.Date ? "date" : null)" aria-label="@ViewingBookingModel.DateLabel(day)"><span>@(day.DayOfWeek == DayOfWeek.Sunday ? "CN" : "Thứ " + ((int)day.DayOfWeek + 1))</span><strong>@day.Day</strong><small>@(day == Model.Today ? "Hôm nay" : day.ToString("dd/MM"))</small></a>
                 }
             </nav>
+<<<<<<< HEAD
+=======
+            <form id="booking-form" method="post" asp-action="Submit" asp-route-id="@ViewContext.RouteData.Values["id"]"><input type="hidden" name="date" value="@Model.Date.ToString("yyyy-MM-dd")" /></form>
+>>>>>>> feature/ez-rent-update
             <h2 class="booking-arrival-heading">Giờ đến xem · @ViewingBookingModel.DateLabel(Model.Date)</h2>
             <p class="booking-helper">Chỉ hiển thị các giờ cách hiện tại ít nhất 6 giờ.</p>
             @if (Model.State == TenantScheduleState.Open)
@@ -38,7 +42,11 @@
                     {
                         var available = slot.State == TenantSlotState.Available;
                         var label = slot.State switch { TenantSlotState.Booked => "Đã có lịch", TenantSlotState.Held => "Đang được giữ", TenantSlotState.HeldByMe => "Bạn đang giữ", _ => "Có thể chọn" };
+<<<<<<< HEAD
                         <label class="booking-slot"><input type="radio" name="SlotId" value="@slot.Id" disabled="@(!available)" /><strong>@slot.ArrivalAt.ToOffset(TimeSpan.FromHours(7)).ToString("HH:mm")</strong><small>@label</small></label>
+=======
+                        <label class="booking-slot"><input type="radio" name="SlotId" form="booking-form" value="@slot.Id" disabled="@(!available)" required /><strong>@slot.ArrivalAt.ToOffset(TimeSpan.FromHours(7)).ToString("HH:mm")</strong><small>@label</small></label>
+>>>>>>> feature/ez-rent-update
                     }
                 </fieldset>
                 <p class="booking-helper">Giờ đã có lịch hoặc đang được giữ sẽ không chọn được.</p>
@@ -54,7 +62,11 @@
                 </div>
             }
             <label for="booking-note" class="booking-note-label">Ghi chú cho chủ nhà <span>Không bắt buộc</span></label>
+<<<<<<< HEAD
             <textarea id="booking-note" maxlength="500" placeholder="Ví dụ: Mình đi cùng một người bạn và muốn xem chỗ để xe."></textarea><p class="booking-note-count"><span data-note-count>0</span>/500 ký tự</p>
+=======
+            <textarea id="booking-note" name="note" form="booking-form" maxlength="500" placeholder="Ví dụ: Mình đi cùng một người bạn và muốn xem chỗ để xe."></textarea><p class="booking-note-count"><span data-note-count>0</span>/500 ký tự</p>
+>>>>>>> feature/ez-rent-update
             <div class="booking-policy"><p>Giờ đã chọn là giờ bạn đến xem phòng.</p><p>Chỉ đến xem khi lịch đã được xác nhận. Thời hạn chờ chủ nhà phản hồi là 2 giờ kể từ lúc gửi yêu cầu.</p></div>
         </section>
         <aside class="booking-panel booking-room" aria-label="Căn phòng bạn muốn xem">
@@ -63,7 +75,12 @@
             <a href="@Model.Detail.BackUrl" class="booking-text-link">Xem lại thông tin phòng</a>
             <div class="booking-host">@await Html.PartialAsync("_HomeIcon", "user")<div><strong>@Model.Detail.OwnerName</strong><span>Người đăng thông tin căn phòng</span></div></div>
             <div class="booking-choice" aria-live="polite"><strong data-selected-time>Chưa chọn giờ đến xem</strong><p>@ViewingBookingModel.DateLabel(Model.Date)</p></div>
+<<<<<<< HEAD
             <button type="button" class="button primary full" data-booking-review disabled>Xem trước yêu cầu</button><p class="booking-submit-note">Bạn đang xem giao diện đặt lịch. Chức năng gửi yêu cầu thật hiện chưa khả dụng.</p>
+=======
+            <button type="button" class="button full" data-booking-review disabled>Xem trước yêu cầu</button>
+            <button type="submit" form="booking-form" class="button primary full" disabled="@(Model.State != TenantScheduleState.Open)">Gửi yêu cầu xem phòng</button><p class="booking-submit-note">Gửi xong, yêu cầu ở trạng thái chờ chủ nhà xác nhận. Vui lòng chỉ đến xem khi lịch đã được xác nhận.</p>
+>>>>>>> feature/ez-rent-update
             <a asp-controller="ViewingAppointment" asp-action="Index" class="booking-text-link">Lịch hẹn của tôi</a>
         </aside>
     </div>

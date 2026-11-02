@@ -106,7 +106,13 @@ namespace EZ_Rent.Areas.Admin.Controllers
                 return Json(ApiResult.Fail("Bài viết đã được duyệt rồi"));
 
             post.ApprovalStatus = ApprovalStatus.Approved;
+<<<<<<< HEAD
             post.RoomStatus = RoomStatus.Available;
+=======
+            // Phòng đang có hợp đồng hiệu lực thì vẫn là "Đã cho thuê"; chỉ mở lại "Còn trống" khi không có ai đang thuê.
+            var rented = await _context.RentalContracts.AnyAsync(c => c.RentalPostId == post.RentalPostId && c.Status == ContractStatus.Active);
+            post.RoomStatus = rented ? RoomStatus.Rented : RoomStatus.Available;
+>>>>>>> feature/ez-rent-update
             post.ApprovedById = User.FindFirstValue(ClaimTypes.NameIdentifier);
             post.ApprovedAt = DateTime.UtcNow;
             post.PostedAt = DateTime.UtcNow;

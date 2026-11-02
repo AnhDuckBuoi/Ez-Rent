@@ -48,7 +48,11 @@
 
                 <!-- ===== Logo ===== -->
                 <a class="navbar-brand fw-bold" asp-area="@(User.IsInRole("Tenant") ? "Tenant" : "")" asp-controller="@(User.IsInRole("Tenant") ? "Dashboard" : "Home")" asp-action="Index">
+<<<<<<< HEAD
                     🏠 EZ-Rent
+=======
+                    @EZ_Rent.Helpers.NavIcon.Svg("home", 22)EZ-Rent
+>>>>>>> feature/ez-rent-update
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -71,13 +75,18 @@
                         <!-- Tìm phòng -->
                         <li class="nav-item">
                             <a class="nav-link text-dark" aria-current="@(tenant && controller is "RentalPost" or "ViewingBooking" ? "page" : null)" asp-area="@(User.IsInRole("Tenant") ? "Tenant" : "")" asp-controller="RentalPost" asp-action="Index">
+<<<<<<< HEAD
                                 🔍 Tìm phòng
+=======
+                                @EZ_Rent.Helpers.NavIcon.Svg("search")Tìm phòng
+>>>>>>> feature/ez-rent-update
                             </a>
                         </li>
 
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <!-- ============================================ -->
+<<<<<<< HEAD
                             <!-- DROPDOWN TENANT                              -->
                             <!-- ============================================ -->
                             @if (User.IsInRole("Tenant"))
@@ -163,6 +172,22 @@
                                         </li>
                                     </ul>
                                 </li>
+=======
+                            <!-- MENU NGƯỜI THUÊ: các nhóm chức năng dàn ra trên thanh điều hướng -->
+                            <!-- ============================================ -->
+                            @if (User.IsInRole("Tenant"))
+                            {
+                                @await Html.PartialAsync("~/Areas/Tenant/Views/Shared/_TenantHeaderMenu.cshtml")
+                            }
+
+                            <!-- ============================================ -->
+                            <!-- MENU CHỦ TRỌ: các nhóm chức năng dàn ra trên thanh điều hướng -->
+                            <!-- (định nghĩa ở Areas/Landlord/Helpers/LandlordNavigation.cs)  -->
+                            <!-- ============================================ -->
+                            @if (User.IsInRole("Landlord"))
+                            {
+                                @await Html.PartialAsync("~/Areas/Landlord/Views/Shared/_LandlordHeaderMenu.cshtml")
+>>>>>>> feature/ez-rent-update
                             }
 
                             <!-- ============================================ -->
@@ -173,19 +198,31 @@
                                 <li class="nav-item dropdown">
                                     <a class="nav-link dropdown-toggle text-dark" href="#" role="button"
                                        data-bs-toggle="dropdown">
+<<<<<<< HEAD
                                         🛡️ Quản trị
+=======
+                                        @EZ_Rent.Helpers.NavIcon.Svg("shield")Quản trị
+>>>>>>> feature/ez-rent-update
                                     </a>
                                     <ul class="dropdown-menu">
                                         <li>
                                             <a class="dropdown-item" asp-area="" asp-controller="Chat"
                                                asp-action="Index">
+<<<<<<< HEAD
                                                 💬 Tin nhắn
+=======
+                                                @EZ_Rent.Helpers.NavIcon.Svg("chat")Tin nhắn
+>>>>>>> feature/ez-rent-update
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard"
                                                asp-action="Index">
+<<<<<<< HEAD
                                                 📊 Dashboard
+=======
+                                                @EZ_Rent.Helpers.NavIcon.Svg("chart")Dashboard
+>>>>>>> feature/ez-rent-update
                                             </a>
                                         </li>
                                         <li>
@@ -194,25 +231,41 @@
 
                                         <li>
                                             <a class="dropdown-item" asp-area="Admin" asp-controller="Post" asp-action="Index">
+<<<<<<< HEAD
                                                 📝 Kiểm duyệt tin đăng
+=======
+                                                @EZ_Rent.Helpers.NavIcon.Svg("check-square")Kiểm duyệt tin đăng
+>>>>>>> feature/ez-rent-update
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" asp-area="Admin" asp-controller="UserManager"
                                                asp-action="Index">
+<<<<<<< HEAD
                                                 👥 Quản lý người dùng
+=======
+                                                @EZ_Rent.Helpers.NavIcon.Svg("users")Quản lý người dùng
+>>>>>>> feature/ez-rent-update
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" asp-area="Admin" asp-controller="RoleManager"
                                                asp-action="Index">
+<<<<<<< HEAD
                                                 🎭 Quản lý vai trò
+=======
+                                                @EZ_Rent.Helpers.NavIcon.Svg("key")Quản lý vai trò
+>>>>>>> feature/ez-rent-update
                                             </a>
                                         </li>
                                         <li>
                                             <a class="dropdown-item" asp-area="Admin" asp-controller="Support"
                                                asp-action="Index">
+<<<<<<< HEAD
                                                 💬 Hỗ trợ / Phản ánh
+=======
+                                                @EZ_Rent.Helpers.NavIcon.Svg("support")Hỗ trợ / Phản ánh
+>>>>>>> feature/ez-rent-update
                                             </a>
                                         </li>
 
@@ -222,7 +275,11 @@
                                         <li>
                                             <a class="dropdown-item" asp-area="Admin" asp-controller="DbManage"
                                                asp-action="Index">
+<<<<<<< HEAD
                                                 🗄️ Quản lý CSDL
+=======
+                                                @EZ_Rent.Helpers.NavIcon.Svg("database")Quản lý CSDL
+>>>>>>> feature/ez-rent-update
                                             </a>
                                         </li>
                                     </ul>
@@ -238,23 +295,39 @@
                         {
                             <a asp-area="Identity" asp-page="/Account/Manage/Index"
                                class="navbar-text me-3 text-decoration-none">
+<<<<<<< HEAD
                                 👤 @User.Identity.Name
+=======
+                                <span title="@User.Identity.Name" class="d-inline-flex align-items-center">@EZ_Rent.Helpers.NavIcon.Svg("user")<span class="d-none d-xxl-inline">@User.Identity.Name</span></span>
+>>>>>>> feature/ez-rent-update
                             </a>
 
                             <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
                                 <button type="submit" class="btn btn-outline-danger btn-sm">
+<<<<<<< HEAD
                                     🚪 Đăng xuất
+=======
+                                    @EZ_Rent.Helpers.NavIcon.Svg("logout")Đăng xuất
+>>>>>>> feature/ez-rent-update
                                 </button>
                             </form>
                         }
                         else
                         {
                             <a class="btn btn-outline-primary btn-sm me-2" asp-area="Identity" asp-page="/Account/Login">
+<<<<<<< HEAD
                                 🔑 Đăng nhập
                             </a>
 
                             <a class="btn btn-primary btn-sm" asp-area="Identity" asp-page="/Account/Register">
                                 📝 Đăng ký
+=======
+                                @EZ_Rent.Helpers.NavIcon.Svg("login")Đăng nhập
+                            </a>
+
+                            <a class="btn btn-primary btn-sm" asp-area="Identity" asp-page="/Account/Register">
+                                @EZ_Rent.Helpers.NavIcon.Svg("user-plus")Đăng ký
+>>>>>>> feature/ez-rent-update
                             </a>
                         }
                     </div>

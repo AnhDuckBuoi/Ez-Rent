@@ -13,7 +13,11 @@
             <li class="d-flex @(m.Mine ? "justify-content-end" : "") mb-2">
                 <div class="p-2 rounded-3 @(m.Mine ? "bg-primary text-white" : "bg-light border")" style="max-width:80%">
                     @if (!m.Mine) { <div class="small fw-bold">Quản trị viên</div> }
+<<<<<<< HEAD
                     <div class="ll-text">@m.Content</div>
+=======
+                    <div class="ll-text">@if (EZ_Rent.Services.Chat.ChatContent.IsImage(m.Content)) { <a href="@Url.Action("Image", "Chat", new { area = "", id = m.Id })" target="_blank" rel="noopener"><img src="@Url.Action("Image", "Chat", new { area = "", id = m.Id })" alt="Ảnh trong tin nhắn" loading="lazy" style="max-width:min(240px,100%);max-height:240px;border-radius:10px;display:block" /></a> } else { @EZ_Rent.Services.Chat.ChatContent.Preview(m.Content) }</div>
+>>>>>>> feature/ez-rent-update
                     <div class="small opacity-75">@VietnamTime.Stamp(m.SentAt)</div>
                 </div>
             </li>

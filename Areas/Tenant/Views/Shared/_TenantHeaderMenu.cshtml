@@ -1,0 +1,63 @@
+@* Menu người thuê trên thanh điều hướng chung, dàn ra theo nhóm chức năng liên quan (cùng cách làm với menu chủ trọ).
+   _Layout gọi: @await Html.PartialAsync("~/Areas/Tenant/Views/Shared/_TenantHeaderMenu.cshtml").
+   Danh sách thả xuống cũ (_TenantSharedMenu) vẫn giữ nguyên để các trang khác dùng nếu cần. *@
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+@inject EZ_Rent.Data.AppDbContext Db
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString() ?? "";
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+    var unread = userId == null ? 0 : await Db.Notifications.CountAsync(n => n.UserId == userId && !n.IsRead);
+    var groups = new (string Icon, string Label, (string Area, string Controller, string Action, string Label)[] Items)[]
+    {
+        ("dashboard", "Tổng quan", [("Tenant", "Dashboard", "Index", "Trang chủ"), ("Tenant", "Notification", "Index", "Thông báo"),
+            ("", "Chat", "Index", "Tin nhắn"), ("Tenant", "Support", "Create", "Hỗ trợ, phản ánh")]),
+        ("heart", "Phòng quan tâm", [("Tenant", "Favorite", "Index", "Phòng yêu thích"), ("Tenant", "ViewingAppointment", "Index", "Lịch xem phòng")]),
+        ("key", "Thuê phòng", [("Tenant", "MyRoom", "Index", "Phòng đang ở"), ("Tenant", "Contract", "Index", "Hợp đồng"),
+            ("Tenant", "Invoice", "Index", "Hóa đơn"), ("Tenant", "RepairRequest", "Index", "Yêu cầu sửa chữa")]),
+        ("user", "Tài khoản", [("Tenant", "Account", "Index", "Cá nhân và bảo mật")])
+    };
+    var itemIcons = new Dictionary<string, string> { ["Dashboard"] = "home", ["Notification"] = "bell", ["Chat"] = "chat", ["Support"] = "support",
+        ["Favorite"] = "heart", ["ViewingAppointment"] = "calendar", ["MyRoom"] = "key", ["Contract"] = "contract", ["Invoice"] = "receipt",
+        ["RepairRequest"] = "wrench", ["Account"] = "user" };
+    bool Active((string Area, string Controller, string Action, string Label) i) =>
+        string.Equals(area, i.Area, StringComparison.OrdinalIgnoreCase) && string.Equals(controller, i.Controller, StringComparison.OrdinalIgnoreCase) &&
+        (i.Controller != "Dashboard" || string.Equals(action, i.Action, StringComparison.OrdinalIgnoreCase));
+}
+@foreach (var group in groups)
+{
+    var groupActive = group.Items.Any(Active);
+    var badge = group.Items.Any(i => i.Controller == "Notification") ? unread : 0;
+    if (group.Items.Length == 1)
+    {
+        var only = group.Items[0];
+        <li class="nav-item">
+            <a class="nav-link text-dark @(groupActive ? "active fw-semibold" : null)" aria-current="@(groupActive ? "page" : null)"
+               asp-area="@only.Area" asp-controller="@only.Controller" asp-action="@only.Action">@EZ_Rent.Helpers.NavIcon.Svg(group.Icon)@group.Label</a>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-dark @(groupActive ? "active fw-semibold" : null)" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                @EZ_Rent.Helpers.NavIcon.Svg(group.Icon)@group.Label
+                @if (badge > 0) { <span class="badge rounded-pill bg-danger ms-1" aria-label="@badge thông báo chưa đọc">@badge</span> }
+            </a>
+            <ul class="dropdown-menu" data-tenant-menu>
+                @foreach (var item in group.Items)
+                {
+                    var current = Active(item);
+                    <li>
+                        <a class="dropdown-item d-flex justify-content-between align-items-center gap-3 @(current ? "active" : null)" aria-current="@(current ? "page" : null)"
+                           asp-area="@item.Area" asp-controller="@item.Controller" asp-action="@item.Action">
+                            <span class="d-inline-flex align-items-center">@EZ_Rent.Helpers.NavIcon.Svg(itemIcons.GetValueOrDefault(item.Controller, ""), 16)@item.Label</span>
+                            @if (item.Controller == "Notification" && unread > 0) { <span class="badge rounded-pill bg-danger">@unread</span> }
+                        </a>
+                    </li>
+                }
+            </ul>
+        </li>
+    }
+}

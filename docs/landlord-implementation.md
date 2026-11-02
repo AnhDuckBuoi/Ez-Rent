@@ -34,7 +34,12 @@ Services/                             Logic nghiệp vụ dùng chung (cạnh Re
 
 Areas/Landlord/                       Chỉ tầng giao diện
   Controllers/   LandlordAreaController (lớp nền) + 1 controller cho mỗi nhóm chức năng
+<<<<<<< HEAD
   Helpers/       LandlordLabels (nhãn trạng thái), LandlordUi (badge, dòng phiếu tính tiền)
+=======
+  Helpers/       LandlordLabels (nhãn trạng thái), LandlordUi (badge, dòng phiếu tính tiền),
+                 LandlordNavigation (định nghĩa DUY NHẤT các nhóm menu chủ trọ)
+>>>>>>> feature/ez-rent-update
   ViewModels/    Mỗi chức năng một thư mục/namespace: Rooms, Viewings, Contracts, Meters, Invoices, Repairs, Support, Account, Payments, Overview, Shared
   Views/         Mỗi controller một thư mục; Shared/_LandlordMenu (thanh chức năng), _StatusTabs, LandlordProblem
 
@@ -43,6 +48,70 @@ wwwroot/css/landlord.css (bổ sung nhỏ trên Bootstrap), wwwroot/js/landlord.
 
 Các file chủ trọ đã có sẵn trên integration (`LandlordControllerBase`, `MessagesController`, `Areas/Landlord/Services`, `ViewModels/LandlordCommon.cs`, `MessageModels.cs`, `Views/Messages`) được giữ nguyên và không trùng tên với file mới. Trang **Trò chuyện** dùng chính `MessagesController` của nhóm (có realtime SignalR). Khi nhóm thống nhất, có thể chuyển `MessagesController` sang dùng `Services/Common` rồi xóa thư mục `Areas/Landlord/Services` cũ.
 
+<<<<<<< HEAD
+=======
+### Menu chủ trọ (chia theo nhóm chức năng liên quan)
+
+| Nhóm | Mục |
+|---|---|
+| 📊 Tổng quan | Bảng tổng quan · Tin nhắn với người thuê · Yêu cầu sửa chữa · Hỗ trợ từ quản trị viên |
+| 🏘️ Phòng trọ | Danh sách phòng · Đăng tin mới · Lịch xem phòng · Khung giờ nhận khách |
+| 📄 Hợp đồng | Hợp đồng · Điện, nước · Hóa đơn · Tài khoản nhận tiền |
+| 👤 Tài khoản | Tài khoản chủ trọ |
+
+- Trên thanh điều hướng chung, các nhóm dàn ra thành từng mục riêng. Số đỏ trên tên nhóm là việc đang chờ: lịch xem chờ xác nhận, sự cố mới, phản hồi hỗ trợ.
+- `_Layout` chỉ còn một dòng gọi `~/Areas/Landlord/Views/Shared/_LandlordHeaderMenu.cshtml` (giống cách gọi `_TenantSharedMenu`), thay cho khối menu cũ trỏ vào các trang CRUD tự sinh.
+- Thanh trong trang (`_LandlordMenu`) chỉ hiện các mục cùng nhóm với trang đang mở.
+- Muốn đổi tên, thứ tự hay nhóm, chỉ sửa `Areas/Landlord/Helpers/LandlordNavigation.cs`.
+
+### Dữ liệu mẫu cho khu chủ trọ
+
+`Data/Seeder/LandlordDemoSeed.cs` (chạy qua `Infrastructure/Landlord/LandlordDemoSeedRunner.cs`, không sửa Program.cs):
+- **Khi nào chạy:** khi ứng dụng khởi động ở môi trường **Development** hoặc **Demo**, sau phần migrate và `DbSeeder` của nhóm. Đã có tài khoản chủ trọ mẫu thì bỏ qua. Muốn ép bật/tắt, đặt `"LandlordDemo": { "Seed": true/false }` trong cấu hình.
+- **Tài khoản:**
+  - chủ trọ `chutro.demo@ezrent.vn` / `Landlord@123`;
+  - người thuê `nguoithue1.demo@ezrent.vn` … `nguoithue8.demo@ezrent.vn` / `Tenant@123`;
+  - Admin trả lời hỗ trợ là tài khoản Admin của `DbSeeder` (`admin@gmail.com`).
+- **Dữ liệu tạo ra** (thời gian tính theo ngày chạy, nên luôn có lịch sắp tới và hóa đơn kỳ gần nhất):
+  - 7 tin phòng đủ trạng thái: 3 đang cho thuê, 1 còn trống, 1 chờ duyệt, 1 cần chỉnh sửa (có ghi chú Admin), 1 bản nháp. Mỗi tin có ảnh, tiện ích, dịch vụ và lượt lưu tin.
+  - Khung giờ nhận khách, tài khoản nhận tiền VietQR và thông tin pháp lý BM03 của chủ trọ.
+  - Lịch xem phòng đủ trạng thái: chờ xác nhận (một lịch đã quá 2 giờ), đã xác nhận, đã hoàn thành, bị từ chối, đã hủy.
+  - 4 cuộc trò chuyện có tin chưa đọc.
+  - Hợp đồng: 3 đang hiệu lực, 1 đã kết thúc, 1 **đang chờ** (người thuê đã đối chiếu tài liệu, nên khi demo bấm được "Xác nhận hiệu lực"). Mỗi hợp đồng có tài liệu PDF lưu riêng tư.
+  - Chỉ số điện nước 2–4 kỳ mỗi phòng kèm **ảnh công tơ** (ảnh màn hình LED hiện đúng chỉ số, lưu riêng tư). Kỳ hiện tại để trống để demo "Ghi chỉ số".
+  - Hóa đơn có mã VietQR và **bộ đối chiếu**, đủ trạng thái: đã thanh toán, chờ xác nhận tiền, quá hạn, chưa thu.
+  - 4 yêu cầu sửa chữa (mới, đang xử lý có lịch sử, đã xử lý, đã hủy), 2 yêu cầu hỗ trợ (một đã được Admin trả lời), và thông báo phía người thuê.
+- **Tạo lại từ đầu:** xóa database (`dotnet ef database drop`, rồi `dotnet ef database update`) và chạy lại ứng dụng.
+
+### Cập nhật mới (chat, menu người thuê, luồng thanh toán và đặt lịch)
+
+- **Chat chung** (`/Chat`):
+  - **Gửi ảnh:** JPG/PNG tối đa 5 MB. Ảnh lưu riêng tư bằng `RentalPrivateFileStore`, chỉ hai thành viên mở được qua `/Chat/Image/{id}`.
+  - **Thu hồi tin của mình:** hai bên thấy "Tin nhắn đã bị thu hồi"; ảnh đi kèm bị xóa khỏi kho.
+  - Cập nhật realtime qua SignalR như tin thường. Quy ước lưu nằm ở `Services/Chat/ChatContent.cs` (không đổi schema). Các trang tin nhắn cũ, dòng xem trước và trang Hỗ trợ cũng hiển thị đúng ảnh và tin thu hồi.
+- **Menu người thuê dàn ra theo nhóm** (`Areas/Tenant/Views/Shared/_TenantHeaderMenu.cshtml`):
+  - 🏡 Tổng quan: trang chủ, thông báo, tin nhắn, hỗ trợ;
+  - ❤️ Phòng quan tâm: yêu thích, lịch xem;
+  - 📄 Thuê phòng: phòng đang ở, hợp đồng, hóa đơn, sửa chữa;
+  - 👤 Tài khoản.
+- **Người thuê đặt lịch theo khung giờ chủ trọ mở** (`ViewingBooking/Submit`): server kiểm tra lại giờ còn trống, cách hiện tại ≥ 6 giờ, mỗi phòng một yêu cầu đang chờ.
+- **Hóa đơn phía người thuê:** hiện mã VietQR và tài khoản nhận. Nút **"Tôi đã chuyển khoản"** chuyển hóa đơn sang "Chờ xác nhận" (R38 bước 1); chủ trọ xác nhận ở bước 2.
+- **Admin duyệt tin:** phòng đang có hợp đồng hiệu lực giữ trạng thái "Đã cho thuê".
+- Nút "Nhắn tin cho người thuê" ở các trang chủ trọ mở thẳng trang Chat chung.
+- **Dữ liệu mẫu thứ hai** (`Data/Seeder/MarketplaceDemoSeed.cs`):
+  - chủ trọ `chutro2.demo@ezrent.vn` / `Landlord@123`, có căn hộ, nhà nguyên căn, ký túc xá ở nhiều quận, hợp đồng, hóa đơn kèm bộ đối chiếu;
+  - phía người thuê: yêu thích, lịch sử tìm kiếm, thông báo, yêu cầu hỗ trợ có Admin trả lời, bản nháp BM03.
+
+### Ảnh phòng và icon menu
+
+- **Ảnh phòng nằm trong dự án**, ở `wwwroot/images/rooms/`: 27 ảnh minh họa đúng chủ đề (phòng ngủ, studio có gác, phòng khách, bếp, nhà vệ sinh, ký túc xá, ban công, nhà nguyên căn, chỗ để xe) và ảnh sự cố điều hòa.
+  - Ảnh được vẽ bằng `scripts/tao-anh-phong-minh-hoa.py` (Python + Pillow), không có bản quyền bên thứ ba, không cần mạng.
+  - `Data/Seeder/DemoRoomImages.cs` chọn ảnh theo loại phòng: ảnh đại diện là không gian chính, các ảnh sau là phòng phụ.
+  - Ảnh `picsum.photos` cũ trong database được tự đổi sang ảnh này khi chạy ở Development/Demo.
+  - Muốn dùng ảnh thật, chủ trọ tải ảnh lên ở trang chi tiết tin.
+- **Icon menu là icon nét SVG** (`Helpers/NavIcon.cs`), cùng phong cách với `_HomeIcon` của Tenant, thay cho emoji trên `_Layout`, menu chủ trọ và menu người thuê. Muốn đổi icon, sửa đường vẽ trong `NavIcon.cs`.
+
+>>>>>>> feature/ez-rent-update
 ## 3. Chức năng ↔ báo cáo (Hình 3.5, UC, BM, R)
 
 | Nhóm | Controller (đường dẫn) | Báo cáo | Nội dung |

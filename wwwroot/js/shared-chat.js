@@ -14,7 +14,11 @@
     function install() {
         window.EzRentChat?.updateControls();
         if (input()) input().readOnly = sending;
+<<<<<<< HEAD
         const send = root.querySelector('#shared-chat-form button');
+=======
+        const send = root.querySelector('#shared-chat-form button[type=submit]');
+>>>>>>> feature/ez-rent-update
         if (send) send.disabled = sending;
         const form = root.querySelector('#shared-read-form');
         if (form) form.hidden = true;
@@ -82,16 +86,46 @@
         if (event.target.id === 'shared-read-form') { event.preventDefault(); markVisible(true); return; }
         if (event.target.id !== 'shared-chat-form') return;
         event.preventDefault(); if (sending || !event.target.reportValidity()) return;
+<<<<<<< HEAD
         const form = event.target, data = new FormData(form), button = form.querySelector('button');
+=======
+        const form = event.target, file = form.querySelector('#shared-chat-image');
+        if (!(input()?.value || '').trim() && !(file?.files?.length)) { status('Nhập nội dung hoặc chọn một ảnh để gửi.'); return; }
+        if (file?.files?.[0] && file.files[0].size > 5 * 1024 * 1024) { status('Ảnh tối đa 5 MB.'); return; }
+        const data = new FormData(form), button = form.querySelector('button[type=submit]');
+>>>>>>> feature/ez-rent-update
         const request = new AbortController(), timeout = setTimeout(() => request.abort(), 15000);
         sending = true; button.disabled = true; input().readOnly = true; status('Đang gửi…');
         try {
             const response = await fetch(form.action, { method: 'POST', body: data, credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' }, signal: request.signal });
             const result = response.headers.get('content-type')?.includes('application/json') ? await response.json() : null;
             if (!response.ok || response.redirected || !result?.ok) throw new Error(result?.message || 'Chưa xác nhận được kết quả gửi. Hãy tải tin mới trước khi gửi lại.');
+<<<<<<< HEAD
             input().value = ''; sending = false; syncRequested = true; await refresh(); status('Đã gửi tin nhắn.'); input()?.focus({ preventScroll: true });
         } catch (error) { status(error.message || 'Lỗi kết nối. Nội dung vẫn được giữ.'); }
         finally { clearTimeout(timeout); sending = false; if (input()) input().readOnly = false; const current = root.querySelector('#shared-chat-form button'); if (current) current.disabled = false; if (syncRequested) queueRefresh(); }
+=======
+            input().value = ''; if (file) file.value = ''; sending = false; syncRequested = true; await refresh(); status('Đã gửi tin nhắn.'); input()?.focus({ preventScroll: true });
+        } catch (error) { status(error.message || 'Lỗi kết nối. Nội dung vẫn được giữ.'); }
+        finally { clearTimeout(timeout); sending = false; if (input()) input().readOnly = false; const current = root.querySelector('#shared-chat-form button[type=submit]'); if (current) current.disabled = false; if (syncRequested) queueRefresh(); }
+    });
+    document.addEventListener('submit', async event => {
+        const form = event.target;
+        if (!form.classList?.contains('shared-chat-delete')) return;
+        event.preventDefault();
+        if (!confirm('Thu hồi tin nhắn này? Cả hai bên sẽ thấy "Tin nhắn đã bị thu hồi".')) return;
+        try {
+            const response = await fetch(form.action, { method: 'POST', body: new FormData(form), credentials: 'same-origin', headers: { 'X-Requested-With': 'fetch' } });
+            const result = response.headers.get('content-type')?.includes('application/json') ? await response.json() : null;
+            if (!response.ok || !result?.ok) throw new Error(result?.message || 'Chưa thu hồi được tin nhắn.');
+            status(result.message); syncRequested = true; await refresh();
+        } catch (error) { status(error.message); }
+    });
+    document.addEventListener('change', event => {
+        if (event.target.id !== 'shared-chat-image') return;
+        const name = root.querySelector('#shared-chat-image-name');
+        if (name) name.textContent = event.target.files?.[0]?.name || '';
+>>>>>>> feature/ez-rent-update
     });
     document.addEventListener('click', event => {
         const link = event.target.closest('[data-chat-retry]');

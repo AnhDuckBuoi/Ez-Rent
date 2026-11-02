@@ -124,6 +124,7 @@ public sealed class ChatController(ChatService chatService) : Controller
         return Json(new { ok = true, data = result });
     }
 
+<<<<<<< HEAD
     [HttpPost, RequestSizeLimit(32768)]
     public async Task<IActionResult> Send(
         [FromRoute] int id,
@@ -132,6 +133,28 @@ public sealed class ChatController(ChatService chatService) : Controller
         CancellationToken ct = default)
     {
         var outcome = await chatService.SendMessageAsync(CurrentUserId, id, content, ct);
+=======
+    [HttpPost, RequestSizeLimit(RentalPrivateFileStore.ImageMaxBytes + 65536)]
+    [RequestFormLimits(MultipartBodyLengthLimit = RentalPrivateFileStore.ImageMaxBytes + 65536)]
+    public async Task<IActionResult> Send(
+        [FromRoute] int id,
+        [FromForm] string? content,
+        IFormFile? image,
+        [FromForm] bool redirect = false,
+        CancellationToken ct = default)
+    {
+        // Gửi kèm ảnh: chữ (nếu có) đi trước, ảnh là một tin riêng ngay sau.
+        ChatSendOutcome outcome;
+        if (image is { Length: > 0 })
+        {
+            outcome = string.IsNullOrWhiteSpace(content) ? new(ChatActionStatus.Saved) : await chatService.SendMessageAsync(CurrentUserId, id, content, ct);
+            if (outcome.Status == ChatActionStatus.Saved) outcome = await chatService.SendImageAsync(CurrentUserId, id, image, ct);
+        }
+        else
+        {
+            outcome = await chatService.SendMessageAsync(CurrentUserId, id, content, ct);
+        }
+>>>>>>> feature/ez-rent-update
 
         if (redirect && !IsFetchRequest)
         {
@@ -142,7 +165,11 @@ public sealed class ChatController(ChatService chatService) : Controller
 
             var error = outcome.Status == ChatActionStatus.ReadOnly
                 ? "Cuộc trò chuyện hiện chỉ đọc."
+<<<<<<< HEAD
                 : "Nhập tin nhắn từ 1 đến 2.000 ký tự.";
+=======
+                : "Nhập tin nhắn từ 1 đến 2.000 ký tự, hoặc chọn ảnh JPG/PNG tối đa 5 MB.";
+>>>>>>> feature/ez-rent-update
             var page = await Index(new ChatFilterInput { C = id }, ct);
             if (page is ViewResult view && view.Model is ChatPageViewModel model)
             {
@@ -160,7 +187,37 @@ public sealed class ChatController(ChatService chatService) : Controller
             ChatActionStatus.Saved => Json(new { ok = true, message = "Đã gửi.", item = outcome.Message }),
             ChatActionStatus.Missing => NotFound(new { ok = false, message = "Không tìm thấy cuộc trò chuyện." }),
             ChatActionStatus.ReadOnly => StatusCode(StatusCodes.Status409Conflict, new { ok = false, message = "Cuộc trò chuyện hiện chỉ đọc." }),
+<<<<<<< HEAD
             _ => BadRequest(new { ok = false, message = "Nhập tin nhắn từ 1 đến 2.000 ký tự." })
+=======
+            _ => BadRequest(new { ok = false, message = "Nhập tin nhắn từ 1 đến 2.000 ký tự, hoặc chọn ảnh JPG/PNG tối đa 5 MB." })
+        };
+    }
+
+    /// <summary>Ảnh trong tin nhắn: chỉ hai thành viên cuộc trò chuyện xem được; không có đường dẫn công khai.</summary>
+    [HttpGet]
+    public async Task<IActionResult> Image([FromRoute] int id, CancellationToken ct = default)
+    {
+        var file = await chatService.OpenImageAsync(CurrentUserId, id, ct);
+        if (file == null) return NotFound();
+        Response.Headers.CacheControl = "private, max-age=3600";
+        Response.Headers.XContentTypeOptions = "nosniff";
+        return File(file.Value.Stream, file.Value.ContentType);
+    }
+
+    /// <summary>Thu hồi (xóa) tin của chính mình; hai bên thấy "Tin nhắn đã bị thu hồi".</summary>
+    [HttpPost, RequestSizeLimit(4096)]
+    public async Task<IActionResult> Delete([FromRoute] int id, [FromForm] bool redirect = false, CancellationToken ct = default)
+    {
+        var (status, conversationId) = await chatService.RecallMessageAsync(CurrentUserId, id, ct);
+        if (redirect && !IsFetchRequest)
+            return status == ChatActionStatus.Missing ? NotFound() : RedirectToAction(nameof(Index), new { c = conversationId });
+        return status switch
+        {
+            ChatActionStatus.Saved => Json(new { ok = true, message = "Đã thu hồi tin nhắn." }),
+            ChatActionStatus.ReadOnly => StatusCode(StatusCodes.Status409Conflict, new { ok = false, message = "Cuộc trò chuyện hiện chỉ đọc." }),
+            _ => NotFound(new { ok = false, message = "Không tìm thấy tin nhắn của bạn." })
+>>>>>>> feature/ez-rent-update
         };
     }
 

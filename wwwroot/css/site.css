@@ -52,3 +52,11 @@ body {
 .avatar-box:hover .avatar-overlay {
     opacity: 1;
 }
+<<<<<<< HEAD
+=======
+
+/* Thanh điều hướng: chữ menu không xuống dòng, icon nét (NavIcon) căn giữa theo chữ */
+.navbar .nav-link, .navbar .btn, .navbar .dropdown-item { white-space: nowrap; }
+.navbar .nav-link, .navbar .btn { display: inline-flex; align-items: center; }
+.navbar .dropdown-item .ez-nav-icon, .navbar .nav-link .ez-nav-icon { opacity: .85; }
+>>>>>>> feature/ez-rent-update

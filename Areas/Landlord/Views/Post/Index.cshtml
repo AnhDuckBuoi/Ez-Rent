@@ -133,7 +133,11 @@
                 @Html.DisplayFor(modelItem => item.ApprovalNote)
             </td>
             <td>
+<<<<<<< HEAD
                 @Html.DisplayFor(modelItem => item.ApprovedBy.Id)
+=======
+                @Html.DisplayFor(modelItem => item.ApprovedBy!.Id)
+>>>>>>> feature/ez-rent-update
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ApprovedAt)
@@ -160,7 +164,11 @@
                 @Html.DisplayFor(modelItem => item.PostedAt)
             </td>
             <td>
+<<<<<<< HEAD
                 @Html.DisplayFor(modelItem => item.Owner.Id)
+=======
+                @Html.DisplayFor(modelItem => item.Owner!.Id)
+>>>>>>> feature/ez-rent-update
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.RentalPostId">Edit</a> |

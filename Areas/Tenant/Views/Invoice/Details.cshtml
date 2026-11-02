@@ -27,6 +27,37 @@
         </dl>
         @if (!string.IsNullOrWhiteSpace(invoice.Note)) { <h3>Ghi chú hóa đơn</h3><p class="rental-prose">@invoice.Note</p> }
         <p class="rental-note">Liên hệ chủ nhà nếu bạn cần đối chiếu khoản thu hoặc thời hạn thanh toán.</p>
+<<<<<<< HEAD
+=======
+        @if (invoice.PaymentStatus is EZ_Rent.Models.Enums.PaymentStatus.Unpaid or EZ_Rent.Models.Enums.PaymentStatus.Overdue or EZ_Rent.Models.Enums.PaymentStatus.AwaitingConfirmation)
+        {
+            var qr = ViewData["QrDataUri"] as string;
+            var bank = ViewData["Bank"] as EZ_Rent.Services.Payments.BankAccount;
+            <h3>Thanh toán</h3>
+            @if (qr != null)
+            {
+                <p><img src="@qr" width="220" height="220" alt="Mã VietQR chuyển @TenantRentalPresentation.Money(invoice.TotalAmount) cho hóa đơn #@invoice.InvoiceId"
+                        style="image-rendering:pixelated;border:6px solid #fff;border-radius:8px;box-shadow:0 0 0 1px #dee2e6" /></p>
+                <p class="rental-prose">Quét mã bằng ứng dụng ngân hàng: số tiền và nội dung <strong>@ViewData["TransferNote"]</strong> được điền sẵn.
+                    @if (bank != null) { <br /><span>@(EZ_Rent.Services.Payments.BankAccountStore.Banks.FirstOrDefault(b => b.Bin == bank.Bin).Name) · @bank.AccountNumber · @bank.AccountName</span> }</p>
+            }
+            else
+            {
+                <p class="rental-note">Chủ nhà chưa cài tài khoản nhận tiền. Hãy liên hệ chủ nhà để thanh toán.</p>
+            }
+            @if (invoice.PaymentStatus == EZ_Rent.Models.Enums.PaymentStatus.AwaitingConfirmation)
+            {
+                <p class="rental-note">Bạn đã báo chuyển khoản lúc @EZ_Rent.Services.Common.VietnamTime.Stamp(invoice.TenantConfirmedAt). Hóa đơn đang chờ chủ nhà xác nhận đã nhận tiền.</p>
+            }
+            else
+            {
+                <form method="post" asp-action="ReportPaid" asp-route-id="@invoice.InvoiceId">
+                    <button type="submit" class="button primary">Tôi đã chuyển khoản</button>
+                </form>
+                <p class="rental-note">Mã QR chỉ là thông tin chuyển khoản. Hóa đơn chuyển "Đã thanh toán" sau khi chủ nhà đối soát và xác nhận đã nhận tiền.</p>
+            }
+        }
+>>>>>>> feature/ez-rent-update
     </section>
     @await Html.PartialAsync("_InvoiceMeterEvidence", Model)
 </div>

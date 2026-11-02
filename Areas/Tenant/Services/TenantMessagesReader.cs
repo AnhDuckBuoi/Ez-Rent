@@ -84,7 +84,11 @@ public static class TenantMessagesReader
                 CanSend = senderActive && c.Initiator.Status == UserStatus.Active && c.Recipient.Status == UserStatus.Active &&
                     (!support || supportRecipients.Contains(c.InitiatorId == userId ? c.RecipientId : c.InitiatorId)),
                 Unread = unread.GetValueOrDefault(c.ConversationId), LastSentAt = last?.SentAt,
+<<<<<<< HEAD
                 Preview = last == null ? "Chưa có tin nhắn" : (last.SenderId == userId ? "Bạn: " : "") + last.Content
+=======
+                Preview = last == null ? "Chưa có tin nhắn" : (last.SenderId == userId ? "Bạn: " : "") + EZ_Rent.Services.Chat.ChatContent.Preview(last.Content)
+>>>>>>> feature/ez-rent-update
             };
         }
         model.Conversations = ids.Select(id => Map(rows.Single(c => c.ConversationId == id))).ToList();

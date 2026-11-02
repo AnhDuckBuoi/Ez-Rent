@@ -172,19 +172,58 @@
                         <div class="shared-chat-message @(message.Mine ? "mine" : null)"
                              data-message-id="@message.Id"
                              data-unread="@((!message.Mine && !message.IsRead).ToString().ToLowerInvariant())">
+<<<<<<< HEAD
                             <p>@message.Content</p>
                             <small>@ChatPageViewModel.Stamp(message.SentAt) · <span data-message-state>@(message.Mine ? (message.IsRead ? "Đã xem" : "Đã gửi") : "")</span></small>
+=======
+                            @if (EZ_Rent.Services.Chat.ChatContent.IsRecalled(message.Content))
+                            {
+                                <p class="fst-italic opacity-75">Tin nhắn đã bị thu hồi</p>
+                            }
+                            else if (EZ_Rent.Services.Chat.ChatContent.IsImage(message.Content))
+                            {
+                                var imageUrl = Url.Action("Image", "Chat", new { area = "", id = message.Id });
+                                <p class="mb-1"><a href="@imageUrl" target="_blank" rel="noopener"><img src="@imageUrl" alt="Ảnh trong tin nhắn" loading="lazy"
+                                     style="max-width:min(260px,100%);max-height:260px;border-radius:12px;display:block;object-fit:cover" /></a></p>
+                            }
+                            else
+                            {
+                                <p>@message.Content</p>
+                            }
+                            <small>@ChatPageViewModel.Stamp(message.SentAt) · <span data-message-state>@(message.Mine ? (message.IsRead ? "Đã xem" : "Đã gửi") : "")</span>
+                                @if (message.Mine && Model.CanSend && !EZ_Rent.Services.Chat.ChatContent.IsRecalled(message.Content))
+                                {
+                                    <form asp-area="" asp-controller="Chat" asp-action="Delete" asp-route-id="@message.Id" method="post" class="shared-chat-delete d-inline">
+                                        <input type="hidden" name="redirect" value="true" />
+                                        · <button type="submit" class="btn btn-link btn-sm p-0 align-baseline" style="font-size:inherit;color:inherit">Thu hồi</button>
+                                    </form>
+                                }
+                            </small>
+>>>>>>> feature/ez-rent-update
                         </div>
                     }
                 </div>
 
                 @if (Model.CanSend)
                 {
+<<<<<<< HEAD
                     <form asp-area="" asp-controller="Chat" asp-action="Send" asp-route-id="@selected.Id" method="post" id="shared-chat-form" class="shared-chat-composer border-top">
                         <input type="hidden" name="redirect" value="true" />
                         <label for="shared-chat-input" class="form-label">Tin nhắn</label>
                         <textarea id="shared-chat-input" class="form-control" name="content" required maxlength="2000" rows="2" placeholder="Nhập nội dung tin nhắn..." aria-describedby="shared-send-status">@Model.AttemptedContent</textarea>
                         <div class="d-flex justify-content-end mt-2">
+=======
+                    <form asp-area="" asp-controller="Chat" asp-action="Send" asp-route-id="@selected.Id" method="post" enctype="multipart/form-data" id="shared-chat-form" class="shared-chat-composer border-top">
+                        <input type="hidden" name="redirect" value="true" />
+                        <label for="shared-chat-input" class="form-label">Tin nhắn</label>
+                        <textarea id="shared-chat-input" class="form-control" name="content" maxlength="2000" rows="2" placeholder="Nhập nội dung tin nhắn..." aria-describedby="shared-send-status">@Model.AttemptedContent</textarea>
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <label class="btn btn-outline-secondary btn-sm mb-0" for="shared-chat-image" title="Gửi ảnh JPG/PNG tối đa 5 MB">📎 Ảnh</label>
+                                <input type="file" id="shared-chat-image" name="image" accept="image/jpeg,image/png" class="visually-hidden" />
+                                <span id="shared-chat-image-name" class="small text-muted"></span>
+                            </div>
+>>>>>>> feature/ez-rent-update
                             <button type="submit" class="btn btn-primary">Gửi tin nhắn</button>
                         </div>
                         <p id="shared-send-status" role="status" class="mt-2 mb-0 small text-muted">@Model.SendError</p>

@@ -154,7 +154,12 @@ public sealed class MessagesController(AppDbContext db, EZ_Rent.Services.ChatRea
             await Db.SaveChangesAsync();
             existing = conversation.ConversationId;
         }
+<<<<<<< HEAD
         return LocalRedirect(Back(nameof(Index), new { c = existing }) + "#composer");
+=======
+        // Mở thẳng trang Chat chung (gửi ảnh, thu hồi tin, cập nhật realtime) thay cho trang tin nhắn cũ của khu chủ trọ.
+        return LocalRedirect((Url.Action("Index", "Chat", new { area = "", c = existing }) ?? "/Chat") + "#shared-chat-form");
+>>>>>>> feature/ez-rent-update
     }
 
     private async Task<IActionResult> SendFailure(int id, string? content, int status, string error)

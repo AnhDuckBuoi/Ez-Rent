@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+using EZ_Rent.Services.Chat;
+>>>>>>> feature/ez-rent-update
 using EZ_Rent.Data;
 using EZ_Rent.Models;
 using EZ_Rent.Models.Enums;
@@ -56,7 +60,11 @@ public sealed record ChatSendOutcome(
 /// Dịch vụ Chat & Realtime dùng chung cho cả 3 vai trò (Tenant, Landlord, Admin).
 /// Quản lý đọc hội thoại, lấy tin nhắn, gửi tin nhắn, đánh dấu đã xem và phát tín hiệu SignalR qua ChatRealtime.
 /// </summary>
+<<<<<<< HEAD
 public sealed class ChatService(AppDbContext db, ChatRealtime realtime)
+=======
+public sealed class ChatService(AppDbContext db, ChatRealtime realtime, RentalPrivateFileStore files)
+>>>>>>> feature/ez-rent-update
 {
     public const int DefaultConversationPageSize = 10;
     public const int DefaultMessagePageSize = 40;
@@ -150,7 +158,11 @@ public sealed class ChatService(AppDbContext db, ChatRealtime realtime)
             string.IsNullOrWhiteSpace(r.OtherName) ? "Người dùng" : r.OtherName,
             r.RentalPostId,
             r.RoomTitle,
+<<<<<<< HEAD
             r.LastContent,
+=======
+            r.LastContent == null ? null : ChatContent.Preview(r.LastContent),
+>>>>>>> feature/ez-rent-update
             r.LastSenderId == userId,
             r.LastAt,
             r.UnreadCount,
@@ -279,6 +291,62 @@ public sealed class ChatService(AppDbContext db, ChatRealtime realtime)
         return new(ChatActionStatus.Saved, new ChatMessageItem(message.MessageId, trimmed, true, false, now));
     }
 
+<<<<<<< HEAD
+=======
+    /// <summary>Gửi ảnh (JPG/PNG ≤ 5 MB, kiểm tra header bằng RentalPrivateFileStore). Cùng điều kiện thành viên/trạng thái như tin chữ.</summary>
+    public async Task<ChatSendOutcome> SendImageAsync(string userId, int conversationId, IFormFile image, CancellationToken ct = default)
+    {
+        if (conversationId < 1 || image.Length == 0) return new(ChatActionStatus.Invalid);
+        if (!await db.Users.AnyAsync(u => u.Id == userId && u.Status == UserStatus.Active, ct)) return new(ChatActionStatus.ReadOnly);
+        var conversation = await MemberConversations(userId).Include(c => c.Initiator).Include(c => c.Recipient)
+            .SingleOrDefaultAsync(c => c.ConversationId == conversationId, ct);
+        if (conversation == null) return new(ChatActionStatus.Missing);
+        if (conversation.Initiator.Status != UserStatus.Active || conversation.Recipient.Status != UserStatus.Active)
+            return new(ChatActionStatus.ReadOnly);
+        StoredRentalFile stored;
+        try { stored = await files.SaveAsync(image, allowPdf: false, ct); }
+        catch (InvalidDataException) { return new(ChatActionStatus.Invalid); }
+        var now = DateTime.UtcNow;
+        var message = new Message { ConversationId = conversationId, SenderId = userId, Content = ChatContent.ImagePrefix + stored.Key, IsRead = false, SentAt = now };
+        db.Messages.Add(message);
+        conversation.UpdatedAt = now;
+        try { await db.SaveChangesAsync(ct); }
+        catch { files.DeleteUncommitted(stored.Key); throw; }
+        await realtime.ChangedAsync(conversationId);
+        return new(ChatActionStatus.Saved, new ChatMessageItem(message.MessageId, message.Content, true, false, now));
+    }
+
+    /// <summary>Người gửi thu hồi tin của chính mình: nội dung thành "đã thu hồi" ở cả hai phía, ảnh (nếu có) bị xóa khỏi kho.</summary>
+    public async Task<(ChatActionStatus Status, int ConversationId)> RecallMessageAsync(string userId, int messageId, CancellationToken ct = default)
+    {
+        var message = await MemberMessages(userId).Include(m => m.Conversation).ThenInclude(c => c.Initiator)
+            .Include(m => m.Conversation).ThenInclude(c => c.Recipient)
+            .SingleOrDefaultAsync(m => m.MessageId == messageId, ct);
+        if (message == null || message.SenderId != userId) return (ChatActionStatus.Missing, 0);
+        if (ChatContent.IsRecalled(message.Content)) return (ChatActionStatus.Saved, message.ConversationId);
+        if (!await db.Users.AnyAsync(u => u.Id == userId && u.Status == UserStatus.Active, ct) ||
+            message.Conversation.Initiator.Status != UserStatus.Active || message.Conversation.Recipient.Status != UserStatus.Active)
+            return (ChatActionStatus.ReadOnly, message.ConversationId);
+        var imageKey = ChatContent.ImageKey(message.Content);
+        message.Content = ChatContent.Recalled;
+        message.Conversation.UpdatedAt = DateTime.UtcNow;
+        await db.SaveChangesAsync(ct);
+        if (imageKey != null) files.DeleteUncommitted(imageKey);
+        await realtime.ChangedAsync(message.ConversationId);
+        return (ChatActionStatus.Saved, message.ConversationId);
+    }
+
+    /// <summary>Mở ảnh của một tin nhắn: chỉ thành viên cuộc trò chuyện.</summary>
+    public async Task<(Stream Stream, string ContentType)?> OpenImageAsync(string userId, int messageId, CancellationToken ct = default)
+    {
+        var content = await MemberMessages(userId).Where(m => m.MessageId == messageId).Select(m => m.Content).FirstOrDefaultAsync(ct);
+        var key = ChatContent.ImageKey(content);
+        if (key == null) return null;
+        var stream = files.OpenRead(key);
+        return stream == null ? null : (stream, key.EndsWith(".png", StringComparison.Ordinal) ? "image/png" : "image/jpeg");
+    }
+
+>>>>>>> feature/ez-rent-update
     public async Task<ChatActionStatus> MarkReadAsync(
         string userId,
         int conversationId,

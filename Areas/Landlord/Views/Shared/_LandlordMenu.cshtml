@@ -1,4 +1,5 @@
 @* Thanh chức năng chủ trọ, đặt ở đầu mỗi trang bên trong _Layout chung của main.
+<<<<<<< HEAD
    Menu thả xuống "Chủ trọ" trên header vẫn dùng được: các link cũ tự chuyển sang trang mới.
    CSS riêng nạp tại đây (không dùng section Styles vì _Layout của main chưa có section này). *@
 @{
@@ -6,11 +7,31 @@
     var controller = ViewContext.RouteData.Values["controller"] as string ?? "";
     string Active(params string[] names) => names.Contains(controller, StringComparer.OrdinalIgnoreCase) ? "active" : "";
     string? Current(params string[] names) => names.Contains(controller, StringComparer.OrdinalIgnoreCase) ? "page" : null;
+=======
+   Chỉ hiện các mục cùng nhóm với trang đang mở; menu chủ trọ trên thanh điều hướng (_LandlordHeaderMenu)
+   dùng cùng định nghĩa nhóm ở Areas/Landlord/Helpers/LandlordNavigation.cs.
+   CSS riêng nạp tại đây (không dùng section Styles vì _Layout của main chưa có section này). *@
+@{
+    var counts = ViewData[LandlordMenuCounts.Key] as LandlordMenuCounts ?? new LandlordMenuCounts();
+    var area = ViewContext.RouteData.Values["area"] as string ?? "";
+    var controller = ViewContext.RouteData.Values["controller"] as string ?? "";
+    var action = ViewContext.RouteData.Values["action"] as string ?? "";
+    var group = LandlordNavigation.GroupOf(area, controller);
+    var activeItem = group?.ActiveItem(area, controller, action);
+    int CountOf(LandlordBadge badge) => badge switch
+    {
+        LandlordBadge.PendingViewings => counts.PendingViewings,
+        LandlordBadge.OpenRepairs => counts.OpenRepairs,
+        LandlordBadge.SupportReplies => counts.SupportReplies,
+        _ => 0
+    };
+>>>>>>> feature/ez-rent-update
     var status = TempData[EZ_Rent.Areas.Landlord.Controllers.LandlordAreaController.StatusKey] as string;
     var statusType = TempData[EZ_Rent.Areas.Landlord.Controllers.LandlordAreaController.StatusTypeKey] as string ?? "success";
 }
 <link rel="stylesheet" href="~/css/landlord.css" asp-append-version="true" />
 <script src="~/js/landlord.js" asp-append-version="true" defer></script>
+<<<<<<< HEAD
 <nav class="ll-menu nav nav-pills flex-nowrap overflow-auto gap-1 py-2 mb-3 border-bottom no-print" aria-label="Chức năng chủ trọ">
     <a class="nav-link @Active("Overview")" aria-current="@Current("Overview")" asp-area="Landlord" asp-controller="Overview" asp-action="Index">📊 Tổng quan</a>
     <a class="nav-link @Active("Rooms", "RoomMedia")" aria-current="@Current("Rooms", "RoomMedia")" asp-area="Landlord" asp-controller="Rooms" asp-action="Index">🏠 Phòng trọ</a>
@@ -28,6 +49,27 @@
     <a class="nav-link @Active("PaymentSettings")" aria-current="@Current("PaymentSettings")" asp-area="Landlord" asp-controller="PaymentSettings" asp-action="Index">🏦 Nhận tiền</a>
     <a class="nav-link @Active("Account")" aria-current="@Current("Account")" asp-area="Landlord" asp-controller="Account" asp-action="Index">👤 Tài khoản</a>
 </nav>
+=======
+@if (group != null)
+{
+    <nav class="ll-menu d-flex flex-wrap align-items-center gap-2 py-2 mb-3 border-bottom no-print" aria-label="@group.Label">
+        <span class="fw-semibold text-muted me-1 d-inline-flex align-items-center">@EZ_Rent.Helpers.NavIcon.Svg(group.Icon)@group.Label</span>
+        @if (group.Items.Count > 1)
+        {
+            <div class="nav nav-pills flex-nowrap overflow-auto gap-1">
+                @foreach (var item in group.Items)
+                {
+                    var current = item == activeItem;
+                    var count = CountOf(item.Badge);
+                    <a class="nav-link text-nowrap @(current ? "active" : null)" aria-current="@(current ? "page" : null)"
+                       asp-area="@item.Area" asp-controller="@item.Controller" asp-action="@item.Action">@EZ_Rent.Helpers.NavIcon.Svg(item.Icon, 16)@item.Label
+                        @if (count > 0) { <span class="badge bg-danger ms-1">@count</span> }</a>
+                }
+            </div>
+        }
+    </nav>
+}
+>>>>>>> feature/ez-rent-update
 <div id="ll-alerts" aria-live="polite">
     @if (!string.IsNullOrEmpty(status))
     {

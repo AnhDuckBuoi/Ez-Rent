@@ -301,7 +301,11 @@ public static class DbSeeder
                 images.Add(new RoomImage
                 {
                     RentalPostId = post.RentalPostId,
+<<<<<<< HEAD
                     MediaUrl = $"https://picsum.photos/seed/room{post.RentalPostId}_{i}/800/600",
+=======
+                    MediaUrl = DemoRoomImages.For(post.RoomType, post.RentalPostId, i),
+>>>>>>> feature/ez-rent-update
                     MediaType = MediaType.Image,
                     IsPrimary = i == 0,
                     DisplayOrder = i,

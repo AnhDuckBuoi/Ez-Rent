@@ -79,10 +79,17 @@
 @foreach (var item in Model) {
         <tr>
             <td>
+<<<<<<< HEAD
                 @Html.DisplayFor(modelItem => item.RentalContract.RentalContractId)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.MeterReading.Period)
+=======
+                @Html.DisplayFor(modelItem => item.RentalContract!.RentalContractId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.MeterReading!.Period)
+>>>>>>> feature/ez-rent-update
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.BillingPeriod)

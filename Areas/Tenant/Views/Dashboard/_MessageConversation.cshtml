@@ -24,7 +24,11 @@ else
         @foreach (var message in Model.Messages)
         {
             @if (previousDate != message.VietnamTime.Date) { <div class="date-divider">@message.DateLabel</div> }
+<<<<<<< HEAD
             <div class="message @(message.Self ? "self" : "")" data-message-id="@message.Id" data-unread="@((!message.Self && !message.IsRead).ToString().ToLowerInvariant())"><p class="bubble">@message.Content</p><span class="message-meta"><time datetime="@message.VietnamTime.ToString("yyyy-MM-ddTHH:mm:ss+07:00")">@message.TimeLabel</time>@if (message.Self) { @await Html.PartialAsync("_HomeIcon", "check")<span data-message-state>@(message.IsRead ? "Đã xem" : "Đã gửi")</span> }</span></div>
+=======
+            <div class="message @(message.Self ? "self" : "")" data-message-id="@message.Id" data-unread="@((!message.Self && !message.IsRead).ToString().ToLowerInvariant())"><p class="bubble">@if (EZ_Rent.Services.Chat.ChatContent.IsImage(message.Content)) { <a href="@Url.Action("Image", "Chat", new { area = "", id = message.Id })" target="_blank" rel="noopener"><img src="@Url.Action("Image", "Chat", new { area = "", id = message.Id })" alt="Ảnh trong tin nhắn" loading="lazy" style="max-width:min(240px,100%);max-height:240px;border-radius:10px;display:block" /></a> } else { @EZ_Rent.Services.Chat.ChatContent.Preview(message.Content) }</p><span class="message-meta"><time datetime="@message.VietnamTime.ToString("yyyy-MM-ddTHH:mm:ss+07:00")">@message.TimeLabel</time>@if (message.Self) { @await Html.PartialAsync("_HomeIcon", "check")<span data-message-state>@(message.IsRead ? "Đã xem" : "Đã gửi")</span> }</span></div>
+>>>>>>> feature/ez-rent-update
             previousDate = message.VietnamTime.Date;
         }
         @if (Model.Messages.Count == 0) { <p class="stream-start">@(selected.Id == 0 ? "Gửi tin đầu tiên để bắt đầu trao đổi về căn phòng này." : "Cuộc trò chuyện này chưa có tin nhắn.")</p> }

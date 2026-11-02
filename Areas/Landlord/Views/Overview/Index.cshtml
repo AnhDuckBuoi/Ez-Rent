@@ -155,7 +155,11 @@
                 </li>
             }
             @if (Model.ContractsWaiting > 0) { <li class="list-group-item"><a asp-controller="Contracts" asp-action="Index">@Model.ContractsWaiting hợp đồng đang chờ xác nhận</a></li> }
+<<<<<<< HEAD
             @if (Model.UnreadMessages > 0) { <li class="list-group-item"><a asp-controller="Messages" asp-action="Index" asp-route-filter="unread">@Model.UnreadMessages tin nhắn chưa đọc</a></li> }
+=======
+            @if (Model.UnreadMessages > 0) { <li class="list-group-item"><a asp-area="" asp-controller="Chat" asp-action="Index" asp-route-UnreadOnly="true">@Model.UnreadMessages tin nhắn chưa đọc</a></li> }
+>>>>>>> feature/ez-rent-update
         </ul>
     </div>
 }

@@ -1,0 +1,59 @@
+@* Menu chủ trọ trên thanh điều hướng chung. _Layout gọi partial này giống cách gọi _TenantSharedMenu của Tenant.
+   Các mục được dàn ra theo nhóm chức năng (định nghĩa ở Areas/Landlord/Helpers/LandlordNavigation.cs).
+   Số đỏ trên tên nhóm là việc đang chờ chủ trọ xử lý. *@
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
+@inject EZ_Rent.Data.AppDbContext Db
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString() ?? "";
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString();
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "";
+    var counts = new Dictionary<LandlordBadge, int>
+    {
+        [LandlordBadge.PendingViewings] = await Db.ViewingAppointments
+            .CountAsync(a => a.RentalPost.OwnerId == userId && a.Status == ViewingAppointmentStatus.Pending),
+        [LandlordBadge.OpenRepairs] = await Db.RepairRequests
+            .CountAsync(r => r.RentalPost.OwnerId == userId && r.Status == RepairRequestStatus.Pending),
+        [LandlordBadge.SupportReplies] = await Db.Conversations
+            .Where(c => c.ConversationType == ConversationType.LandlordAdmin && c.InitiatorId == userId)
+            .SelectMany(c => c.Messages).CountAsync(m => !m.IsRead && m.SenderId != userId)
+    };
+}
+@foreach (var group in LandlordNavigation.Groups)
+{
+    var groupActive = group.Contains(area, controller);
+    var activeItem = groupActive ? group.ActiveItem(area, controller, action) : null;
+    var pending = group.Items.Sum(i => counts.GetValueOrDefault(i.Badge));
+    if (group.Items.Count == 1)
+    {
+        var only = group.Items[0];
+        <li class="nav-item">
+            <a class="nav-link text-dark @(groupActive ? "active fw-semibold" : null)" aria-current="@(groupActive ? "page" : null)"
+               asp-area="@only.Area" asp-controller="@only.Controller" asp-action="@only.Action">@EZ_Rent.Helpers.NavIcon.Svg(group.Icon)@group.Label</a>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle text-dark @(groupActive ? "active fw-semibold" : null)" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                @EZ_Rent.Helpers.NavIcon.Svg(group.Icon)@group.Label
+                @if (pending > 0) { <span class="badge rounded-pill bg-danger ms-1" aria-label="@pending việc cần xử lý">@pending</span> }
+            </a>
+            <ul class="dropdown-menu">
+                @foreach (var item in group.Items)
+                {
+                    var current = item == activeItem;
+                    var count = counts.GetValueOrDefault(item.Badge);
+                    <li>
+                        <a class="dropdown-item d-flex justify-content-between align-items-center gap-3 @(current ? "active" : null)" aria-current="@(current ? "page" : null)"
+                           asp-area="@item.Area" asp-controller="@item.Controller" asp-action="@item.Action">
+                            <span class="d-inline-flex align-items-center">@EZ_Rent.Helpers.NavIcon.Svg(item.Icon, 16)@item.Label</span>
+                            @if (count > 0) { <span class="badge rounded-pill bg-danger">@count</span> }
+                        </a>
+                    </li>
+                }
+            </ul>
+        </li>
+    }
+}

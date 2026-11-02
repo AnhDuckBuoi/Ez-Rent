@@ -3,6 +3,10 @@ using EZ_Rent.Areas.Tenant.ViewModels;
 using EZ_Rent.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+<<<<<<< HEAD
+=======
+using Microsoft.EntityFrameworkCore;
+>>>>>>> feature/ez-rent-update
 
 namespace EZ_Rent.Areas.Tenant.Controllers;
 
@@ -46,4 +50,50 @@ public sealed class ViewingBookingController(AppDbContext context, ITenantViewin
             ? TenantScheduleState.Full : source.State;
         return View(new ViewingBookingModel { Detail = detail, Today = today, Date = day, Slots = slots, State = state, IsDemo = source.IsDemo });
     }
+<<<<<<< HEAD
+=======
+
+    /// <summary>
+    /// Gửi yêu cầu xem phòng theo khung giờ chủ trọ đã mở (quyết định 15/10 của nhóm). Kiểm tra lại ở server:
+    /// phòng còn hiển thị, giờ còn trong lịch và đang trống, cách hiện tại ít nhất 6 giờ, mỗi phòng chỉ một yêu cầu đang chờ.
+    /// Lịch tạo ra ở trạng thái "Chờ xác nhận"; chủ trọ xác nhận hoặc từ chối ở trang Lịch xem phòng.
+    /// </summary>
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Submit([FromRoute] int id, [FromForm] DateOnly date, [FromForm(Name = "SlotId")] string? slotId,
+        [FromForm] string? note)
+    {
+        var back = Url.Action(nameof(Index), new { id, date = date.ToString("yyyy-MM-dd") })!;
+        if (await TenantRentalDiscovery.DetailsAsync(Context, id, CurrentUserId) == null) return NotFound();
+        if (schedule == null || string.IsNullOrWhiteSpace(slotId))
+        {
+            TempData["DiscoveryMessage"] = "Hãy chọn một giờ đến xem trước khi gửi yêu cầu.";
+            return LocalRedirect(back);
+        }
+        var now = (clock ?? TimeProvider.System).GetUtcNow();
+        var source = await schedule.ReadAsync(id, CurrentUserId, date, HttpContext.RequestAborted);
+        var slot = source.Slots.FirstOrDefault(s => s.Id == slotId);
+        if (source.State != TenantScheduleState.Open || slot == null || slot.State != TenantSlotState.Available || slot.ArrivalAt < now.AddHours(6))
+        {
+            TempData["DiscoveryMessage"] = "Giờ bạn chọn không còn trống hoặc đã quá sát giờ (cần đặt trước ít nhất 6 giờ). Hãy chọn giờ khác.";
+            return LocalRedirect(back);
+        }
+        if (await Context.ViewingAppointments.AnyAsync(a => a.RentalPostId == id && a.TenantId == CurrentUserId &&
+                a.Status == EZ_Rent.Models.Enums.ViewingAppointmentStatus.Pending))
+        {
+            TempData["DiscoveryMessage"] = "Bạn đã có một yêu cầu đang chờ chủ nhà xác nhận cho phòng này.";
+            return LocalRedirect(back);
+        }
+        var trimmed = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
+        if (trimmed?.Length > 500) trimmed = trimmed[..500];
+        var appointment = new EZ_Rent.Models.ViewingAppointment
+        {
+            RentalPostId = id, TenantId = CurrentUserId, ViewingDate = slot.ArrivalAt.ToOffset(TimeSpan.FromHours(7)).DateTime,
+            Note = trimmed, Status = EZ_Rent.Models.Enums.ViewingAppointmentStatus.Pending, CreatedAt = now.UtcDateTime
+        };
+        Context.ViewingAppointments.Add(appointment);
+        await Context.SaveChangesAsync();
+        TempData["DiscoveryMessage"] = "Đã gửi yêu cầu xem phòng. Đang chờ chủ nhà xác nhận — vui lòng chưa đến xem phòng.";
+        return RedirectToAction("Details", "ViewingAppointment", new { area = "Tenant", id = appointment.ViewingAppointmentId });
+    }
+>>>>>>> feature/ez-rent-update
 }
