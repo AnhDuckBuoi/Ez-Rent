@@ -4,29 +4,29 @@
    ========================================================================== */
 
 :root {
-    --ez-blue: #356797;
-    --ez-blue-hover: #2a537b;
-    --ez-ink: #1f2f40;
-    --ez-muted: #586779;
-    --ez-line: #dce2e9;
-    --ez-bg: #f6f7f9;
-    --ez-soft: #eaf0f6;
+    --ez-blue: #007aff;
+    --ez-blue-hover: #0062cc;
+    --ez-ink: #162334;
+    --ez-muted: #64748b;
+    --ez-line: #e2e8f0;
+    --ez-bg: #f8fafc;
+    --ez-soft: #f1f5f9;
     --ez-surface: #ffffff;
-    --ez-success: #287858;
-    --ez-success-soft: #edf8f2;
-    --ez-warning: #8a5a14;
-    --ez-warning-soft: #fff6e5;
-    --ez-danger: #a93d49;
-    --ez-danger-soft: #fff0f1;
-    --ez-radius: 14px;
-    --ez-radius-sm: 8px;
-    --ez-shadow: 0 4px 15px rgba(41, 64, 90, 0.04);
+    --ez-success: #15803d;
+    --ez-success-soft: #ecfdf5;
+    --ez-warning: #b45309;
+    --ez-warning-soft: #fffbeb;
+    --ez-danger: #e11d48;
+    --ez-danger-soft: #fff1f2;
+    --ez-radius: 20px;
+    --ez-radius-sm: 12px;
+    --ez-shadow: 0 4px 16px rgba(15, 23, 42, 0.035);
 
-    --bs-primary: #356797;
-    --bs-primary-rgb: 53, 103, 151;
-    --bs-body-bg: #f6f7f9;
-    --bs-body-color: #1f2f40;
-    --bs-border-color: #dce2e9;
+    --bs-primary: #007aff;
+    --bs-primary-rgb: 0, 122, 255;
+    --bs-body-bg: #f8fafc;
+    --bs-body-color: #162334;
+    --bs-border-color: #e2e8f0;
 }
 
 html {
@@ -233,17 +233,17 @@ a:hover {
 
 /* ================= BUTTONS & FORMS (Matched to Tenant) ================= */
 .btn {
-    border-radius: var(--ez-radius-sm);
-    font-weight: 600;
+    border-radius: 999px;
+    font-weight: 650;
     font-size: 13.5px;
-    padding: 8px 15px;
-    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    padding: 8px 18px;
+    transition: all 0.16s ease;
 }
 
 .btn-sm {
-    padding: 5px 11px;
+    padding: 6px 14px;
     font-size: 12.5px;
-    border-radius: 7px;
+    border-radius: 999px;
 }
 
 .btn-primary {
@@ -364,10 +364,10 @@ a:hover {
 
 /* ================= SOFT ARCHITECTURAL BADGES (No Harsh Neon) ================= */
 .badge {
-    font-weight: 600;
+    font-weight: 700;
     font-size: 11.5px;
-    padding: 4px 9px;
-    border-radius: 6px;
+    padding: 4px 11px;
+    border-radius: 999px;
     letter-spacing: 0.01em;
 }
 
@@ -421,6 +421,15 @@ a:hover {
 
 .card-body {
     padding: 20px;
+}
+
+.table-responsive:not(.card *) {
+    background: #ffffff;
+    border: 1px solid var(--ez-line);
+    border-radius: var(--ez-radius);
+    box-shadow: var(--ez-shadow);
+    overflow: hidden;
+    margin-bottom: 24px;
 }
 
 .table {
@@ -497,108 +506,290 @@ a:hover {
     margin: 6px 0 0;
 }
 
-/* Underline tabs like Tenant .rental-tabs */
-.ez-subnav,
-.ll-menu,
-.nav-tabs,
-.nav-pills {
+/* ================= WORKSPACE SEGMENTED PILL DOCK (.ll-menu) ================= */
+.ll-menu {
     display: flex;
-    flex-wrap: wrap;
-    gap: 4px 24px !important;
-    border-bottom: 1px solid var(--ez-line) !important;
-    margin-bottom: 24px !important;
-    padding: 0 !important;
+    align-items: center;
+    gap: 4px !important;
+    padding: 6px !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 999px !important;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04) !important;
+    margin-bottom: 26px !important;
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.ll-menu::-webkit-scrollbar {
+    display: none;
+}
+
+.ll-menu .nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px !important;
+    border-radius: 999px !important;
+    border: 0 !important;
     background: transparent !important;
-    border-radius: 0 !important;
+    color: #475569 !important;
+    font-size: 13.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none !important;
+    transition: all 0.16s ease;
+}
+
+.ll-menu .nav-link svg {
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+    color: #64748b;
+    transition: color 0.16s ease;
+}
+
+.ll-menu .nav-link:hover {
+    color: #007aff !important;
+    background: #f8fafc !important;
+}
+
+.ll-menu .nav-link:hover svg {
+    color: #007aff !important;
+}
+
+.ll-menu .nav-link.active,
+.ll-menu .nav-link[aria-current="page"] {
+    background: #162436 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(22, 36, 54, 0.16) !important;
+}
+
+.ll-menu .nav-link.active svg,
+.ll-menu .nav-link[aria-current="page"] svg {
+    color: #93c5fd !important;
+}
+
+.ll-menu .badge {
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 6px;
+}
+
+/* ================= MODERN FILTER PILLS (StatusTabs & NavPills) ================= */
+.ez-subnav,
+.nav-tabs,
+.nav-pills:not(.ll-menu) {
+    display: flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px !important;
+    border: 0 !important;
+    padding: 2px 0 10px !important;
+    margin-bottom: 20px !important;
+    background: transparent !important;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.ez-subnav::-webkit-scrollbar,
+.nav-tabs::-webkit-scrollbar,
+.nav-pills:not(.ll-menu)::-webkit-scrollbar {
+    display: none;
 }
 
 .ez-subnav .nav-link,
-.ll-menu .nav-link,
 .nav-tabs .nav-link,
-.nav-pills .nav-link {
+.nav-pills:not(.ll-menu) .nav-link {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    min-height: 44px;
-    padding: 0 0 10px !important;
-    border: 0 !important;
-    border-bottom: 2.5px solid transparent !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    color: var(--ez-muted) !important;
-    font-size: 14px;
-    font-weight: 600;
+    gap: 7px;
+    min-height: 38px;
+    padding: 6px 15px !important;
+    border-radius: 999px !important;
+    border: 1px solid #dfe6ef !important;
+    background: #ffffff !important;
+    color: #334155 !important;
+    font-size: 13px;
+    font-weight: 650;
     white-space: nowrap;
+    text-decoration: none !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    transition: all 0.16s ease;
 }
 
 .ez-subnav .nav-link:hover,
-.ll-menu .nav-link:hover,
 .nav-tabs .nav-link:hover,
-.nav-pills .nav-link:hover {
-    color: var(--ez-blue-hover) !important;
+.nav-pills:not(.ll-menu) .nav-link:hover {
+    border-color: #93c5fd !important;
+    color: #007aff !important;
+    background: #f8fafc !important;
 }
 
 .ez-subnav .nav-link.active,
 .ez-subnav .nav-link[aria-current="page"],
-.ll-menu .nav-link.active,
-.ll-menu .nav-link[aria-current="page"],
 .nav-tabs .nav-link.active,
-.nav-pills .nav-link.active {
-    color: var(--ez-blue) !important;
-    border-bottom-color: var(--ez-blue) !important;
+.nav-tabs .nav-link[aria-current="page"],
+.nav-pills:not(.ll-menu) .nav-link.active,
+.nav-pills:not(.ll-menu) .nav-link[aria-current="page"] {
+    background: #162436 !important;
+    border-color: #162436 !important;
+    color: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(22, 36, 54, 0.16) !important;
 }
 
-/* ================= KPI METRIC STRIP & CARDS ================= */
+.ez-subnav .nav-link .badge,
+.nav-tabs .nav-link .badge,
+.nav-pills:not(.ll-menu) .nav-link .badge {
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-subnav .nav-link.active .badge,
+.nav-tabs .nav-link.active .badge,
+.nav-pills:not(.ll-menu) .nav-link.active .badge {
+    background: rgba(255, 255, 255, 0.18) !important;
+    color: #ffffff !important;
+}
+
+/* ================= BENTO KPI METRIC STRIP & CARDS ================= */
 .ez-kpi-card {
-    background: var(--ez-surface);
-    border: 1px solid var(--ez-line);
-    border-radius: var(--ez-radius);
-    padding: 18px 20px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 22px 24px;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    text-decoration: none;
-    color: var(--ez-ink);
-    transition: border-color 0.15s ease;
+    text-decoration: none !important;
+    color: #162334;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.035);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    position: relative;
+    overflow: hidden;
 }
 
 a.ez-kpi-card:hover {
-    border-color: var(--ez-blue);
-    color: var(--ez-ink);
+    transform: translateY(-2px);
+    border-color: #bfdbfe;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.07);
+    color: #162334;
 }
 
 .ez-kpi-label {
     font-size: 12px;
-    font-weight: 600;
-    color: var(--ez-muted);
-    margin-bottom: 6px;
+    font-weight: 750;
+    color: #64748b;
+    margin-bottom: 8px;
     display: block;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 
 .ez-kpi-value {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--ez-ink);
-    line-height: 1.2;
-    letter-spacing: -0.02em;
+    font-size: 1.95rem;
+    font-weight: 800;
+    color: #162334;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
     font-variant-numeric: tabular-nums;
 }
 
 .ez-kpi-meta,
 .ez-kpi-sub {
-    font-size: 12px;
-    color: var(--ez-muted);
-    margin-top: 6px;
+    font-size: 12.5px;
+    color: #64748b;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
+.ez-kpi-card.is-accent,
 .ez-kpi-accent {
-    background: var(--ez-soft);
-    border-color: #cfe0f0;
+    background: linear-gradient(145deg, #ffffff 0%, #f0f7ff 100%);
+    border-color: #bfdbfe;
 }
 
+.ez-kpi-card.is-accent .ez-kpi-value,
 .ez-kpi-accent .ez-kpi-value {
-    color: var(--ez-blue);
+    color: #007aff;
+}
+
+.ez-kpi-card.is-warning {
+    background: linear-gradient(145deg, #ffffff 0%, #fffdf5 100%);
+    border-color: #fde68a;
+}
+
+.ez-kpi-card.is-warning .ez-kpi-value {
+    color: #b45309;
+}
+
+.ez-kpi-card.is-success {
+    background: linear-gradient(145deg, #ffffff 0%, #f4fdf8 100%);
+    border-color: #bbf7d0;
+}
+
+.ez-kpi-card.is-success .ez-kpi-value {
+    color: #15803d;
+}
+
+.ez-kpi-card.is-danger {
+    background: linear-gradient(145deg, #ffffff 0%, #fff7f7 100%);
+    border-color: #fecdd3;
+}
+
+.ez-kpi-card.is-danger .ez-kpi-value {
+    color: #e11d48;
+}
+
+/* ================= SECTION LABELS & SHORTCUT CARDS ================= */
+.ez-section-label {
+    font-size: 12.5px;
+    font-weight: 750;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #475569;
+    margin: 26px 0 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ez-section-label::before {
+    content: "";
+    width: 4px;
+    height: 14px;
+    border-radius: 999px;
+    background: #007aff;
+}
+
+.ez-shortcut-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 18px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    color: #162334;
+    text-decoration: none !important;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+    transition: all 0.18s ease;
+}
+
+.ez-shortcut-card:hover {
+    transform: translateY(-2px);
+    border-color: #93c5fd;
+    box-shadow: 0 10px 22px rgba(0, 122, 255, 0.08);
+    color: #007aff;
 }
 
 /* ================= DISCOVERY & RENTAL CARDS (Matched to tenant-discovery.css) ================= */
@@ -1299,5 +1490,5035 @@ a.ez-kpi-card:hover {
     .ez-footer-bottom {
         flex-direction: column;
         align-items: flex-start;
+    }
+}
+
+
+/* ================= STANDALONE SPLIT-SCREEN SIGN IN / REGISTER (Desktop & Tablet Adaptive) ================= */
+body.ez-auth-body {
+    margin: 0;
+    padding: 0;
+    min-height: 100dvh;
+    background: #ffffff;
+    color: #1a1a1a;
+}
+
+.ez-sign-main {
+    min-height: 100dvh;
+}
+
+.ez-sign-layout {
+    display: flex;
+    min-height: 100dvh;
+    width: 100%;
+    background: #ffffff;
+}
+
+.ez-sign-photo {
+    flex: 1 1 auto;
+    position: relative;
+    min-width: 0;
+    overflow: hidden;
+    background: #1a2430;
+}
+
+.ez-sign-photo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+.ez-sign-photo::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 120px;
+    background: linear-gradient(to top, rgba(12, 19, 28, 0.52), rgba(12, 19, 28, 0));
+    pointer-events: none;
+}
+
+.ez-sign-photo-caption {
+    position: absolute;
+    left: 36px;
+    bottom: 24px;
+    z-index: 2;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.88);
+    letter-spacing: 0.01em;
+}
+
+.ez-sign-photo-caption a {
+    color: #ffffff;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.ez-sign-panel {
+    width: 456px;
+    flex-shrink: 0;
+    background: #ffffff;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100dvh;
+}
+
+.ez-sign-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 11px;
+    text-decoration: none !important;
+    margin-bottom: 42px;
+}
+
+.ez-sign-brand-logo {
+    width: 42px;
+    height: 42px;
+    border-radius: 11px;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(31, 47, 64, 0.12);
+}
+
+.ez-sign-title {
+    font-size: 21px;
+    font-weight: 700;
+    color: #1a1a1a;
+    letter-spacing: -0.02em;
+    margin: 0 0 24px;
+    line-height: 1.3;
+}
+
+.ez-sign-subtitle {
+    font-size: 13.5px;
+    color: #5c6470;
+    line-height: 1.6;
+    margin: -14px 0 24px;
+}
+
+.ez-sign-status-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 10px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+    background: #f4f7fb;
+    border: 1px solid #e2eaf4;
+    color: #2c3e50;
+}
+
+.ez-sign-status-box.is-success {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #166534;
+}
+
+.ez-sign-status-box.is-warning {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.ez-sign-status-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* Segmented Role Selector Pill (Landlord / Tenant) */
+.ez-role-switch {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+    padding: 4px;
+    background: #eae8e1;
+    border-radius: 14px;
+    margin-bottom: 18px;
+}
+
+.ez-role-option {
+    position: relative;
+    margin: 0;
+    cursor: pointer;
+}
+
+.ez-role-option input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    pointer-events: none;
+}
+
+.ez-role-pill {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 12px;
+    border-radius: 11px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #6b6a65;
+    background: transparent;
+    user-select: none;
+    transition: background-color 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.ez-role-option:hover input[type="radio"]:not(:checked) + .ez-role-pill {
+    color: #1f1f1f;
+}
+
+.ez-role-option input[type="radio"]:checked + .ez-role-pill {
+    background: #ffffff;
+    color: #141414;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.ez-role-option input[type="radio"]:focus-visible + .ez-role-pill {
+    outline: 2px solid #1a73e8;
+    outline-offset: 1px;
+}
+
+.ez-sign-field {
+    margin-bottom: 16px;
+}
+
+.ez-sign-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: #333333;
+    margin: 0 0 6px;
+    padding-left: 2px;
+}
+
+.ez-sign-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.ez-sign-input {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    background: #f2f2f2;
+    border: 1.5px solid transparent;
+    border-radius: 8px;
+    font-size: 14.5px;
+    color: #1a1a1a;
+    outline: none;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ez-sign-input::placeholder {
+    color: #8e8e93;
+}
+
+.ez-sign-input:focus {
+    background: #ffffff;
+    border-color: #1a73e8;
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12);
+}
+
+.ez-sign-input.has-toggle {
+    padding-right: 46px;
+}
+
+.ez-pw-toggle {
+    position: absolute;
+    right: 10px;
+    width: 32px;
+    height: 32px;
+    border: 0;
+    background: transparent;
+    color: #555555;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.ez-pw-toggle:hover {
+    color: #1a1a1a;
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.ez-pw-toggle svg {
+    width: 18px;
+    height: 18px;
+}
+
+.ez-sign-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 18px 0 26px;
+}
+
+/* Custom iOS-style Toggle Switch */
+.ez-switch {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+}
+
+.ez-switch input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.ez-switch-track {
+    position: relative;
+    width: 38px;
+    height: 20px;
+    background: #f2f2f2;
+    border: 1px solid #e0e0e0;
+    border-radius: 999px;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    flex-shrink: 0;
+}
+
+.ez-switch-track::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 14px;
+    height: 14px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+    transition: transform 0.2s ease;
+}
+
+.ez-switch input:checked + .ez-switch-track {
+    background: #1a73e8;
+    border-color: #1a73e8;
+}
+
+.ez-switch input:checked + .ez-switch-track::after {
+    transform: translateX(18px);
+}
+
+.ez-switch input:focus-visible + .ez-switch-track {
+    box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+}
+
+.ez-switch-text {
+    font-size: 12.5px;
+    color: #262626;
+}
+
+.ez-sign-forgot {
+    font-size: 12.5px;
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.ez-sign-forgot:hover {
+    color: #1558b0;
+    text-decoration: underline;
+}
+
+.ez-sign-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 44px;
+    border: 0;
+    border-radius: 7px;
+    background: #007aff;
+    color: #ffffff;
+    font-size: 14.5px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.ez-sign-submit:hover {
+    background: #0063d1;
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.ez-sign-hr {
+    height: 1px;
+    background: #e5e5e5;
+    border: 0;
+    margin: 28px 0;
+}
+
+.ez-sign-google {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    height: 44px;
+    padding: 0 16px;
+    background: #333333;
+    color: #ffffff;
+    border: 0;
+    border-radius: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.ez-sign-google:hover {
+    background: #1f1f1f;
+    color: #ffffff;
+}
+
+.ez-sign-prompt {
+    text-align: center;
+    font-size: 12.5px;
+    color: #262626;
+    margin-top: 22px;
+}
+
+.ez-sign-prompt a {
+    color: #007aff;
+    font-weight: 500;
+    text-decoration: none;
+    margin-left: 4px;
+}
+
+.ez-sign-prompt a:hover {
+    text-decoration: underline;
+}
+
+.ez-sign-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 28px;
+    font-size: 12px;
+    color: #737373;
+}
+
+.ez-sign-footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #007aff;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.ez-sign-footer-brand img {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.ez-sign-footer-brand:hover {
+    text-decoration: underline;
+}
+
+/* Tablet Adaptive (768px - 1023px): Keeps 2-column split exactly like mockup */
+@media (min-width: 768px) and (max-width: 1023.98px) {
+    .ez-sign-panel {
+        width: 392px;
+        padding: 36px 32px;
+    }
+    .ez-sign-photo-caption {
+        left: 24px;
+        bottom: 20px;
+    }
+}
+
+/* Mobile Adaptive (< 768px): Clean single column with compact city header */
+@media (max-width: 767.98px) {
+    .ez-sign-layout {
+        flex-direction: column;
+    }
+    .ez-sign-photo {
+        flex: none;
+        height: 180px;
+        width: 100%;
+    }
+    .ez-sign-photo-caption {
+        left: 20px;
+        bottom: 14px;
+    }
+    .ez-sign-panel {
+        width: 100%;
+        min-height: calc(100dvh - 180px);
+        padding: 28px 22px;
+    }
+    .ez-sign-brand {
+        margin-bottom: 24px;
+    }
+}
+
+
+/* ==========================================================================
+   MODERN EDITORIAL HOME PAGE (.ez-home-*) — Safe Additive Namespace
+   ========================================================================== */
+.ez-home-page {
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    padding-bottom: 20px;
+}
+
+.ez-home-hero-shell {
+    position: relative;
+}
+
+.ez-home-hero {
+    position: relative;
+    border-radius: 24px;
+    overflow: hidden;
+    min-height: 304px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #efe7db;
+    border: 1px solid rgba(214, 203, 188, 0.72);
+    box-shadow: 0 14px 36px rgba(24, 34, 48, 0.07);
+}
+
+.ez-home-hero-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 58%;
+}
+
+.ez-home-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 44%, rgba(252, 248, 242, 0.88) 0%, rgba(244, 235, 222, 0.74) 56%, rgba(235, 223, 206, 0.52) 100%);
+    backdrop-filter: blur(1.5px);
+    -webkit-backdrop-filter: blur(1.5px);
+}
+
+.ez-home-hero-center {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 46px 28px;
+    text-align: center;
+}
+
+.ez-home-hero-title {
+    font-size: clamp(1.75rem, 2.85vw, 2.35rem);
+    font-weight: 800;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    color: #182230;
+    margin: 0 0 8px;
+}
+
+.ez-home-hero-lead {
+    font-size: 14.5px;
+    font-weight: 500;
+    line-height: 1.55;
+    color: #475467;
+    margin: 0 auto 26px;
+}
+
+/* Single-Row Rounded Capsule Pill Search Bar */
+.ez-home-pill-bar {
+    display: flex;
+    align-items: center;
+    max-width: 750px;
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    border-radius: 999px;
+    padding: 6px 6px 6px 18px;
+    gap: 4px;
+    box-shadow: 0 14px 34px rgba(24, 34, 48, 0.12);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.ez-home-pill-bar:focus-within {
+    border-color: #93c5fd;
+    box-shadow: 0 16px 38px rgba(0, 122, 255, 0.16);
+}
+
+.ez-home-pill-input-wrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding-right: 8px;
+}
+
+.ez-home-pill-input-wrap svg {
+    width: 17px;
+    height: 17px;
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+
+.ez-home-pill-input {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    height: 38px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: #1e293b;
+    outline: none;
+}
+
+.ez-home-pill-input::placeholder {
+    color: #7c8ba1;
+    font-weight: 400;
+}
+
+.ez-home-pill-sep {
+    width: 1px;
+    height: 24px;
+    background: #e5e9f0;
+    flex-shrink: 0;
+}
+
+.ez-home-pill-select-wrap {
+    flex-shrink: 0;
+    padding: 0 6px;
+}
+
+.ez-home-pill-select {
+    border: 0;
+    background: transparent;
+    height: 38px;
+    padding: 0 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #344054;
+    outline: none;
+    cursor: pointer;
+}
+
+.ez-home-pill-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 24px;
+    border: 0;
+    border-radius: 999px;
+    background: #182230;
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background-color 0.18s ease, transform 0.14s ease;
+}
+
+.ez-home-pill-submit:hover {
+    background: #007aff;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* Quick Category Pills */
+.ez-home-cat-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+    padding: 0 4px;
+}
+
+.ez-home-cat-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #dfe6ef;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.16s ease;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+
+.ez-home-cat-pill svg {
+    width: 15px;
+    height: 15px;
+    color: #64748b;
+    transition: color 0.16s ease;
+}
+
+.ez-home-cat-pill:hover {
+    border-color: #007aff;
+    color: #007aff;
+    transform: translateY(-1px);
+}
+
+.ez-home-cat-pill:hover svg {
+    color: #007aff;
+}
+
+.ez-home-cat-pill.is-active {
+    background: #162436;
+    border-color: #162436;
+    color: #ffffff;
+}
+
+.ez-home-cat-pill.is-active svg {
+    color: #93c5fd;
+}
+
+.ez-home-cat-count {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-home-cat-pill.is-active .ez-home-cat-count {
+    background: rgba(255, 255, 255, 0.16);
+    color: #e2e8f0;
+}
+
+/* Section Headers */
+.ez-home-section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.ez-home-kicker {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #007aff;
+    margin: 0 0 4px;
+}
+
+.ez-home-heading {
+    font-size: 1.5rem;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    color: #162334;
+    margin: 0;
+}
+
+.ez-home-subhead {
+    font-size: 13.5px;
+    color: #64748b;
+    margin: 4px 0 0;
+}
+
+.ez-home-more-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1d5d9b;
+    text-decoration: none;
+    padding: 8px 15px;
+    border-radius: 999px;
+    background: #eaf2fb;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.ez-home-more-link:hover {
+    background: #d8e8fa;
+    color: #134475;
+}
+
+/* Balanced 4-Column Listing Grid */
+.ez-home-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.ez-home-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.ez-home-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 34px rgba(15, 23, 42, 0.09);
+    border-color: #cbd5e1;
+}
+
+.ez-home-card-media {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #eef2f7;
+    display: block;
+}
+
+.ez-home-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.38s ease;
+}
+
+.ez-home-card:hover .ez-home-card-media img {
+    transform: scale(1.05);
+}
+
+.ez-home-card-type {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 5px 10px;
+    border-radius: 8px;
+    background: rgba(15, 23, 42, 0.68);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.ez-home-card-status {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.94);
+    color: #15803d;
+    font-size: 11px;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.ez-home-card-status::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #22c55e;
+}
+
+.ez-home-card-body {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.ez-home-card-loc {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #64748b;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ez-home-card-loc svg {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    color: #94a3b8;
+}
+
+.ez-home-card-title {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.42;
+    margin: 0 0 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 42px;
+}
+
+.ez-home-card-title a {
+    color: #162334;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.ez-home-card-title a:hover {
+    color: #007aff;
+}
+
+.ez-home-specs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+}
+
+.ez-home-spec-chip {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #475569;
+    background: #f1f5f9;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-home-card-foot {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.ez-home-price {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.ez-home-price strong {
+    font-size: 18px;
+    font-weight: 800;
+    color: #007aff;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-home-price span {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.ez-home-arrow {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f1f5f9;
+    color: #334155;
+    display: inline-grid;
+    place-items: center;
+    text-decoration: none;
+    transition: all 0.16s ease;
+    flex-shrink: 0;
+}
+
+.ez-home-card:hover .ez-home-arrow {
+    background: #007aff;
+    color: #ffffff;
+}
+
+/* City Discovery Bento Cards */
+.ez-home-city-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.ez-home-city-card {
+    position: relative;
+    height: 176px;
+    border-radius: 18px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 18px;
+    text-decoration: none;
+    color: #ffffff;
+    background: #1e293b;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+}
+
+.ez-home-city-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 34px rgba(15, 23, 42, 0.14);
+    color: #ffffff;
+}
+
+.ez-home-city-card img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.ez-home-city-card:hover img {
+    transform: scale(1.06);
+}
+
+.ez-home-city-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.22) 0%, rgba(15, 23, 42, 0.84) 100%);
+}
+
+.ez-home-city-top,
+.ez-home-city-bottom {
+    position: relative;
+    z-index: 2;
+}
+
+.ez-home-city-count {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.20);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #ffffff;
+}
+
+.ez-home-city-bottom h3 {
+    font-size: 18px;
+    font-weight: 750;
+    color: #ffffff;
+    margin: 0 0 2px;
+}
+
+.ez-home-city-bottom p {
+    font-size: 12px;
+    color: rgba(241, 245, 249, 0.85);
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+/* 4-Step PropTech Value Bento */
+.ez-home-steps-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.ez-home-step-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+}
+
+.ez-home-step-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.ez-home-step-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #007aff;
+    display: inline-grid;
+    place-items: center;
+}
+
+.ez-home-step-icon svg {
+    width: 21px;
+    height: 21px;
+}
+
+.ez-home-step-num {
+    font-size: 12px;
+    font-weight: 800;
+    color: #94a3b8;
+    letter-spacing: 0.06em;
+}
+
+.ez-home-step-card h3 {
+    font-size: 15.5px;
+    font-weight: 700;
+    color: #162334;
+    margin: 0;
+}
+
+.ez-home-step-card p {
+    font-size: 13px;
+    line-height: 1.65;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Landlord Split-CTA Banner */
+.ez-home-cta-banner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.85fr);
+    border-radius: 22px;
+    overflow: hidden;
+    background: linear-gradient(125deg, #132235 0%, #1f3c5c 100%);
+    color: #ffffff;
+    box-shadow: 0 18px 40px rgba(18, 32, 50, 0.14);
+}
+
+.ez-home-cta-copy {
+    padding: 40px 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.ez-home-cta-kicker {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: #7dd3fc;
+    margin: 0 0 8px;
+}
+
+.ez-home-cta-copy h2 {
+    font-size: clamp(1.45rem, 2.3vw, 1.95rem);
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+    margin: 0 0 12px;
+    line-height: 1.25;
+}
+
+.ez-home-cta-copy p {
+    font-size: 14.5px;
+    line-height: 1.68;
+    color: rgba(226, 232, 240, 0.88);
+    margin: 0 0 24px;
+    max-width: 540px;
+}
+
+.ez-home-cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.ez-home-cta-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 22px;
+    border-radius: 12px;
+    background: #007aff;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.16s ease, transform 0.15s ease;
+}
+
+.ez-home-cta-primary:hover {
+    background: #0063d1;
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+.ez-home-cta-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.10);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.16s ease;
+}
+
+.ez-home-cta-secondary:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+
+.ez-home-cta-visual {
+    position: relative;
+    min-height: 250px;
+}
+
+.ez-home-cta-visual img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+@media (max-width: 991.98px) {
+    .ez-home-grid-4,
+    .ez-home-city-grid,
+    .ez-home-steps-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .ez-home-page {
+        gap: 36px;
+    }
+    .ez-home-hero-center {
+        padding: 32px 16px;
+    }
+    .ez-home-pill-bar {
+        flex-direction: column;
+        align-items: stretch;
+        border-radius: 18px;
+        padding: 12px;
+        gap: 8px;
+    }
+    .ez-home-pill-sep {
+        width: 100%;
+        height: 1px;
+    }
+    .ez-home-pill-select-wrap,
+    .ez-home-pill-select,
+    .ez-home-pill-submit {
+        width: 100%;
+    }
+    .ez-home-grid-4,
+    .ez-home-city-grid,
+    .ez-home-steps-grid,
+    .ez-home-cta-banner {
+        grid-template-columns: 1fr;
+    }
+    .ez-home-cta-copy {
+        padding: 28px 24px;
+    }
+    .ez-home-cta-visual {
+        height: 200px;
+    }
+}
+
+
+/* ================= TENANT HOME (UNIFIED CONCEPT 3 + PERSONAL WORKSPACE BENTO) ================= */
+.tenant-surface.home-page:has(.ez-home-page) {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 0 48px;
+    background: transparent;
+}
+
+/* Harmonize SVG & typography overrides inside .tenant-surface .ez-home-page */
+.tenant-surface .ez-home-pill-input-wrap svg {
+    width: 18px;
+    height: 18px;
+}
+
+.tenant-surface .ez-home-cat-pill svg,
+.tenant-surface .ez-home-arrow svg {
+    width: 15px;
+    height: 15px;
+}
+
+.tenant-surface .ez-home-card-loc svg {
+    width: 13px;
+    height: 13px;
+}
+
+.tenant-surface .ez-home-hero-title {
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+}
+
+.tenant-surface .ez-home-hero-lead {
+    margin: 0 0 22px;
+}
+
+.tenant-surface .ez-home-kicker {
+    margin: 0 0 4px;
+}
+
+.tenant-surface .ez-home-subhead {
+    margin: 4px 0 0;
+}
+
+.tenant-surface .ez-home-card-title {
+    margin: 0 0 12px;
+    letter-spacing: normal;
+}
+
+/* Date Badge on Tenant Hero */
+.ez-thome-date-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    margin-bottom: 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.86);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #334155;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+}
+
+.ez-thome-date-pill time {
+    text-transform: capitalize;
+}
+
+.ez-thome-date-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+}
+
+/* 4 Quick Shortcut Tiles */
+.ez-thome-quick-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.ez-thome-quick-card {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 15px 17px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    text-decoration: none;
+    color: #162334;
+    box-shadow: 0 3px 10px rgba(15, 23, 42, 0.03);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.ez-thome-quick-card:hover {
+    transform: translateY(-2px);
+    border-color: #bfdbfe;
+    box-shadow: 0 12px 24px rgba(15, 23, 42, 0.07);
+    color: #162334;
+}
+
+.ez-thome-quick-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.ez-thome-quick-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+}
+
+.ez-thome-quick-icon.is-blue {
+    background: #eff6ff;
+    color: #007aff;
+}
+
+.ez-thome-quick-icon.is-rose {
+    background: #fff1f2;
+    color: #e11d48;
+}
+
+.ez-thome-quick-icon.is-emerald {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.ez-thome-quick-icon.is-indigo {
+    background: #eef2ff;
+    color: #4f46e5;
+}
+
+.ez-thome-quick-copy {
+    flex: 1;
+    min-width: 0;
+}
+
+.ez-thome-quick-copy strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    color: #162334;
+    line-height: 1.35;
+}
+
+.ez-thome-quick-copy small {
+    display: block;
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ez-thome-quick-arrow {
+    font-size: 15px;
+    font-weight: 700;
+    color: #94a3b8;
+    transition: transform 0.16s ease, color 0.16s ease;
+}
+
+.ez-thome-quick-card:hover .ez-thome-quick-arrow {
+    color: #007aff;
+    transform: translateX(2px);
+}
+
+/* 3-Card Personal Bento Grid */
+.ez-thome-bento {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    align-items: stretch;
+}
+
+.ez-thome-panel {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.035);
+    min-width: 0;
+}
+
+.ez-thome-panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.ez-thome-panel-head h3 {
+    font-size: 15.5px;
+    font-weight: 750;
+    color: #162334;
+    margin: 0;
+    letter-spacing: -0.01em;
+    display: inline-flex;
+    align-items: center;
+}
+
+.ez-thome-head-link {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #007aff !important;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.ez-thome-head-link:hover {
+    text-decoration: underline !important;
+    text-underline-offset: 3px;
+}
+
+.ez-thome-panel .home-confirmed {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #15803d;
+    font-size: 11.5px;
+    font-weight: 700;
+}
+
+.ez-thome-panel .home-confirmed svg {
+    width: 14px !important;
+    height: 14px !important;
+}
+
+/* Confirmed Appointment Card */
+.ez-thome-visit-card {
+    background: linear-gradient(145deg, #f4f8fd 0%, #ebf3fc 100%);
+    border: 1px solid #dbeafe;
+    border-radius: 14px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 14px;
+    flex: 1;
+}
+
+.ez-thome-visit-top {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.ez-thome-date-badge {
+    width: 64px;
+    min-height: 82px;
+    border-radius: 12px;
+    background: linear-gradient(160deg, #007aff 0%, #1d5d9b 100%);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 4px;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 6px 14px rgba(0, 122, 255, 0.22);
+}
+
+.ez-thome-date-badge span {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.88);
+    text-transform: capitalize;
+}
+
+.ez-thome-date-badge strong {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.ez-thome-visit-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.ez-thome-visit-time {
+    font-size: 20px;
+    font-weight: 800;
+    color: #162334;
+    font-variant-numeric: tabular-nums;
+    margin: 0 0 4px !important;
+    line-height: 1.25;
+}
+
+.ez-thome-visit-time span {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.ez-thome-visit-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #162334;
+    margin: 0 0 5px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.ez-thome-visit-addr {
+    display: flex;
+    align-items: flex-start;
+    gap: 5px;
+    font-size: 12px;
+    color: #475569;
+    margin: 0 !important;
+    line-height: 1.45;
+}
+
+.ez-thome-visit-addr svg {
+    width: 14px !important;
+    height: 14px !important;
+    margin-top: 2px;
+    color: #64748b;
+}
+
+.ez-thome-visit-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(148, 163, 184, 0.24);
+}
+
+.ez-thome-visit-cal {
+    font-size: 12px;
+    font-weight: 600;
+    color: #475569;
+}
+
+.ez-thome-btn-soft {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    font-size: 12.5px;
+    font-weight: 650;
+    color: #162334 !important;
+    text-decoration: none;
+    transition: all 0.16s ease;
+}
+
+.ez-thome-btn-soft:hover {
+    background: #162436;
+    border-color: #162436;
+    color: #ffffff !important;
+}
+
+/* Saved Rooms Stack with Photo Thumbnails */
+.ez-thome-saved-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+.ez-thome-saved-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 13px;
+    border: 1px solid #eef2f6;
+    background: #f8fafc;
+    text-decoration: none;
+    color: #162334;
+    transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.ez-thome-saved-item:hover {
+    background: #f1f6fd;
+    border-color: #bfdbfe;
+    transform: translateY(-1px);
+}
+
+.ez-thome-saved-thumb {
+    width: 74px;
+    height: 60px;
+    border-radius: 9px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #e2e8f0;
+}
+
+.ez-thome-saved-fallback {
+    width: 74px;
+    height: 60px;
+    border-radius: 9px;
+    background: #eef2f6;
+    color: #64748b;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.ez-thome-saved-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.ez-thome-saved-info strong {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #162334;
+    line-height: 1.38;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ez-thome-saved-sub {
+    font-size: 11.5px;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ez-thome-saved-price {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: #007aff;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-thome-saved-price small {
+    font-size: 11px;
+    font-weight: 500;
+    color: #64748b;
+}
+
+/* Recent Notices inside Bento Panel */
+.ez-thome-notices-panel .home-notices {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ez-thome-notices-panel .home-notice {
+    padding: 11px 12px;
+    border-radius: 13px;
+    border: 1px solid #eef2f6;
+    background: #f8fafc;
+    gap: 11px;
+    transition: background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.ez-thome-notices-panel .home-notice.unread {
+    background: #f2f7ff;
+    border-color: #dbeafe;
+}
+
+.ez-thome-notices-panel .home-notice:hover {
+    background: #eef5ff;
+    border-color: #bfdbfe;
+}
+
+.ez-thome-notices-panel .home-notice-copy strong {
+    font-size: 13.5px;
+    line-height: 1.4;
+}
+
+.ez-thome-notices-panel .home-notice-copy > span {
+    font-size: 12.5px;
+    line-height: 1.5;
+    -webkit-line-clamp: 2;
+}
+
+.ez-thome-notices-panel .home-notice time {
+    font-size: 11px;
+}
+
+/* Empty State inside Bento Panel */
+.ez-thome-empty-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px dashed #dce4ee;
+}
+
+.ez-thome-empty-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    background: #eef2f7;
+    color: #64748b;
+    display: inline-grid;
+    place-items: center;
+}
+
+.ez-thome-empty-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+}
+
+.ez-thome-empty-text {
+    font-size: 13px;
+    line-height: 1.65;
+    color: #64748b;
+    margin: 0 !important;
+}
+
+.ez-thome-inline-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12.5px;
+    font-weight: 650;
+    color: #007aff !important;
+    text-decoration: none;
+    margin-top: 2px;
+}
+
+.ez-thome-inline-link:hover {
+    text-decoration: underline !important;
+    text-underline-offset: 3px;
+}
+
+/* Elevated Tenant Guides Bento Styling */
+.ez-thome-guides-wrap .home-news > .home-section-title h2 {
+    font-size: 1.5rem;
+    font-weight: 750;
+    color: #162334;
+}
+
+.ez-thome-guides-wrap .home-story {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.035);
+}
+
+.ez-thome-guides-wrap .home-story-stack {
+    gap: 16px;
+}
+
+.ez-thome-guides-wrap .home-story-stack .home-story + .home-story {
+    border-top: 1px solid #e2e8f0;
+    padding-top: 22px;
+}
+
+@media (max-width: 991.98px) {
+    .ez-thome-quick-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .ez-thome-bento {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .ez-thome-quick-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* ================= 3-ZONE SYMMETRICAL CENTERED HEADER ================= */
+#shared-header {
+    background: #ffffff;
+    border-bottom: 1px solid #edf1f6;
+}
+
+#shared-header .navbar {
+    min-height: 76px;
+    padding: 10px 0;
+    background: #ffffff !important;
+}
+
+#shared-header .navbar-container {
+    position: relative;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+#shared-header .ez-brand {
+    gap: 11px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+#shared-header .ez-brand-logo {
+    width: 43px;
+    height: 43px;
+    border-radius: 11px;
+}
+
+#shared-header .ez-brand-wordmark {
+    font-size: 23.5px;
+    letter-spacing: -0.025em;
+}
+
+@media (max-width: 575.98px) {
+    #shared-header .ez-brand-logo {
+        width: 39px;
+        height: 39px;
+        border-radius: 10px;
+    }
+    #shared-header .ez-brand-wordmark {
+        font-size: 21px;
+    }
+}
+
+#shared-header .ez-header-right {
+    justify-content: flex-end;
+    align-items: center;
+    gap: 24px;
+}
+
+#shared-header .ez-header-nav {
+    display: flex;
+    align-items: center;
+    gap: 26px;
+}
+
+@media (min-width: 992px) {
+    #shared-header .ez-header-nav {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        margin: 0;
+        z-index: 5;
+    }
+}
+
+#shared-header .ez-header-nav .nav-link {
+    padding: 8px 6px;
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #5b7087 !important;
+    text-decoration: none !important;
+    letter-spacing: -0.01em;
+    position: relative;
+    white-space: nowrap;
+    transition: color 0.16s ease;
+}
+
+#shared-header .ez-header-nav .nav-link:hover {
+    color: #1e3a56 !important;
+    text-decoration: none !important;
+}
+
+#shared-header .ez-header-nav .nav-link.active,
+#shared-header .ez-header-nav .nav-link[aria-current="page"] {
+    color: #162a3f !important;
+    font-weight: 700;
+}
+
+#shared-header .ez-header-nav .nav-link[aria-current="page"]::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    right: 6px;
+    bottom: 3px;
+    height: 2px;
+    border-radius: 999px;
+    background: #3b638c;
+}
+
+.ez-header-tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.ez-account-icon-btn {
+    position: relative;
+}
+
+.ez-account-icon-btn.is-active,
+.ez-account-icon-btn[aria-current="page"] {
+    background: #dbeafe;
+    border-color: #3b82f6;
+    color: #1d4ed8;
+}
+
+/* User Header Dropdown */
+.ez-user-dropdown {
+    position: relative;
+}
+
+.ez-user-dropdown .ez-account-icon-btn::after {
+    display: none !important;
+}
+
+.ez-user-dropdown-menu {
+    min-width: 230px;
+    padding: 8px;
+    margin-top: 10px !important;
+    border-radius: 16px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.04);
+}
+
+.ez-user-dropdown-header {
+    padding: 8px 12px 10px;
+}
+
+.ez-user-dropdown-name {
+    font-size: 14px;
+    font-weight: 750;
+    color: #162334;
+    line-height: 1.3;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ez-user-dropdown-role {
+    display: inline-block;
+    margin-top: 4px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #007aff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.ez-user-dropdown-menu .dropdown-divider {
+    margin: 6px 0;
+    border-color: #f1f5f9;
+}
+
+.ez-user-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 650;
+    color: #334155;
+    transition: all 0.15s ease;
+}
+
+.ez-user-dropdown-item svg {
+    color: #64748b;
+    flex-shrink: 0;
+    transition: color 0.15s ease;
+}
+
+.ez-user-dropdown-item:hover,
+.ez-user-dropdown-item:focus {
+    background: #f1f5f9;
+    color: #007aff;
+}
+
+.ez-user-dropdown-item:hover svg,
+.ez-user-dropdown-item:focus svg {
+    color: #007aff;
+}
+
+.ez-user-dropdown-item.active {
+    background: #eff6ff;
+    color: #007aff;
+}
+
+.ez-user-dropdown-item.active svg {
+    color: #007aff;
+}
+
+.ez-user-logout-item {
+    color: #e11d48 !important;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    text-align: left;
+}
+
+.ez-user-logout-item svg {
+    color: #e11d48 !important;
+}
+
+.ez-user-logout-item:hover,
+.ez-user-logout-item:focus {
+    background: #fff1f2 !important;
+    color: #be123c !important;
+}
+
+.ez-user-logout-item:hover svg,
+.ez-user-logout-item:focus svg {
+    color: #be123c !important;
+}
+
+.ez-header-bell-badge {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #007aff;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-header-signin-link {
+    font-size: 14.5px;
+    font-weight: 500;
+    color: #5b7087;
+    text-decoration: none;
+    padding: 8px 10px;
+    transition: color 0.16s ease;
+}
+
+.ez-header-signin-link:hover {
+    color: #1e3a56;
+    text-decoration: none;
+}
+
+.ez-header-pill-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 9px 22px;
+    border-radius: 999px;
+    background: #46607a;
+    color: #ffffff !important;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: background-color 0.18s ease, transform 0.14s ease, box-shadow 0.18s ease;
+    box-shadow: 0 3px 10px rgba(52, 76, 100, 0.14);
+}
+
+.ez-header-pill-cta.ez-header-pill-sm {
+    padding: 7px 16px;
+    font-size: 13px;
+}
+
+.ez-header-pill-cta:hover {
+    background: #344b63;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(52, 76, 100, 0.2);
+}
+
+@media (max-width: 991.98px) {
+    #shared-header .ez-header-right {
+        padding-top: 14px;
+        padding-bottom: 8px;
+        align-items: stretch;
+    }
+    #shared-header .ez-header-nav {
+        align-items: flex-start;
+        gap: 4px;
+        margin-left: 0;
+        margin-bottom: 12px;
+    }
+    #shared-header .ez-header-nav .nav-link[aria-current="page"]::after {
+        display: none;
+    }
+    .ez-header-tools {
+        padding-top: 10px;
+        border-top: 1px solid #edf1f6;
+    }
+}
+
+/* ================= CONTEXTUAL SUB-NAVIGATION FOR TENANT PAGES ================= */
+.ez-discovery-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.ez-discovery-head > div > p:last-child {
+    color: var(--muted, #697586);
+    margin: 0;
+    font-size: 14px;
+}
+
+.ez-context-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 16px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #d7e2ee;
+    color: #2c527a !important;
+    font-size: 13px;
+    font-weight: 650;
+    text-decoration: none !important;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    transition: all 0.16s ease;
+}
+
+.ez-context-pill-btn svg {
+    width: 16px !important;
+    height: 16px !important;
+    color: #356797;
+}
+
+.ez-context-pill-btn:hover {
+    background: #eef5fc;
+    border-color: #9dc0e3;
+    color: #1b3d61 !important;
+    transform: translateY(-1px);
+}
+
+.ez-account-tabs {
+    flex-wrap: wrap;
+    row-gap: 10px;
+}
+
+.ez-account-tabs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.ez-tab-badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #356797;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+
+/* ==========================================================================
+   ROOM DISCOVERY, FAVORITES & ROOM DETAIL SUITE (.ez-discover-*, .ez-detail-*)
+   ========================================================================== */
+
+.tenant-surface.discovery-main:has(.ez-discover-shell),
+.tenant-surface.discovery-main:has(.ez-detail-shell) {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 0 56px;
+    background: transparent;
+}
+
+.ez-discover-shell,
+.ez-detail-shell {
+    padding-top: 6px;
+    padding-bottom: 24px;
+}
+
+.ez-discover-shell .ez-discover-title {
+    font-size: clamp(1.65rem, 2.4vw, 2.05rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: #162334;
+    line-height: 1.2;
+    margin: 4px 0 6px;
+}
+
+/* Capsule Pill Search Dock + Collapsible Filter Drawer */
+.ez-discover-shell .ez-discover-search-card {
+    background: #ffffff;
+    border: 1px solid #dfe7f0;
+    border-radius: 22px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+}
+
+.ez-discover-shell .ez-discover-pill-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 999px;
+    padding: 5px 5px 5px 16px;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background-color 0.18s ease;
+}
+
+.ez-discover-shell .ez-discover-pill-row:focus-within {
+    background: #ffffff;
+    border-color: #93c5fd;
+    box-shadow: 0 8px 24px rgba(0, 122, 255, 0.10);
+}
+
+.ez-discover-shell .ez-discover-input-wrap {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.ez-discover-shell .ez-discover-input-wrap svg {
+    width: 17px !important;
+    height: 17px !important;
+    color: #64748b;
+    flex-shrink: 0;
+}
+
+.ez-discover-shell .ez-discover-input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    background: transparent;
+    height: 40px;
+    padding: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #162334;
+    outline: none;
+}
+
+.ez-discover-shell .ez-discover-input::placeholder {
+    color: #7c8ba1;
+    font-weight: 400;
+}
+
+.ez-discover-shell .ez-discover-sep {
+    width: 1px;
+    height: 24px;
+    background: #dce4ee;
+    flex-shrink: 0;
+}
+
+.ez-discover-shell .ez-discover-select-wrap {
+    flex-shrink: 0;
+    padding: 0 4px;
+}
+
+.ez-discover-shell .ez-discover-select {
+    border: 0;
+    background: transparent;
+    height: 40px;
+    padding: 0 8px;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #2c3e50;
+    outline: none;
+    cursor: pointer;
+}
+
+.ez-discover-shell .ez-discover-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    padding: 0 24px;
+    border: 0;
+    border-radius: 999px;
+    background: #182230;
+    color: #ffffff !important;
+    font-size: 13.5px;
+    font-weight: 650;
+    text-decoration: none !important;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background-color 0.18s ease, transform 0.14s ease;
+}
+
+.ez-discover-shell .ez-discover-submit:hover {
+    background: #007aff;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+/* Collapsible Filter Drawer */
+.ez-discover-shell .ez-discover-drawer {
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px solid #edf2f7;
+}
+
+.ez-discover-shell .ez-discover-drawer-toggle {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 6px;
+    cursor: pointer;
+    user-select: none;
+    color: #334155;
+    font-size: 13.5px;
+    font-weight: 650;
+}
+
+.ez-discover-shell .ez-discover-drawer-toggle::-webkit-details-marker {
+    display: none;
+}
+
+.ez-discover-shell .ez-discover-drawer-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transform: none !important;
+}
+
+.ez-discover-shell .ez-discover-drawer-label svg {
+    width: 16px !important;
+    height: 16px !important;
+    color: #007aff;
+    flex-shrink: 0;
+}
+
+.ez-discover-shell .ez-discover-count-badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 21px;
+    height: 21px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #007aff;
+    font-size: 11.5px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-discover-shell .ez-discover-drawer-chevron {
+    font-size: 14px;
+    color: #64748b;
+    transition: transform 0.18s ease;
+    transform: none;
+}
+
+.ez-discover-shell .ez-discover-drawer[open] .ez-discover-drawer-toggle .ez-discover-drawer-chevron {
+    transform: rotate(180deg);
+}
+
+.ez-discover-shell .ez-discover-filter-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 14px;
+}
+
+.ez-discover-shell .ez-discover-filter-grid.ez-discover-filter-grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.ez-discover-shell .ez-discover-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+    margin: 0;
+}
+
+.ez-discover-shell .ez-discover-field > span {
+    font-size: 12px;
+    font-weight: 650;
+    color: #475569;
+}
+
+.ez-discover-shell .ez-discover-field input,
+.ez-discover-shell .ez-discover-field select {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid #d8e2ee;
+    border-radius: 11px;
+    background: #ffffff;
+    font-size: 13.5px;
+    color: #162334;
+    transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.ez-discover-shell .ez-discover-field input:focus,
+.ez-discover-shell .ez-discover-field select:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.10);
+    outline: none;
+}
+
+.ez-discover-shell .ez-discover-field input[aria-invalid="true"] {
+    border-color: #dc2626;
+    background: #fff5f5;
+}
+
+/* Amenity Filter Check-Pills */
+.ez-discover-shell .ez-discover-amenities-box {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed #e2e8f0;
+}
+
+.ez-discover-shell .ez-discover-amenities-title {
+    display: block;
+    font-size: 12px;
+    font-weight: 650;
+    color: #475569;
+    margin-bottom: 10px;
+}
+
+.ez-discover-shell .ez-discover-amenity-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ez-discover-shell .ez-discover-amenity-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    background: #f8fafc;
+    border: 1px solid #dbe4ef;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #334155;
+    cursor: pointer;
+    user-select: none;
+    margin: 0;
+    transition: all 0.15s ease;
+}
+
+.ez-discover-shell .ez-discover-amenity-pill input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    accent-color: #007aff;
+}
+
+.ez-discover-shell .ez-discover-amenity-pill:hover {
+    border-color: #93c5fd;
+    background: #f0f7ff;
+}
+
+.ez-discover-shell .ez-discover-amenity-pill:has(input:checked) {
+    background: #eff6ff;
+    border-color: #3b82f6;
+    color: #1d4ed8;
+}
+
+.ez-discover-shell .ez-discover-drawer-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #edf2f7;
+}
+
+.ez-discover-shell .ez-discover-reset-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 999px;
+    border: 1px solid #d8e2ee;
+    background: #ffffff;
+    color: #475569 !important;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: all 0.16s ease;
+}
+
+.ez-discover-shell .ez-discover-reset-btn:hover {
+    background: #f1f5f9;
+    color: #162334 !important;
+}
+
+.ez-discover-shell .ez-discover-apply-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    padding: 0 20px;
+    border-radius: 999px;
+    border: 0;
+    background: #007aff;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: background-color 0.16s ease, transform 0.14s ease;
+}
+
+.ez-discover-shell .ez-discover-apply-btn:hover {
+    background: #0062cc;
+    transform: translateY(-1px);
+}
+
+/* Personalized Recommendations Strip */
+.ez-discover-shell .ez-discover-recs {
+    margin-bottom: 28px;
+}
+
+.ez-discover-shell .ez-discover-rec-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.ez-discover-shell .ez-discover-rec-card {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 11px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    text-decoration: none !important;
+    color: #162334;
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.03);
+    transition: transform 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+}
+
+.ez-discover-shell .ez-discover-rec-card:hover {
+    transform: translateY(-2px);
+    border-color: #93c5fd;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+}
+
+.ez-discover-shell .ez-discover-rec-card img {
+    width: 84px;
+    height: 68px;
+    border-radius: 11px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #eef2f7;
+}
+
+.ez-discover-shell .ez-discover-rec-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.ez-discover-shell .ez-discover-rec-info strong {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #162334;
+    line-height: 1.38;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.ez-discover-shell .ez-discover-rec-price {
+    font-size: 12.5px;
+    font-weight: 750;
+    color: #007aff;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-discover-shell .ez-discover-rec-saved {
+    font-size: 11px;
+    font-weight: 650;
+    color: #e11d48;
+}
+
+/* Active Filter Chips */
+.ez-discover-shell .ez-active-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin: 0 0 20px;
+}
+
+.ez-discover-shell .ez-chip-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 13px;
+    min-height: 34px;
+    border-radius: 999px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    color: #1d4ed8 !important;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: background-color 0.15s ease;
+}
+
+.ez-discover-shell .ez-chip-pill:hover {
+    background: #dbeafe;
+}
+
+.ez-discover-shell .ez-discover-total {
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: #64748b;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Enforce 4-Column Grid on Tenant Discovery & Favorites (beats tenant-discovery.css) */
+.ez-discover-shell .rental-grid.ez-home-grid-4 {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.ez-discover-shell .ez-discover-card {
+    border-radius: 18px;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+}
+
+.ez-discover-shell .ez-discover-media-link {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.ez-discover-shell .ez-discover-status-bottom {
+    top: auto;
+    right: auto;
+    bottom: 11px;
+    left: 12px;
+}
+
+.ez-discover-shell .ez-card-fav-form {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 3;
+    margin: 0;
+}
+
+.ez-discover-shell .ez-card-fav-btn {
+    width: auto;
+    min-width: 36px;
+    height: 36px;
+    padding: 0 9px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.96);
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.14);
+    color: #334155;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    transition: transform 0.16s ease, background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ez-discover-shell .ez-card-fav-btn .ez-heart-icon,
+.ez-detail-shell .ez-detail-btn-fav .ez-heart-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.ez-discover-shell .ez-card-fav-btn .ez-heart-icon svg {
+    width: 18px !important;
+    height: 18px !important;
+    fill: rgba(15, 23, 42, 0.06);
+    stroke: #334155;
+    transition: fill 0.18s ease, stroke 0.18s ease, transform 0.18s ease;
+}
+
+.ez-discover-shell .ez-card-fav-btn:hover {
+    transform: scale(1.05);
+    background: #ffffff;
+    color: #ff385c;
+}
+
+.ez-discover-shell .ez-card-fav-btn:hover .ez-heart-icon svg {
+    stroke: #ff385c;
+    fill: rgba(255, 56, 92, 0.12);
+}
+
+.ez-discover-shell .ez-card-fav-btn.is-saved {
+    background: #fff0f3;
+    border-color: #fda4af;
+    color: #ff385c;
+    box-shadow: 0 4px 14px rgba(255, 56, 92, 0.22);
+}
+
+.ez-discover-shell .ez-card-fav-btn.is-saved .ez-heart-icon svg {
+    fill: #ff385c;
+    stroke: #ff385c;
+}
+
+/* Inline Sliding Micro-Status Pill right inside the Heart Button */
+.ez-discover-shell .ez-card-fav-status {
+    max-width: 0;
+    opacity: 0;
+    margin-left: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    transition: max-width 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.2s ease, margin-left 0.24s ease, padding-right 0.24s ease;
+}
+
+.ez-discover-shell .ez-card-fav-btn.is-feedback .ez-card-fav-status {
+    max-width: 86px;
+    opacity: 1;
+    margin-left: 6px;
+    padding-right: 3px;
+}
+
+.ez-discover-shell .ez-card-fav-btn.is-saved.is-feedback {
+    background: #ff385c;
+    border-color: #ff385c;
+    color: #ffffff;
+    box-shadow: 0 6px 18px rgba(255, 56, 92, 0.36);
+}
+
+.ez-discover-shell .ez-card-fav-btn.is-saved.is-feedback .ez-heart-icon svg {
+    fill: #ffffff;
+    stroke: #ffffff;
+}
+
+.ez-discover-shell .ez-card-fav-btn:not(.is-saved).is-feedback {
+    background: rgba(24, 34, 48, 0.90);
+    border-color: rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.26);
+}
+
+.ez-discover-shell .ez-card-fav-btn:not(.is-saved).is-feedback .ez-heart-icon svg {
+    fill: transparent;
+    stroke: #ffffff;
+}
+
+@keyframes ezHeartPop {
+    0% { transform: scale(1); }
+    45% { transform: scale(1.24); }
+    100% { transform: scale(1); }
+}
+
+.ez-discover-shell .ez-card-fav-btn.is-toggled .ez-heart-icon,
+.ez-detail-shell .ez-detail-btn-fav.is-toggled .ez-heart-icon {
+    animation: ezHeartPop 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ez-discover-shell .ez-discover-unavail-note {
+    font-size: 13px;
+    color: #64748b;
+    margin: 4px 0 0;
+}
+
+/* Discovery Empty State */
+.ez-discover-shell .ez-discover-empty {
+    text-align: center;
+    padding: 52px 24px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    margin: 12px 0 24px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+}
+
+.ez-discover-shell .ez-discover-empty-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: #eff6ff;
+    color: #007aff;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 16px;
+}
+
+.ez-discover-shell .ez-discover-empty-icon svg {
+    width: 26px !important;
+    height: 26px !important;
+}
+
+.ez-discover-shell .ez-discover-empty h3 {
+    font-size: 1.25rem;
+    font-weight: 750;
+    color: #162334;
+    margin: 0 0 8px;
+}
+
+.ez-discover-shell .ez-discover-empty p {
+    font-size: 14px;
+    color: #64748b;
+    max-width: 440px;
+    margin: 0 auto 20px;
+    line-height: 1.6;
+}
+
+
+/* ==========================================================================
+   ROOM DETAIL SHOWCASE (.ez-detail-*) — Public & Tenant Unified Layout
+   ========================================================================== */
+
+.ez-detail-shell .ez-detail-breadcrumb {
+    margin-bottom: 16px;
+}
+
+.ez-detail-shell .ez-detail-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #dfe7f0;
+    color: #2c527a !important;
+    font-size: 13px;
+    font-weight: 650;
+    text-decoration: none !important;
+    transition: all 0.16s ease;
+}
+
+.ez-detail-shell .ez-detail-back:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1e3a5f !important;
+}
+
+/* Bento Photo Gallery Showcase */
+.ez-detail-shell .ez-detail-gallery {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    height: 430px;
+}
+
+.ez-detail-shell .ez-detail-gallery.has-grid {
+    grid-template-columns: minmax(0, 1.68fr) minmax(0, 0.85fr);
+}
+
+.ez-detail-shell .ez-detail-gallery-main {
+    position: relative;
+    height: 100%;
+    min-height: 0;
+    border-radius: 22px;
+    overflow: hidden;
+    background: #eef2f7;
+    border: 1px solid #e2e8f0;
+}
+
+.ez-detail-shell .ez-detail-gallery-main img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.ez-detail-shell .ez-detail-badge-type {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    padding: 6px 13px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 650;
+}
+
+.ez-detail-shell .ez-detail-badge-status {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 13px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.94);
+    color: #15803d;
+    font-size: 12px;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.12);
+}
+
+.ez-detail-shell .ez-detail-badge-status::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+}
+
+.ez-detail-shell .ez-detail-gallery-side {
+    display: grid;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    height: 100%;
+    min-height: 0;
+}
+
+.ez-detail-shell .ez-detail-side-photo {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 18px;
+    overflow: hidden;
+    background: #eef2f7;
+    cursor: pointer;
+}
+
+.ez-detail-shell .ez-detail-side-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.34s ease;
+}
+
+.ez-detail-shell .ez-detail-side-photo:hover img {
+    transform: scale(1.04);
+}
+
+.ez-detail-shell .ez-detail-thumb-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 12px 2px 4px;
+}
+
+.ez-detail-shell .ez-detail-thumb {
+    flex: 0 0 88px;
+    width: 88px;
+    height: 62px;
+    padding: 0;
+    border-radius: 12px;
+    border: 2px solid transparent;
+    overflow: hidden;
+    background: #eef2f7;
+    opacity: 0.72;
+    cursor: pointer;
+    transition: opacity 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.ez-detail-shell .ez-detail-thumb:hover {
+    opacity: 0.95;
+    transform: translateY(-1px);
+}
+
+.ez-detail-shell .ez-detail-thumb.is-active,
+.ez-detail-shell .ez-detail-thumb[aria-pressed="true"] {
+    border-color: #007aff;
+    opacity: 1;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.20);
+}
+
+.ez-detail-shell .ez-detail-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* 2-Column Content + Sticky Booking Aside */
+.ez-detail-shell .ez-detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 28px;
+    align-items: start;
+    margin-top: 22px;
+}
+
+.ez-detail-shell .ez-detail-main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+.ez-detail-shell .ez-detail-header-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    padding: 26px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.035);
+}
+
+.ez-detail-shell .ez-detail-title {
+    font-size: clamp(1.48rem, 2.3vw, 1.92rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.28;
+    color: #162334;
+    margin: 6px 0 10px;
+}
+
+.ez-detail-shell .ez-detail-address {
+    display: flex;
+    align-items: flex-start;
+    gap: 7px;
+    font-size: 14px;
+    color: #526277;
+    margin: 0 0 22px;
+    line-height: 1.5;
+}
+
+.ez-detail-shell .ez-detail-address svg {
+    width: 16px !important;
+    height: 16px !important;
+    color: #007aff;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+/* 4-Tile Quick Specs Bento Strip */
+.ez-detail-shell .ez-detail-specs-strip {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.ez-detail-shell .ez-detail-spec-box {
+    padding: 13px 15px;
+    border-radius: 15px;
+    background: #f8fafc;
+    border: 1px solid #e5edf5;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.ez-detail-shell .ez-detail-spec-box.is-highlight {
+    background: linear-gradient(145deg, #eff6ff 0%, #e5f0ff 100%);
+    border-color: #bfdbfe;
+}
+
+.ez-detail-shell .ez-detail-spec-box > span {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.ez-detail-shell .ez-detail-spec-box > strong {
+    font-size: 15px;
+    font-weight: 800;
+    color: #162334;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.3;
+}
+
+.ez-detail-shell .ez-detail-spec-box.is-highlight > strong {
+    color: #007aff;
+}
+
+.ez-detail-shell .ez-detail-spec-box > strong small {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: #64748b;
+    margin-left: 2px;
+}
+
+/* Detail Content Cards */
+.ez-detail-shell .ez-detail-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    padding: 24px 26px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+}
+
+.ez-detail-shell .ez-detail-card h2 {
+    font-size: 17.5px;
+    font-weight: 750;
+    letter-spacing: -0.015em;
+    color: #162334;
+    margin: 0 0 16px;
+}
+
+.ez-detail-shell .ez-detail-desc {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 14.5px;
+    line-height: 1.75;
+    color: #334155;
+    margin: 0;
+}
+
+.ez-detail-shell .ez-detail-muted {
+    font-size: 13.5px;
+    color: #64748b;
+    margin: 0;
+}
+
+.ez-detail-shell .ez-detail-amenity-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 11px;
+}
+
+.ez-detail-shell .ez-detail-amenity-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 13px;
+    background: #f8fafc;
+    border: 1px solid #edf2f7;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.ez-detail-shell .ez-detail-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #dcfce7;
+    color: #15803d;
+    font-size: 12px;
+    font-weight: 800;
+    display: inline-grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.ez-detail-shell .ez-detail-fee-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.ez-detail-shell .ez-detail-fee-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f1f5f9;
+    font-size: 14px;
+}
+
+.ez-detail-shell .ez-detail-fee-row:last-child {
+    border-bottom: 0;
+    padding-bottom: 4px;
+}
+
+.ez-detail-shell .ez-detail-fee-row > span {
+    color: #526277;
+}
+
+.ez-detail-shell .ez-detail-fee-row > strong {
+    color: #162334;
+    font-weight: 700;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-detail-shell .ez-detail-fee-note {
+    margin: 14px 0 0;
+    padding: 11px 14px;
+    border-radius: 12px;
+    background: #f8fafc;
+    border: 1px solid #edf2f7;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: #64748b;
+}
+
+/* Sticky Host & Booking Card */
+.ez-detail-shell .ez-detail-aside {
+    min-width: 0;
+}
+
+.ez-detail-shell .ez-detail-sticky-card {
+    position: sticky;
+    top: 96px;
+    background: #ffffff;
+    border: 1px solid #d9e4f0;
+    border-radius: 22px;
+    padding: 24px;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.075);
+}
+
+.ez-detail-shell .ez-detail-price-banner {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 18px;
+    margin-bottom: 18px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.ez-detail-shell .ez-detail-price-label {
+    display: block;
+    font-size: 11.5px;
+    font-weight: 650;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #64748b;
+    margin-bottom: 3px;
+}
+
+.ez-detail-shell .ez-detail-price-main {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.ez-detail-shell .ez-detail-price-main strong {
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: #007aff;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-detail-shell .ez-detail-price-main span {
+    font-size: 13px;
+    color: #64748b;
+}
+
+.ez-detail-shell .ez-detail-area-pill {
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 12.5px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.ez-detail-shell .ez-detail-host-row {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 12px 14px;
+    border-radius: 15px;
+    background: #f8fafc;
+    border: 1px solid #edf2f7;
+    margin-bottom: 18px;
+}
+
+.ez-detail-shell .ez-detail-host-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(145deg, #2b4c7e 0%, #46607a 100%);
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 750;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.ez-detail-shell .ez-detail-host-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ez-detail-shell .ez-detail-host-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.ez-detail-shell .ez-detail-host-info span {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    color: #64748b;
+}
+
+.ez-detail-shell .ez-detail-host-info strong {
+    font-size: 15px;
+    font-weight: 750;
+    color: #162334;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ez-detail-shell .ez-detail-cta-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ez-detail-shell .ez-detail-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 18px;
+    border-radius: 13px;
+    border: 0;
+    background: #007aff;
+    color: #ffffff !important;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none !important;
+    box-shadow: 0 8px 18px rgba(0, 122, 255, 0.22);
+    transition: background-color 0.16s ease, transform 0.14s ease;
+}
+
+.ez-detail-shell .ez-detail-btn-primary:hover {
+    background: #0063d1;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+.ez-detail-shell .ez-detail-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 45px;
+    padding: 10px 18px;
+    border-radius: 13px;
+    border: 1px solid #d5e0ec;
+    background: #ffffff;
+    color: #1e293b !important;
+    font-size: 13.5px;
+    font-weight: 650;
+    text-decoration: none !important;
+    transition: all 0.16s ease;
+}
+
+.ez-detail-shell .ez-detail-btn-outline:hover {
+    background: #f1f6fd;
+    border-color: #93c5fd;
+    color: #1d4ed8 !important;
+}
+
+.ez-detail-shell .ez-detail-fav-form {
+    margin: 0;
+}
+
+.ez-detail-shell .ez-detail-btn-fav {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 44px;
+    padding: 9px 16px;
+    border-radius: 13px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 13.5px;
+    font-weight: 650;
+    cursor: pointer;
+    transition: all 0.16s ease;
+}
+
+.ez-detail-shell .ez-detail-btn-fav .ez-heart-icon svg {
+    width: 17px !important;
+    height: 17px !important;
+    fill: transparent;
+    stroke: currentColor;
+    transition: fill 0.18s ease, stroke 0.18s ease;
+}
+
+.ez-detail-shell .ez-detail-btn-fav:hover {
+    background: #fff0f3;
+    border-color: #fda4af;
+    color: #ff385c;
+}
+
+.ez-detail-shell .ez-detail-btn-fav.is-saved {
+    background: #fff0f3;
+    border-color: #fda4af;
+    color: #ff385c;
+}
+
+.ez-detail-shell .ez-detail-btn-fav.is-saved .ez-heart-icon svg {
+    fill: #ff385c;
+    stroke: #ff385c;
+}
+
+.ez-detail-shell .ez-detail-trust-list {
+    margin: 18px 0 0;
+    padding: 16px 0 0 18px;
+    border-top: 1px solid #edf2f7;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: #64748b;
+}
+
+/* Responsive Breakpoints for Discovery & Detail Suite */
+@media (max-width: 991.98px) {
+    .ez-discover-shell .rental-grid.ez-home-grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .ez-discover-shell .ez-discover-filter-grid,
+    .ez-discover-shell .ez-discover-filter-grid.ez-discover-filter-grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .ez-discover-shell .ez-discover-rec-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .ez-detail-shell .ez-detail-layout {
+        grid-template-columns: 1fr;
+    }
+    .ez-detail-shell .ez-detail-sticky-card {
+        position: static;
+    }
+    .ez-detail-shell .ez-detail-specs-strip {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767.98px) {
+    .ez-discover-shell .ez-discover-pill-row {
+        flex-direction: column;
+        align-items: stretch;
+        border-radius: 18px;
+        padding: 12px;
+        gap: 8px;
+    }
+    .ez-discover-shell .ez-discover-sep {
+        width: 100%;
+        height: 1px;
+    }
+    .ez-discover-shell .ez-discover-select-wrap,
+    .ez-discover-shell .ez-discover-select,
+    .ez-discover-shell .ez-discover-submit {
+        width: 100%;
+    }
+    .ez-discover-shell .rental-grid.ez-home-grid-4,
+    .ez-discover-shell .ez-discover-filter-grid,
+    .ez-discover-shell .ez-discover-filter-grid.ez-discover-filter-grid-4,
+    .ez-discover-shell .ez-discover-rec-grid {
+        grid-template-columns: 1fr;
+    }
+    .ez-detail-shell .ez-detail-gallery,
+    .ez-detail-shell .ez-detail-gallery.has-grid {
+        grid-template-columns: 1fr;
+        height: auto;
+    }
+    .ez-detail-shell .ez-detail-gallery-main {
+        height: 270px;
+    }
+    .ez-detail-shell .ez-detail-gallery-side {
+        grid-template-rows: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        height: 120px;
+    }
+    .ez-detail-shell .ez-detail-amenity-grid,
+    .ez-detail-shell .ez-detail-specs-strip {
+        grid-template-columns: 1fr;
+    }
+    .ez-detail-shell .ez-detail-header-card,
+    .ez-detail-shell .ez-detail-card,
+    .ez-detail-shell .ez-detail-sticky-card {
+        padding: 20px 18px;
+    }
+}
+
+
+/* ==========================================================================
+   VIEWING BOOKING & APPOINTMENTS SUITE (.ez-booking-*, .ez-appt-*)
+   ========================================================================== */
+
+.tenant-surface.discovery-main:has(.ez-booking-shell),
+.tenant-surface.discovery-main:has(.ez-appt-shell) {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 28px 0 56px;
+    background: transparent;
+}
+
+.ez-booking-shell,
+.ez-appt-shell {
+    padding-top: 6px;
+    padding-bottom: 24px;
+}
+
+.ez-booking-shell .ez-discover-title,
+.ez-appt-shell .ez-discover-title {
+    font-size: clamp(1.65rem, 2.4vw, 2.05rem);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    color: #162334;
+    line-height: 1.22;
+    margin: 4px 0 6px;
+}
+
+.ez-booking-shell .ez-detail-back,
+.ez-appt-shell .ez-detail-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 1px solid #dfe7f0;
+    color: #2c527a !important;
+    font-size: 13px;
+    font-weight: 650;
+    text-decoration: none !important;
+    transition: all 0.16s ease;
+}
+
+.ez-booking-shell .ez-detail-back:hover,
+.ez-appt-shell .ez-detail-back:hover {
+    background: #eff6ff;
+    border-color: #93c5fd;
+    color: #1e3a5f !important;
+}
+
+.ez-appt-shell .ez-discover-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 24px;
+    border-radius: 999px;
+    background: #182230;
+    color: #ffffff !important;
+    font-size: 13.5px;
+    font-weight: 650;
+    text-decoration: none !important;
+    transition: background-color 0.18s ease, transform 0.14s ease;
+}
+
+.ez-appt-shell .ez-discover-submit:hover {
+    background: #007aff;
+    color: #ffffff !important;
+    transform: translateY(-1px);
+}
+
+/* Viewing Booking Layout & Cards */
+.ez-booking-shell .ez-booking-demo-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 16px;
+    border-radius: 14px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+    font-size: 13.5px;
+    font-weight: 500;
+    margin: 0 0 22px;
+}
+
+.ez-booking-shell .ez-booking-demo-banner svg {
+    width: 18px !important;
+    height: 18px !important;
+    flex-shrink: 0;
+    color: #d97706;
+}
+
+.ez-booking-shell .ez-booking-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 28px;
+    align-items: start;
+}
+
+.ez-booking-shell .ez-booking-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    padding: 26px 28px;
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.04);
+}
+
+.ez-booking-shell .ez-booking-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.ez-booking-shell .ez-booking-card-head h2,
+.ez-booking-shell .ez-booking-step-head h2 {
+    font-size: 18.5px;
+    font-weight: 750;
+    letter-spacing: -0.015em;
+    color: #162334;
+    margin: 0;
+}
+
+.ez-booking-shell .ez-booking-week-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ez-booking-shell .ez-booking-week-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid #d8e2ee;
+    background: #ffffff;
+    color: #1e293b !important;
+    font-size: 20px;
+    line-height: 1;
+    display: inline-grid;
+    place-items: center;
+    text-decoration: none !important;
+    transition: all 0.16s ease;
+}
+
+.ez-booking-shell .ez-booking-week-btn:hover:not(.is-disabled) {
+    background: #eff6ff;
+    border-color: #60a5fa;
+    color: #007aff !important;
+}
+
+.ez-booking-shell .ez-booking-week-btn.is-disabled {
+    opacity: 0.38;
+    cursor: default;
+}
+
+.ez-booking-shell .ez-booking-month-caption {
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: capitalize;
+    margin: 10px 0 14px;
+}
+
+/* 7-Day Bento Strip */
+.ez-booking-shell .ez-booking-days-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 9px;
+}
+
+.ez-booking-shell .ez-booking-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 94px;
+    padding: 12px 4px;
+    border-radius: 15px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #162334 !important;
+    text-decoration: none !important;
+    text-align: center;
+    transition: transform 0.16s ease, border-color 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.ez-booking-shell .ez-booking-day:hover {
+    border-color: #93c5fd;
+    background: #f0f7ff;
+    transform: translateY(-2px);
+}
+
+.ez-booking-shell .ez-booking-day > span {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.ez-booking-shell .ez-booking-day > strong {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.35;
+    color: #162334;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-booking-shell .ez-booking-day > small {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: #64748b;
+}
+
+.ez-booking-shell .ez-booking-day[aria-current="date"],
+.ez-booking-shell .ez-booking-day.is-selected {
+    background: linear-gradient(155deg, #007aff 0%, #1d5d9b 100%);
+    border-color: #007aff;
+    color: #ffffff !important;
+    box-shadow: 0 8px 18px rgba(0, 122, 255, 0.24);
+}
+
+.ez-booking-shell .ez-booking-day[aria-current="date"] > span,
+.ez-booking-shell .ez-booking-day[aria-current="date"] > strong,
+.ez-booking-shell .ez-booking-day[aria-current="date"] > small {
+    color: #ffffff;
+}
+
+.ez-booking-shell .ez-booking-divider {
+    height: 1px;
+    background: #edf2f7;
+    margin: 24px 0;
+}
+
+.ez-booking-shell .ez-booking-subnote {
+    font-size: 13px;
+    color: #64748b;
+    margin: 6px 0 16px;
+}
+
+/* Time Slots Grid */
+.ez-booking-shell .ez-booking-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+
+.ez-booking-shell .ez-booking-slot {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 68px;
+    padding: 10px 6px;
+    border-radius: 14px;
+    border: 1px solid #d5e0ec;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.16s ease;
+}
+
+.ez-booking-shell .ez-booking-slot:hover:not(.is-unavailable) {
+    border-color: #60a5fa;
+    background: #f5f9ff;
+}
+
+.ez-booking-shell .ez-booking-slot strong {
+    font-size: 16.5px;
+    font-weight: 800;
+    color: #162334;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-booking-shell .ez-booking-slot small {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.ez-booking-shell .ez-booking-slot:has(input:checked) {
+    background: #eff6ff;
+    border-color: #007aff;
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.18);
+}
+
+.ez-booking-shell .ez-booking-slot:has(input:checked) strong,
+.ez-booking-shell .ez-booking-slot:has(input:checked) small {
+    color: #007aff;
+}
+
+.ez-booking-shell .ez-booking-slot.is-unavailable,
+.ez-booking-shell .ez-booking-slot:has(input:disabled) {
+    background: #f8fafc;
+    border-color: #e9eef4;
+    cursor: default;
+}
+
+.ez-booking-shell .ez-booking-slot.is-unavailable strong,
+.ez-booking-shell .ez-booking-slot.is-unavailable small {
+    color: #94a3b8;
+}
+
+/* Empty Slots Box */
+.ez-booking-shell .ez-booking-empty-box {
+    text-align: center;
+    padding: 28px 22px;
+    border-radius: 18px;
+    background: #f8fafc;
+    border: 1px dashed #cbd5e1;
+}
+
+.ez-booking-shell .ez-booking-empty-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: #eff6ff;
+    color: #007aff;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 12px;
+}
+
+.ez-booking-shell .ez-booking-empty-icon svg {
+    width: 22px !important;
+    height: 22px !important;
+}
+
+.ez-booking-shell .ez-booking-empty-box h3 {
+    font-size: 16.5px;
+    font-weight: 750;
+    color: #162334;
+    margin: 0 0 6px;
+}
+
+.ez-booking-shell .ez-booking-empty-box p {
+    font-size: 13.5px;
+    color: #64748b;
+    max-width: 420px;
+    margin: 0 auto 16px;
+}
+
+/* Note & Policy */
+.ez-booking-shell .ez-booking-note-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.ez-booking-shell .ez-booking-note-label span {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #007aff;
+}
+
+.ez-booking-shell .ez-booking-note-label small {
+    font-size: 12px;
+    color: #64748b;
+}
+
+.ez-booking-shell .ez-booking-textarea {
+    width: 100%;
+    min-height: 102px;
+    padding: 13px 15px;
+    border-radius: 14px;
+    border: 1px solid #d5e0ec;
+    background: #f8fafc;
+    font-size: 14px;
+    line-height: 1.65;
+    color: #162334;
+    resize: vertical;
+    transition: border-color 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.ez-booking-shell .ez-booking-textarea:focus {
+    background: #ffffff;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.10);
+    outline: none;
+}
+
+.ez-booking-shell .ez-booking-char-count {
+    text-align: right;
+    font-size: 12px;
+    color: #64748b;
+    margin: 6px 0 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-booking-shell .ez-booking-policy-box {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 14px 16px;
+    border-radius: 15px;
+    background: #f8fafc;
+    border: 1px solid #e6edf5;
+}
+
+.ez-booking-shell .ez-booking-policy-box svg {
+    width: 19px !important;
+    height: 19px !important;
+    color: #007aff;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.ez-booking-shell .ez-booking-policy-box strong {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #162334;
+    margin-bottom: 3px;
+}
+
+.ez-booking-shell .ez-booking-policy-box p {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: #64748b;
+    margin: 0;
+}
+
+/* Sticky Aside Room Summary Card */
+.ez-booking-shell .ez-booking-aside-card,
+.ez-appt-shell .ez-appt-room-panel {
+    position: sticky;
+    top: 96px;
+    padding: 0;
+    overflow: hidden;
+    background: #ffffff;
+    border: 1px solid #d9e4f0;
+    border-radius: 22px;
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.075);
+}
+
+.ez-booking-shell .ez-booking-room-media,
+.ez-appt-shell .ez-appt-room-panel-media {
+    position: relative;
+    height: 184px;
+    background: #eef2f7;
+    overflow: hidden;
+}
+
+.ez-booking-shell .ez-booking-room-media img,
+.ez-appt-shell .ez-appt-room-panel-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 0;
+    margin: 0;
+}
+
+.ez-booking-shell .ez-booking-room-type,
+.ez-appt-shell .ez-booking-room-type {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-size: 11.5px;
+    font-weight: 650;
+}
+
+.ez-booking-shell .ez-booking-room-body,
+.ez-appt-shell .ez-appt-room-panel-body {
+    padding: 20px 22px 22px;
+}
+
+.ez-booking-shell .ez-booking-room-title,
+.ez-appt-shell .ez-booking-room-title {
+    font-size: 16.5px;
+    font-weight: 750;
+    line-height: 1.4;
+    color: #162334;
+    margin: 0 0 8px;
+}
+
+.ez-booking-shell .ez-booking-room-addr,
+.ez-appt-shell .ez-booking-room-addr {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 13px;
+    color: #64748b;
+    line-height: 1.5;
+    margin: 0 0 14px;
+}
+
+.ez-booking-shell .ez-booking-room-addr svg,
+.ez-appt-shell .ez-booking-room-addr svg {
+    width: 15px !important;
+    height: 15px !important;
+    color: #007aff;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.ez-booking-shell .ez-booking-price-row,
+.ez-appt-shell .ez-booking-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.ez-booking-shell .ez-booking-price-val strong,
+.ez-appt-shell .ez-booking-price-val strong {
+    font-size: 20px;
+    font-weight: 800;
+    color: #007aff;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-booking-shell .ez-booking-price-val span,
+.ez-appt-shell .ez-booking-price-val span {
+    font-size: 12.5px;
+    color: #64748b;
+}
+
+.ez-booking-shell .ez-booking-area-chip,
+.ez-appt-shell .ez-booking-area-chip {
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #334155;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.ez-booking-shell .ez-booking-host-strip {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid #edf2f7;
+    margin-bottom: 14px;
+}
+
+.ez-booking-shell .ez-booking-host-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(145deg, #2b4c7e 0%, #46607a 100%);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 750;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+}
+
+.ez-booking-shell .ez-booking-host-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ez-booking-shell .ez-booking-host-meta span {
+    display: block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #64748b;
+}
+
+.ez-booking-shell .ez-booking-host-meta strong {
+    display: block;
+    font-size: 13.5px;
+    font-weight: 750;
+    color: #162334;
+}
+
+.ez-booking-shell .ez-booking-selected-box {
+    padding: 13px 15px;
+    border-radius: 14px;
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    margin: 0 0 14px;
+}
+
+.ez-booking-shell .ez-booking-selected-kicker {
+    display: block;
+    font-size: 10px;
+    font-weight: 750;
+    letter-spacing: 0.07em;
+    color: #1d4ed8;
+    margin-bottom: 3px;
+}
+
+.ez-booking-shell .ez-booking-selected-box strong {
+    display: block;
+    font-size: 16.5px;
+    font-weight: 800;
+    color: #162334;
+}
+
+.ez-booking-shell .ez-booking-selected-box p {
+    font-size: 12.5px;
+    color: #475569;
+    margin: 2px 0 0;
+}
+
+.ez-booking-shell .ez-booking-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 46px;
+    padding: 10px 20px;
+    border-radius: 13px;
+    border: 0;
+    background: #007aff;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(0, 122, 255, 0.22);
+    transition: background-color 0.16s ease, transform 0.14s ease;
+}
+
+.ez-booking-shell .ez-booking-btn-primary.ez-booking-btn-inline {
+    width: auto;
+}
+
+.ez-booking-shell .ez-booking-btn-primary:hover:not(:disabled) {
+    background: #0062cc;
+    transform: translateY(-1px);
+}
+
+.ez-booking-shell .ez-booking-btn-primary:disabled {
+    background: #e2e8f0;
+    color: #64748b;
+    box-shadow: none;
+    cursor: default;
+}
+
+.ez-booking-shell .ez-booking-btn-secondary,
+.ez-appt-shell .ez-booking-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 9px 18px;
+    border-radius: 999px;
+    border: 1px solid #d5e0ec;
+    background: #ffffff;
+    color: #1e293b !important;
+    font-size: 13px;
+    font-weight: 650;
+    text-decoration: none !important;
+    transition: all 0.16s ease;
+}
+
+.ez-booking-shell .ez-booking-btn-secondary:hover,
+.ez-appt-shell .ez-booking-btn-secondary:hover {
+    background: #f1f6fd;
+    border-color: #93c5fd;
+    color: #1d4ed8 !important;
+}
+
+.ez-booking-shell .ez-booking-submit-note {
+    font-size: 12px;
+    color: #64748b;
+    text-align: center;
+    margin: 10px 0 14px;
+    line-height: 1.5;
+}
+
+.ez-booking-shell .ez-booking-aside-links {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding-top: 12px;
+    border-top: 1px solid #edf2f7;
+    font-size: 12.5px;
+    font-weight: 650;
+}
+
+.ez-booking-shell .ez-booking-aside-links a {
+    color: #2c527a !important;
+    text-decoration: none !important;
+}
+
+.ez-booking-shell .ez-booking-aside-links a:hover {
+    color: #007aff !important;
+}
+
+/* Preview Modal Dialog */
+.ez-booking-shell .ez-booking-dialog {
+    width: min(620px, calc(100% - 32px));
+    padding: 26px 28px;
+    border: 1px solid #dce5f0;
+    border-radius: 22px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+}
+
+.ez-booking-shell .ez-booking-dialog-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.ez-booking-shell .ez-booking-dialog-head h2 {
+    font-size: 20px;
+    font-weight: 800;
+    color: #162334;
+    margin: 0;
+}
+
+.ez-booking-shell .ez-booking-dialog-close {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 20px;
+    line-height: 1;
+    display: grid;
+    place-items: center;
+}
+
+.ez-booking-shell .ez-booking-dialog-dl > div {
+    display: grid;
+    grid-template-columns: 125px minmax(0, 1fr);
+    gap: 16px;
+    padding: 13px 0;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 14px;
+}
+
+
+/* ==========================================================================
+   MY APPOINTMENTS LIST, DETAIL & CANCEL (.ez-appt-*)
+   ========================================================================== */
+
+.ez-appt-shell .ez-appt-filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    overflow-x: auto;
+    padding: 0 0 12px;
+    margin-bottom: 14px;
+}
+
+.ez-appt-shell .ez-appt-filter-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding: 7px 15px;
+    border-radius: 999px;
+    border: 1px solid #dfe6ef;
+    background: #ffffff;
+    color: #334155 !important;
+    font-size: 13px;
+    font-weight: 650;
+    white-space: nowrap;
+    text-decoration: none !important;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+    transition: all 0.16s ease;
+}
+
+.ez-appt-shell .ez-appt-filter-pill:hover {
+    border-color: #93c5fd;
+    color: #007aff !important;
+}
+
+.ez-appt-shell .ez-appt-filter-pill span {
+    display: inline-grid;
+    place-items: center;
+    min-width: 22px;
+    height: 20px;
+    padding: 0 6px;
+    border-radius: 999px;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-appt-shell .ez-appt-filter-pill.selected {
+    background: #162436;
+    border-color: #162436;
+    color: #ffffff !important;
+}
+
+.ez-appt-shell .ez-appt-filter-pill.selected span {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+
+/* Appointment Cards 2-Column Grid */
+.ez-appt-shell .ez-appt-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.ez-appt-shell .ez-appt-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.035);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.ez-appt-shell .ez-appt-card:hover {
+    transform: translateY(-3px);
+    border-color: #cbd5e1;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.075);
+}
+
+.ez-appt-shell .ez-appt-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.ez-appt-shell .ez-appt-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.ez-appt-shell .ez-appt-badge.is-lg {
+    padding: 7px 15px;
+    font-size: 13px;
+}
+
+.ez-appt-shell .ez-appt-badge::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+.ez-appt-shell .ez-appt-badge.pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.ez-appt-shell .ez-appt-badge.confirmed {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.ez-appt-shell .ez-appt-badge.completed {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.ez-appt-shell .ez-appt-badge.rejected {
+    background: #ffe4e6;
+    color: #be123c;
+}
+
+.ez-appt-shell .ez-appt-badge.cancelled {
+    background: #f1f5f9;
+    color: #64748b;
+}
+
+.ez-appt-shell .ez-appt-id {
+    font-size: 12px;
+    font-weight: 600;
+    color: #94a3b8;
+    font-variant-numeric: tabular-nums;
+}
+
+/* Room Thumbnail + Title Row */
+.ez-appt-shell .ez-appt-room-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.ez-appt-shell .ez-appt-thumb {
+    width: 96px;
+    height: 76px;
+    border-radius: 13px;
+    overflow: hidden;
+    background: #eef2f7;
+    flex-shrink: 0;
+    border: 1px solid #e2e8f0;
+}
+
+.ez-appt-shell .ez-appt-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.ez-appt-shell .ez-appt-room-copy {
+    flex: 1;
+    min-width: 0;
+}
+
+.ez-appt-shell .ez-appt-room-copy h3,
+.ez-appt-shell .ez-appt-room-copy h2 {
+    font-size: 16px;
+    font-weight: 750;
+    line-height: 1.38;
+    color: #162334;
+    margin: 0 0 5px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.ez-appt-shell .ez-appt-room-copy h3 a {
+    color: #162334;
+    text-decoration: none;
+    transition: color 0.15s ease;
+}
+
+.ez-appt-shell .ez-appt-room-copy h3 a:hover {
+    color: #007aff;
+}
+
+.ez-appt-shell .ez-appt-addr {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12.5px;
+    color: #64748b;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ez-appt-shell .ez-appt-addr svg {
+    width: 13px !important;
+    height: 13px !important;
+    color: #94a3b8;
+    flex-shrink: 0;
+}
+
+.ez-appt-shell .ez-appt-price {
+    font-size: 13px;
+    color: #64748b;
+    margin: 5px 0 0;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-appt-shell .ez-appt-price strong {
+    color: #007aff;
+    font-weight: 800;
+}
+
+.ez-appt-shell .ez-appt-dot {
+    margin: 0 5px;
+}
+
+/* Calendar Schedule Strip */
+.ez-appt-shell .ez-appt-schedule-strip {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border-radius: 15px;
+    background: #f8fafc;
+    border: 1px solid #e6edf5;
+}
+
+.ez-appt-shell .ez-appt-schedule-strip.is-hero {
+    background: linear-gradient(145deg, #f3f8ff 0%, #ebf3fe 100%);
+    border-color: #dbeafe;
+    padding: 15px 18px;
+}
+
+.ez-appt-shell .ez-appt-date-chip {
+    width: 56px;
+    min-height: 60px;
+    border-radius: 12px;
+    background: linear-gradient(160deg, #007aff 0%, #1d5d9b 100%);
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 4px;
+    flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 4px 12px rgba(0, 122, 255, 0.20);
+}
+
+.ez-appt-shell .ez-appt-date-chip.is-lg {
+    width: 66px;
+    min-height: 70px;
+}
+
+.ez-appt-shell .ez-appt-date-chip span {
+    font-size: 10px;
+    font-weight: 650;
+    color: rgba(255, 255, 255, 0.88);
+}
+
+.ez-appt-shell .ez-appt-date-chip strong {
+    font-size: 21px;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.ez-appt-shell .ez-appt-time-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.ez-appt-shell .ez-appt-time-meta > strong {
+    font-size: 18px;
+    font-weight: 800;
+    color: #162334;
+    font-variant-numeric: tabular-nums;
+}
+
+.ez-appt-shell .ez-appt-time-meta > strong span {
+    font-size: 12px;
+    font-weight: 500;
+    color: #64748b;
+}
+
+.ez-appt-shell .ez-appt-time-meta > span {
+    font-size: 13px;
+    color: #475569;
+    text-transform: capitalize;
+}
+
+/* Status Signals & Card Footer */
+.ez-appt-shell .ez-appt-signals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.ez-appt-shell .ez-appt-signal {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: 8px;
+}
+
+.ez-appt-shell .ez-appt-signal.is-amber {
+    background: #fffbeb;
+    color: #b45309;
+}
+
+.ez-appt-shell .ez-appt-signal.is-blue {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.ez-appt-shell .ez-appt-card-foot {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid #f1f5f9;
+}
+
+.ez-appt-shell .ez-appt-detail-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #007aff !important;
+    text-decoration: none !important;
+    transition: color 0.15s ease;
+}
+
+.ez-appt-shell .ez-appt-detail-btn:hover {
+    color: #0056b3 !important;
+}
+
+/* Appointment Detail 2-Column Layout */
+.ez-appt-shell .ez-appt-detail-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 360px;
+    gap: 28px;
+    align-items: start;
+}
+
+.ez-appt-shell .ez-appt-detail-main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+.ez-appt-shell .ez-appt-hero-card,
+.ez-appt-shell .ez-appt-note-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    padding: 24px 26px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.035);
+}
+
+.ez-appt-shell .ez-appt-hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.ez-appt-shell .ez-appt-explanation {
+    font-size: 14.5px;
+    line-height: 1.65;
+    color: #475569;
+    margin: 4px 0 0;
+}
+
+.ez-appt-shell .ez-appt-notes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.ez-appt-shell .ez-appt-note-card.is-landlord {
+    border-color: #bfdbfe;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+}
+
+.ez-appt-shell .ez-appt-note-head {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin-bottom: 12px;
+}
+
+.ez-appt-shell .ez-appt-note-head svg {
+    width: 18px !important;
+    height: 18px !important;
+    color: #007aff;
+    flex-shrink: 0;
+}
+
+.ez-appt-shell .ez-appt-note-head h2 {
+    font-size: 16px;
+    font-weight: 750;
+    color: #162334;
+    margin: 0;
+}
+
+.ez-appt-shell .ez-appt-note-body {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #1e293b;
+    margin: 0;
+}
+
+.ez-appt-shell .ez-appt-note-body.is-empty {
+    color: #64748b;
+    font-style: italic;
+}
+
+.ez-appt-shell .ez-appt-panel-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.ez-appt-shell .ez-detail-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 45px;
+    padding: 10px 18px;
+    border-radius: 13px;
+    background: #007aff;
+    color: #ffffff !important;
+    font-size: 13.5px;
+    font-weight: 700;
+    text-decoration: none !important;
+    box-shadow: 0 8px 18px rgba(0, 122, 255, 0.20);
+    transition: background-color 0.16s ease, transform 0.14s ease;
+}
+
+.ez-appt-shell .ez-detail-btn-primary:hover {
+    background: #0062cc;
+    transform: translateY(-1px);
+}
+
+.ez-appt-shell .ez-detail-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 18px;
+    border-radius: 13px;
+    border: 1px solid #d5e0ec;
+    background: #ffffff;
+    color: #1e293b !important;
+    font-size: 13.5px;
+    font-weight: 650;
+    text-decoration: none !important;
+    transition: all 0.16s ease;
+}
+
+.ez-appt-shell .ez-detail-btn-outline:hover {
+    background: #f1f6fd;
+    border-color: #93c5fd;
+    color: #1d4ed8 !important;
+}
+
+.ez-appt-shell .ez-appt-btn-danger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 43px;
+    padding: 9px 18px;
+    border-radius: 13px;
+    border: 1px solid #fecdd3;
+    background: #fff1f2;
+    color: #e11d48 !important;
+    font-size: 13.5px;
+    font-weight: 650;
+    text-decoration: none !important;
+    transition: all 0.16s ease;
+}
+
+.ez-appt-shell .ez-appt-btn-danger:hover {
+    background: #ffe4e6;
+    border-color: #fda4af;
+}
+
+.ez-appt-shell .ez-appt-footnote {
+    font-size: 12px;
+    color: #64748b;
+    text-align: center;
+    margin: 14px 0 0;
+}
+
+/* Cancel Confirmation & Empty/Error States */
+.ez-appt-shell .ez-appt-cancel-card {
+    max-width: 600px;
+    margin: 12px auto;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    padding: 32px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.05);
+}
+
+.ez-appt-shell .ez-appt-cancel-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    background: #fff1f2;
+    color: #e11d48;
+    display: grid;
+    place-items: center;
+    margin-bottom: 16px;
+}
+
+.ez-appt-shell .ez-appt-cancel-icon svg {
+    width: 26px !important;
+    height: 26px !important;
+}
+
+.ez-appt-shell .ez-appt-cancel-card h1 {
+    font-size: 1.55rem;
+    font-weight: 800;
+    color: #162334;
+    margin: 0 0 8px;
+}
+
+.ez-appt-shell .ez-appt-cancel-lead {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #64748b;
+    margin: 0 0 20px;
+}
+
+.ez-appt-shell .ez-appt-cancel-preview {
+    padding: 16px;
+    border-radius: 18px;
+    background: #f8fafc;
+    border: 1px solid #e6edf5;
+    margin-bottom: 24px;
+}
+
+.ez-appt-shell .ez-appt-cancel-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.ez-appt-shell .ez-appt-btn-danger-solid {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 9px 22px;
+    border-radius: 999px;
+    border: 0;
+    background: #e11d48;
+    color: #ffffff;
+    font-size: 13.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.16s ease, transform 0.14s ease;
+}
+
+.ez-appt-shell .ez-appt-btn-danger-solid:hover {
+    background: #be123c;
+    transform: translateY(-1px);
+}
+
+.ez-appt-shell .ez-appt-empty,
+.ez-appt-shell .ez-appt-error-card {
+    text-align: center;
+    max-width: 640px;
+    margin: 18px auto 28px;
+    padding: 48px 26px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 22px;
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.03);
+}
+
+.ez-appt-shell .ez-appt-error-card {
+    border-color: #fecdd3;
+    background: #fffafb;
+}
+
+.ez-appt-shell .ez-appt-empty-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: #eff6ff;
+    color: #007aff;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 16px;
+}
+
+.ez-appt-shell .ez-appt-empty-icon.is-amber {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.ez-appt-shell .ez-appt-empty-icon svg {
+    width: 26px !important;
+    height: 26px !important;
+}
+
+.ez-appt-shell .ez-appt-empty h1,
+.ez-appt-shell .ez-appt-empty h2,
+.ez-appt-shell .ez-appt-error-card h2 {
+    font-size: 1.3rem;
+    font-weight: 800;
+    color: #162334;
+    margin: 0 0 8px;
+}
+
+.ez-appt-shell .ez-appt-empty p {
+    font-size: 14px;
+    line-height: 1.65;
+    color: #64748b;
+    max-width: 440px;
+    margin: 0 auto 20px;
+}
+
+/* Responsive Breakpoints for Booking & Appointments */
+@media (max-width: 991.98px) {
+    .ez-booking-shell .ez-booking-layout,
+    .ez-appt-shell .ez-appt-detail-layout {
+        grid-template-columns: 1fr;
+    }
+    .ez-booking-shell .ez-booking-aside-card,
+    .ez-appt-shell .ez-appt-room-panel {
+        position: static;
+    }
+    .ez-appt-shell .ez-appt-grid,
+    .ez-appt-shell .ez-appt-notes-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .ez-booking-shell .ez-booking-card,
+    .ez-appt-shell .ez-appt-hero-card,
+    .ez-appt-shell .ez-appt-note-card,
+    .ez-appt-shell .ez-appt-cancel-card {
+        padding: 20px 18px;
+    }
+    .ez-booking-shell .ez-booking-days-grid {
+        gap: 5px;
+    }
+    .ez-booking-shell .ez-booking-day {
+        min-height: 82px;
+        padding: 9px 2px;
+        border-radius: 12px;
+    }
+    .ez-booking-shell .ez-booking-day > strong {
+        font-size: 19px;
+    }
+    .ez-booking-shell .ez-booking-slots-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .ez-booking-shell .ez-booking-dialog-dl > div {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+    .ez-appt-shell .ez-appt-cancel-actions > * {
+        width: 100%;
     }
 }

@@ -8,18 +8,53 @@
 }
 <div asp-validation-summary="All" class="rental-validation" role="alert"></div>
 @if (Model.Input.ContractId.HasValue)
-{ <p class="rental-filter-context">Đang xem hợp đồng #@Model.Input.ContractId. <a asp-action="Index">Xem mọi hợp đồng</a></p> }
+{
+    <div class="rental-filter-context">
+        <span>Đang xem hợp đồng <strong>#@Model.Input.ContractId</strong>.</span>
+        <a asp-action="Index">Xem mọi hợp đồng →</a>
+    </div>
+}
 <form asp-action="Index" method="get" class="rental-filter">
-    @if (Model.Input.ContractId.HasValue) { <input type="hidden" name="ContractId" value="@Model.Input.ContractId" /> }
-    <div><label for="Status">Trạng thái thanh toán</label><select id="Status" name="Status">
-        <option value="">Tất cả trạng thái</option>
-        @foreach (var status in Enum.GetValues<PaymentStatus>())
-        { <option value="@((int)status)" selected="@(Model.Input.Status == status)">@TenantRentalPresentation.PaymentLabel(status)</option> }
-    </select></div>
+    @if (Model.Input.ContractId.HasValue)
+    {
+        <input type="hidden" name="ContractId" value="@Model.Input.ContractId" />
+    }
+    <div class="ez-rental-filter-group">
+        <label for="Status">Trạng thái thanh toán</label>
+        <select id="Status" name="Status">
+            <option value="">Tất cả trạng thái</option>
+            @foreach (var status in Enum.GetValues<PaymentStatus>())
+            {
+                <option value="@((int)status)" selected="@(Model.Input.Status == status)">@TenantRentalPresentation.PaymentLabel(status)</option>
+            }
+        </select>
+    </div>
     <button class="rental-button secondary" type="submit">Áp dụng</button>
-    <span>@Model.Total hóa đơn</span>
+    <span class="ez-rental-count-pill">@Model.Total hóa đơn</span>
 </form>
+
 @if (Model.Items.Count == 0)
-{ <section class="rental-empty"><h2>Chưa có hóa đơn phù hợp</h2><p>Thử đổi bộ lọc. Hóa đơn mới sẽ xuất hiện khi chủ nhà lập khoản thu cho bạn.</p></section> }
-@foreach (var invoice in Model.Items) { @await Html.PartialAsync("_RentalInvoiceRow", invoice) }
+{
+    <section class="rental-empty">
+        <div class="ez-rental-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 3h16v18l-2.5-1.5L15 21l-3-1.5L9 21l-2.5-1.5L4 21V3z" />
+                <line x1="8" y1="8" x2="16" y2="8" />
+                <line x1="8" y1="12" x2="16" y2="12" />
+                <line x1="8" y1="16" x2="13" y2="16" />
+            </svg>
+        </div>
+        <h2>Chưa có hóa đơn phù hợp</h2>
+        <p>Thử đổi bộ lọc. Hóa đơn mới sẽ xuất hiện khi chủ nhà lập khoản thu cho bạn.</p>
+    </section>
+}
+else
+{
+    <div class="ez-rental-stack">
+        @foreach (var invoice in Model.Items)
+        {
+            @await Html.PartialAsync("_RentalInvoiceRow", invoice)
+        }
+    </div>
+}
 @await Html.PartialAsync("_TenantPagination", new TenantPaginationModel(Model.Input.Page, Model.TotalPages, page => Url.Action("Index", new { Page = page, Status = (int?)Model.Input.Status, Model.Input.ContractId }), "Phân trang hóa đơn"))

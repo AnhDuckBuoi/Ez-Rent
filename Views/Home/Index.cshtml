@@ -1,21 +1,22 @@
+@using EZ_Rent.Helpers
 @using EZ_Rent.Models
 @using EZ_Rent.Models.Enums
 
 @{
     ViewData["Title"] = "Trang chủ";
 
-    var recs = ViewBag.Recommendations as List<RentalPost> ?? new List<RentalPost>();
     var newest = ViewBag.NewestPosts as List<RentalPost> ?? new List<RentalPost>();
     var topCities = ViewBag.TopCities as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+    var typeCounts = ViewBag.RoomTypeCounts as Dictionary<RoomType, int> ?? new Dictionary<RoomType, int>();
 
     int totalPosts = ViewBag.TotalPosts ?? 0;
-    int totalUsers = ViewBag.TotalUsers ?? 0;
     int totalLandlords = ViewBag.TotalLandlords ?? 0;
     int totalCities = ViewBag.TotalCities ?? 0;
 
     var isTenant = User.Identity?.IsAuthenticated == true && User.IsInRole("Tenant");
-    var searchController = isTenant ? "RentalPost" : "RentalPost";
+    var isLandlord = User.Identity?.IsAuthenticated == true && User.IsInRole("Landlord");
     var searchArea = isTenant ? "Tenant" : "";
+    var searchController = "RentalPost";
 
     string RoomTypeLabel(RoomType type) => type switch
     {
@@ -25,310 +26,358 @@
         RoomType.Dormitory => "Ký túc xá / Ở ghép",
         _ => type.ToString()
     };
+
+    int CountForType(RoomType type) => typeCounts.TryGetValue(type, out var c) ? c : 0;
+
+    string[] cityBackdrops =
+    {
+        "/images/auth/city-login.jpg",
+        "/images/rooms/room-4.jpg",
+        "/images/rooms/room-5.jpg",
+        "/images/rooms/room-3.jpg"
+    };
 }
 
-<!-- ================= 1. EDITORIAL DISCOVERY INTRO ================= -->
-<section class="ez-discovery-intro">
-    <div>
-        <p class="eyebrow">TÌM NƠI Ở PHÙ HỢP</p>
-        <h1>Phòng mới, khởi đầu mới.</h1>
-        <p>Khám phá những không gian còn trống với giá thuê, điện, nước và dịch vụ minh bạch ngay từ đầu.</p>
-    </div>
-    <div class="ez-discovery-stats" aria-label="Thống kê hệ thống">
-        <div class="ez-discovery-stat">
-            <strong>@totalPosts</strong>
-            <span>Phòng đang mở</span>
-        </div>
-        <div class="ez-discovery-stat">
-            <strong>@totalLandlords</strong>
-            <span>Chủ nhà</span>
-        </div>
-        <div class="ez-discovery-stat">
-            <strong>@totalCities</strong>
-            <span>Tỉnh / Thành phố</span>
-        </div>
-    </div>
-</section>
+<div class="ez-home-page">
 
-<!-- ================= 2. UNIFIED HORIZONTAL SEARCH SURFACE ================= -->
-<section class="ez-search-surface" aria-label="Tra cứu phòng cho thuê">
-    <form asp-area="" asp-controller="RentalPost" asp-action="Index" method="get">
-        <div class="ez-search-grid">
-            <div>
-                <label class="form-label" for="home-keyword">Từ khóa hoặc địa chỉ</label>
-                <input id="home-keyword" type="text" name="search" class="form-control"
-                       placeholder="Tên đường, quận/huyện, trường đại học…" />
-            </div>
-            <div>
-                <label class="form-label" for="home-city">Tỉnh / Thành phố</label>
-                <select id="home-city" name="city" class="form-select">
-                    <option value="">Tất cả khu vực</option>
-                    <option value="Hà Nội">Hà Nội</option>
-                    <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-                    <option value="Đà Nẵng">Đà Nẵng</option>
-                    <option value="Cần Thơ">Cần Thơ</option>
-                </select>
-            </div>
-            <div>
-                <label class="form-label" for="home-type">Loại phòng</label>
-                <select id="home-type" name="roomType" class="form-select">
-                    <option value="">Tất cả loại phòng</option>
-                    @foreach (RoomType t in Enum.GetValues(typeof(RoomType)))
-                    {
-                        <option value="@((int)t)">@RoomTypeLabel(t)</option>
-                    }
-                </select>
-            </div>
-            <div>
-                <label class="form-label" for="home-price">Mức giá tối đa</label>
-                <select id="home-price" name="maxPrice" class="form-select">
-                    <option value="">Không giới hạn</option>
-                    <option value="3000000">Đến 3.000.000 đ / tháng</option>
-                    <option value="5000000">Đến 5.000.000 đ / tháng</option>
-                    <option value="8000000">Đến 8.000.000 đ / tháng</option>
-                    <option value="12000000">Đến 12.000.000 đ / tháng</option>
-                </select>
-            </div>
-            <div>
-                <button type="submit" class="btn btn-primary w-100" style="min-height: 42px; padding: 9px 20px;">
-                    Tìm phòng
-                </button>
+    <!-- ================= 1. BRIGHT ARCHITECTURAL FRAME + COMPACT PILL SEARCH ================= -->
+    <section class="ez-home-hero-shell" aria-label="Tìm kiếm không gian sống EZ-Rent">
+        <div class="ez-home-hero">
+            <img src="~/images/rooms/hero-living.jpg"
+                 alt="Không gian căn hộ hiện đại nhiều ánh sáng tự nhiên"
+                 class="ez-home-hero-bg" />
+            <div class="ez-home-hero-overlay"></div>
+
+            <div class="ez-home-hero-center">
+                <h1 class="ez-home-hero-title">
+                    Khám phá nơi ở tiếp theo của bạn
+                </h1>
+
+                <p class="ez-home-hero-lead">
+                    @totalPosts+ phòng trọ &amp; căn hộ niêm yết rõ giá điện nước · Hợp đồng số · Thanh toán VietQR
+                </p>
+
+                <form asp-area="" asp-controller="RentalPost" asp-action="Index" method="get" class="ez-home-pill-bar">
+                    <div class="ez-home-pill-input-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input id="home-keyword"
+                               type="text"
+                               name="Keyword"
+                               class="ez-home-pill-input"
+                               aria-label="Nhập khu vực, tên đường hoặc trường học"
+                               placeholder="Nhập khu vực, tên đường hoặc trường học..." />
+                    </div>
+
+                    <span class="ez-home-pill-sep" aria-hidden="true"></span>
+
+                    <div class="ez-home-pill-select-wrap">
+                        <select id="home-city" name="city" class="ez-home-pill-select" aria-label="Chọn tỉnh hoặc thành phố">
+                            <option value="">Tất cả TP</option>
+                            <option value="Hà Nội">Hà Nội</option>
+                            <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                            <option value="Đà Nẵng">Đà Nẵng</option>
+                            <option value="Cần Thơ">Cần Thơ</option>
+                        </select>
+                    </div>
+
+                    <span class="ez-home-pill-sep" aria-hidden="true"></span>
+
+                    <div class="ez-home-pill-select-wrap">
+                        <select id="home-price" name="maxPrice" class="ez-home-pill-select" aria-label="Chọn mức giá tối đa">
+                            <option value="">Mức giá</option>
+                            <option value="3000000">Đến 3 triệu</option>
+                            <option value="5000000">Đến 5 triệu</option>
+                            <option value="8000000">Đến 8 triệu</option>
+                            <option value="12000000">Đến 12 triệu</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="ez-home-pill-submit">
+                        Tìm kiếm
+                    </button>
+                </form>
             </div>
         </div>
-    </form>
 
+        <!-- QUICK CATEGORY FILTER PILLS -->
+        <nav class="ez-home-cat-bar" aria-label="Lọc nhanh theo loại hình">
+            <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Index" class="ez-home-cat-pill is-active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                </svg>
+                <span>Tất cả phòng</span>
+                <span class="ez-home-cat-count">@totalPosts</span>
+            </a>
+
+            <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Index" asp-route-roomType="@((int)RoomType.Room)" class="ez-home-cat-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z"></path>
+                </svg>
+                <span>Phòng trọ</span>
+                <span class="ez-home-cat-count">@CountForType(RoomType.Room)</span>
+            </a>
+
+            <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Index" asp-route-roomType="@((int)RoomType.Apartment)" class="ez-home-cat-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                    <path d="M9 6h1M14 6h1M9 10h1M14 10h1M9 14h1M14 14h1M9 22v-4h6v4"></path>
+                </svg>
+                <span>Căn hộ mini</span>
+                <span class="ez-home-cat-count">@CountForType(RoomType.Apartment)</span>
+            </a>
+
+            <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Index" asp-route-roomType="@((int)RoomType.House)" class="ez-home-cat-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m2 12 10-9 10 9"></path>
+                    <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path>
+                </svg>
+                <span>Nhà nguyên căn</span>
+                <span class="ez-home-cat-count">@CountForType(RoomType.House)</span>
+            </a>
+
+            <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Index" asp-route-roomType="@((int)RoomType.Dormitory)" class="ez-home-cat-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span>Ký túc xá / Ở ghép</span>
+                <span class="ez-home-cat-count">@CountForType(RoomType.Dormitory)</span>
+            </a>
+        </nav>
+    </section>
+
+    <!-- ================= 2. PHÒNG MỚI CẬP NHẬT (4x2 BALANCED GRID) ================= -->
+    @if (newest.Any())
+    {
+        <section aria-labelledby="home-newest-heading">
+            <div class="ez-home-section-head">
+                <div>
+                    <p class="ez-home-kicker">KHÔNG GIAN MỚI LÊN SÓNG</p>
+                    <h2 id="home-newest-heading" class="ez-home-heading">Phòng &amp; căn hộ mới cập nhật</h2>
+                    <p class="ez-home-subhead">Đã kiểm duyệt thông tin diện tích, giá thuê và đơn giá điện nước</p>
+                </div>
+                <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Index" class="ez-home-more-link">
+                    <span>Xem tất cả @totalPosts phòng</span>
+                    <span aria-hidden="true">→</span>
+                </a>
+            </div>
+
+            <div class="ez-home-grid-4">
+                @for (int i = 0; i < newest.Count; i++)
+                {
+                    var post = newest[i];
+                    var thumb = RoomPhotoHelper.Resolve(post, i);
+                    var locationText = !string.IsNullOrWhiteSpace(post.District)
+                        ? $"{post.District}, {post.City}"
+                        : post.City;
+                    var elecText = post.ElectricityUnitPrice > 0
+                        ? $"Điện {(post.ElectricityUnitPrice / 1000m):0.#}k/kWh"
+                        : "Điện giá dân";
+
+                    <article class="ez-home-card">
+                        <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Details" asp-route-id="@post.RentalPostId"
+                           class="ez-home-card-media" aria-label="Xem chi tiết @post.Title">
+                            <img src="@thumb" alt="@post.Title" loading="lazy" />
+                            <span class="ez-home-card-type">@RoomTypeLabel(post.RoomType)</span>
+                            <span class="ez-home-card-status">Còn trống</span>
+                        </a>
+
+                        <div class="ez-home-card-body">
+                            <div class="ez-home-card-loc" title="@post.Address, @locationText">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                                <span>@locationText</span>
+                            </div>
+
+                            <h3 class="ez-home-card-title">
+                                <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Details" asp-route-id="@post.RentalPostId">
+                                    @post.Title
+                                </a>
+                            </h3>
+
+                            <div class="ez-home-specs">
+                                <span class="ez-home-spec-chip">@post.Area.ToString("0.##") m²</span>
+                                <span class="ez-home-spec-chip">@elecText</span>
+                            </div>
+
+                            <div class="ez-home-card-foot">
+                                <div class="ez-home-price">
+                                    <strong>@post.Price.ToString("N0") đ</strong>
+                                    <span>/ tháng</span>
+                                </div>
+                                <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Details" asp-route-id="@post.RentalPostId"
+                                   class="ez-home-arrow" aria-label="Mở phòng @post.Title" title="Xem chi tiết">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
+        </section>
+    }
+
+    <!-- ================= 3. KHÁM PHÁ THEO THÀNH PHỐ ================= -->
     @if (topCities.Any())
     {
-        <div class="ez-chip-row" aria-label="Khu vực phổ biến">
-            <span class="text-muted small me-1">Khu vực nhiều phòng:</span>
-            @foreach (var city in topCities)
-            {
-                string cityName = city.City;
-                int count = city.Count;
-                <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Index"
-                   asp-route-city="@cityName"
-                   class="ez-filter-chip">
-                    <span>@cityName</span>
-                    <span class="text-muted fw-normal num">(@count)</span>
-                </a>
-            }
-        </div>
-    }
-</section>
-
-<!-- ================= 3A. GỢI Ý DÀNH RIÊNG CHO TENANT ================= -->
-@if (isTenant && recs.Any())
-{
-    <section class="mb-5" aria-labelledby="home-recs-heading">
-        <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
-            <div>
-                <p class="eyebrow">DÀNH CHO BẠN</p>
-                <h2 id="home-recs-heading" class="mb-0">Gợi ý dựa trên nhu cầu của bạn</h2>
-            </div>
-            <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" class="small fw-semibold">
-                Mở trang tìm phòng người thuê →
-            </a>
-        </div>
-
-        <div class="ez-rental-grid">
-            @foreach (var post in recs)
-            {
-                var thumb = post.RoomImages?.FirstOrDefault(i => i.IsPrimary)?.MediaUrl
-                            ?? post.RoomImages?.FirstOrDefault()?.MediaUrl
-                            ?? "/images/room-placeholder.svg";
-
-                <article class="ez-rental-card">
-                    <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Details" asp-route-id="@post.RentalPostId"
-                       class="ez-card-photo" aria-label="Xem @post.Title">
-                        <img src="@thumb" alt="@post.Title" loading="lazy" />
-                        <span class="ez-room-badge">@RoomTypeLabel(post.RoomType)</span>
-                    </a>
-                    <div class="ez-card-copy">
-                        <div class="ez-card-price">
-                            <strong>@post.Price.ToString("N0") đ</strong>
-                            <span>/ tháng</span>
-                        </div>
-                        <h3>
-                            <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Details" asp-route-id="@post.RentalPostId">
-                                @post.Title
-                            </a>
-                        </h3>
-                        <p class="ez-card-address">@post.Address, @post.District, @post.City</p>
-                        <div class="ez-card-meta">
-                            <span class="num">@post.Area.ToString("0.##") m²</span>
-                            <span class="ez-available-dot">Còn trống</span>
-                        </div>
-                    </div>
-                </article>
-            }
-        </div>
-    </section>
-}
-
-<!-- ================= 3B. KHÔNG GIAN MỚI CẬP NHẬT ================= -->
-@if (newest.Any())
-{
-    <section class="mb-5" aria-labelledby="home-newest-heading">
-        <div class="d-flex justify-content-between align-items-end flex-wrap gap-2 mb-3">
-            <div>
-                <p class="eyebrow">KHÔNG GIAN ĐANG CHỜ BẠN</p>
-                <h2 id="home-newest-heading" class="mb-0">Phòng mới cập nhật <span class="text-muted fw-normal fs-6">(@newest.Count)</span></h2>
-            </div>
-            <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Index" class="small fw-semibold">
-                Xem toàn bộ phòng đang mở →
-            </a>
-        </div>
-
-        <div class="ez-rental-grid">
-            @foreach (var post in newest)
-            {
-                var thumb = post.RoomImages?.FirstOrDefault(i => i.IsPrimary)?.MediaUrl
-                            ?? post.RoomImages?.FirstOrDefault()?.MediaUrl
-                            ?? "/images/room-placeholder.svg";
-
-                <article class="ez-rental-card">
-                    <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Details" asp-route-id="@post.RentalPostId"
-                       class="ez-card-photo" aria-label="Xem @post.Title">
-                        <img src="@thumb" alt="@post.Title" loading="lazy" />
-                        <span class="ez-room-badge">@RoomTypeLabel(post.RoomType)</span>
-                    </a>
-                    <div class="ez-card-copy">
-                        <div class="ez-card-price">
-                            <strong>@post.Price.ToString("N0") đ</strong>
-                            <span>/ tháng</span>
-                        </div>
-                        <h3>
-                            <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Details" asp-route-id="@post.RentalPostId">
-                                @post.Title
-                            </a>
-                        </h3>
-                        <p class="ez-card-address">@post.Address, @post.District, @post.City</p>
-                        <div class="ez-card-meta">
-                            <span class="num">@post.Area.ToString("0.##") m²</span>
-                            <span class="ez-available-dot">Còn trống</span>
-                        </div>
-                    </div>
-                </article>
-            }
-        </div>
-    </section>
-}
-
-<!-- ================= 4. EDITORIAL READING & SHORTCUT RAIL (Matched to tenant-home.css) ================= -->
-<section class="ez-editorial-layout" aria-label="Thông tin và tiện ích thuê phòng">
-    <div>
-        <div class="mb-3">
-            <p class="eyebrow">KINH NGHIỆM THUÊ NHÀ</p>
-            <h2 class="mb-1">Minh bạch từ lúc xem phòng đến khi nhận bàn giao</h2>
-            <p class="text-muted small mb-0">Những điểm cần lưu ý để người thuê và chủ nhà làm việc rõ ràng, tránh phát sinh tranh chấp.</p>
-        </div>
-
-        <div class="row g-4 align-items-start mt-1">
-            <div class="col-md-6">
-                <article class="card overflow-hidden h-100">
-                    <img src="~/images/brand/city-ong.png" alt="EZ-Rent - Không gian thuê trọ minh bạch" style="width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-bottom: 1px solid var(--ez-line);" loading="lazy" />
-                    <div class="p-4">
-                        <div class="text-muted small mb-2">Hợp đồng & Chi phí · 3 phút đọc</div>
-                        <h3 class="mb-2">Kiểm tra đơn giá điện, nước và phí dịch vụ trước khi đặt cọc</h3>
-                        <p class="text-muted small mb-3" style="line-height: 1.75;">
-                            Mọi tin đăng trên EZ-Rent đều tách bạch tiền thuê phòng cố định với đơn giá điện (đ/kWh), nước (đ/m³) và phí dịch vụ chung. Khi nhận bàn giao, hai bên đối chiếu chỉ số công tơ đầu kỳ kèm ảnh chụp thực tế lưu trực tiếp vào hồ sơ hợp đồng.
-                        </p>
-                        <a asp-controller="RentalPost" asp-action="Index" class="small fw-semibold">
-                            Tra cứu phòng có niêm yết phí rõ ràng →
-                        </a>
-                    </div>
-                </article>
-            </div>
-
-            <div class="col-md-6">
-                <div class="d-flex flex-column gap-3">
-                    <article class="pb-3 border-bottom">
-                        <div class="text-muted small mb-1">Lịch xem phòng</div>
-                        <h3 class="h6 mb-1">Đặt lịch hẹn theo khung giờ chủ nhà mở cửa</h3>
-                        <p class="text-muted small mb-0" style="line-height: 1.7;">
-                            Chọn ngày giờ thuận tiện và nhận thông báo xác nhận ngay trên hệ thống, hoặc trao đổi trực tiếp qua hộp thư chung.
-                        </p>
-                    </article>
-
-                    <article class="pb-3 border-bottom">
-                        <div class="text-muted small mb-1">Hóa đơn & Điện nước</div>
-                        <h3 class="h6 mb-1">Đối soát hóa đơn hàng tháng kèm ảnh công tơ</h3>
-                        <p class="text-muted small mb-0" style="line-height: 1.7;">
-                            Chủ trọ ghi chỉ số điện nước kèm ảnh minh chứng, hệ thống tự động tính thành tiền và tạo mã VietQR chuẩn xác.
-                        </p>
-                    </article>
-
-                    <article>
-                        <div class="text-muted small mb-1">Bảo trì & Sửa chữa</div>
-                        <h3 class="h6 mb-1">Gửi yêu cầu sửa chữa có theo dõi tiến độ</h3>
-                        <p class="text-muted small mb-0" style="line-height: 1.7;">
-                            Khi thiết bị trong phòng gặp sự cố, người thuê gửi báo cáo kèm mức độ ưu tiên để chủ nhà và quản trị viên phối hợp xử lý.
-                        </p>
-                    </article>
+        int cityIdx = 0;
+        <section aria-labelledby="home-cities-heading">
+            <div class="ez-home-section-head">
+                <div>
+                    <p class="ez-home-kicker">ĐIỂM ĐẾN PHỔ BIẾN</p>
+                    <h2 id="home-cities-heading" class="ez-home-heading">Khám phá theo thành phố</h2>
+                    <p class="ez-home-subhead">Các khu vực tập trung nhiều phòng trống và căn hộ dịch vụ nhất</p>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <aside class="ez-editorial-aside" aria-label="Lối tắt hệ thống">
-        <h2 class="h6 mb-2">Dành cho bạn</h2>
-        <div>
-            <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Index" class="ez-plain-row">
-                <span>
-                    <strong>Tìm phòng đang trống</strong>
-                    <small>Lọc theo khu vực, diện tích và ngân sách</small>
-                </span>
-                <span class="text-muted">→</span>
+            <div class="ez-home-city-grid">
+                @foreach (var city in topCities)
+                {
+                    string cityName = city.City;
+                    int count = city.Count;
+                    decimal minPrice = city.MinPrice;
+                    string bg = cityBackdrops[cityIdx % cityBackdrops.Length];
+                    cityIdx++;
+
+                    <a asp-area="@searchArea" asp-controller="@searchController" asp-action="Index"
+                       asp-route-city="@cityName"
+                       class="ez-home-city-card">
+                        <img src="@bg" alt="Phòng cho thuê tại @cityName" loading="lazy" />
+                        <div class="ez-home-city-top">
+                            <span class="ez-home-city-count">@count phòng đang mở</span>
+                        </div>
+                        <div class="ez-home-city-bottom">
+                            <h3>@cityName</h3>
+                            <p>Giá từ @minPrice.ToString("N0") đ / tháng</p>
+                        </div>
+                    </a>
+                }
+            </div>
+        </section>
+    }
+
+    <!-- ================= 4. QUY TRÌNH 4 BƯỚC MINH BẠCH (BENTO) ================= -->
+    <section aria-labelledby="home-process-heading">
+        <div class="ez-home-section-head">
+            <div>
+                <p class="ez-home-kicker">TRẢI NGHIỆM KHÉP KÍN</p>
+                <h2 id="home-process-heading" class="ez-home-heading">Thuê phòng an tâm từ lúc xem đến khi ở</h2>
+                <p class="ez-home-subhead">Mọi thỏa thuận, chỉ số công tơ và hóa đơn đều được số hóa minh bạch cho cả hai bên</p>
+            </div>
+            <a asp-area="" asp-controller="Home" asp-action="Guide" class="ez-home-more-link">
+                <span>Xem cẩm nang chi tiết</span>
+                <span aria-hidden="true">→</span>
             </a>
-
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <a asp-area="" asp-controller="Chat" asp-action="Index" class="ez-plain-row">
-                    <span>
-                        <strong>Hộp thư tin nhắn</strong>
-                        <small>Trao đổi trực tiếp giữa người thuê & chủ nhà</small>
-                    </span>
-                    <span class="text-muted">→</span>
-                </a>
-            }
-
-            @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Landlord"))
-            {
-                <a asp-area="Landlord" asp-controller="Overview" asp-action="Index" class="ez-plain-row">
-                    <span>
-                        <strong>Bảng điều khiển Chủ trọ</strong>
-                        <small>Quản lý phòng, hợp đồng, điện nước và hóa đơn</small>
-                    </span>
-                    <span class="text-muted">→</span>
-                </a>
-            }
-            else if (User.Identity?.IsAuthenticated == true && User.IsInRole("Tenant"))
-            {
-                <a asp-area="Tenant" asp-controller="Dashboard" asp-action="Index" class="ez-plain-row">
-                    <span>
-                        <strong>Không gian Người thuê</strong>
-                        <small>Theo dõi lịch hẹn, phòng đang ở và hóa đơn</small>
-                    </span>
-                    <span class="text-muted">→</span>
-                </a>
-            }
-            else
-            {
-                <a asp-area="Identity" asp-page="/Account/Login" class="ez-plain-row">
-                    <span>
-                        <strong>Đăng nhập hệ thống</strong>
-                        <small>Quản lý lịch xem phòng, hợp đồng và hóa đơn</small>
-                    </span>
-                    <span class="text-muted">→</span>
-                </a>
-                <a asp-area="Identity" asp-page="/Account/Register" class="ez-plain-row">
-                    <span>
-                        <strong>Đăng ký tài khoản mới</strong>
-                        <small>Dành cho người tìm thuê phòng hoặc chủ nhà</small>
-                    </span>
-                    <span class="text-muted">→</span>
-                </a>
-            }
         </div>
-    </aside>
-</section>
+
+        <div class="ez-home-steps-grid">
+            <article class="ez-home-step-card">
+                <div class="ez-home-step-top">
+                    <span class="ez-home-step-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="16" y1="2" x2="16" y2="6"></line>
+                            <line x1="8" y1="2" x2="8" y2="6"></line>
+                            <line x1="3" y1="10" x2="21" y2="10"></line>
+                        </svg>
+                    </span>
+                    <span class="ez-home-step-num">BƯỚC 01</span>
+                </div>
+                <h3>Đặt lịch hẹn xem trực tiếp</h3>
+                <p>Chọn khung giờ thuận tiện theo lịch mở cửa của chủ nhà và trao đổi trước qua hộp thư trực tuyến.</p>
+            </article>
+
+            <article class="ez-home-step-card">
+                <div class="ez-home-step-top">
+                    <span class="ez-home-step-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                    </span>
+                    <span class="ez-home-step-num">BƯỚC 02</span>
+                </div>
+                <h3>Hợp đồng điện tử chuẩn BM03</h3>
+                <p>Ghi nhận đầy đủ tiền cọc, thời hạn thuê, biểu giá dịch vụ và lưu trữ lịch sử phiên bản hợp đồng PDF.</p>
+            </article>
+
+            <article class="ez-home-step-card">
+                <div class="ez-home-step-top">
+                    <span class="ez-home-step-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                    </span>
+                    <span class="ez-home-step-num">BƯỚC 03</span>
+                </div>
+                <h3>Đối soát ảnh chụp công tơ</h3>
+                <p>Chỉ số điện nước hàng tháng luôn đính kèm ảnh chụp thực tế, tự động tính sản lượng không lo nhầm lẫn.</p>
+            </article>
+
+            <article class="ez-home-step-card">
+                <div class="ez-home-step-top">
+                    <span class="ez-home-step-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+                            <line x1="2" y1="10" x2="22" y2="10"></line>
+                        </svg>
+                    </span>
+                    <span class="ez-home-step-num">BƯỚC 04</span>
+                </div>
+                <h3>Thanh toán VietQR &amp; Hỗ trợ</h3>
+                <p>Quét mã VietQR chuyển khoản đúng số tiền hóa đơn và gửi yêu cầu sửa chữa có theo dõi tiến độ rõ ràng.</p>
+            </article>
+        </div>
+    </section>
+
+    <!-- ================= 5. LANDLORD SPLIT-CTA BANNER ================= -->
+    <section class="ez-home-cta-banner" aria-label="Dành cho Chủ trọ và Chủ căn hộ">
+        <div class="ez-home-cta-copy">
+            <p class="ez-home-cta-kicker">DÀNH CHO CHỦ NHÀ &amp; CHỦ TRỌ</p>
+            <h2>Bạn có phòng trống cần cho thuê và quản lý chuyên nghiệp?</h2>
+            <p>
+                Tiếp cận người tìm phòng thực tế, duyệt lịch hẹn xem phòng, khởi tạo hợp đồng điện tử và tự động lập hóa đơn điện nước kèm mã VietQR chỉ trên một nền tảng duy nhất.
+            </p>
+            <div class="ez-home-cta-actions">
+                @if (isLandlord)
+                {
+                    <a asp-area="Landlord" asp-controller="Overview" asp-action="Index" class="ez-home-cta-primary">
+                        <span>Mở Bảng điều khiển Chủ trọ</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                }
+                else
+                {
+                    <a asp-area="Identity" asp-page="/Account/Register" asp-route-role="Landlord" class="ez-home-cta-primary">
+                        <span>Đăng ký làm Chủ trọ ngay</span>
+                        <span aria-hidden="true">→</span>
+                    </a>
+                }
+                <a asp-area="" asp-controller="Home" asp-action="About" class="ez-home-cta-secondary">
+                    Tìm hiểu thêm về EZ-Rent
+                </a>
+            </div>
+        </div>
+
+        <div class="ez-home-cta-visual">
+            <img src="~/images/brand/city-ong.png" alt="Quản lý phòng cho thuê trên EZ-Rent" loading="lazy" />
+        </div>
+    </section>
+
+</div>

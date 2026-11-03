@@ -20,6 +20,7 @@
     if (savedImage?.complete && savedImage.naturalWidth === 0) savedImage.remove();
     const fileInput = document.getElementById('Avatar_File');
     const status = document.querySelector('[data-avatar-status]');
+    const filenameEl = document.querySelector('[data-avatar-filename]');
     const original = avatar.querySelector('img')?.getAttribute('src');
     let previewUrl;
     fileInput.addEventListener('change', () => {
@@ -28,6 +29,18 @@
         const file = fileInput.files[0];
         fileInput.setCustomValidity('');
         status.textContent = '';
+        if (filenameEl) {
+            if (file) {
+                const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+                const sizeKb = Math.round(file.size / 1024);
+                const sizeLabel = file.size >= 1024 * 1024 ? `${sizeMb} MB` : `${sizeKb} KB`;
+                filenameEl.textContent = `${file.name} (${sizeLabel})`;
+                filenameEl.title = file.name;
+            } else {
+                filenameEl.textContent = 'Chưa chọn tệp';
+                filenameEl.removeAttribute('title');
+            }
+        }
         let url = original;
         if (file) {
             const valid = ['image/png', 'image/jpeg'].includes(file.type) && file.size <= 2 * 1024 * 1024;

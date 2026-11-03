@@ -11,9 +11,11 @@ public sealed class TenantShellTests
     [Theory]
     [InlineData("/Tenant/Dashboard", "/Tenant/Dashboard")]
     [InlineData("/Tenant/RentalPost", "/Tenant/RentalPost")]
+    [InlineData("/Tenant/MyRoom", "/Tenant/MyRoom")]
     [InlineData("/Tenant/Favorite", "/Tenant/Favorite")]
-    [InlineData("/Tenant/ViewingAppointment", "/Tenant/ViewingAppointment")]
-    public async Task Shared_layout_keeps_tenant_routes_and_counts_only_own_unread(string path, string activeHref)
+    [InlineData("/Tenant/Notification", "/Tenant/Notification")]
+    [InlineData("/Tenant/Account", "/Tenant/Account")]
+    public async Task Shared_layout_keeps_centered_tenant_header_routes_and_counts_only_own_unread(string path, string activeHref)
     {
         await using var app = new TenantTestApp();
         await app.InitializeAsync();
@@ -25,16 +27,37 @@ public sealed class TenantShellTests
                 new Notification { UserId = TenantTestApp.TenantB, Title = "private", Content = "private" });
             await db.SaveChangesAsync();
         });
+
         using var response = await app.Client.GetAsync(path);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var html = WebUtility.HtmlDecode(await response.Content.ReadAsStringAsync());
         var header = Regex.Match(html, "<header[^>]*id=\"shared-header\".*?</header>", RegexOptions.Singleline).Value;
         Assert.NotEmpty(header);
         Assert.Contains("navbar", header);
-        Assert.Contains("Thông báo, 1 chưa đọc", header);
         Assert.Contains($"href=\"{activeHref}\"", header);
+        Assert.Contains("aria-label=\"Phòng yêu thích\"", header);
+        Assert.Contains("Thông báo, 1 chưa đọc", header);
+        Assert.Contains("aria-label=\"Tài khoản của tôi\"", header);
+        Assert.DoesNotContain("data-tenant-menu", header);
         Assert.DoesNotContain("tenant-desktop-header", html);
         Assert.DoesNotContain("private", header);
+    }
+
+    [Fact]
+    public async Task Contextual_tenant_links_stay_accessible_from_discovery_and_account()
+    {
+        await using var app = new TenantTestApp();
+        await app.InitializeAsync();
+
+        using var rentalResp = await app.Client.GetAsync("/Tenant/RentalPost");
+        Assert.Equal(HttpStatusCode.OK, rentalResp.StatusCode);
+        var rentalHtml = WebUtility.HtmlDecode(await rentalResp.Content.ReadAsStringAsync());
+        Assert.Contains("href=\"/Tenant/ViewingAppointment\"", rentalHtml);
+
+        using var accountResp = await app.Client.GetAsync("/Tenant/Account");
+        Assert.Equal(HttpStatusCode.OK, accountResp.StatusCode);
+        var accountHtml = WebUtility.HtmlDecode(await accountResp.Content.ReadAsStringAsync());
+        Assert.Contains("href=\"/Tenant/Support/Create\"", accountHtml);
     }
 
     [Fact]

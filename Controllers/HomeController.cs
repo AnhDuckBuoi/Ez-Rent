@@ -25,46 +25,63 @@ public class HomeController : Controller
         _context = context;
     }
 
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? ui = null)
     {
         if (User.IsInRole("Tenant")) return RedirectToAction("Index", "Dashboard", new { area = "Tenant" });
+
         // Trang công khai giữ phần giới thiệu và gợi ý chung của nhóm.
-        ViewBag.Recommendations = await _recommender.GetRecommendationsAsync("", 6);
+        ViewBag.Recommendations = await _recommender.GetRecommendationsAsync("", 8);
+
+        var publicPostsQuery = _context.RentalPosts
+            .AsNoTracking()
+            .Where(p => p.ApprovalStatus == ApprovalStatus.Approved
+                     && p.RoomStatus != RoomStatus.Hidden);
 
         // ===== QUICK STATS =====
-        ViewBag.TotalPosts   = await _context.RentalPosts
-            .CountAsync(p => p.ApprovalStatus == ApprovalStatus.Approved
-                          && p.RoomStatus != RoomStatus.Hidden);
-
-        ViewBag.TotalUsers   = await _context.Users.CountAsync();
-
+        ViewBag.TotalPosts = await publicPostsQuery.CountAsync();
+        ViewBag.TotalUsers = await _context.Users.CountAsync();
         ViewBag.TotalLandlords = (await _userManager.GetUsersInRoleAsync("Landlord")).Count;
-
-        ViewBag.TotalCities  = await _context.RentalPosts
-            .Where(p => p.ApprovalStatus == ApprovalStatus.Approved)
+        ViewBag.TotalCities = await publicPostsQuery
             .Select(p => p.City)
             .Distinct()
             .CountAsync();
 
-        // ===== PHÒNG MỚI NHẤT (8 phòng) =====
-        ViewBag.NewestPosts = await _context.RentalPosts
+        // ===== SỐ LƯỢNG THEO LOẠI PHÒNG =====
+        var typeGroups = await publicPostsQuery
+            .GroupBy(p => p.RoomType)
+            .Select(g => new { Type = g.Key, Count = g.Count() })
+            .ToListAsync();
+        ViewBag.RoomTypeCounts = typeGroups.ToDictionary(x => x.Type, x => x.Count);
+
+        // ===== PHÒNG MỚI NHẤT (8 phòng cho lưới 4x2 cân đối) =====
+        ViewBag.NewestPosts = await publicPostsQuery
             .Include(p => p.Owner)
             .Include(p => p.RoomImages)
-            .Where(p => p.ApprovalStatus == ApprovalStatus.Approved
-                     && p.RoomStatus != RoomStatus.Hidden)
             .OrderByDescending(p => p.PostedAt ?? p.CreatedAt)
             .Take(8)
             .ToListAsync();
 
-        // ===== DANH MỤC KHU VỰC (top 4 thành phố có nhiều phòng) =====
-        ViewBag.TopCities = await _context.RentalPosts
-            .Where(p => p.ApprovalStatus == ApprovalStatus.Approved
-                     && p.RoomStatus != RoomStatus.Hidden)
+        // ===== DANH MỤC KHU VỰC (top 4 thành phố có nhiều phòng + giá khởi điểm thật) =====
+        var cityRows = await publicPostsQuery
+            .Select(p => new { p.City, p.Price })
+            .ToListAsync();
+
+        ViewBag.TopCities = cityRows
             .GroupBy(p => p.City)
-            .Select(g => new { City = g.Key, Count = g.Count() })
+            .Select(g => new
+            {
+                City = g.Key,
+                Count = g.Count(),
+                MinPrice = g.Min(p => p.Price)
+            })
             .OrderByDescending(x => x.Count)
             .Take(4)
-            .ToListAsync();
+            .ToList();
+
+        if (string.Equals(ui, "legacy", StringComparison.OrdinalIgnoreCase))
+        {
+            return View("Index.Legacy");
+        }
 
         return View();
     }

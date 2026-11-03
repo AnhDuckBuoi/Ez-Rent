@@ -1,48 +1,436 @@
 @using System.Globalization
+@using EZ_Rent.Helpers
+@using EZ_Rent.Models.Enums
 @model EZ_Rent.Areas.Tenant.ViewModels.TenantHomeModel
 @{
     Layout = "_Layout";
     ViewData["Title"] = "Trang chủ";
     ViewData["HomePage"] = true;
+
     var culture = CultureInfo.GetCultureInfo("vi-VN");
     var next = Model.NextAppointment;
+    var returnHomeUrl = Url.Action("Index", "Dashboard");
+
+    string RoomTypeLabel(RoomType type) => type switch
+    {
+        RoomType.Room => "Phòng trọ",
+        RoomType.Apartment => "Căn hộ mini",
+        RoomType.House => "Nhà nguyên căn",
+        RoomType.Dormitory => "Ký túc xá / Ở ghép",
+        _ => type.ToString()
+    };
+
+    int CountForType(RoomType type) => Model.RoomTypeCounts.TryGetValue(type, out var c) ? c : 0;
 }
-<div class="home-heading"><div><h1>Chào @Model.DisplayName!</h1><p>Thông tin mới cho hành trình tìm nhà của bạn.</p></div><div class="home-heading-actions"><time datetime="@Model.Today.ToString("yyyy-MM-dd")">@Model.Today.ToString("dddd, dd 'tháng' MM", culture)</time><a asp-controller="RentalPost" asp-action="Index" class="button primary">@await Html.PartialAsync("_HomeIcon", "search") Tìm phòng</a></div></div>
-<div class="home-layout" data-home-layout>
-    <div class="home-content">
-        <section class="home-upcoming" aria-labelledby="home-next-title"><div class="home-section-title"><h2 id="home-next-title">Lịch hẹn tiếp theo</h2>@if (next != null) { <span class="home-confirmed">@await Html.PartialAsync("_HomeIcon", "check") Đã xác nhận</span> }</div>
-            @if (next != null)
-            {
-                <div class="upcoming-detail"><div class="home-date-box"><span>Tháng @next.ViewingDate.ToString("MM")</span><strong>@next.ViewingDate.ToString("dd")</strong><span>@next.ViewingDate.ToString("dddd", culture)</span></div><div class="upcoming-info"><p class="home-upcoming-time">@next.TimeLabel<span> · Giờ đến xem</span></p><h3>@next.Title</h3><p class="upcoming-address">@await Html.PartialAsync("_HomeIcon", "pin") @next.Address</p><p class="upcoming-calendar-date">@next.DateLabel</p></div><a asp-controller="ViewingAppointment" asp-action="Details" asp-route-id="@next.Id" class="button">Xem lịch hẹn @await Html.PartialAsync("_HomeIcon", "arrow")</a></div>
-            }
-            else
-            {
-                <div class="home-empty"><p>Bạn chưa có lịch sắp tới được chủ nhà xác nhận.</p><a asp-controller="ViewingAppointment" asp-action="Index" class="text-button">Theo dõi yêu cầu của bạn @await Html.PartialAsync("_HomeIcon", "arrow")</a></div>
-            }
+
+<div class="ez-home-page ez-thome-page">
+
+    <!-- ================= 1. BRIGHT ARCHITECTURAL HERO + PERSONALIZED GREETING + PILL SEARCH ================= -->
+    <section class="ez-home-hero-shell" aria-label="Không gian tìm phòng dành cho người thuê">
+        <div class="ez-home-hero">
+            <img src="~/images/rooms/hero-living.jpg"
+                 alt="Không gian căn hộ hiện đại nhiều ánh sáng tự nhiên"
+                 class="ez-home-hero-bg" />
+            <div class="ez-home-hero-overlay"></div>
+
+            <div class="ez-home-hero-center">
+                <div class="ez-thome-date-pill">
+                    <span class="ez-thome-date-dot" aria-hidden="true"></span>
+                    <time datetime="@Model.Today.ToString("yyyy-MM-dd")">@Model.Today.ToString("dddd, dd 'tháng' MM, yyyy", culture)</time>
+                </div>
+
+                <h1 class="ez-home-hero-title">Chào @Model.DisplayName!</h1>
+
+                <p class="ez-home-hero-lead">
+                    Khám phá @Model.TotalOpenPosts+ phòng trọ &amp; căn hộ đang mở · Đặt lịch xem trực tiếp, quản lý hợp đồng và hóa đơn VietQR
+                </p>
+
+                <form asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" method="get" class="ez-home-pill-bar">
+                    <div class="ez-home-pill-input-wrap">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                        <input id="tenant-home-keyword"
+                               type="text"
+                               name="Keyword"
+                               class="ez-home-pill-input"
+                               aria-label="Nhập khu vực, tên đường hoặc trường học"
+                               placeholder="Nhập khu vực, tên đường hoặc trường học..." />
+                    </div>
+
+                    <span class="ez-home-pill-sep" aria-hidden="true"></span>
+
+                    <div class="ez-home-pill-select-wrap">
+                        <select id="tenant-home-city" name="City" class="ez-home-pill-select" aria-label="Chọn tỉnh hoặc thành phố">
+                            <option value="">Tất cả TP</option>
+                            <option value="Hà Nội">Hà Nội</option>
+                            <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                            <option value="Đà Nẵng">Đà Nẵng</option>
+                            <option value="Cần Thơ">Cần Thơ</option>
+                        </select>
+                    </div>
+
+                    <span class="ez-home-pill-sep" aria-hidden="true"></span>
+
+                    <div class="ez-home-pill-select-wrap">
+                        <select id="tenant-home-price" name="MaxPrice" class="ez-home-pill-select" aria-label="Chọn mức giá tối đa">
+                            <option value="">Mức giá</option>
+                            <option value="3000000">Đến 3 triệu</option>
+                            <option value="5000000">Đến 5 triệu</option>
+                            <option value="8000000">Đến 8 triệu</option>
+                            <option value="12000000">Đến 12 triệu</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="ez-home-pill-submit">
+                        Tìm kiếm
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- QUICK CATEGORY FILTER PILLS -->
+        <nav class="ez-home-cat-bar" aria-label="Lọc nhanh theo loại hình">
+            <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" class="ez-home-cat-pill is-active">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                    <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                    <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                </svg>
+                <span>Tất cả phòng</span>
+                <span class="ez-home-cat-count">@Model.TotalOpenPosts</span>
+            </a>
+
+            <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" asp-route-RoomType="@((int)RoomType.Room)" class="ez-home-cat-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1V9.5z"></path>
+                </svg>
+                <span>Phòng trọ</span>
+                <span class="ez-home-cat-count">@CountForType(RoomType.Room)</span>
+            </a>
+
+            <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" asp-route-RoomType="@((int)RoomType.Apartment)" class="ez-home-cat-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <rect x="4" y="2" width="16" height="20" rx="2"></rect>
+                    <path d="M9 6h1M14 6h1M9 10h1M14 10h1M9 14h1M14 14h1M9 22v-4h6v4"></path>
+                </svg>
+                <span>Căn hộ mini</span>
+                <span class="ez-home-cat-count">@CountForType(RoomType.Apartment)</span>
+            </a>
+
+            <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" asp-route-RoomType="@((int)RoomType.House)" class="ez-home-cat-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="m2 12 10-9 10 9"></path>
+                    <path d="M5 10v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V10"></path>
+                </svg>
+                <span>Nhà nguyên căn</span>
+                <span class="ez-home-cat-count">@CountForType(RoomType.House)</span>
+            </a>
+
+            <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" asp-route-RoomType="@((int)RoomType.Dormitory)" class="ez-home-cat-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <span>Ký túc xá / Ở ghép</span>
+                <span class="ez-home-cat-count">@CountForType(RoomType.Dormitory)</span>
+            </a>
+        </nav>
+    </section>
+
+    <!-- ================= 2. KHÔNG GIAN CÁ NHÂN CỦA NGƯỜI THUÊ (QUICK TILES + 3-CARD BENTO) ================= -->
+    <section aria-labelledby="tenant-workspace-heading">
+        <div class="ez-home-section-head">
+            <div>
+                <p class="ez-home-kicker">TIỆN ÍCH CÁ NHÂN</p>
+                <h2 id="tenant-workspace-heading" class="ez-home-heading">Hành trình thuê phòng của bạn</h2>
+                <p class="ez-home-subhead">Theo dõi lịch xem phòng, danh sách yêu thích, hợp đồng đang ở và thông báo mới nhất</p>
+            </div>
+            <a asp-controller="Dashboard" asp-action="Help" class="ez-home-more-link">
+                <span>Hướng dẫn &amp; Hỗ trợ</span>
+                <span aria-hidden="true">→</span>
+            </a>
+        </div>
+
+        <!-- 4 QUICK SHORTCUT TILES -->
+        <nav class="ez-thome-quick-grid" aria-label="Lối tắt Trang chủ">
+            <a asp-controller="ViewingAppointment" asp-action="Index" class="ez-thome-quick-card">
+                <span class="ez-thome-quick-icon is-blue" aria-hidden="true">@await Html.PartialAsync("_HomeIcon", "calendar")</span>
+                <span class="ez-thome-quick-copy">
+                    <strong>Lịch hẹn xem phòng</strong>
+                    <small>@(Model.PendingAppointments > 0 ? $"{Model.PendingAppointments} yêu cầu đang chờ" : "Theo dõi lịch của bạn")</small>
+                </span>
+                <span class="ez-thome-quick-arrow" aria-hidden="true">→</span>
+            </a>
+
+            <a asp-controller="Favorite" asp-action="Index" class="ez-thome-quick-card">
+                <span class="ez-thome-quick-icon is-rose" aria-hidden="true">@await Html.PartialAsync("_HomeIcon", "heart")</span>
+                <span class="ez-thome-quick-copy">
+                    <strong>Phòng đã lưu</strong>
+                    <small>@Model.SavedCount phòng quan tâm</small>
+                </span>
+                <span class="ez-thome-quick-arrow" aria-hidden="true">→</span>
+            </a>
+
+            <a asp-controller="MyRoom" asp-action="Index" class="ez-thome-quick-card">
+                <span class="ez-thome-quick-icon is-emerald" aria-hidden="true">@await Html.PartialAsync("_HomeIcon", "room")</span>
+                <span class="ez-thome-quick-copy">
+                    <strong>Phòng đang thuê</strong>
+                    <small>Hợp đồng, hóa đơn &amp; sửa chữa</small>
+                </span>
+                <span class="ez-thome-quick-arrow" aria-hidden="true">→</span>
+            </a>
+
+            <a asp-area="" asp-controller="Chat" asp-action="Index" class="ez-thome-quick-card">
+                <span class="ez-thome-quick-icon is-indigo" aria-hidden="true">@await Html.PartialAsync("_HomeIcon", "chat")</span>
+                <span class="ez-thome-quick-copy">
+                    <strong>Tin nhắn</strong>
+                    <small>Trao đổi trực tiếp với chủ nhà</small>
+                </span>
+                <span class="ez-thome-quick-arrow" aria-hidden="true">→</span>
+            </a>
+        </nav>
+
+        <!-- 3-CARD PERSONAL WORKSPACE BENTO -->
+        <div class="ez-thome-bento">
+
+            <!-- CARD A: LỊCH HẸN TIẾP THEO -->
+            <section class="ez-thome-panel" aria-labelledby="home-next-title">
+                <div class="ez-thome-panel-head">
+                    <h3 id="home-next-title">Lịch hẹn tiếp theo</h3>
+                    @if (next != null)
+                    {
+                        <span class="home-confirmed">@await Html.PartialAsync("_HomeIcon", "check") Đã xác nhận</span>
+                    }
+                </div>
+
+                @if (next != null)
+                {
+                    <div class="ez-thome-visit-card">
+                        <div class="ez-thome-visit-top">
+                            <div class="ez-thome-date-badge">
+                                <span>Thg @next.ViewingDate.ToString("MM")</span>
+                                <strong>@next.ViewingDate.ToString("dd")</strong>
+                                <span>@next.ViewingDate.ToString("ddd", culture)</span>
+                            </div>
+                            <div class="ez-thome-visit-meta">
+                                <p class="ez-thome-visit-time">@next.TimeLabel <span>· Giờ đến xem</span></p>
+                                <h4 class="ez-thome-visit-title">@next.Title</h4>
+                                <p class="ez-thome-visit-addr">@await Html.PartialAsync("_HomeIcon", "pin") <span>@next.Address</span></p>
+                            </div>
+                        </div>
+                        <div class="ez-thome-visit-foot">
+                            <span class="ez-thome-visit-cal">@next.DateLabel</span>
+                            <a asp-controller="ViewingAppointment" asp-action="Details" asp-route-id="@next.Id" class="ez-thome-btn-soft">
+                                <span>Xem lịch hẹn</span>
+                                <span aria-hidden="true">→</span>
+                            </a>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="ez-thome-empty-box">
+                        <span class="ez-thome-empty-icon" aria-hidden="true">@await Html.PartialAsync("_HomeIcon", "calendar")</span>
+                        <p class="ez-thome-empty-text">Bạn chưa có lịch sắp tới được chủ nhà xác nhận.</p>
+                        <a asp-controller="ViewingAppointment" asp-action="Index" class="ez-thome-inline-link">
+                            <span>Theo dõi yêu cầu của bạn</span>
+                            <span aria-hidden="true">→</span>
+                        </a>
+                    </div>
+                }
+            </section>
+
+            <!-- CARD B: ĐÃ LƯU ĐỂ XEM LẠI -->
+            <section class="ez-thome-panel" aria-labelledby="home-saved-title">
+                <div class="ez-thome-panel-head">
+                    <h3 id="home-saved-title">Đã lưu để xem lại</h3>
+                    @if (Model.SavedRooms.Count > 0)
+                    {
+                        <a asp-controller="Favorite" asp-action="Index" class="ez-thome-head-link">Xem tất cả</a>
+                    }
+                </div>
+
+                @if (Model.SavedRooms.Count > 0)
+                {
+                    <div class="ez-thome-saved-stack">
+                        @foreach (var room in Model.SavedRooms)
+                        {
+                            var thumbUrl = room.IsAvailable
+                                ? RoomPhotoHelper.ResolveUrl(room.ImageUrl, room.RentalPostId, room.RoomType)
+                                : null;
+
+                            <a asp-controller="@(room.IsAvailable ? "RentalPost" : "Favorite")"
+                               asp-action="@(room.IsAvailable ? "Details" : "Index")"
+                               asp-route-id="@(room.IsAvailable ? room.RentalPostId : (int?)null)"
+                               asp-route-returnUrl="@(room.IsAvailable ? returnHomeUrl : null)"
+                               class="ez-thome-saved-item"
+                               data-saved-room="@room.RentalPostId">
+                                @if (thumbUrl != null)
+                                {
+                                    <img src="@thumbUrl" alt="@room.Title" class="ez-thome-saved-thumb" loading="lazy" />
+                                }
+                                else
+                                {
+                                    <span class="ez-thome-saved-fallback" aria-hidden="true">@await Html.PartialAsync("_HomeIcon", "room")</span>
+                                }
+
+                                <span class="ez-thome-saved-info">
+                                    <strong>@room.Title</strong>
+                                    @if (room.IsAvailable)
+                                    {
+                                        <span class="ez-thome-saved-sub">@room.Area.ToString("0.##", culture) m² · @room.Address</span>
+                                        <span class="ez-thome-saved-price">@room.Price.ToString("N0", culture) đ <small>/ tháng</small></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="ez-thome-saved-sub">Bạn có thể mở danh sách đã lưu để bỏ lưu tin này.</span>
+                                    }
+                                </span>
+                            </a>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="ez-thome-empty-box">
+                        <span class="ez-thome-empty-icon" aria-hidden="true">@await Html.PartialAsync("_HomeIcon", "heart")</span>
+                        <p class="ez-thome-empty-text">Bạn chưa lưu phòng nào. Khi tìm thấy lựa chọn phù hợp, bấm trái tim để xem lại tại đây.</p>
+                        <a asp-controller="RentalPost" asp-action="Index" class="ez-thome-inline-link">
+                            <span>Khám phá phòng trống ngay</span>
+                            <span aria-hidden="true">→</span>
+                        </a>
+                    </div>
+                }
+            </section>
+
+            <!-- CARD C: THÔNG BÁO GẦN ĐÂY -->
+            <section class="ez-thome-panel ez-thome-notices-panel" aria-labelledby="home-notifications-title">
+                <div class="ez-thome-panel-head">
+                    <h3 id="home-notifications-title">
+                        Thông báo gần đây
+                        @if (Model.UnreadCount > 0)
+                        {
+                            <span class="home-section-count" aria-label="@Model.UnreadCount thông báo chưa đọc">@Model.UnreadCount</span>
+                        }
+                    </h3>
+                    <a asp-controller="Notification" asp-action="Index" class="ez-thome-head-link">Xem tất cả</a>
+                </div>
+
+                @if (Model.Notices.Count > 0)
+                {
+                    @await Html.PartialAsync("_HomeNotices", Model.Notices)
+                }
+                else
+                {
+                    <div class="ez-thome-empty-box">
+                        <span class="ez-thome-empty-icon" aria-hidden="true">@await Html.PartialAsync("_HomeIcon", "bell")</span>
+                        <p class="ez-thome-empty-text">Bạn chưa có thông báo. Tin mới từ hệ thống sẽ hiển thị tại đây.</p>
+                    </div>
+                }
+            </section>
+
+        </div>
+    </section>
+
+    <!-- ================= 3. PHÒNG & CĂN HỘ MỚI CẬP NHẬT (4x2 BALANCED GRID) ================= -->
+    @if (Model.FeaturedRooms.Count > 0)
+    {
+        <section aria-labelledby="tenant-featured-heading">
+            <div class="ez-home-section-head">
+                <div>
+                    <p class="ez-home-kicker">GỢI Ý CHO BẠN</p>
+                    <h2 id="tenant-featured-heading" class="ez-home-heading">Phòng &amp; căn hộ mới cập nhật</h2>
+                    <p class="ez-home-subhead">Đã kiểm duyệt thông tin diện tích, giá thuê và đơn giá điện nước — bấm vào để lưu hoặc đặt lịch xem</p>
+                </div>
+                <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" class="ez-home-more-link">
+                    <span>Xem tất cả @Model.TotalOpenPosts phòng</span>
+                    <span aria-hidden="true">→</span>
+                </a>
+            </div>
+
+            <div class="ez-home-grid-4">
+                @for (int i = 0; i < Model.FeaturedRooms.Count; i++)
+                {
+                    var post = Model.FeaturedRooms[i];
+                    var thumb = RoomPhotoHelper.Resolve(post, i);
+                    var locationText = !string.IsNullOrWhiteSpace(post.District)
+                        ? $"{post.District}, {post.City}"
+                        : post.City;
+                    var elecText = post.ElectricityUnitPrice > 0
+                        ? $"Điện {(post.ElectricityUnitPrice / 1000m):0.#}k/kWh"
+                        : "Điện giá dân";
+
+                    <article class="ez-home-card">
+                        <a asp-area="Tenant"
+                           asp-controller="RentalPost"
+                           asp-action="Details"
+                           asp-route-id="@post.RentalPostId"
+                           asp-route-returnUrl="@returnHomeUrl"
+                           class="ez-home-card-media"
+                           aria-label="Xem chi tiết @post.Title">
+                            <img src="@thumb" alt="@post.Title" loading="lazy" />
+                            <span class="ez-home-card-type">@RoomTypeLabel(post.RoomType)</span>
+                            <span class="ez-home-card-status">Còn trống</span>
+                        </a>
+
+                        <div class="ez-home-card-body">
+                            <div class="ez-home-card-loc" title="@post.Address, @locationText">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                                <span>@locationText</span>
+                            </div>
+
+                            <h3 class="ez-home-card-title">
+                                <a asp-area="Tenant"
+                                   asp-controller="RentalPost"
+                                   asp-action="Details"
+                                   asp-route-id="@post.RentalPostId"
+                                   asp-route-returnUrl="@returnHomeUrl">
+                                    @post.Title
+                                </a>
+                            </h3>
+
+                            <div class="ez-home-specs">
+                                <span class="ez-home-spec-chip">@post.Area.ToString("0.##", culture) m²</span>
+                                <span class="ez-home-spec-chip">@elecText</span>
+                            </div>
+
+                            <div class="ez-home-card-foot">
+                                <div class="ez-home-price">
+                                    <strong>@post.Price.ToString("N0", culture) đ</strong>
+                                    <span>/ tháng</span>
+                                </div>
+                                <a asp-area="Tenant"
+                                   asp-controller="RentalPost"
+                                   asp-action="Details"
+                                   asp-route-id="@post.RentalPostId"
+                                   asp-route-returnUrl="@returnHomeUrl"
+                                   class="ez-home-arrow"
+                                   aria-label="Mở phòng @post.Title"
+                                   title="Xem chi tiết">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        <polyline points="12 5 19 12 12 19"></polyline>
+                                    </svg>
+                                </a>
+                            </div>
+                        </div>
+                    </article>
+                }
+            </div>
         </section>
-        <section class="home-notification-section" aria-labelledby="home-notifications-title"><div class="home-section-title"><h2 id="home-notifications-title">Thông báo gần đây @if (Model.UnreadCount > 0) { <span class="home-section-count" aria-label="@Model.UnreadCount thông báo chưa đọc">@Model.UnreadCount</span> }</h2><a asp-controller="Notification" asp-action="Index" class="text-button">Xem tất cả @await Html.PartialAsync("_HomeIcon", "arrow")</a></div>
-            @if (Model.Notices.Count > 0) { @await Html.PartialAsync("_HomeNotices", Model.Notices) }
-            else { <p class="home-empty home-notices-empty">Bạn chưa có thông báo. Tin mới từ hệ thống sẽ hiển thị tại đây.</p> }
-        </section>
+    }
+
+    <!-- ================= 4. GÓC NGƯỜI THUÊ & CHECKLIST XEM PHÒNG ================= -->
+    <div class="ez-thome-guides-wrap">
         @await Html.PartialAsync("_TenantGuides")
     </div>
-    <aside class="home-aside" aria-label="Tiện ích cho người thuê">
-        <nav class="home-shortcuts" aria-label="Lối tắt Trang chủ"><h2>Của bạn</h2>
-            <a asp-controller="ViewingAppointment" asp-action="Index" class="home-shortcut">@await Html.PartialAsync("_HomeIcon", "calendar")<span><strong>Lịch hẹn</strong><small>@(Model.PendingAppointments > 0 ? $"{Model.PendingAppointments} yêu cầu đang chờ" : "Theo dõi lịch của bạn")</small></span>@await Html.PartialAsync("_HomeIcon", "arrow")</a>
-            <a asp-controller="Favorite" asp-action="Index" class="home-shortcut">@await Html.PartialAsync("_HomeIcon", "heart")<span><strong>Phòng đã lưu</strong><small>@Model.SavedCount phòng quan tâm</small></span>@await Html.PartialAsync("_HomeIcon", "arrow")</a>
-            <a asp-area="" asp-controller="Chat" asp-action="Index" class="home-shortcut">@await Html.PartialAsync("_HomeIcon", "chat")<span><strong>Tin nhắn</strong><small>Trao đổi với chủ nhà</small></span>@await Html.PartialAsync("_HomeIcon", "arrow")</a>
-            <a asp-action="Help" class="home-shortcut">@await Html.PartialAsync("_HomeIcon", "help")<span><strong>Hỗ trợ</strong><small>Hỏi đáp và hướng dẫn</small></span>@await Html.PartialAsync("_HomeIcon", "arrow")</a>
-        </nav>
-        <section class="home-saved" aria-labelledby="home-saved-title"><div class="home-section-title"><h2 id="home-saved-title">Đã lưu để xem lại</h2></div><div class="home-saved-list">
-            @foreach (var room in Model.SavedRooms)
-            {
-                <a asp-controller="@(room.IsAvailable ? "RentalPost" : "Favorite")" asp-action="@(room.IsAvailable ? "Details" : "Index")" asp-route-id="@(room.IsAvailable ? room.RentalPostId : (int?)null)" asp-route-returnUrl="@(room.IsAvailable ? Url.Action("Index", "Dashboard") : null)" class="home-saved-room" data-saved-room="@room.RentalPostId"><span class="saved-room-symbol">@await Html.PartialAsync("_HomeIcon", "room")</span><span class="home-saved-copy"><strong>@room.Title</strong>
-                @if (room.IsAvailable) { <span>@room.Area.ToString("0.##", culture) m² · @room.Address</span><span class="saved-price">@room.Price.ToString("N0", culture) đ <small>/ tháng</small></span> }
-                else { <span>Bạn có thể mở danh sách đã lưu để bỏ lưu tin này.</span> }</span>@await Html.PartialAsync("_HomeIcon", "arrow")</a>
-            }
-            @if (Model.SavedRooms.Count == 0) { <p class="home-empty">Bạn chưa lưu phòng nào. Khi tìm thấy lựa chọn phù hợp, bấm trái tim để xem lại tại đây.</p> }
-        </div>@if (Model.SavedRooms.Count > 0) { <a asp-controller="Favorite" asp-action="Index" class="text-button">Xem danh sách đã lưu @await Html.PartialAsync("_HomeIcon", "arrow")</a> }</section>
-        <section class="home-help"><h2>Cần trao đổi thêm?</h2><p>Xem hướng dẫn tìm phòng, theo dõi lịch hẹn và cách sử dụng EZ Rent.</p><a asp-action="Help" class="text-button">Mở phần hỗ trợ @await Html.PartialAsync("_HomeIcon", "arrow")</a></section>
-    </aside>
+
 </div>
-<footer class="home-footnote"><span>EZ Rent · Không gian của bạn</span><span>Hướng dẫn và thông tin dành cho người thuê</span></footer>

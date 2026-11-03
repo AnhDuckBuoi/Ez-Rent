@@ -1,24 +1,123 @@
+@using System.Globalization
 @model EZ_Rent.Areas.Tenant.ViewModels.AppointmentModel
-@{ Layout = "_Layout"; ViewData["Title"] = "Chi tiết lịch hẹn"; ViewData["AppointmentsPage"] = true; }
-<div class="appointment-detail">
-    <a asp-action="Index" class="back-link">← Lịch hẹn của tôi</a>
-    <section class="appointment-detail-hero">
-        <p class="eyebrow">LỊCH XEM PHÒNG #@Model.Id</p>
-        <h1>Chi tiết lịch hẹn</h1>
-        <span class="appointment-status @Model.StatusClass">@Model.StatusLabel</span>
-        <p>@Model.Explanation</p>
-    </section>
-    <section class="detail-section">
-        <h2>Phòng hẹn xem</h2><h3 class="appointment-room-title">@Model.Title</h3>
-        <p class="appointment-address">@Model.Address</p>
-        @if (Model.PostAvailable) { <a asp-controller="RentalPost" asp-action="Details" asp-route-id="@Model.PostId" class="appointment-detail-link">Xem thông tin phòng →</a> }
-        <div class="appointment-time"><span aria-hidden="true">▦</span><div><strong>@Model.TimeLabel</strong><span>@Model.DateLabel</span></div></div>
-    </section>
-    <section class="detail-section"><h2>Ghi chú của bạn</h2><p class="description">@(string.IsNullOrWhiteSpace(Model.Note) ? "Bạn chưa để lại ghi chú." : Model.Note)</p></section>
-    <section class="detail-section landlord-response"><h2>Phản hồi của chủ nhà</h2><p class="description">@(string.IsNullOrWhiteSpace(Model.LandlordNote) ? "Chưa có ghi chú phản hồi từ chủ nhà." : Model.LandlordNote)</p></section>
-    @if (Model.CanCancel)
-    {
-        <div class="appointment-actions"><a asp-action="Delete" asp-route-id="@Model.Id" class="button danger">Hủy lịch hẹn</a></div>
-    }
-    <p class="muted small appointment-footnote">Chức năng chọn khung giờ mới đang được chuẩn bị.</p>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Chi tiết lịch hẹn";
+    ViewData["AppointmentsPage"] = true;
+    var money = CultureInfo.GetCultureInfo("vi-VN");
+}
+
+<div class="ez-appt-shell">
+    <nav class="ez-detail-breadcrumb mb-3" aria-label="Điều hướng quay lại">
+        <a asp-action="Index" class="ez-detail-back">
+            <span aria-hidden="true">←</span>
+            <span>Lịch hẹn của tôi</span>
+        </a>
+    </nav>
+
+    <div class="ez-appt-detail-layout">
+        <!-- LEFT MAIN COLUMN -->
+        <div class="ez-appt-detail-main">
+            <header class="ez-appt-hero-card">
+                <div class="ez-appt-hero-top">
+                    <div>
+                        <p class="ez-home-kicker mb-1">LỊCH XEM PHÒNG #@Model.Id</p>
+                        <h1 class="ez-discover-title mb-2">Chi tiết lịch hẹn</h1>
+                    </div>
+                    <span class="appointment-status ez-appt-badge is-lg @Model.StatusClass">@Model.StatusLabel</span>
+                </div>
+                <p class="ez-appt-explanation">@Model.Explanation</p>
+
+                <div class="ez-appt-schedule-strip is-hero mt-3">
+                    <div class="ez-appt-date-chip is-lg">
+                        <span>@Model.MonthLabel</span>
+                        <strong>@Model.DayNumber</strong>
+                    </div>
+                    <div class="ez-appt-time-meta">
+                        <strong>@Model.TimeLabel <span>· Giờ hẹn đến xem</span></strong>
+                        <span>@Model.DateLabel</span>
+                    </div>
+                </div>
+            </header>
+
+            <div class="ez-appt-notes-grid">
+                <section class="ez-appt-note-card">
+                    <div class="ez-appt-note-head">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                        <h2>Ghi chú của bạn</h2>
+                    </div>
+                    <p class="ez-appt-note-body @(string.IsNullOrWhiteSpace(Model.Note) ? "is-empty" : "")">@(string.IsNullOrWhiteSpace(Model.Note) ? "Bạn chưa để lại ghi chú đính kèm cho lịch hẹn này." : Model.Note)</p>
+                </section>
+
+                <section class="ez-appt-note-card is-landlord">
+                    <div class="ez-appt-note-head">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg>
+                        <h2>Phản hồi của chủ nhà</h2>
+                    </div>
+                    <p class="ez-appt-note-body @(string.IsNullOrWhiteSpace(Model.LandlordNote) ? "is-empty" : "")">@(string.IsNullOrWhiteSpace(Model.LandlordNote) ? "Chưa có ghi chú phản hồi từ chủ nhà." : Model.LandlordNote)</p>
+                </section>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR: ROOM CARD & ACTIONS -->
+        <aside class="ez-appt-detail-aside">
+            <section class="ez-appt-room-panel">
+                <div class="ez-appt-room-panel-media">
+                    <img src="@Model.ImageUrl" alt="@Model.Title" data-fallback="/images/room-placeholder.svg" />
+                    <span class="ez-booking-room-type">@Model.RoomTypeLabel</span>
+                </div>
+
+                <div class="ez-appt-room-panel-body">
+                    <p class="ez-home-kicker mb-1">PHÒNG HẸN XEM</p>
+                    <h2 class="ez-booking-room-title">@Model.Title</h2>
+                    <p class="ez-booking-room-addr">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        <span>@Model.Address</span>
+                    </p>
+
+                    @if (Model.PostAvailable && Model.Price.HasValue)
+                    {
+                        <div class="ez-booking-price-row">
+                            <div class="ez-booking-price-val">
+                                <strong>@Model.Price.Value.ToString("N0", money) đ</strong>
+                                <span>/ tháng</span>
+                            </div>
+                            @if (Model.Area.HasValue)
+                            {
+                                <span class="ez-booking-area-chip">@Model.Area.Value.ToString("0.##", money) m²</span>
+                            }
+                        </div>
+                    }
+
+                    <div class="ez-appt-panel-actions">
+                        @if (Model.PostAvailable)
+                        {
+                            <a asp-controller="RentalPost" asp-action="Details" asp-route-id="@Model.PostId" class="ez-detail-btn-primary">
+                                Xem thông tin phòng →
+                            </a>
+                            <a asp-controller="Dashboard" asp-action="Messages" asp-route-RentalPostId="@Model.PostId" asp-route-View="chat" class="ez-detail-btn-outline">
+                                Nhắn tin với chủ nhà
+                            </a>
+                        }
+                        @if (Model.CanCancel)
+                        {
+                            <a asp-action="Delete" asp-route-id="@Model.Id" class="ez-appt-btn-danger">
+                                Hủy lịch hẹn này
+                            </a>
+                        }
+                    </div>
+
+                    <p class="ez-appt-footnote">Chức năng đổi sang khung giờ mới đang được chuẩn bị.</p>
+                </div>
+            </section>
+        </aside>
+    </div>
 </div>

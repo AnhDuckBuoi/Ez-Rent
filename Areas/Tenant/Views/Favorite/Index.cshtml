@@ -1,5 +1,25 @@
 @model EZ_Rent.Areas.Tenant.ViewModels.RentalSearchPageModel
 @{ Layout = "_Layout"; ViewData["Title"] = "Phòng yêu thích"; ViewData["FavoritesPage"] = true; }
-<section class="discovery-intro"><p class="eyebrow">LỰA CHỌN CỦA BẠN</p><h1>Những nơi bạn muốn gọi là nhà.</h1><p>Lưu lại, so sánh và tìm không gian phù hợp với mình.</p></section>
-<p class="notice error" id="search-error" role="alert" hidden></p>
-<section id="rental-results" data-favorites-list aria-label="Phòng đã lưu" aria-live="polite"><partial name="~/Areas/Tenant/Views/RentalPost/_Results.cshtml" model="Model" /></section>
+<div class="ez-discover-shell">
+    <section class="discovery-intro ez-discovery-head mb-4">
+        <div>
+            <p class="ez-home-kicker">LỰA CHỌN CỦA BẠN</p>
+            <h1 class="ez-discover-title">Những nơi bạn muốn gọi là nhà.</h1>
+            <p class="ez-home-subhead">Lưu lại, so sánh chi phí và đặt lịch xem những không gian phù hợp nhất với mình.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a asp-area="Tenant" asp-controller="ViewingAppointment" asp-action="Index" class="ez-context-pill-btn">
+                @await Html.PartialAsync("_HomeIcon", "calendar")
+                <span>Lịch xem phòng của tôi</span>
+            </a>
+            <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" class="ez-context-pill-btn">
+                @await Html.PartialAsync("_HomeIcon", "search")
+                <span>Tìm thêm phòng</span>
+            </a>
+        </div>
+    </section>
+    <p class="notice error" id="search-error" role="alert" hidden></p>
+    <section id="rental-results" data-favorites-list aria-label="Phòng đã lưu" aria-live="polite">
+        <partial name="~/Areas/Tenant/Views/RentalPost/_Results.cshtml" model="Model" />
+    </section>
+</div>

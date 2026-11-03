@@ -1,8 +1,34 @@
 @{
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
-    var links = new[] { ("MyRoom", "Tổng quan"), ("Contract", "Hợp đồng"), ("Invoice", "Hóa đơn"), ("RepairRequest", "Sửa chữa") };
+    var links = new (string Name, string Label, string IconPath)[]
+    {
+        ("MyRoom", "Tổng quan", "M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1v-9.5z"),
+        ("Contract", "Hợp đồng", "M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z M14 2v6h6 M8 13h8 M8 17h5"),
+        ("Invoice", "Hóa đơn", "M4 3h16v18l-2.5-1.5L15 21l-3-1.5L9 21l-2.5-1.5L4 21V3z M8 8h8 M8 12h8 M8 16h5"),
+        ("RepairRequest", "Sửa chữa", "M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z")
+    };
 }
-<header class="rental-heading"><h1>@ViewData["Title"]</h1><p>@ViewData["Description"]</p></header>
-<nav class="rental-tabs" aria-label="Phòng đang ở">
-@foreach (var (name, label) in links) { <a asp-area="Tenant" asp-controller="@name" asp-action="Index" aria-current="@(controller == name ? "page" : null)">@label</a> }
-</nav>
+<div class="ez-rental-nav-shell">
+    <header class="rental-heading">
+        <span class="ez-rental-eyebrow">KHÔNG GIAN LƯU TRÚ</span>
+        <h1>@ViewData["Title"]</h1>
+        @if (ViewData["Description"] is string desc && !string.IsNullOrWhiteSpace(desc))
+        {
+            <p>@desc</p>
+        }
+    </header>
+    <nav class="rental-tabs" aria-label="Phòng đang ở">
+        @foreach (var (name, label, iconPath) in links)
+        {
+            <a asp-area="Tenant"
+               asp-controller="@name"
+               asp-action="Index"
+               aria-current="@(controller == name ? "page" : null)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="@iconPath" />
+                </svg>
+                <span>@label</span>
+            </a>
+        }
+    </nav>
+</div>

@@ -24,6 +24,9 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
+        public const string RoleTenant = "Tenant";
+        public const string RoleLandlord = "Landlord";
+
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IUserStore<ApplicationUser> _userStore;
@@ -46,76 +49,85 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
             _emailSender = emailSender;
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public string ReturnUrl { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
+        public static bool TryNormalizeSelfRegisterRole(string rawRole, out string normalizedRole)
+        {
+            if (string.IsNullOrWhiteSpace(rawRole) ||
+                string.Equals(rawRole.Trim(), RoleTenant, StringComparison.OrdinalIgnoreCase))
+            {
+                normalizedRole = RoleTenant;
+                return true;
+            }
+
+            if (string.Equals(rawRole.Trim(), RoleLandlord, StringComparison.OrdinalIgnoreCase))
+            {
+                normalizedRole = RoleLandlord;
+                return true;
+            }
+
+            normalizedRole = null;
+            return false;
+        }
+
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
+            [Display(Name = "Vai trò")]
+            public string Role { get; set; } = RoleTenant;
+
             [Required(ErrorMessage = "Họ và tên không được để trống")]
             [MaxLength(50, ErrorMessage = "Họ và tên không được vượt quá 50 ký tự")]
             [Display(Name = "Họ và tên")]
             public string FullName { get; set; }
 
-            [Required]
-            [EmailAddress]
+            [Required(ErrorMessage = "Email không được để trống")]
+            [EmailAddress(ErrorMessage = "Địa chỉ email không hợp lệ")]
             [Display(Name = "Email")]
             public string Email { get; set; }
 
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [Required(ErrorMessage = "Mật khẩu không được để trống")]
+            [StringLength(100, ErrorMessage = "{0} phải có độ dài từ {2} đến {1} ký tự.", MinimumLength = 6)]
             [DataType(DataType.Password)]
-            [Display(Name = "Password")]
+            [Display(Name = "Mật khẩu")]
             public string Password { get; set; }
 
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
             [DataType(DataType.Password)]
-            [Display(Name = "Confirm password")]
-            [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+            [Display(Name = "Xác nhận mật khẩu")]
+            [Compare("Password", ErrorMessage = "Mật khẩu xác nhận không khớp.")]
             public string ConfirmPassword { get; set; }
         }
 
-
-        public async Task OnGetAsync(string returnUrl = null)
+        public async Task OnGetAsync(string returnUrl = null, string role = null)
         {
             ReturnUrl = returnUrl;
+            Input = new InputModel
+            {
+                Role = string.Equals(role, RoleLandlord, StringComparison.OrdinalIgnoreCase)
+                    ? RoleLandlord
+                    : RoleTenant
+            };
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
         {
+            var hasExplicitReturnUrl = !string.IsNullOrWhiteSpace(returnUrl)
+                && returnUrl != "/"
+                && returnUrl != "~/";
             returnUrl ??= Url.Content("~/");
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
+            Input ??= new InputModel();
+            if (!TryNormalizeSelfRegisterRole(Input.Role, out var selectedRole))
+            {
+                ModelState.AddModelError($"{nameof(Input)}.{nameof(Input.Role)}", "Vai trò đăng ký không hợp lệ.");
+            }
+
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
@@ -126,16 +138,21 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("User created a new account with password.");
+                    _logger.LogInformation("User created a new account with password and role {Role}.", selectedRole);
 
                     var userId = await _userManager.GetUserIdAsync(user);
                     var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    await _userManager.AddToRoleAsync(user, "Tenant");
+                    await _userManager.AddToRoleAsync(user, selectedRole);
+
+                    var targetRedirect = (selectedRole == RoleLandlord && !hasExplicitReturnUrl)
+                        ? Url.Content("~/Landlord/Overview")
+                        : returnUrl;
+
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,
-                        values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
+                        values: new { area = "Identity", userId = userId, code = code, returnUrl = targetRedirect },
                         protocol: Request.Scheme);
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
@@ -143,12 +160,12 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
-                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = returnUrl });
+                        return RedirectToPage("RegisterConfirmation", new { email = Input.Email, returnUrl = targetRedirect });
                     }
                     else
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
-                        return LocalRedirect(returnUrl);
+                        return LocalRedirect(targetRedirect);
                     }
                 }
                 foreach (var error in result.Errors)

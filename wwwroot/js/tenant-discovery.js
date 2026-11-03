@@ -46,15 +46,31 @@
         return [...document.querySelectorAll('[data-favorite-form]')].filter(other =>
             other.querySelector('[name="RentalPostId"]').value === String(postId));
     }
-    function applyFavoriteState(postId, saved) {
+    function applyFavoriteState(postId, saved, animate = false) {
         for (const other of favoriteForms(postId)) {
             other.querySelector('[name="Saved"]').value = String(!saved);
             const button = other.querySelector('button');
             button.setAttribute('aria-pressed', String(saved));
             button.classList.toggle('is-saved', saved);
+            if (animate) {
+                button.classList.remove('is-toggled');
+                void button.offsetWidth;
+                button.classList.add('is-toggled');
+
+                const statusPill = other.querySelector('[data-card-fav-status]');
+                if (statusPill) {
+                    statusPill.textContent = saved ? 'Đã lưu' : 'Đã bỏ lưu';
+                    clearTimeout(button._favFeedbackTimer);
+                    button.classList.add('is-feedback');
+                    button._favFeedbackTimer = setTimeout(() => {
+                        button.classList.remove('is-feedback');
+                    }, saved ? 1500 : 1300);
+                }
+            }
             const title = other.closest('.rental-card')?.querySelector('h3')?.textContent || document.querySelector('.detail-heading h1')?.textContent || 'phòng';
             button.setAttribute('aria-label', `${saved ? 'Bỏ lưu' : 'Lưu'} ${title.trim()}`);
-            other.querySelector('[data-heart]').textContent = saved ? '♥' : '♡';
+            const heart = other.querySelector('[data-heart]');
+            if (heart && !heart.querySelector('svg')) heart.textContent = saved ? '♥' : '♡';
             const label = other.querySelector('[data-save-label]');
             if (label) label.textContent = saved ? 'Đã lưu phòng' : 'Lưu phòng yêu thích';
         }
@@ -166,8 +182,8 @@
             if (!response.ok || response.redirected || !payload || typeof payload.saved !== 'boolean')
                 throw new Error(payload?.message || 'Chưa lưu được thay đổi. Vui lòng thử lại hoặc tải lại trang để đăng nhập.');
             confirmedFavorites.set(postId, { saved: payload.saved, revision: ++favoriteRevision });
-            applyFavoriteState(postId, payload.saved);
-            toast(payload.message);
+            applyFavoriteState(postId, payload.saved, true);
+            window.TenantFeedback?.clear?.();
             if (document.querySelector('[data-favorites-list]')) await loadResults(location.pathname + location.search, false);
         } catch (error) {
             toast(error instanceof TypeError ? 'Kết nối bị gián đoạn. Vui lòng thử lại.' : error.message || 'Chưa lưu được thay đổi. Vui lòng thử lại.', true);

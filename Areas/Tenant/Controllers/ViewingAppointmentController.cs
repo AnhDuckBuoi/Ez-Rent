@@ -35,7 +35,7 @@ public class ViewingAppointmentController : TenantControllerBase
         var pages = Math.Max(1, (int)Math.Ceiling(total / (double)pageSize));
         input.Page = Math.Min(input.Page, pages);
         // Active requests first, earliest viewing first; history follows with the newest viewing first.
-        var rows = await query.Include(a => a.RentalPost)
+        var rows = await query.Include(a => a.RentalPost).ThenInclude(p => p.RoomImages)
             .OrderBy(a => a.Status == ViewingAppointmentStatus.Pending || a.Status == ViewingAppointmentStatus.Confirmed ? 0 : 1)
             .ThenBy(a => a.Status == ViewingAppointmentStatus.Pending || a.Status == ViewingAppointmentStatus.Confirmed ? a.ViewingDate : DateTime.MaxValue)
             .ThenByDescending(a => a.ViewingDate).ThenByDescending(a => a.ViewingAppointmentId)
@@ -50,7 +50,7 @@ public class ViewingAppointmentController : TenantControllerBase
     [HttpGet]
     public async Task<IActionResult> Details([FromRoute] int? id)
     {
-        var appointment = await MyAppointments.AsNoTracking().Include(a => a.RentalPost)
+        var appointment = await MyAppointments.AsNoTracking().Include(a => a.RentalPost).ThenInclude(p => p.RoomImages)
             .FirstOrDefaultAsync(a => a.ViewingAppointmentId == id);
         return appointment == null ? MissingAppointment() : View(AppointmentModel.From(appointment));
     }
@@ -119,7 +119,7 @@ public class ViewingAppointmentController : TenantControllerBase
     [HttpGet]
     public async Task<IActionResult> Delete([FromRoute] int? id)
     {
-        var appointment = await MyAppointments.AsNoTracking().Include(a => a.RentalPost)
+        var appointment = await MyAppointments.AsNoTracking().Include(a => a.RentalPost).ThenInclude(p => p.RoomImages)
             .FirstOrDefaultAsync(a => a.ViewingAppointmentId == id);
         if (appointment == null) return MissingAppointment();
         return CanCancel(appointment.Status) ? View(AppointmentModel.From(appointment)) : CancellationConflict(appointment.ViewingAppointmentId);

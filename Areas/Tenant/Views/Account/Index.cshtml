@@ -50,14 +50,27 @@
             </div>
             <p class="account-name">@Model.DisplayName</p>
             <form asp-action="UploadAvatar" method="post" enctype="multipart/form-data" class="account-form">
-                <div>
-                    <label asp-for="Avatar.File">Chọn ảnh mới</label>
-                    <input asp-for="Avatar.File" type="file" accept="image/png,image/jpeg" aria-describedby="avatar-hint avatar-error" />
+                <div class="account-avatar-field">
+                    <label asp-for="Avatar.File" class="account-file-trigger-label">
+                        <span class="account-file-title">Chọn ảnh mới</span>
+                        <div class="account-file-box">
+                            <span class="account-file-browse-btn">
+                                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                    <polyline points="17 8 12 3 7 8"></polyline>
+                                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                                </svg>
+                                Chọn tệp
+                            </span>
+                            <span class="account-file-chosen-name" data-avatar-filename>Chưa chọn tệp</span>
+                        </div>
+                    </label>
+                    <input asp-for="Avatar.File" type="file" accept="image/png,image/jpeg" class="account-file-native visually-hidden" aria-describedby="avatar-hint avatar-error" />
                     <small id="avatar-hint">PNG hoặc JPEG, tối đa 2 MB và 4.096 px mỗi chiều.</small>
                     <span asp-validation-for="Avatar.File" id="avatar-error" class="account-error"></span>
                 </div>
                 <p class="account-muted" data-avatar-status role="status"></p>
-                <button class="account-secondary" type="submit">Lưu ảnh đại diện</button>
+                <button class="account-primary account-avatar-submit" type="submit">Lưu ảnh đại diện</button>
             </form>
             @if (Model.AvatarUrl != null)
             {

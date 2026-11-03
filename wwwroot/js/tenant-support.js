@@ -6,6 +6,23 @@
     const status = document.getElementById('support-status');
     const description = document.getElementById('Input_Description');
     let busy = false, dirty = !!(form.elements.namedItem('Input.Subject').value.trim() || description.value.trim()), saved = false;
+
+    // Check if user navigated from Account page
+    try {
+        if (document.referrer && document.referrer.includes('/Tenant/Account')) {
+            const backLink = document.querySelector('[data-back-link]');
+            if (backLink) {
+                backLink.href = '/Tenant/Account';
+                const label = backLink.querySelector('[data-back-label]');
+                if (label) label.textContent = 'Quay lại Tài khoản';
+            }
+            const cancelLink = document.querySelector('[data-cancel-link]');
+            if (cancelLink) {
+                cancelLink.href = '/Tenant/Account';
+            }
+        }
+    } catch (_) {}
+
     function showError(message) { status.hidden = false; status.textContent = message; status.focus({preventScroll:true}); }
     function updateCount() { document.getElementById('support-count').textContent = `${description.value.length.toLocaleString('vi-VN')}/1.000`; }
     form.addEventListener('input', event => {
@@ -45,7 +62,7 @@
             saved = true;
             location.assign(url.href);
         } catch (error) {
-            showError(error instanceof TypeError ? 'Chưa xác nhận được kết quả gửi do kết nối. Hãy xem Yêu cầu đã gửi trước khi gửi lại; nội dung vẫn được giữ.' : error.message);
+            showError(error instanceof TypeError ? 'Chưa xác nhận được kết quả gửi do kết nối. Hãy xem Yêu cầu đã gửi trước khi thử lại; nội dung vẫn được giữ.' : error.message);
         } finally {
             busy = false; fields.forEach(field => field.disabled = false); button.disabled = false;
             button.textContent = 'Gửi yêu cầu'; form.removeAttribute('aria-busy');

@@ -1,5 +1,6 @@
 @model EZ_Rent.Models.RentalPost
 @using EZ_Rent.Models.Enums
+@using EZ_Rent.Helpers
 
 @{
     ViewData["Title"] = "Chi tiết tin đăng";
@@ -265,7 +266,8 @@
                 @foreach (var img in Model.RoomImages.OrderBy(i => i.DisplayOrder))
                 {
                     <div class="col-3">
-                        <img src="@img.MediaUrl" class="img-fluid rounded"
+                        @{ var imgUrl = img.MediaType == MediaType.Image ? RoomPhotoHelper.ResolveUrl(img.MediaUrl, Model.RentalPostId, Model.RoomType) : img.MediaUrl; }
+                        <img src="@imgUrl" class="img-fluid rounded"
                              style="height:120px; width:100%; object-fit:cover;" />
                         @if (img.IsPrimary)
                         {

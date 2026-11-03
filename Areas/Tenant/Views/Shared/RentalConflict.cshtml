@@ -3,4 +3,17 @@
     ViewData["Title"] = "Yêu cầu vừa thay đổi";
     ViewData["Description"] = "Thông tin bạn đang xem không còn là trạng thái mới nhất.";
 }
-<section class="rental-empty"><h2>Không thể sửa hoặc hủy lúc này</h2><p>Yêu cầu có thể đã được chủ nhà xử lý hoặc đã được hủy. Hãy mở lại danh sách để xem trạng thái mới nhất.</p><a asp-controller="RepairRequest" asp-action="Index" class="rental-button primary">Xem danh sách yêu cầu</a></section>
+<section class="rental-empty ez-rental-conflict-card">
+    <div class="ez-rental-empty-icon is-amber" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+    </div>
+    <h2>Không thể sửa hoặc hủy lúc này</h2>
+    <p>Yêu cầu có thể đã được chủ nhà xử lý hoặc đã được hủy. Hãy mở lại danh sách để xem trạng thái mới nhất.</p>
+    <div class="rental-actions">
+        <a asp-controller="RepairRequest" asp-action="Index" class="rental-button primary">Xem danh sách yêu cầu</a>
+    </div>
+</section>

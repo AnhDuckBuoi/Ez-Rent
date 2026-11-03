@@ -1,16 +1,56 @@
 @model EZ_Rent.Areas.Tenant.ViewModels.AppointmentModel
-@{ Layout = "_Layout"; ViewData["Title"] = "Xác nhận hủy lịch"; ViewData["AppointmentsPage"] = true; }
-<div class="appointment-detail">
-    <a asp-action="Details" asp-route-id="@Model.Id" class="back-link">← Quay lại chi tiết</a>
-    <section class="detail-section cancellation-panel">
-        <span class="empty-symbol" aria-hidden="true">×</span>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Xác nhận hủy lịch";
+    ViewData["AppointmentsPage"] = true;
+}
+
+<div class="ez-appt-shell">
+    <nav class="ez-detail-breadcrumb mb-3" aria-label="Điều hướng quay lại">
+        <a asp-action="Details" asp-route-id="@Model.Id" class="ez-detail-back">
+            <span aria-hidden="true">←</span>
+            <span>Quay lại chi tiết</span>
+        </a>
+    </nav>
+
+    <section class="ez-appt-cancel-card">
+        <div class="ez-appt-cancel-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="15" y1="9" x2="9" y2="15"></line>
+                <line x1="9" y1="9" x2="15" y2="15"></line>
+            </svg>
+        </div>
+
         <h1>Hủy lịch hẹn này?</h1>
-        <p>Lịch sử và phản hồi của chủ nhà vẫn được giữ lại. Sau khi hủy, bạn sẽ không còn lịch xem phòng này.</p>
-        <h2>@Model.Title</h2><p class="appointment-address">@Model.Address</p>
-        <div class="appointment-time"><span aria-hidden="true">▦</span><div><strong>@Model.TimeLabel</strong><span>@Model.DateLabel</span></div></div>
-        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-cancel-appointment>
-            <a asp-action="Details" asp-route-id="@Model.Id" class="button">Giữ lịch hẹn</a>
-            <button type="submit" class="button danger solid">Xác nhận hủy lịch</button>
+        <p class="ez-appt-cancel-lead">Lịch sử và phản hồi của chủ nhà vẫn được giữ lại để bạn tra cứu. Sau khi xác nhận hủy, bạn sẽ không còn lịch đến xem căn phòng này.</p>
+
+        <div class="ez-appt-cancel-preview">
+            <div class="ez-appt-room-row mb-3">
+                <div class="ez-appt-thumb">
+                    <img src="@Model.ImageUrl" alt="@Model.Title" data-fallback="/images/room-placeholder.svg" />
+                </div>
+                <div class="ez-appt-room-copy">
+                    <h2>@Model.Title</h2>
+                    <p class="ez-appt-addr"><span>@Model.Address</span></p>
+                </div>
+            </div>
+
+            <div class="ez-appt-schedule-strip">
+                <div class="ez-appt-date-chip">
+                    <span>@Model.MonthLabel</span>
+                    <strong>@Model.DayNumber</strong>
+                </div>
+                <div class="ez-appt-time-meta">
+                    <strong>@Model.TimeLabel <span>· Giờ Việt Nam</span></strong>
+                    <span>@Model.DateLabel</span>
+                </div>
+            </div>
+        </div>
+
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" data-cancel-appointment class="ez-appt-cancel-actions">
+            <a asp-action="Details" asp-route-id="@Model.Id" class="ez-booking-btn-secondary">Giữ lịch hẹn</a>
+            <button type="submit" class="ez-appt-btn-danger-solid">Xác nhận hủy lịch</button>
         </form>
     </section>
 </div>

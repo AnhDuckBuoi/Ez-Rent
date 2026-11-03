@@ -13,10 +13,14 @@ namespace EZ_Rent.Areas.Tenant.Controllers;
 public sealed class DashboardController(AppDbContext context, ILogger<DashboardController> logger, EZ_Rent.Services.ChatRealtime realtime) : TenantControllerBase(context)
 {
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? ui = null)
     {
         var model = await TenantHomeReader.ReadAsync(Context, CurrentUserId, DateTimeOffset.UtcNow);
         ViewData["UnreadNotifications"] = model.UnreadCount;
+        if (string.Equals(ui, "legacy", StringComparison.OrdinalIgnoreCase))
+        {
+            return View("Index.Legacy", model);
+        }
         return View(model);
     }
 

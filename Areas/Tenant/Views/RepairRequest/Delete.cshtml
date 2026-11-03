@@ -5,12 +5,22 @@
     ViewData["Title"] = "Hủy yêu cầu sửa chữa";
     ViewData["Description"] = Model.RentalPost.Title;
 }
-<section class="rental-panel rental-confirmation">
+<section class="rental-panel rental-confirmation ez-rental-cancel-card">
+    <div class="ez-rental-cancel-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+            <line x1="12" y1="9" x2="12" y2="13" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+    </div>
     <h2>Bạn muốn hủy yêu cầu này?</h2>
-    <p><strong>@Model.ProblemType</strong></p><p class="rental-prose">@Model.Description</p>
-    <p>Yêu cầu sẽ chuyển sang Đã hủy. Nội dung và lịch sử được giữ lại để bạn tra cứu.</p>
-    <form asp-action="Delete" asp-route-id="@Model.RepairRequestId" method="post" class="rental-actions">
-        <button type="submit" class="rental-button danger">Xác nhận hủy yêu cầu</button>
+    <div class="ez-rental-prose-box ez-cancel-preview">
+        <p class="ez-cancel-title"><strong>@Model.ProblemType</strong></p>
+        <p class="rental-prose">@Model.Description</p>
+    </div>
+    <p>Yêu cầu sẽ chuyển sang trạng thái <strong>Đã hủy</strong>. Nội dung và lịch sử vẫn được giữ lại để bạn tra cứu khi cần.</p>
+    <form asp-action="Delete" asp-route-id="@Model.RepairRequestId" method="post" class="rental-actions ez-actions-end">
         <a asp-action="Details" asp-route-id="@Model.RepairRequestId" class="rental-button secondary">Giữ yêu cầu</a>
+        <button type="submit" class="rental-button danger">Xác nhận hủy yêu cầu</button>
     </form>
 </section>

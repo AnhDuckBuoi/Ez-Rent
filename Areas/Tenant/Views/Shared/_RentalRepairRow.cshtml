@@ -1,15 +1,20 @@
 @using EZ_Rent.Areas.Tenant.Services
 @model RepairRequest
-<article class="rental-row" data-repair-id="@Model.RepairRequestId">
+<article class="rental-row ez-rental-item-card" data-repair-id="@Model.RepairRequestId">
     <div class="rental-row-main">
+        <div class="ez-rental-row-top">
+            <span class="rental-status @TenantRentalPresentation.Tone(Model.Status)">@TenantRentalPresentation.RepairLabel(Model.Status)</span>
+            <span class="ez-rental-priority-tag">Ưu tiên: @TenantRentalPresentation.PriorityLabel(Model.Priority)</span>
+        </div>
         <a asp-controller="RepairRequest" asp-action="Details" asp-route-id="@Model.RepairRequestId" class="rental-row-title">@Model.ProblemType</a>
         <p class="rental-preview-text">@Model.Description</p>
-        @if (Model.RentalPost != null) { <small>@Model.RentalPost.Title</small> }
+        @if (Model.RentalPost != null)
+        {
+            <small>@Model.RentalPost.Title</small>
+        }
         <small>Gửi @TenantRentalPresentation.SentAt(Model.CreatedAt) · Giờ Việt Nam</small>
     </div>
     <div class="rental-row-end">
-        <span class="rental-status @TenantRentalPresentation.Tone(Model.Status)">@TenantRentalPresentation.RepairLabel(Model.Status)</span>
-        <small>Ưu tiên: @TenantRentalPresentation.PriorityLabel(Model.Priority)</small>
-        <a asp-controller="RepairRequest" asp-action="Details" asp-route-id="@Model.RepairRequestId">Xem yêu cầu</a>
+        <a asp-controller="RepairRequest" asp-action="Details" asp-route-id="@Model.RepairRequestId" class="ez-rental-row-link">Xem yêu cầu →</a>
     </div>
 </article>

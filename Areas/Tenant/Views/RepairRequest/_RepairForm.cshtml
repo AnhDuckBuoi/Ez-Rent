@@ -6,10 +6,22 @@
 }
 @if (ViewData["HasRentedPosts"] as bool? != true)
 {
-    <section class="rental-empty"><h2>Chưa có phòng đủ điều kiện</h2><p>Bạn cần có hợp đồng đang hiệu lực để gửi hoặc sửa yêu cầu sửa chữa.</p><a asp-controller="MyRoom" asp-action="Index">Về phòng đang ở</a></section>
+    <section class="rental-empty">
+        <div class="ez-rental-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 10.5L12 3l9 7.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1v-9.5z" />
+            </svg>
+        </div>
+        <h2>Chưa có phòng đủ điều kiện</h2>
+        <p>Bạn cần có hợp đồng đang hiệu lực để gửi hoặc sửa yêu cầu sửa chữa.</p>
+        <div class="rental-actions">
+            <a asp-controller="MyRoom" asp-action="Index" class="rental-button primary">Về phòng đang ở</a>
+        </div>
+    </section>
 }
 else
 {
+    <a asp-action="@(editing ? "Details" : "Index")" asp-route-id="@(editing ? id : null)" class="rental-back">← @(editing ? "Quay lại chi tiết yêu cầu" : "Quay lại danh sách yêu cầu")</a>
     <div class="rental-detail-grid">
         <section class="rental-panel">
             <h2>@(editing ? "Cập nhật nội dung sự cố" : "Mô tả sự cố tại phòng")</h2>
@@ -17,34 +29,52 @@ else
                 <div asp-validation-summary="ModelOnly" class="rental-validation" role="alert"></div>
                 <div>
                     <label asp-for="RentalPostId"></label>
-                    <select asp-for="RentalPostId" asp-items="ViewBag.RentalPostId" disabled="@editing" required aria-describedby="room-error"><option value="">Chọn phòng đang thuê</option></select>
-                    @if (editing) { <input asp-for="RentalPostId" id="repair-room-id" type="hidden" /> }
+                    <select asp-for="RentalPostId" asp-items="ViewBag.RentalPostId" disabled="@editing" required aria-describedby="room-error">
+                        <option value="">Chọn phòng đang thuê</option>
+                    </select>
+                    @if (editing)
+                    {
+                        <input asp-for="RentalPostId" id="repair-room-id" type="hidden" />
+                    }
                     <span asp-validation-for="RentalPostId" id="room-error" class="rental-field-error"></span>
-                    @if (editing) { <small>Phòng của yêu cầu đã gửi không thể thay đổi.</small> }
+                    @if (editing)
+                    {
+                        <small>Phòng của yêu cầu đã gửi không thể thay đổi.</small>
+                    }
                 </div>
-                <div>
-                    <label asp-for="ProblemType"></label>
-                    <input asp-for="ProblemType" list="repair-topics" maxlength="100" required aria-describedby="type-error" />
-                    <datalist id="repair-topics"><option value="Điện"></option><option value="Nước"></option><option value="Thiết bị trong phòng"></option><option value="Khóa cửa"></option><option value="Sự cố khác"></option></datalist>
-                    <span asp-validation-for="ProblemType" id="type-error" class="rental-field-error"></span>
+                <div class="ez-rental-form-row">
+                    <div>
+                        <label asp-for="ProblemType"></label>
+                        <input asp-for="ProblemType" list="repair-topics" maxlength="100" placeholder="Ví dụ: Điện, Nước, Điều hòa..." required aria-describedby="type-error" />
+                        <datalist id="repair-topics">
+                            <option value="Điện"></option>
+                            <option value="Nước"></option>
+                            <option value="Thiết bị trong phòng"></option>
+                            <option value="Khóa cửa"></option>
+                            <option value="Sự cố khác"></option>
+                        </datalist>
+                        <span asp-validation-for="ProblemType" id="type-error" class="rental-field-error"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Priority"></label>
+                        <select asp-for="Priority" aria-describedby="priority-error">
+                            @foreach (var priority in Enum.GetValues<RepairPriority>())
+                            {
+                                <option value="@((int)priority)">@TenantRentalPresentation.PriorityLabel(priority)</option>
+                            }
+                        </select>
+                        <span asp-validation-for="Priority" id="priority-error" class="rental-field-error"></span>
+                    </div>
                 </div>
                 <div>
                     <label asp-for="Description"></label>
-                    <textarea asp-for="Description" rows="6" maxlength="2000" required aria-describedby="description-hint description-error"></textarea>
+                    <textarea asp-for="Description" rows="6" maxlength="2000" placeholder="Mô tả rõ vị trí, biểu hiện sự cố và thời điểm phát hiện..." required aria-describedby="description-hint description-error"></textarea>
                     <small id="description-hint">Nêu vị trí, biểu hiện và thời điểm xảy ra. <span data-repair-count>@(Model.Description?.Length ?? 0)</span>/2.000 ký tự.</small>
                     <span asp-validation-for="Description" id="description-error" class="rental-field-error"></span>
                 </div>
                 <div>
-                    <label asp-for="Priority"></label>
-                    <select asp-for="Priority" aria-describedby="priority-error">
-                        @foreach (var priority in Enum.GetValues<RepairPriority>())
-                        { <option value="@((int)priority)">@TenantRentalPresentation.PriorityLabel(priority)</option> }
-                    </select>
-                    <span asp-validation-for="Priority" id="priority-error" class="rental-field-error"></span>
-                </div>
-                <div>
                     <label asp-for="ImageUrl">Liên kết ảnh sự cố</label>
-                    <input asp-for="ImageUrl" type="url" maxlength="500" aria-describedby="image-hint image-error" />
+                    <input asp-for="ImageUrl" type="url" maxlength="500" placeholder="https://..." aria-describedby="image-hint image-error" />
                     <small id="image-hint">Không bắt buộc. Dán liên kết ảnh HTTP hoặc HTTPS nếu bạn có sẵn.</small>
                     <span asp-validation-for="ImageUrl" id="image-error" class="rental-field-error"></span>
                 </div>
@@ -54,11 +84,14 @@ else
                 </div>
             </form>
         </section>
-        <aside class="rental-panel">
-            <h2>Trước khi gửi</h2>
-            <p>Mô tả rõ sự cố giúp chủ nhà chuẩn bị phương án xử lý.</p>
-            <p>Bạn chỉ sửa hoặc hủy được khi yêu cầu còn ở trạng thái Chờ xử lý. Lịch sử vẫn được lưu sau khi hủy.</p>
-            <p class="rental-note">Nếu có nguy cơ mất an toàn, hãy chủ động gọi chủ nhà hoặc đơn vị hỗ trợ phù hợp ngay.</p>
+
+        <aside class="rental-panel ez-rental-sticky-aside">
+            <h2>Lưu ý trước khi gửi</h2>
+            <ul class="ez-rental-tips-list">
+                <li>Mô tả cụ thể vị trí và biểu hiện sự cố giúp chủ nhà chuẩn bị đúng dụng cụ hoặc thợ kỹ thuật.</li>
+                <li>Bạn chỉ sửa hoặc hủy được khi yêu cầu còn ở trạng thái <strong>Chờ xử lý</strong>. Lịch sử vẫn được lưu sau khi hủy.</li>
+            </ul>
+            <p class="rental-note">Nếu có nguy cơ mất an toàn điện, cháy nổ hoặc rò rỉ nước lớn, hãy chủ động gọi trực tiếp cho chủ nhà ngay.</p>
         </aside>
     </div>
 }

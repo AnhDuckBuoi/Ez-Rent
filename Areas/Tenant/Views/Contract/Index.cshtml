@@ -8,32 +8,59 @@
 }
 <div asp-validation-summary="All" class="rental-validation" role="alert"></div>
 <form asp-action="Index" method="get" class="rental-filter">
-    <div><label for="Status">Trạng thái hợp đồng</label><select id="Status" name="Status">
-        <option value="">Tất cả trạng thái</option>
-        @foreach (var status in Enum.GetValues<ContractStatus>())
-        { <option value="@((int)status)" selected="@(Model.Input.Status == status)">@TenantRentalPresentation.ContractLabel(status)</option> }
-    </select></div>
+    <div class="ez-rental-filter-group">
+        <label for="Status">Trạng thái hợp đồng</label>
+        <select id="Status" name="Status">
+            <option value="">Tất cả trạng thái</option>
+            @foreach (var status in Enum.GetValues<ContractStatus>())
+            {
+                <option value="@((int)status)" selected="@(Model.Input.Status == status)">@TenantRentalPresentation.ContractLabel(status)</option>
+            }
+        </select>
+    </div>
     <button class="rental-button secondary" type="submit">Áp dụng</button>
-    <span>@Model.Total hợp đồng</span>
+    <span class="ez-rental-count-pill">@Model.Total hợp đồng</span>
 </form>
+
 @if (Model.Items.Count == 0)
 {
-    <section class="rental-empty"><h2>Chưa có hợp đồng phù hợp</h2><p>Hợp đồng của bạn sẽ xuất hiện tại đây khi được tạo. Bạn có thể đổi bộ lọc để xem các trạng thái khác.</p><a asp-action="Index">Xem tất cả hợp đồng</a></section>
+    <section class="rental-empty">
+        <div class="ez-rental-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="8" y1="13" x2="16" y2="13" />
+                <line x1="8" y1="17" x2="13" y2="17" />
+            </svg>
+        </div>
+        <h2>Chưa có hợp đồng phù hợp</h2>
+        <p>Hợp đồng của bạn sẽ xuất hiện tại đây khi được tạo. Bạn có thể đổi bộ lọc để xem các trạng thái khác.</p>
+        <div class="rental-actions">
+            <a asp-action="Index" class="rental-button secondary">Xem tất cả hợp đồng</a>
+        </div>
+    </section>
 }
-@foreach (var contract in Model.Items)
+else
 {
-    <article class="rental-row" data-contract-id="@contract.RentalContractId">
-        <div class="rental-row-main">
-            <a asp-action="Details" asp-route-id="@contract.RentalContractId" class="rental-row-title">@contract.RentalPost.Title</a>
-            <p>@contract.RentalPost.Address</p>
-            <small>Hợp đồng #@contract.RentalContractId · @TenantRentalPresentation.Date(contract.StartDate) – @TenantRentalPresentation.Date(contract.EndDate)</small>
-            <small>Chủ nhà: @contract.Landlord.FullName</small>
-        </div>
-        <div class="rental-row-end">
-            <span class="rental-status @TenantRentalPresentation.Tone(contract.Status)">@TenantRentalPresentation.ContractLabel(contract.Status)</span>
-            <strong class="rental-amount">@TenantRentalPresentation.Money(contract.MonthlyRent)<small> / tháng</small></strong>
-            <a asp-action="Details" asp-route-id="@contract.RentalContractId">Xem hợp đồng</a>
-        </div>
-    </article>
+    <div class="ez-rental-stack">
+        @foreach (var contract in Model.Items)
+        {
+            <article class="rental-row ez-rental-item-card" data-contract-id="@contract.RentalContractId">
+                <div class="rental-row-main">
+                    <div class="ez-rental-row-top">
+                        <span class="rental-status @TenantRentalPresentation.Tone(contract.Status)">@TenantRentalPresentation.ContractLabel(contract.Status)</span>
+                        <span class="ez-rental-code">Hợp đồng #@contract.RentalContractId</span>
+                    </div>
+                    <a asp-action="Details" asp-route-id="@contract.RentalContractId" class="rental-row-title">@contract.RentalPost.Title</a>
+                    <p>@contract.RentalPost.Address</p>
+                    <small>Thời hạn: @TenantRentalPresentation.Date(contract.StartDate) – @TenantRentalPresentation.Date(contract.EndDate) · Chủ nhà: @contract.Landlord.FullName</small>
+                </div>
+                <div class="rental-row-end">
+                    <strong class="rental-amount">@TenantRentalPresentation.Money(contract.MonthlyRent)<small> / tháng</small></strong>
+                    <a asp-action="Details" asp-route-id="@contract.RentalContractId" class="ez-rental-row-link">Xem hợp đồng →</a>
+                </div>
+            </article>
+        }
+    </div>
 }
 @await Html.PartialAsync("_TenantPagination", new TenantPaginationModel(Model.Input.Page, Model.TotalPages, page => Url.Action("Index", new { Page = page, Status = (int?)Model.Input.Status }), "Phân trang hợp đồng"))

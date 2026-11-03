@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using EZ_Rent.Areas.Tenant.Services;
+using EZ_Rent.Helpers;
 using EZ_Rent.Models;
 using EZ_Rent.Models.Enums;
 
@@ -29,6 +31,10 @@ public sealed class AppointmentModel
     public int PostId { get; init; }
     public string Title { get; init; } = "";
     public string Address { get; init; } = "";
+    public string ImageUrl { get; init; } = "/images/room-placeholder.svg";
+    public string RoomTypeLabel { get; init; } = "";
+    public decimal? Price { get; init; }
+    public double? Area { get; init; }
     public bool PostAvailable { get; init; }
     public DateTime ViewingDate { get; init; }
     public ViewingAppointmentStatus Status { get; init; }
@@ -36,6 +42,8 @@ public sealed class AppointmentModel
     public string? LandlordNote { get; init; }
     public string DateLabel => ViewingDate.ToString("dddd, dd/MM/yyyy", CultureInfo.GetCultureInfo("vi-VN"));
     public string TimeLabel => ViewingDate.ToString("HH:mm", CultureInfo.InvariantCulture);
+    public string DayNumber => ViewingDate.ToString("dd", CultureInfo.InvariantCulture);
+    public string MonthLabel => "Tháng " + ViewingDate.ToString("MM", CultureInfo.InvariantCulture);
     // Keep the existing cancellation rule. A time cutoff needs a shared time-storage contract first.
     public bool CanCancel => Status is ViewingAppointmentStatus.Pending or ViewingAppointmentStatus.Confirmed;
     public string StatusLabel => Label(Status);
@@ -73,11 +81,19 @@ public sealed class AppointmentModel
         var available = post.ApprovalStatus == ApprovalStatus.Approved && post.RoomStatus == RoomStatus.Available;
         return new()
         {
-            Id = appointment.ViewingAppointmentId, PostId = appointment.RentalPostId,
-            PostAvailable = available, Title = available ? post.Title : "Tin phòng không còn khả dụng",
+            Id = appointment.ViewingAppointmentId,
+            PostId = appointment.RentalPostId,
+            PostAvailable = available,
+            Title = available ? post.Title : "Tin phòng không còn khả dụng",
             Address = available ? post.Address : "Tin phòng hiện không được công khai hoặc không còn trống.",
-            ViewingDate = appointment.ViewingDate, Status = appointment.Status,
-            Note = appointment.Note, LandlordNote = appointment.LandlordNote
+            ImageUrl = available ? RoomPhotoHelper.Resolve(post) : "/images/room-placeholder.svg",
+            RoomTypeLabel = available ? RentalPresentation.RoomTypeName(post.RoomType) : "Không còn khả dụng",
+            Price = available ? post.Price : null,
+            Area = available ? post.Area : null,
+            ViewingDate = appointment.ViewingDate,
+            Status = appointment.Status,
+            Note = appointment.Note,
+            LandlordNote = appointment.LandlordNote
         };
     }
 }

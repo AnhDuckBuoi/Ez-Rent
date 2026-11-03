@@ -1,4 +1,5 @@
 @using EZ_Rent.Areas.Tenant.Services
+@using EZ_Rent.Helpers
 @model EZ_Rent.Areas.Tenant.ViewModels.MyRoomModel
 @{
     Layout = "_Layout";
@@ -8,7 +9,9 @@
 @if (Model.Selected == null)
 {
     <section class="rental-empty">
-        @await Html.PartialAsync("_HomeIcon", "room")
+        <div class="ez-rental-empty-icon" aria-hidden="true">
+            @await Html.PartialAsync("_HomeIcon", "room")
+        </div>
         <h2>Bạn chưa có phòng đang thuê</h2>
         <p>Khi có hợp đồng đang hiệu lực, thông tin phòng sẽ xuất hiện tại đây. Bạn vẫn có thể xem lại hợp đồng và hóa đơn cũ.</p>
         <div class="rental-actions">
@@ -21,52 +24,146 @@ else
 {
     var contract = Model.Selected;
     var room = contract.RentalPost;
-    var image = room.RoomImages.Where(i => i.MediaType == MediaType.Image)
+    var rawImage = room.RoomImages.Where(i => i.MediaType == MediaType.Image)
         .OrderByDescending(i => i.IsPrimary).ThenBy(i => i.DisplayOrder).ThenBy(i => i.RoomImageId)
-        .Select(i => RentalPresentation.SafeMediaUrl(i.MediaUrl)).FirstOrDefault(url => url != null) ?? RentalPresentation.Placeholder;
+        .Select(i => RentalPresentation.SafeMediaUrl(i.MediaUrl)).FirstOrDefault(url => url != null);
+    var image = RoomPhotoHelper.ResolveUrl(rawImage, room.RentalPostId, room.RoomType);
+
     @if (Model.Contracts.Count > 1)
     {
         <form asp-action="Index" method="get" class="rental-room-picker">
             <label for="contractId">Chọn phòng đang thuê</label>
             <select id="contractId" name="contractId">
                 @foreach (var item in Model.Contracts)
-                { <option value="@item.RentalContractId" selected="@(item.RentalContractId == contract.RentalContractId)">@item.RentalPost.Title · Hợp đồng #@item.RentalContractId</option> }
+                {
+                    <option value="@item.RentalContractId" selected="@(item.RentalContractId == contract.RentalContractId)">@item.RentalPost.Title · Hợp đồng #@item.RentalContractId</option>
+                }
             </select>
             <button type="submit" class="rental-button secondary">Xem phòng</button>
         </form>
     }
+
     <section class="rental-room-overview" aria-labelledby="room-heading">
         <div class="rental-room-photo">
-            <img src="@image" alt="Không gian @room.Title" width="480" height="320" data-rental-image="room" />
+            <img src="@image" alt="Không gian @room.Title" width="520" height="360" data-rental-image="room" />
+            <span class="ez-rental-photo-tag">Hợp đồng #@contract.RentalContractId</span>
         </div>
         <div class="rental-room-info">
-            <span class="rental-status success">Hợp đồng đang hiệu lực</span>
+            <div class="ez-rental-room-badges">
+                <span class="rental-status success">Hợp đồng đang hiệu lực</span>
+            </div>
             <h2 id="room-heading">@room.Title</h2>
-            <p class="rental-address">@room.Address, @room.District, @room.City</p>
+            <p class="rental-address">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                    <circle cx="12" cy="10" r="3" />
+                </svg>
+                <span>@room.Address, @room.District, @room.City</span>
+            </p>
             <dl class="rental-facts">
-                <div><dt>Tiền thuê / tháng</dt><dd>@TenantRentalPresentation.Money(contract.MonthlyRent)</dd></div>
-                <div><dt>Thời hạn hợp đồng</dt><dd>@TenantRentalPresentation.Date(contract.StartDate) – @TenantRentalPresentation.Date(contract.EndDate)</dd></div>
-                <div><dt>Chủ nhà</dt><dd>@contract.Landlord.FullName</dd></div>
-                <div><dt>Liên hệ</dt><dd>@if (!string.IsNullOrWhiteSpace(contract.Landlord.PhoneNumber)) { <a href="tel:@contract.Landlord.PhoneNumber">@contract.Landlord.PhoneNumber</a> } else { <span>Chưa có số điện thoại</span> }</dd></div>
+                <div class="ez-rental-fact-tile">
+                    <dt>Tiền thuê / tháng</dt>
+                    <dd class="is-accent">@TenantRentalPresentation.Money(contract.MonthlyRent)</dd>
+                </div>
+                <div class="ez-rental-fact-tile">
+                    <dt>Thời hạn hợp đồng</dt>
+                    <dd>@TenantRentalPresentation.Date(contract.StartDate) – @TenantRentalPresentation.Date(contract.EndDate)</dd>
+                </div>
+                <div class="ez-rental-fact-tile">
+                    <dt>Chủ nhà</dt>
+                    <dd>@contract.Landlord.FullName</dd>
+                </div>
+                <div class="ez-rental-fact-tile">
+                    <dt>Liên hệ</dt>
+                    <dd>
+                        @if (!string.IsNullOrWhiteSpace(contract.Landlord.PhoneNumber))
+                        {
+                            <a href="tel:@contract.Landlord.PhoneNumber">@contract.Landlord.PhoneNumber</a>
+                        }
+                        else
+                        {
+                            <span>Chưa có số điện thoại</span>
+                        }
+                    </dd>
+                </div>
             </dl>
-            <a asp-controller="Contract" asp-action="Details" asp-route-id="@contract.RentalContractId" class="rental-button secondary">Xem hợp đồng</a>
+            <div class="ez-rental-hero-actions">
+                <a asp-controller="Contract" asp-action="Details" asp-route-id="@contract.RentalContractId" class="rental-button primary">Xem hợp đồng</a>
+                <a asp-controller="RepairRequest" asp-action="Create" asp-route-roomId="@room.RentalPostId" class="rental-button secondary">Báo sự cố sửa chữa</a>
+            </div>
         </div>
     </section>
+
     <div class="rental-summary" aria-label="Các mục cần theo dõi">
-        <p><strong>@TenantRentalPresentation.Money(Model.UnpaidTotal)</strong><span>chưa thanh toán · @Model.UnpaidCount hóa đơn, gồm cả hóa đơn chờ đối soát</span></p>
-        <p><strong>@Model.OpenRepairCount yêu cầu</strong><span>sửa chữa đang chờ hoặc đang xử lý tại phòng này</span></p>
+        <div class="ez-rental-kpi-card @(Model.UnpaidCount > 0 ? "is-amber" : "is-clean")">
+            <div class="ez-rental-kpi-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="2" y="5" width="20" height="14" rx="2" />
+                    <line x1="2" y1="10" x2="22" y2="10" />
+                </svg>
+            </div>
+            <div class="ez-rental-kpi-body">
+                <span class="ez-rental-kpi-label">KHOẢN THU CẦN THEO DÕI</span>
+                <strong>@TenantRentalPresentation.Money(Model.UnpaidTotal)</strong>
+                <span>Chưa thanh toán · @Model.UnpaidCount hóa đơn, gồm cả hóa đơn chờ đối soát</span>
+            </div>
+        </div>
+        <div class="ez-rental-kpi-card @(Model.OpenRepairCount > 0 ? "is-blue" : "is-clean")">
+            <div class="ez-rental-kpi-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                </svg>
+            </div>
+            <div class="ez-rental-kpi-body">
+                <span class="ez-rental-kpi-label">TÌNH TRẠNG BẢO TRÌ</span>
+                <strong>@Model.OpenRepairCount yêu cầu</strong>
+                <span>Sửa chữa đang chờ hoặc đang xử lý tại phòng này</span>
+            </div>
+        </div>
     </div>
+
     <div class="rental-overview-columns">
-        <section aria-labelledby="bills-heading">
-            <div class="rental-section-heading"><h2 id="bills-heading">Hóa đơn gần đây</h2><a asp-controller="Invoice" asp-action="Index" asp-route-ContractId="@contract.RentalContractId">Xem tất cả</a></div>
-            @if (Model.Invoices.Count == 0) { <p class="rental-empty-inline">Chưa có hóa đơn cho hợp đồng này.</p> }
-            @foreach (var invoice in Model.Invoices) { @await Html.PartialAsync("_RentalInvoiceRow", invoice) }
+        <section class="ez-rental-bento-col" aria-labelledby="bills-heading">
+            <div class="rental-section-heading">
+                <h2 id="bills-heading">Hóa đơn gần đây</h2>
+                <a asp-controller="Invoice" asp-action="Index" asp-route-ContractId="@contract.RentalContractId">Xem tất cả →</a>
+            </div>
+            @if (Model.Invoices.Count == 0)
+            {
+                <p class="rental-empty-inline">Chưa có hóa đơn cho hợp đồng này.</p>
+            }
+            else
+            {
+                <div class="ez-rental-stack">
+                    @foreach (var invoice in Model.Invoices)
+                    {
+                        @await Html.PartialAsync("_RentalInvoiceRow", invoice)
+                    }
+                </div>
+            }
         </section>
-        <section aria-labelledby="repairs-heading">
-            <div class="rental-section-heading"><h2 id="repairs-heading">Yêu cầu sửa chữa</h2><a asp-controller="RepairRequest" asp-action="Index" asp-route-RoomId="@room.RentalPostId">Xem tất cả</a></div>
-            <a asp-controller="RepairRequest" asp-action="Create" asp-route-roomId="@room.RentalPostId" class="rental-button secondary">Gửi yêu cầu sửa chữa</a>
-            @if (Model.Repairs.Count == 0) { <p class="rental-empty-inline">Bạn chưa gửi yêu cầu sửa chữa tại phòng này.</p> }
-            @foreach (var repair in Model.Repairs) { @await Html.PartialAsync("_RentalRepairRow", repair) }
+
+        <section class="ez-rental-bento-col" aria-labelledby="repairs-heading">
+            <div class="rental-section-heading">
+                <h2 id="repairs-heading">Yêu cầu sửa chữa</h2>
+                <div class="ez-rental-heading-tools">
+                    <a asp-controller="RepairRequest" asp-action="Create" asp-route-roomId="@room.RentalPostId" class="rental-button secondary ez-btn-compact">+ Gửi yêu cầu</a>
+                    <a asp-controller="RepairRequest" asp-action="Index" asp-route-RoomId="@room.RentalPostId">Xem tất cả →</a>
+                </div>
+            </div>
+            @if (Model.Repairs.Count == 0)
+            {
+                <p class="rental-empty-inline">Bạn chưa gửi yêu cầu sửa chữa tại phòng này.</p>
+            }
+            else
+            {
+                <div class="ez-rental-stack">
+                    @foreach (var repair in Model.Repairs)
+                    {
+                        @await Html.PartialAsync("_RentalRepairRow", repair)
+                    }
+                </div>
+            }
         </section>
     </div>
 }

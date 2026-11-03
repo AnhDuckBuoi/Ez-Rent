@@ -1,41 +1,42 @@
-.bm03-controls:where(.tenant-surface, .tenant-surface *) { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
-.bm03-form-section:where(.tenant-surface, .tenant-surface *) { margin: 24px 0; }
-.bm03-fields:where(.tenant-surface, .tenant-surface *) { min-width: 0; border: 0; padding: 0; margin: 28px 0; display: grid; grid-template-columns: 1fr; gap: 18px 24px; }
-.bm03-fields legend:where(.tenant-surface, .tenant-surface *) { font-size: 16px; font-weight: 650; margin-bottom: 16px; padding: 0; }
+.bm03-controls:where(.tenant-surface, .tenant-surface *) { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+.bm03-form-section:where(.tenant-surface, .tenant-surface *) { margin: 22px 0; }
+.bm03-fields:where(.tenant-surface, .tenant-surface *) { min-width: 0; border: 0; padding: 0; margin: 24px 0; display: grid; grid-template-columns: 1fr; gap: 16px 20px; }
+.bm03-fields legend:where(.tenant-surface, .tenant-surface *) { font-size: 15.5px; font-weight: 780; color: #162334; margin-bottom: 14px; padding: 0; }
 .bm03-fields > div:where(.tenant-surface, .tenant-surface *) { min-width: 0; }
-.bm03-fields label:where(.tenant-surface, .tenant-surface *) { display: block; margin-bottom: 7px; font-size: 14px; font-weight: 600; }
+.bm03-fields label:where(.tenant-surface, .tenant-surface *) { display: block; margin-bottom: 7px; font-size: 13.5px; font-weight: 700; color: #334155; }
 .rental-page .bm03-fields :is(input,select,textarea):where(.tenant-surface, .tenant-surface *) { width: 100%; min-width: 0; }
 .bm03-fields textarea:where(.tenant-surface, .tenant-surface *) { resize: vertical; }
-.bm03-fields span.field-validation-error:where(.tenant-surface, .tenant-surface *) { display: block; color: #9c263a; font-size: 13px; margin-top: 6px; }
-.bm03-validation:where(.tenant-surface, .tenant-surface *) { color: #9c263a; font-size: 14px; }
+.bm03-fields span.field-validation-error:where(.tenant-surface, .tenant-surface *) { display: block; color: #e11d48; font-size: 12.5px; font-weight: 600; margin-top: 6px; }
+.bm03-validation:where(.tenant-surface, .tenant-surface *) { color: #be123c; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 14px; padding: 12px 16px; font-size: 13.5px; }
 .bm03-validation.validation-summary-valid:where(.tenant-surface, .tenant-surface *) { display: none; }
-.bm03-validation ul:where(.tenant-surface, .tenant-surface *) { padding-left: 20px; }
-.bm03-save-row:where(.tenant-surface, .tenant-surface *) { display: flex; gap: 16px 24px; align-items: center; flex-wrap: wrap; }
-.bm03-save-row p:where(.tenant-surface, .tenant-surface *) { margin: 0; max-width: 64ch; }
-.rental-page button:disabled:where(.tenant-surface, .tenant-surface *) { cursor: not-allowed; opacity: .65; }
-.bm03-alert:where(.tenant-surface, .tenant-surface *) { margin: 20px 0; padding: 18px 20px; border: 1px solid #d7bd8d; background: #fff8eb; border-radius: 8px; color: #6c4d1f; font-size: 14px; }
+.bm03-validation ul:where(.tenant-surface, .tenant-surface *) { padding-left: 20px; margin: 0; }
+.bm03-save-row:where(.tenant-surface, .tenant-surface *) { display: flex; gap: 14px 20px; align-items: center; flex-wrap: wrap; padding-top: 8px; }
+.bm03-save-row p:where(.tenant-surface, .tenant-surface *) { margin: 0; max-width: 64ch; border-top: 0; padding-top: 0; }
+.rental-page button:disabled:where(.tenant-surface, .tenant-surface *) { cursor: not-allowed; opacity: .6; }
+.bm03-alert:where(.tenant-surface, .tenant-surface *) { margin: 18px 0; padding: 18px 20px; border: 1px solid #fde68a; background: #fffbeb; border-radius: 16px; color: #92400e; font-size: 14px; }
 .bm03-alert p:where(.tenant-surface, .tenant-surface *) { margin: 8px 0; max-width: 74ch; }
-.bm03-alert a:where(.tenant-surface, .tenant-surface *) { display: inline-flex; align-items: center; min-height: 44px; }
+.bm03-alert a:where(.tenant-surface, .tenant-surface *) { display: inline-flex; align-items: center; min-height: 38px; color: #007aff; font-weight: 700; text-decoration: none; }
+.bm03-alert a:hover:where(.tenant-surface, .tenant-surface *) { text-decoration: underline; }
 .bm03-current-agreement:where(.tenant-surface, .tenant-surface *) { margin: 14px 0 0; }
-.bm03-current-agreement > div:where(.tenant-surface, .tenant-surface *) { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 8px 0; }
+.bm03-current-agreement > div:where(.tenant-surface, .tenant-surface *) { display: flex; flex-wrap: wrap; gap: 4px 16px; padding: 8px 0; border-bottom: 1px solid rgba(217, 119, 6, 0.16); }
 .bm03-current-agreement dt:where(.tenant-surface, .tenant-surface *) { min-width: 160px; }
-.bm03-current-agreement dd:where(.tenant-surface, .tenant-surface *) { margin: 0; font-weight: 600; }
-.bm03-readiness:where(.tenant-surface, .tenant-surface *) { margin: 26px 0; padding: 22px 0; border-block: 1px solid #dce2e9; font-size: 14px; }
-.rental-page .bm03-readiness h2:where(.tenant-surface, .tenant-surface *) { font-size: 19px; margin-bottom: 12px; }
-.bm03-readiness p:where(.tenant-surface, .tenant-surface *) { max-width: 82ch; }
-.bm03-terms-review summary:where(.tenant-surface, .tenant-surface *) { min-height: 44px; cursor: pointer; color: #356797; font-weight: 600; }
-.bm03-terms-review summary:focus-visible:where(.tenant-surface, .tenant-surface *) { outline: 3px solid #356797; outline-offset: 3px; }
+.bm03-current-agreement dd:where(.tenant-surface, .tenant-surface *) { margin: 0; font-weight: 700; }
+.bm03-readiness:where(.tenant-surface, .tenant-surface *) { margin: 22px 0; font-size: 14px; }
+.rental-page .bm03-readiness h2:where(.tenant-surface, .tenant-surface *) { font-size: 18.5px; margin-bottom: 12px; }
+.bm03-readiness p:where(.tenant-surface, .tenant-surface *) { max-width: 82ch; color: #475569; }
+.bm03-terms-review { margin-top: 14px; padding: 14px 16px; border-radius: 14px; background: #f8fafc; border: 1px solid #e2e8f0; }
+.bm03-terms-review summary:where(.tenant-surface, .tenant-surface *) { cursor: pointer; color: #007aff; font-weight: 700; padding: 4px 0; }
 .bm03-preserve:where(.tenant-surface, .tenant-surface *) { white-space: pre-wrap; overflow-wrap: anywhere; }
-.bm03-draft-history:where(.tenant-surface, .tenant-surface *) { margin-bottom: 28px; }
-.bm03-paper-heading:where(.tenant-surface, .tenant-surface *) { margin: 30px auto 20px; max-width: 840px; }
-.rental-page .bm03-paper-heading h2:where(.tenant-surface, .tenant-surface *) { font-size: 20px; }
+.bm03-draft-history:where(.tenant-surface, .tenant-surface *) { margin-bottom: 26px; }
+.bm03-paper-heading:where(.tenant-surface, .tenant-surface *) { margin: 28px auto 18px; max-width: 840px; }
+.rental-page .bm03-paper-heading h2:where(.tenant-surface, .tenant-surface *) { font-size: 19px; }
 @media(min-width:640px) {
     .bm03-fields:where(.tenant-surface, .tenant-surface *) { grid-template-columns: 1fr 1fr; }
     .bm03-field-wide:where(.tenant-surface, .tenant-surface *) { grid-column: 1 / -1; }
 }
-.bm03-notice:where(.tenant-surface, .tenant-surface *) { max-width: 80ch; margin-bottom: 24px; }
+.bm03-notice:where(.tenant-surface, .tenant-surface *) { max-width: 82ch; margin: 0 0 20px; padding-top: 0; border-top: 0; }
 .bm03-document:where(.tenant-surface, .tenant-surface *) { max-width: 840px; margin: 0 auto; }
-.bm03-page:where(.tenant-surface, .tenant-surface *) { padding: 36px 28px; margin-bottom: 24px; background: white; border: 1px solid #dce2e9; color: #20252b; font: 17px/1.75 "Times New Roman", serif; }
+.bm03-page:where(.tenant-surface, .tenant-surface *) { padding: 36px 28px; margin-bottom: 24px; background: white; border: 1px solid #dce5f0; border-radius: 12px; box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05); color: #20252b; font: 17px/1.75 "Times New Roman", serif; }
 .bm03-page p:where(.tenant-surface, .tenant-surface *) { margin: 0 0 18px; }
 .bm03-page .bm03-country:where(.tenant-surface, .tenant-surface *) { text-align: center; font-weight: bold; margin-bottom: 0; }
 .bm03-page .bm03-motto:where(.tenant-surface, .tenant-surface *) { text-align: center; margin-bottom: 30px; }
@@ -52,7 +53,7 @@
     .tenant-surface:where(.tenant-surface, .tenant-surface *), body:has(.tenant-desktop-header):where(.tenant-surface, .tenant-surface *) { background: white; }
     body > :not(main):where(.tenant-surface, .tenant-surface *), main.home-page > :not(.rental-page):where(.tenant-surface, .tenant-surface *), .rental-page > :not(.bm03-document):where(.tenant-surface, .tenant-surface *) { display: none !important; }
     body > main.home-page:where(.tenant-surface, .tenant-surface *), .rental-page:where(.tenant-surface, .tenant-surface *), .bm03-document:where(.tenant-surface, .tenant-surface *) { display: block; width: auto; max-width: none; padding: 0; margin: 0; }
-    .bm03-page:where(.tenant-surface, .tenant-surface *) { border: 0; margin: 0; padding: 0; font-size: 12pt; line-height: 1.5; break-after: page; }
+    .bm03-page:where(.tenant-surface, .tenant-surface *) { border: 0; border-radius: 0; box-shadow: none; margin: 0; padding: 0; font-size: 12pt; line-height: 1.5; break-after: page; }
     .bm03-page:last-child:where(.tenant-surface, .tenant-surface *) { break-after: auto; }
     .rental-page .bm03-page h2:where(.tenant-surface, .tenant-surface *) { font-size: 16pt; }
     .rental-page .bm03-page h3:where(.tenant-surface, .tenant-surface *) { font-size: 13pt; margin-top: 18px; break-after: avoid; }

@@ -1,3 +1,4 @@
+@using EZ_Rent.Helpers
 @model RoomListModel
 @{
     var input = Model.Input;
@@ -53,7 +54,8 @@ else
             <tbody>
                 @foreach (var r in Model.Rooms)
                 {
-                    var img = DisplayFormat.SafeMediaUrl(r.ImageUrl);
+                    var safeImg = DisplayFormat.SafeMediaUrl(r.ImageUrl);
+                    var img = RoomPhotoHelper.ResolveUrl(safeImg, r.Id, r.RoomType);
                     <tr>
                         <td>
                             <div class="d-flex align-items-center gap-2">
