@@ -11,6 +11,17 @@
         <span>Cập nhật cách mọi người nhận ra và liên hệ với bạn.</span>
     </header>
     @await Html.PartialAsync("_AccountNav", false)
+    <div class="alert alert-info border-0 shadow-sm d-flex align-items-center justify-content-between p-3 my-3 rounded-3" style="background:#eff6ff;color:#1e40af;border-left:4px solid #007aff !important;">
+        <div class="d-flex align-items-center gap-2">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex-shrink:0;">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+            <span style="font-size:13.5px;font-weight:550;">Tài khoản đã được đồng bộ với hệ thống Landlord &amp; Admin. Bạn có thể quản lý Email, Đổi mật khẩu, Google OAuth và 2FA tại Cài đặt tài khoản.</span>
+        </div>
+        <a asp-area="Identity" asp-page="/Account/Manage/Index" class="btn btn-sm btn-primary text-nowrap ms-3" style="font-size:13px;font-weight:600;padding:6px 14px;border-radius:8px;">Hồ sơ tài khoản</a>
+    </div>
     <div asp-validation-summary="ModelOnly" class="account-error" role="alert">
     </div>
     <div class="account-grid">

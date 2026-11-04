@@ -14,7 +14,7 @@ public sealed class TenantShellTests
     [InlineData("/Tenant/MyRoom", "/Tenant/MyRoom")]
     [InlineData("/Tenant/Favorite", "/Tenant/Favorite")]
     [InlineData("/Tenant/Notification", "/Tenant/Notification")]
-    [InlineData("/Tenant/Account", "/Tenant/Account")]
+    [InlineData("/Tenant/Support/Create", "/Tenant/Support/Create")]
     public async Task Shared_layout_keeps_centered_tenant_header_routes_and_counts_only_own_unread(string path, string activeHref)
     {
         await using var app = new TenantTestApp();
