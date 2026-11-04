@@ -77,11 +77,15 @@
 
                 <!-- ===== Left: Brand Logo ===== -->
                 <a class="navbar-brand ez-brand"
-                   asp-area="@(isTenantRole ? "Tenant" : "")"
-                   asp-controller="@(isTenantRole ? "Dashboard" : "Home")"
+                   asp-area="@(isTenantRole ? "Tenant" : isAdminRole ? "Admin" : "")"
+                   asp-controller="@(isTenantRole ? "Dashboard" : isAdminRole ? "Dashboard" : "Home")"
                    asp-action="Index">
                     <img src="~/images/brand/logo-icon.png" alt="EZ-Rent Logo" class="ez-brand-logo" />
                     <span class="ez-brand-wordmark"><span class="ez-brand-ez">ez</span><span class="ez-brand-rent">rent</span></span>
+                    @if (isAdminRole)
+                    {
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-1" style="font-size: 10px; font-weight: 700; letter-spacing: 0.5px; vertical-align: middle;">ADMIN</span>
+                    }
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -175,21 +179,48 @@
                         }
                         else if (isAdminRole)
                         {
-                            <!-- DROPDOWN ADMIN -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle @(admin ? "active" : null)" href="#" role="button" data-bs-toggle="dropdown">
-                                    Quản trị
+                            <!-- MENU ADMIN: DẠNG TAB PHẲNG TRỰC QUAN -->
+                            <li class="nav-item">
+                                <a class="nav-link @(admin && controller == "Dashboard" ? "active" : null)"
+                                   aria-current="@(admin && controller == "Dashboard" ? "page" : null)"
+                                   asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                    Tổng quan
                                 </a>
-                                <ul class="dropdown-menu">
-                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Tổng quan hệ thống</a></li>
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Post" asp-action="Index">Kiểm duyệt tin đăng</a></li>
-                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="UserManager" asp-action="Index">Quản lý người dùng</a></li>
-                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="RoleManager" asp-action="Index">Quản lý vai trò</a></li>
-                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="Support" asp-action="Index">Khiếu nại sửa chữa</a></li>
-                                    <li><hr class="dropdown-divider" /></li>
-                                    <li><a class="dropdown-item" asp-area="Admin" asp-controller="DbManage" asp-action="Index">Quản lý CSDL</a></li>
-                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(admin && controller == "Post" ? "active" : null)"
+                                   aria-current="@(admin && controller == "Post" ? "page" : null)"
+                                   asp-area="Admin" asp-controller="Post" asp-action="Index">
+                                    Duyệt tin đăng
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(admin && controller == "UserManager" ? "active" : null)"
+                                   aria-current="@(admin && controller == "UserManager" ? "page" : null)"
+                                   asp-area="Admin" asp-controller="UserManager" asp-action="Index">
+                                    Người dùng
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(admin && controller == "RoleManager" ? "active" : null)"
+                                   aria-current="@(admin && controller == "RoleManager" ? "page" : null)"
+                                   asp-area="Admin" asp-controller="RoleManager" asp-action="Index">
+                                    Phân quyền
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(admin && controller == "Support" ? "active" : null)"
+                                   aria-current="@(admin && controller == "Support" ? "page" : null)"
+                                   asp-area="Admin" asp-controller="Support" asp-action="Index">
+                                    Khiếu nại
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(admin && controller == "DbManage" ? "active" : null)"
+                                   aria-current="@(admin && controller == "DbManage" ? "page" : null)"
+                                   asp-area="Admin" asp-controller="DbManage" asp-action="Index">
+                                    Cơ sở dữ liệu
+                                </a>
                             </li>
                         }
                         else
@@ -279,6 +310,22 @@
                                         <line x1="5" y1="12" x2="19" y2="12"></line>
                                     </svg>
                                     <span>Đăng phòng</span>
+                                </a>
+                            }
+                            else if (isAdminRole)
+                            {
+                                <a asp-area=""
+                                   asp-controller="Home"
+                                   asp-action="Index"
+                                   class="ez-header-pill-cta ez-header-pill-sm text-decoration-none"
+                                   title="Xem giao diện web của người thuê và khách"
+                                   target="_blank">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                        <polyline points="15 3 21 3 21 9"></polyline>
+                                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                                    </svg>
+                                    <span>Xem web ↗</span>
                                 </a>
                             }
 
