@@ -7,15 +7,15 @@
     var period = evidence?.Period ?? reading?.Period;
     var date = evidence?.ReadingDate ?? reading?.ReadingDate;
 }
-<aside class="rental-panel rental-invoice-evidence">
+<aside class="rental-panel rental-invoice-evidence ez-rental-sticky-aside">
     <h2>Chỉ số điện nước</h2>
     @if (date == null)
     {
-        <p>Chưa có chỉ số điện nước phù hợp gắn với hóa đơn này.</p>
+        <p class="rental-document-empty">Chưa có chỉ số điện nước phù hợp gắn với hóa đơn này.</p>
     }
     else
     {
-        <p class="rental-note">Kỳ @TenantRentalPresentation.Period(period!) · Ghi ngày @TenantRentalPresentation.Date(date.Value)</p>
+        <p class="rental-note ez-note-tight">Kỳ @TenantRentalPresentation.Period(period!) · Ghi ngày @TenantRentalPresentation.Date(date.Value)</p>
         <p class="rental-evidence-state">@(evidence != null ? "Đã lưu bộ chỉ số và ảnh đối chiếu cho hóa đơn này." : "Chỉ số hiện tại từ bản ghi cũ; chưa có bộ ảnh được lưu riêng khi phát hành.")</p>
         @foreach (var kind in new[] { "electric", "water" })
         {
@@ -26,17 +26,25 @@
             var unit = electric ? "kWh" : "m³";
             var hasImage = electric ? evidence?.ElectricStorageKey != null : evidence?.WaterStorageKey != null;
             <section class="rental-meter-section">
-                <h3>@(electric ? "Điện" : "Nước")</h3>
-                <dl class="rental-detail-facts rental-meter"><div><dt>@(electric ? "Điện kỳ trước" : "Nước kỳ trước")</dt><dd>@TenantRentalPresentation.Number(previous) @unit</dd></div><div><dt>@(electric ? "Điện kỳ này" : "Nước kỳ này")</dt><dd>@TenantRentalPresentation.Number(current) @unit</dd></div></dl>
+                <h3>@(electric ? "Công tơ Điện" : "Đồng hồ Nước")</h3>
+                <dl class="rental-detail-facts rental-meter ez-rental-meter-pair">
+                    <div><dt>@(electric ? "Điện kỳ trước" : "Nước kỳ trước")</dt><dd>@TenantRentalPresentation.Number(previous) @unit</dd></div>
+                    <div><dt>@(electric ? "Điện kỳ này" : "Nước kỳ này")</dt><dd class="is-accent">@TenantRentalPresentation.Number(current) @unit</dd></div>
+                </dl>
                 @if (hasImage)
                 {
-                    <a asp-action="MeterImage" asp-route-id="@invoice.InvoiceId" asp-route-kind="@kind" data-rental-zoom data-zoom-title="@label · Kỳ @TenantRentalPresentation.Period(period!)" class="rental-meter-image"><img src="@Url.Action("MeterImage", new { id = invoice.InvoiceId, kind })" alt="@label" loading="lazy" data-rental-image /><span>Phóng to @label.ToLowerInvariant()</span></a>
-                    <a asp-action="MeterImage" asp-route-id="@invoice.InvoiceId" asp-route-kind="@kind" asp-route-download="true" class="rental-button secondary">Tải @label.ToLowerInvariant()</a>
+                    <a asp-action="MeterImage" asp-route-id="@invoice.InvoiceId" asp-route-kind="@kind" data-rental-zoom data-zoom-title="@label · Kỳ @TenantRentalPresentation.Period(period!)" class="rental-meter-image">
+                        <img src="@Url.Action("MeterImage", new { id = invoice.InvoiceId, kind })" alt="@label" loading="lazy" data-rental-image />
+                        <span>Phóng to @label.ToLowerInvariant()</span>
+                    </a>
+                    <a asp-action="MeterImage" asp-route-id="@invoice.InvoiceId" asp-route-kind="@kind" asp-route-download="true" class="rental-button secondary ez-btn-full">Tải @label.ToLowerInvariant()</a>
                 }
                 else
-                { <p class="rental-meter-missing">Chưa có @label.ToLowerInvariant() được lưu cho hóa đơn này.</p> }
+                {
+                    <p class="rental-meter-missing">Chưa có @label.ToLowerInvariant() được lưu cho hóa đơn này.</p>
+                }
             </section>
         }
     }
-    <a asp-controller="Contract" asp-action="Details" asp-route-id="@invoice.RentalContractId" class="rental-button secondary">Xem hợp đồng liên quan</a>
+    <a asp-controller="Contract" asp-action="Details" asp-route-id="@invoice.RentalContractId" class="rental-button secondary ez-btn-full">Xem hợp đồng liên quan</a>
 </aside>

@@ -16,7 +16,7 @@ namespace EZ_Rent.Controllers
         private readonly AppDbContext _context;
         private readonly RecommendationService _recommender;
 
-        private const int PAGE_SIZE = 9;   // 3x3 grid
+        private const int PAGE_SIZE = 12;   // 4x3 balanced grid
 
         public RentalPostController(
             AppDbContext context,
@@ -27,22 +27,30 @@ namespace EZ_Rent.Controllers
         }
 
         public async Task<IActionResult> Index(
-    string? city,
-    string? district,
-    decimal? minPrice,
-    decimal? maxPrice,
-    RoomType? roomType,
-    double? minArea,
-    double? maxArea,
-    string[]? amenities,
-    string? sortBy,
-    int page = 1)
+            string? keyword,
+            string? search,
+            string? city,
+            string? district,
+            decimal? minPrice,
+            decimal? maxPrice,
+            RoomType? roomType,
+            double? minArea,
+            double? maxArea,
+            string[]? amenities,
+            string? sortBy,
+            int page = 1)
         {
+            var effectiveKeyword = !string.IsNullOrWhiteSpace(keyword)
+                ? keyword.Trim()
+                : !string.IsNullOrWhiteSpace(search)
+                    ? search.Trim()
+                    : Request.Query["Keyword"].FirstOrDefault()?.Trim();
+
             if (User.IsInRole("Tenant"))
             {
                 var input = new RentalSearchInput
                 {
-                    Keyword = Request.Query["Keyword"].FirstOrDefault(), City = city, District = district,
+                    Keyword = effectiveKeyword, City = city, District = district,
                     MinPrice = minPrice, MaxPrice = maxPrice, MinArea = minArea, MaxArea = maxArea,
                     RoomType = roomType, Amenities = string.Join(",", amenities ?? []),
                     Sort = (sortBy ?? "newest").Replace('_', '-'), Page = page
@@ -53,10 +61,12 @@ namespace EZ_Rent.Controllers
             }
             if (page < 1) page = 1;
 
-            var query = RentalSearchQuery.Filter(_context.RentalPosts.AsNoTracking().PublicListings()
+            var publicListings = _context.RentalPosts.AsNoTracking().PublicListings();
+
+            var query = RentalSearchQuery.Filter(publicListings
                 .Include(p => p.Owner).Include(p => p.RoomImages), new RentalSearchCriteria
             {
-                Keyword = Request.Query["Keyword"].FirstOrDefault(), City = city, District = district,
+                Keyword = effectiveKeyword, City = city, District = district,
                 MinPrice = minPrice, MaxPrice = maxPrice, MinArea = minArea, MaxArea = maxArea,
                 RoomType = roomType, Amenities = amenities ?? []
             });
@@ -71,18 +81,20 @@ namespace EZ_Rent.Controllers
             var paginatedPosts = await PaginatedList<RentalPost>.CreateAsync(
                 query, page, PAGE_SIZE);
 
-            // ⭐ LƯU SEARCH HISTORY — dùng method riêng
+            // LƯU SEARCH HISTORY — dùng method riêng
             await SaveSearchHistoryAsync(city, district, minPrice, maxPrice, roomType);
 
             // ViewBag
-            ViewBag.Cities = await _context.RentalPosts
-                .Where(p => p.ApprovalStatus == ApprovalStatus.Approved)
+            ViewBag.Cities = await publicListings
+                .Where(p => p.City != "")
                 .Select(p => p.City).Distinct().OrderBy(c => c).ToListAsync();
 
-            ViewBag.Districts = await _context.RentalPosts
-                .Where(p => p.ApprovalStatus == ApprovalStatus.Approved)
+            ViewBag.Districts = await publicListings
+                .Where(p => p.District != "" && (string.IsNullOrEmpty(city) || p.City == city))
                 .Select(p => p.District).Distinct().OrderBy(d => d).ToListAsync();
 
+            ViewBag.Keyword = effectiveKeyword;
+            ViewBag.Search = effectiveKeyword;
             ViewBag.City = city;
             ViewBag.District = district;
             ViewBag.MinPrice = minPrice;
@@ -96,9 +108,6 @@ namespace EZ_Rent.Controllers
             return View(paginatedPosts);
         }
 
-        // ============================================================
-        // ⭐ SAVE SEARCH HISTORY — dùng chung cho Home + RentalPost
-        // ============================================================
         private async Task SaveSearchHistoryAsync(
             string? city,
             string? district,
@@ -109,7 +118,6 @@ namespace EZ_Rent.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null) return;
 
-            // Nới điều kiện: chỉ cần 1 tiêu chí là lưu
             bool hasFilter =
                 !string.IsNullOrWhiteSpace(city) ||
                 !string.IsNullOrWhiteSpace(district) ||
@@ -126,7 +134,6 @@ namespace EZ_Rent.Controllers
             }
             catch (Exception ex)
             {
-                // Không nên crash trang search nếu save history fail
                 Console.WriteLine($"[SearchHistory] Lỗi lưu: {ex.Message}");
             }
         }
@@ -148,6 +155,18 @@ namespace EZ_Rent.Controllers
             if (post == null) return NotFound();
 
             return View(post);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetDistricts(string? city)
+        {
+            var districts = await _context.RentalPosts.AsNoTracking().PublicListings()
+                .Where(p => p.District != "" && (string.IsNullOrEmpty(city) || p.City == city))
+                .Select(p => p.District)
+                .Distinct()
+                .OrderBy(d => d)
+                .ToListAsync();
+            return Json(districts);
         }
     }
 }

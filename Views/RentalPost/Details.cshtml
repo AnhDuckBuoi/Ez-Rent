@@ -1,162 +1,268 @@
+@using System.Text.Json
+@using EZ_Rent.Helpers
+@using EZ_Rent.Models.Enums
 @model EZ_Rent.Models.RentalPost
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = Model.Title;
+
+    var rawUrls = Model.RoomImages?
+        .OrderByDescending(i => i.IsPrimary)
+        .ThenBy(i => i.DisplayOrder)
+        .Select(i => i.MediaUrl)
+        .ToList() ?? new List<string>();
+
+    var gallery = RoomPhotoHelper.ResolveGallery(rawUrls, Model.RentalPostId, Model.RoomType);
+
+    string[] amenities = Array.Empty<string>();
+    if (!string.IsNullOrWhiteSpace(Model.AmenitiesJson))
+    {
+        try { amenities = JsonSerializer.Deserialize<string[]>(Model.AmenitiesJson) ?? Array.Empty<string>(); }
+        catch { amenities = Array.Empty<string>(); }
+    }
+
+    var ownerName = !string.IsNullOrWhiteSpace(Model.Owner?.FullName)
+        ? Model.Owner.FullName.Trim()
+        : "Chủ nhà EZ-Rent";
+    var ownerInitial = ownerName.First().ToString().ToUpperInvariant();
+    var fullAddress = string.Join(", ", new[] { Model.Address, Model.Ward, Model.District, Model.City }.Where(s => !string.IsNullOrWhiteSpace(s)));
+
+    string RoomTypeLabel(RoomType type) => type switch
+    {
+        RoomType.Room => "Phòng trọ",
+        RoomType.Apartment => "Căn hộ mini",
+        RoomType.House => "Nhà nguyên căn",
+        RoomType.Dormitory => "Ký túc xá / Ở ghép",
+        _ => type.ToString()
+    };
 }
 
-<h1>Details</h1>
+<div class="ez-detail-shell">
 
-<div>
-    <h4>RentalPost</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Description)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Price)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Price)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Area)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Area)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Address)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Address)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.City)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.City)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.District)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.District)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Ward)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Ward)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.MapLocation)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.MapLocation)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AmenitiesJson)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AmenitiesJson)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RoomType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RoomType)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.RoomStatus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.RoomStatus)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ApprovalStatus)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ApprovalStatus)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ApprovalNote)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ApprovalNote)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ApprovedBy)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ApprovedBy.Id)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ApprovedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ApprovedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ElectricityUnitPrice)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ElectricityUnitPrice)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.WaterUnitPrice)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.WaterUnitPrice)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.ServiceFee)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ServiceFee)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.AvailableFrom)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.AvailableFrom)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.CreatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.CreatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.UpdatedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.UpdatedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PostedAt)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PostedAt)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Owner)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Owner.Id)
-        </dd>
-    </dl>
+    <nav class="ez-detail-breadcrumb" aria-label="Điều hướng quay lại">
+        <a asp-action="Index" class="ez-detail-back">
+            <span aria-hidden="true">←</span>
+            <span>Quay lại danh sách phòng</span>
+        </a>
+    </nav>
+
+    <!-- ================= 1. BENTO GALLERY SHOWCASE ================= -->
+    <section class="ez-detail-gallery @(gallery.Count >= 3 ? "has-grid" : "")" aria-label="Hình ảnh không gian phòng">
+        <div class="ez-detail-gallery-main">
+            <img src="@gallery[0]" id="public-main-room-image" alt="@Model.Title" />
+            <span class="ez-detail-badge-type">@RoomTypeLabel(Model.RoomType)</span>
+            <span class="ez-detail-badge-status">@(Model.RoomStatus == RoomStatus.Available ? "Còn trống" : "Đã thuê")</span>
+        </div>
+
+        @if (gallery.Count >= 2)
+        {
+            <div class="ez-detail-gallery-side">
+                @for (int i = 1; i < Math.Min(3, gallery.Count); i++)
+                {
+                    <button type="button"
+                            class="ez-detail-side-photo"
+                            data-public-photo="@gallery[i]"
+                            aria-label="Phóng to ảnh @(i + 1)">
+                        <img src="@gallery[i]" alt="Góc nhìn @(i + 1) — @Model.Title" loading="lazy" />
+                    </button>
+                }
+            </div>
+        }
+    </section>
+
+    @if (gallery.Count > 1)
+    {
+        <div class="ez-detail-thumb-bar" aria-label="Chọn góc ảnh xem chi tiết">
+            @for (int i = 0; i < gallery.Count; i++)
+            {
+                <button type="button"
+                        class="ez-detail-thumb @(i == 0 ? "is-active" : "")"
+                        data-public-photo="@gallery[i]"
+                        aria-label="Xem ảnh @(i + 1)">
+                    <img src="@gallery[i]" alt="Ảnh thu nhỏ @(i + 1)" loading="lazy" />
+                </button>
+            }
+        </div>
+    }
+
+    <!-- ================= 2. MAIN 2-COLUMN CONTENT + STICKY BOOKING CARD ================= -->
+    <div class="ez-detail-layout">
+
+        <div class="ez-detail-main">
+            <header class="ez-detail-header-card">
+                <p class="ez-home-kicker">@RoomTypeLabel(Model.RoomType).ToUpperInvariant() · MÃ TIN #@Model.RentalPostId</p>
+                <h1 class="ez-detail-title">@Model.Title</h1>
+                <p class="ez-detail-address">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    <span>@fullAddress</span>
+                </p>
+
+                <!-- 4 QUICK SPECS BENTO STRIP -->
+                <div class="ez-detail-specs-strip">
+                    <div class="ez-detail-spec-box is-highlight">
+                        <span>Giá thuê</span>
+                        <strong>@Model.Price.ToString("N0") đ<small>/tháng</small></strong>
+                    </div>
+                    <div class="ez-detail-spec-box">
+                        <span>Diện tích</span>
+                        <strong>@Model.Area.ToString("0.##") m²</strong>
+                    </div>
+                    <div class="ez-detail-spec-box">
+                        <span>Đơn giá điện</span>
+                        <strong>@(Model.ElectricityUnitPrice > 0 ? $"{Model.ElectricityUnitPrice:N0} đ/kWh" : "Theo giá dân")</strong>
+                    </div>
+                    <div class="ez-detail-spec-box">
+                        <span>Đơn giá nước</span>
+                        <strong>@(Model.WaterUnitPrice > 0 ? $"{Model.WaterUnitPrice:N0} đ/m³" : "Theo giá dân")</strong>
+                    </div>
+                </div>
+            </header>
+
+            <section class="ez-detail-card">
+                <h2>Giới thiệu không gian</h2>
+                <p class="ez-detail-desc">@Model.Description</p>
+            </section>
+
+            <section class="ez-detail-card">
+                <h2>Tiện ích đi kèm</h2>
+                @if (amenities.Length == 0)
+                {
+                    <p class="ez-detail-muted">Thông tin tiện ích đang được chủ nhà cập nhật.</p>
+                }
+                else
+                {
+                    <div class="ez-detail-amenity-grid">
+                        @foreach (var item in amenities)
+                        {
+                            <div class="ez-detail-amenity-item">
+                                <span class="ez-detail-check" aria-hidden="true">✓</span>
+                                <span>@item</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </section>
+
+            <section class="ez-detail-card">
+                <h2>Biểu phí điện, nước &amp; dịch vụ</h2>
+                <div class="ez-detail-fee-list">
+                    <div class="ez-detail-fee-row">
+                        <span>Giá điện sinh hoạt</span>
+                        <strong>@Model.ElectricityUnitPrice.ToString("N0") đ / kWh</strong>
+                    </div>
+                    <div class="ez-detail-fee-row">
+                        <span>Giá nước sinh hoạt</span>
+                        <strong>@Model.WaterUnitPrice.ToString("N0") đ / m³</strong>
+                    </div>
+                    <div class="ez-detail-fee-row">
+                        <span>Phí dịch vụ chung</span>
+                        <strong>@Model.ServiceFee.ToString("N0") đ / tháng</strong>
+                    </div>
+                    @if (Model.Services != null)
+                    {
+                        @foreach (var svc in Model.Services)
+                        {
+                            <div class="ez-detail-fee-row">
+                                <span>@svc.Name</span>
+                                <strong>@svc.UnitPrice.ToString("N0") đ / @svc.Unit</strong>
+                            </div>
+                        }
+                    }
+                </div>
+                <p class="ez-detail-fee-note">
+                    Các khoản phí được niêm yết công khai bởi chủ nhà và sẽ được ghi nhận minh bạch trong hợp đồng điện tử chuẩn BM03.
+                </p>
+            </section>
+        </div>
+
+        <!-- STICKY HOST & BOOKING CARD -->
+        <aside class="ez-detail-aside">
+            <div class="ez-detail-sticky-card">
+                <div class="ez-detail-price-banner">
+                    <div>
+                        <span class="ez-detail-price-label">Giá niêm yết</span>
+                        <div class="ez-detail-price-main">
+                            <strong>@Model.Price.ToString("N0") đ</strong>
+                            <span>/ tháng</span>
+                        </div>
+                    </div>
+                    <span class="ez-detail-area-pill">@Model.Area.ToString("0.##") m²</span>
+                </div>
+
+                <div class="ez-detail-host-row">
+                    <div class="ez-detail-host-avatar">
+                        @if (!string.IsNullOrWhiteSpace(Model.Owner?.AvatarUrl))
+                        {
+                            <img src="@Model.Owner.AvatarUrl" alt="@ownerName" />
+                        }
+                        else
+                        {
+                            <span>@ownerInitial</span>
+                        }
+                    </div>
+                    <div class="ez-detail-host-info">
+                        <span>CHỦ NHÀ ĐĂNG TIN</span>
+                        <strong>@ownerName</strong>
+                    </div>
+                </div>
+
+                <div class="ez-detail-cta-stack">
+                    @if (User.Identity?.IsAuthenticated == true && User.IsInRole("Tenant"))
+                    {
+                        <a asp-area="Tenant" asp-controller="ViewingBooking" asp-action="Index" asp-route-id="@Model.RentalPostId"
+                           class="ez-detail-btn-primary">
+                            Đặt lịch xem phòng
+                        </a>
+                        <a asp-area="Tenant" asp-controller="Dashboard" asp-action="Messages" asp-route-RentalPostId="@Model.RentalPostId" asp-route-View="chat"
+                           class="ez-detail-btn-outline">
+                            Nhắn tin với chủ nhà
+                        </a>
+                    }
+                    else if (User.Identity?.IsAuthenticated != true)
+                    {
+                        <a asp-area="Identity" asp-page="/Account/Login"
+                           asp-route-returnUrl="@Url.Action("Details", "RentalPost", new { area = "Tenant", id = Model.RentalPostId })"
+                           class="ez-detail-btn-primary">
+                            Đăng nhập để đặt lịch xem
+                        </a>
+                        <a asp-area="Identity" asp-page="/Account/Register"
+                           class="ez-detail-btn-outline">
+                            Tạo tài khoản Người thuê
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="ez-detail-muted text-center mb-0">
+                            Đặt lịch hẹn xem phòng dành cho tài khoản Người thuê.
+                        </p>
+                    }
+                </div>
+
+                <ul class="ez-detail-trust-list">
+                    <li>Miễn phí 100% đặt lịch xem phòng trực tiếp</li>
+                    <li>Hỗ trợ ký hợp đồng số &amp; đối soát công tơ</li>
+                </ul>
+            </div>
+        </aside>
+
+    </div>
+
 </div>
-<div>
-    <a asp-action="Edit" asp-route-id="@Model?.RentalPostId">Edit</a> |
-    <a asp-action="Index">Back to List</a>
-</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('[data-public-photo]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const src = btn.getAttribute('data-public-photo');
+                const mainImg = document.getElementById('public-main-room-image');
+                if (mainImg && src) mainImg.src = src;
+                document.querySelectorAll('.ez-detail-thumb').forEach(t => {
+                    t.classList.toggle('is-active', t.getAttribute('data-public-photo') === src);
+                });
+            });
+        });
+    </script>
+}

@@ -1,5 +1,6 @@
 using System.Globalization;
 using EZ_Rent.Models;
+using EZ_Rent.Models.Enums;
 
 namespace EZ_Rent.Areas.Tenant.ViewModels;
 
@@ -10,9 +11,12 @@ public sealed class TenantHomeModel
     public int PendingAppointments { get; init; }
     public int SavedCount { get; init; }
     public int UnreadCount { get; init; }
+    public int TotalOpenPosts { get; init; }
     public AppointmentModel? NextAppointment { get; init; }
     public IReadOnlyList<RentalCardModel> SavedRooms { get; init; } = [];
     public IReadOnlyList<TenantNoticeModel> Notices { get; init; } = [];
+    public IReadOnlyList<RentalPost> FeaturedRooms { get; init; } = [];
+    public IReadOnlyDictionary<RoomType, int> RoomTypeCounts { get; init; } = new Dictionary<RoomType, int>();
 }
 
 public sealed class TenantNoticeModel

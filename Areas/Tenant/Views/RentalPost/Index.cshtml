@@ -7,26 +7,141 @@
     ViewData["Title"] = "Tìm phòng";
     string Input(string key, object? value) => ViewData.ModelState.TryGetValue(key, out var entry)
         ? entry.AttemptedValue ?? "" : Convert.ToString(value, CultureInfo.InvariantCulture) ?? "";
+
+    var activeNonKeywordCount = Model.Filters.ActiveFilters().Count(c => c.Keys[0] != "Keyword");
 }
-<section class="discovery-intro"><p class="eyebrow">TÌM NƠI Ở PHÙ HỢP</p><h1>Phòng mới, khởi đầu mới.</h1><p>Khám phá những không gian còn trống dành cho bạn.</p></section>
-<form asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" method="get" id="rental-search" class="search-form">
-        @if (!string.IsNullOrEmpty(Model.Filters.Amenities)) { <input type="hidden" name="Amenities" value="@Model.Filters.Amenities" /> }
-    <div class="search-row"><label class="search-box"><span class="sr-only">Từ khóa</span><span aria-hidden="true">⌕</span><input name="Keyword" value="@Input("Keyword", Model.Filters.Keyword)" maxlength="100" placeholder="Tên phòng hoặc địa chỉ…" /></label><button type="submit" class="button primary">Tìm phòng</button></div>
-    <details class="filter-panel" open="@(Model.Filters.ActiveFilters().Any(c => c.Keys[0] != "Keyword") || !ViewData.ModelState.IsValid)">
-        <summary><span>Bộ lọc tìm kiếm <span data-filter-count>@(Model.Filters.ActiveFilters().Count > 0 ? $"({Model.Filters.ActiveFilters().Count})" : "")</span></span><span aria-hidden="true">＋</span></summary>
-        <div class="filter-grid">
-            <label>Tỉnh / Thành phố<select name="City" id="filter-city"><option value="">Tất cả khu vực</option>@foreach (var city in Model.Cities) { <option value="@city" selected="@(city == Model.Filters.City)">@city</option> }</select></label>
-            <label>Quận / Huyện<select name="District" id="filter-district"><option value="">Tất cả quận/huyện</option>@foreach (var district in Model.Districts) { <option value="@district" selected="@(district == Model.Filters.District)">@district</option> }</select></label>
-            <label>Giá từ (đ/tháng)<input type="number" name="MinPrice" min="0" step="any" value="@Input("MinPrice", Model.Filters.MinPrice)" placeholder="Không giới hạn" /></label>
-            <label>Giá đến (đ/tháng)<input type="number" name="MaxPrice" min="0" step="any" value="@Input("MaxPrice", Model.Filters.MaxPrice)" placeholder="Không giới hạn" /></label>
-            <label>Diện tích từ (m²)<input type="number" name="MinArea" min="0" max="1000000" step="any" value="@Input("MinArea", Model.Filters.MinArea)" placeholder="Không giới hạn" /></label>
-            <label>Diện tích đến (m²)<input type="number" name="MaxArea" min="0" max="1000000" step="any" value="@Input("MaxArea", Model.Filters.MaxArea)" placeholder="Không giới hạn" /></label>
-            <label>Loại phòng<select name="RoomType"><option value="">Tất cả loại phòng</option>@foreach (var type in Enum.GetValues<RoomType>()) { <option value="@((int)type)" selected="@(type == Model.Filters.RoomType)">@RentalPresentation.RoomTypeName(type)</option> }</select></label>
-            <label>Sắp xếp<select name="Sort"><option value="newest" selected="@(Model.Filters.Sort == "newest")">Mới nhất</option><option value="price-asc" selected="@(Model.Filters.Sort == "price-asc")">Giá thấp đến cao</option><option value="price-desc" selected="@(Model.Filters.Sort == "price-desc")">Giá cao đến thấp</option><option value="area-asc" selected="@(Model.Filters.Sort == "area-asc")">Diện tích tăng dần</option><option value="area-desc" selected="@(Model.Filters.Sort == "area-desc")">Diện tích giảm dần</option></select></label>
+<div class="ez-discover-shell">
+    <section class="discovery-intro ez-discovery-head mb-3">
+        <div>
+            <p class="ez-home-kicker">TÌM NƠI Ở PHÙ HỢP</p>
+            <h1 class="ez-discover-title">Phòng mới, khởi đầu mới.</h1>
+            <p class="ez-home-subhead">Khám phá những không gian còn trống đã niêm yết rõ chi phí dành cho bạn.</p>
         </div>
-        <p id="range-error" class="notice error" role="alert" hidden></p>
-        <div class="filter-actions"><a asp-action="Index" class="button">Xóa bộ lọc</a><button class="button primary" type="submit">Áp dụng bộ lọc</button></div>
-    </details>
-</form>
-<p class="notice error" id="search-error" role="alert" hidden></p>
-<section id="rental-results" aria-label="Kết quả tìm phòng" aria-live="polite"><partial name="_Results" model="Model" /></section>
+        <a asp-area="Tenant" asp-controller="ViewingAppointment" asp-action="Index" class="ez-context-pill-btn">
+            @await Html.PartialAsync("_HomeIcon", "calendar")
+            <span>Lịch xem phòng của tôi</span>
+        </a>
+    </section>
+
+    <form asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" method="get" id="rental-search" class="ez-discover-search-card">
+        @if (!string.IsNullOrEmpty(Model.Filters.Amenities))
+        {
+            <input type="hidden" name="Amenities" value="@Model.Filters.Amenities" />
+        }
+
+        <div class="ez-discover-pill-row">
+            <label class="ez-discover-input-wrap">
+                <span class="sr-only">Từ khóa</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input name="Keyword"
+                       value="@Input("Keyword", Model.Filters.Keyword)"
+                       maxlength="100"
+                       class="ez-discover-input"
+                       placeholder="Nhập tên đường, quận, trường đại học hoặc tên phòng…" />
+            </label>
+
+            <button type="submit" class="ez-discover-submit">Tìm phòng</button>
+        </div>
+
+        <details class="filter-panel ez-discover-drawer" open="@(activeNonKeywordCount > 0 || !ViewData.ModelState.IsValid)">
+            <summary class="ez-discover-drawer-toggle">
+                <span class="ez-discover-drawer-label">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="4" y1="21" x2="4" y2="14"></line>
+                        <line x1="4" y1="10" x2="4" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="12"></line>
+                        <line x1="12" y1="8" x2="12" y2="3"></line>
+                        <line x1="20" y1="21" x2="20" y2="16"></line>
+                        <line x1="20" y1="12" x2="20" y2="3"></line>
+                        <line x1="1" y1="14" x2="7" y2="14"></line>
+                        <line x1="9" y1="8" x2="15" y2="8"></line>
+                        <line x1="17" y1="16" x2="23" y2="16"></line>
+                    </svg>
+                    <span>Bộ lọc tìm kiếm &amp; Sắp xếp <span data-filter-count>@(Model.Filters.ActiveFilters().Count > 0 ? $"({Model.Filters.ActiveFilters().Count})" : "")</span></span>
+                </span>
+                <span class="ez-discover-drawer-chevron" aria-hidden="true">▾</span>
+            </summary>
+
+            <div class="ez-discover-filter-grid ez-discover-filter-grid-4">
+                <label class="ez-discover-field">
+                    <span>Tỉnh / Thành phố</span>
+                    <select name="City" id="filter-city">
+                        <option value="">Tất cả khu vực</option>
+                        @foreach (var city in Model.Cities)
+                        {
+                            <option value="@city" selected="@(city == Model.Filters.City)">@city</option>
+                        }
+                    </select>
+                </label>
+
+                <label class="ez-discover-field">
+                    <span>Quận / Huyện</span>
+                    <select name="District" id="filter-district">
+                        <option value="">Tất cả quận/huyện</option>
+                        @foreach (var district in Model.Districts)
+                        {
+                            <option value="@district" selected="@(district == Model.Filters.District)">@district</option>
+                        }
+                    </select>
+                </label>
+
+                <label class="ez-discover-field">
+                    <span>Loại phòng</span>
+                    <select name="RoomType">
+                        <option value="">Tất cả loại phòng</option>
+                        @foreach (var type in Enum.GetValues<RoomType>())
+                        {
+                            <option value="@((int)type)" selected="@(type == Model.Filters.RoomType)">@RentalPresentation.RoomTypeName(type)</option>
+                        }
+                    </select>
+                </label>
+
+                <label class="ez-discover-field">
+                    <span>Sắp xếp</span>
+                    <select name="Sort">
+                        <option value="newest" selected="@(Model.Filters.Sort == "newest")">Mới nhất</option>
+                        <option value="price-asc" selected="@(Model.Filters.Sort == "price-asc")">Giá thấp đến cao</option>
+                        <option value="price-desc" selected="@(Model.Filters.Sort == "price-desc")">Giá cao đến thấp</option>
+                        <option value="area-asc" selected="@(Model.Filters.Sort == "area-asc")">Diện tích tăng dần</option>
+                        <option value="area-desc" selected="@(Model.Filters.Sort == "area-desc")">Diện tích giảm dần</option>
+                    </select>
+                </label>
+
+                <label class="ez-discover-field">
+                    <span>Giá từ (đ/tháng)</span>
+                    <input type="number" name="MinPrice" min="0" step="any" value="@Input("MinPrice", Model.Filters.MinPrice)" placeholder="Không giới hạn" />
+                </label>
+
+                <label class="ez-discover-field">
+                    <span>Giá đến (đ/tháng)</span>
+                    <input type="number" name="MaxPrice" min="0" step="any" value="@Input("MaxPrice", Model.Filters.MaxPrice)" placeholder="Không giới hạn" />
+                </label>
+
+                <label class="ez-discover-field">
+                    <span>Diện tích từ (m²)</span>
+                    <input type="number" name="MinArea" min="0" max="1000000" step="any" value="@Input("MinArea", Model.Filters.MinArea)" placeholder="Không giới hạn" />
+                </label>
+
+                <label class="ez-discover-field">
+                    <span>Diện tích đến (m²)</span>
+                    <input type="number" name="MaxArea" min="0" max="1000000" step="any" value="@Input("MaxArea", Model.Filters.MaxArea)" placeholder="Không giới hạn" />
+                </label>
+            </div>
+
+            <p id="range-error" class="notice error mt-3" role="alert" hidden></p>
+
+            <div class="ez-discover-drawer-actions">
+                <a asp-action="Index" class="ez-discover-reset-btn">Xóa bộ lọc</a>
+                <button class="ez-discover-apply-btn" type="submit">Áp dụng bộ lọc</button>
+            </div>
+        </details>
+    </form>
+
+    <p class="notice error" id="search-error" role="alert" hidden></p>
+    <section id="rental-results" aria-label="Kết quả tìm phòng" aria-live="polite">
+        <partial name="_Results" model="Model" />
+    </section>
+</div>

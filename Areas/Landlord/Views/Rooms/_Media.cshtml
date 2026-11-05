@@ -1,3 +1,4 @@
+@using EZ_Rent.Helpers
 @model RoomDetailModel
 @if (Model.Media.Count == 0)
 {
@@ -12,7 +13,10 @@ else
             <div class="col-6 col-md-4">
                 <div class="card ll-media h-100">
                     @if (m.Type == MediaType.Video) { <video src="@m.Url" controls preload="metadata" aria-label="Video phòng @(i + 1)"></video> }
-                    else { <img src="@m.Url" alt="Ảnh phòng @(i + 1): @Model.Title" loading="lazy" /> }
+                    else {
+                        var resolvedMediaImg = RoomPhotoHelper.ResolveUrl(m.Url, Model.Id, Model.RoomType);
+                        <img src="@resolvedMediaImg" alt="Ảnh phòng @(i + 1): @Model.Title" loading="lazy" />
+                    }
                     <div class="card-body p-2 d-flex flex-wrap gap-1 align-items-center">
                         @if (m.IsPrimary) { <span class="badge bg-success me-auto">Ảnh đại diện</span> }
                         else if (m.Type == MediaType.Image)
@@ -37,7 +41,7 @@ else
                             </form>
                         }
                         <form method="post" asp-controller="RoomMedia" asp-action="Delete" asp-route-id="@Model.Id" data-ll-action data-ll-refresh="room-media" data-ll-confirm="Xóa file này khỏi tin?">
-                            <input type="hidden" name="mediaId" value="@m.Id" /><button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Xóa file @(i + 1)">🗑</button>
+                            <input type="hidden" name="mediaId" value="@m.Id" /><button class="btn btn-sm btn-outline-danger" type="submit" aria-label="Xóa file @(i + 1)">✕</button>
                         </form>
                     </div>
                 </div>

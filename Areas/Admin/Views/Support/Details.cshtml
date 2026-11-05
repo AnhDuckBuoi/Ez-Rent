@@ -11,7 +11,14 @@
         : returnUrl;
 }
 
-<h1>Chi tiết khiếu nại</h1>
+<partial name="_AdminMenu" />
+
+<div class="ez-page-header mb-3">
+    <div>
+        <span class="ez-eyebrow">Hỗ trợ & Bảo trì</span>
+        <h1 class="ez-page-title">Chi tiết khiếu nại</h1>
+    </div>
+</div>
 
 <div id="alertContainer">
     <partial name="_StatusMessage" />
@@ -26,33 +33,33 @@
     @if (Model.Status == RepairRequestStatus.Pending)
     {
         <button type="button" class="btn btn-info btn-action" data-id="@Model.RepairRequestId" data-action="InProgress">
-            🔧 Bắt đầu xử lý
+            Bắt đầu xử lý
         </button>
 
         <button type="button" class="btn btn-success btn-resolve" data-id="@Model.RepairRequestId">
-            ✅ Đánh dấu đã giải quyết
+            Đánh dấu đã giải quyết
         </button>
 
         <button type="button" class="btn btn-outline-danger btn-cancel" data-id="@Model.RepairRequestId">
-            ❌ Hủy khiếu nại
+            Hủy khiếu nại
         </button>
     }
 
     @if (Model.Status == RepairRequestStatus.InProgress)
     {
         <button type="button" class="btn btn-success btn-resolve" data-id="@Model.RepairRequestId">
-            ✅ Đánh dấu đã giải quyết
+            Đánh dấu đã giải quyết
         </button>
 
         <button type="button" class="btn btn-outline-danger btn-cancel" data-id="@Model.RepairRequestId">
-            ❌ Hủy khiếu nại
+            Hủy khiếu nại
         </button>
     }
 
     @if (Model.Status == RepairRequestStatus.Resolved)
     {
         <div class="alert alert-success mb-0 d-inline-block">
-            ✅ Khiếu nại đã được giải quyết
+            Khiếu nại đã được giải quyết
             @if (Model.ResolvedAt.HasValue)
             {
                 <span> — @Model.ResolvedAt.Value.ToString("dd/MM/yyyy HH:mm")</span>
@@ -63,7 +70,7 @@
     @if (Model.Status == RepairRequestStatus.Cancelled)
     {
         <div class="alert alert-secondary mb-0 d-inline-block">
-            ❌ Khiếu nại đã bị hủy
+            Khiếu nại đã bị hủy
         </div>
     }
 </div>
@@ -104,16 +111,16 @@
                         @switch (Model.Status)
                         {
                             case RepairRequestStatus.Pending:
-                                <span class="badge bg-warning text-dark">⏳ Chờ xử lý</span>
+                                <span class="badge bg-warning text-dark">Chờ xử lý</span>
                                 break;
                             case RepairRequestStatus.InProgress:
-                                <span class="badge bg-info text-dark">🔧 Đang xử lý</span>
+                                <span class="badge bg-info text-dark">Đang xử lý</span>
                                 break;
                             case RepairRequestStatus.Resolved:
-                                <span class="badge bg-success">✅ Đã giải quyết</span>
+                                <span class="badge bg-success">Đã giải quyết</span>
                                 break;
                             case RepairRequestStatus.Cancelled:
-                                <span class="badge bg-secondary">❌ Đã hủy</span>
+                                <span class="badge bg-secondary">Đã hủy</span>
                                 break;
                         }
                     </dd>
@@ -166,7 +173,7 @@
         <div class="d-flex align-items-center gap-2">
             @* ⭐ AVATAR dạng chữ cái đầu *@
             <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width:46px; height:46px;
-                background: linear-gradient(135deg, #667eea, #764ba2);
+                background: var(--ez-blue, #356797);
                 color:white; font-size:20px; font-weight:bold;">
                 @tenantInitial
             </div>
@@ -186,7 +193,7 @@
                     @* ⭐ ĐÃ FIX: Link sang Admin/Post/Details (không nhảy ra public) *@
                     <a asp-area="Admin" asp-controller="Post" asp-action="Details"
                        asp-route-id="@Model.RentalPost.RentalPostId" class="btn btn-sm btn-outline-primary">
-                        🔗 Xem tin đăng
+                        Xem tin đăng
                     </a>
                 }
             </div>
@@ -296,13 +303,13 @@
             function renderStatusBadge(status) {
                 switch (status) {
                     case 'Pending':
-                        return '<span class="badge bg-warning text-dark">⏳ Chờ xử lý</span>';
+                        return '<span class="badge bg-warning text-dark">Chờ xử lý</span>';
                     case 'InProgress':
-                        return '<span class="badge bg-info text-dark">🔧 Đang xử lý</span>';
+                        return '<span class="badge bg-info text-dark">Đang xử lý</span>';
                     case 'Resolved':
-                        return '<span class="badge bg-success">✅ Đã giải quyết</span>';
+                        return '<span class="badge bg-success">Đã giải quyết</span>';
                     case 'Cancelled':
-                        return '<span class="badge bg-secondary">❌ Đã hủy</span>';
+                        return '<span class="badge bg-secondary">Đã hủy</span>';
                     default:
                         return status;
                 }
@@ -323,18 +330,18 @@
                 if (newStatus === 'InProgress') {
                     actionsHtml += `
                             <button type="button" class="btn btn-success btn-resolve" data-id="${id}">
-                                ✅ Đánh dấu đã giải quyết
+                                Đánh dấu đã giải quyết
                             </button>
                             <button type="button" class="btn btn-outline-danger btn-cancel" data-id="${id}">
-                                ❌ Hủy khiếu nại
+                                Hủy khiếu nại
                             </button>`;
                 } else if (newStatus === 'Resolved') {
                     actionsHtml += `<div class="alert alert-success mb-0 d-inline-block">
-                            ✅ Khiếu nại đã được giải quyết
+                            Khiếu nại đã được giải quyết
                         </div>`;
                 } else if (newStatus === 'Cancelled') {
                     actionsHtml += `<div class="alert alert-secondary mb-0 d-inline-block">
-                            ❌ Khiếu nại đã bị hủy
+                            Khiếu nại đã bị hủy
                         </div>`;
                 }
 
@@ -367,7 +374,7 @@
 
                 btn.disabled = true;
                 const originalHtml = btn.innerHTML;
-                btn.innerHTML = '⏳...';
+                btn.innerHTML = '...';
 
                 try {
                     const data = await postAction(`/Admin/Support/InProgress/${id}`);
@@ -406,7 +413,7 @@
 
                 const btn = document.getElementById('btnConfirmResolve');
                 btn.disabled = true;
-                btn.innerHTML = '⏳ Đang xử lý...';
+                btn.innerHTML = 'Đang xử lý...';
 
                 try {
                     const data = await postAction(`/Admin/Support/Resolve/${id}`, { note });
@@ -445,7 +452,7 @@
 
                 const btn = document.getElementById('btnConfirmCancel');
                 btn.disabled = true;
-                btn.innerHTML = '⏳ Đang xử lý...';
+                btn.innerHTML = 'Đang xử lý...';
 
                 try {
                     const data = await postAction(`/Admin/Support/Cancel/${id}`, { note });

@@ -1,0 +1,116 @@
+@{
+    ViewData["Title"] = "Cẩm nang thuê phòng";
+    var searchArea = User.IsInRole("Tenant") ? "Tenant" : "";
+}
+
+<section class="ez-discovery-intro">
+    <div>
+        <p class="eyebrow">HƯỚNG DẪN SỬ DỤNG</p>
+        <h1>Cẩm nang thuê phòng trên EZ-Rent</h1>
+        <p>Quy trình 4 bước giúp người thuê và chủ nhà làm việc rõ ràng, an toàn và tiết kiệm thời gian.</p>
+    </div>
+</section>
+
+<div class="ez-editorial-layout" style="margin-top: 24px; padding-top: 24px;">
+    <div class="d-flex flex-column gap-3">
+        <article class="card p-4" id="booking">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                <span class="badge bg-primary">Bước 1 · Tìm kiếm &amp; Đặt lịch xem</span>
+                <span class="text-muted small">Dành cho Người thuê</span>
+            </div>
+            <h2 class="h5 mb-2">Tra cứu phòng minh bạch và hẹn giờ xem trực tiếp</h2>
+            <p class="text-muted small mb-2" style="line-height: 1.75;">
+                Mỗi tin đăng trên EZ-Rent đều công khai giá thuê hàng tháng, diện tích thực tế, đơn giá điện (đ/kWh), đơn giá nước (đ/m³) và phí dịch vụ. Khi chọn được căn phòng ưng ý:
+            </p>
+            <ul class="text-muted small mb-0" style="line-height: 1.8;">
+                <li>Bấm <strong>Đặt lịch xem phòng</strong> và chọn khung giờ phù hợp với lịch tiếp khách của chủ nhà.</li>
+                <li>Sử dụng tính năng <strong>Tin nhắn</strong> để trao đổi trực tiếp với chủ trọ về vị trí, chỗ để xe hoặc giờ giấc sinh hoạt.</li>
+                <li>Theo dõi trạng thái xác nhận lịch hẹn ngay tại mục <strong>Lịch hẹn</strong>.</li>
+            </ul>
+        </article>
+
+        <article class="card p-4" id="contract">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                <span class="badge bg-info">Bước 2 · Hợp đồng thuê phòng (Mẫu BM03)</span>
+                <span class="text-muted small">Hai bên đối chiếu</span>
+            </div>
+            <h2 class="h5 mb-2">Thiết lập hợp đồng số và lưu trữ hồ sơ bàn giao</h2>
+            <p class="text-muted small mb-2" style="line-height: 1.75;">
+                Sau khi thống nhất thuê phòng, chủ trọ khởi tạo hợp đồng điện tử theo chuẩn <strong>BM03</strong> trên hệ thống:
+            </p>
+            <ul class="text-muted small mb-0" style="line-height: 1.8;">
+                <li>Ghi nhận đầy đủ thời hạn thuê, tiền cọc, kỳ thanh toán và đơn giá dịch vụ đã thỏa thuận.</li>
+                <li>Lưu trữ bản chụp hợp đồng PDF và lịch sử phiên bản tài liệu để cả hai bên tra cứu bất cứ lúc nào.</li>
+                <li>Chốt chỉ số công tơ điện, nước ban đầu kèm ảnh chụp thực tế tại thời điểm bàn giao phòng.</li>
+            </ul>
+        </article>
+
+        <article class="card p-4" id="billing">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                <span class="badge bg-success">Bước 3 · Ghi điện nước &amp; Hóa đơn VietQR</span>
+                <span class="text-muted small">Định kỳ hàng tháng</span>
+            </div>
+            <h2 class="h5 mb-2">Đối soát chỉ số tiêu thụ và thanh toán nhanh chóng</h2>
+            <p class="text-muted small mb-2" style="line-height: 1.75;">
+                Hàng tháng, chủ trọ cập nhật chỉ số điện nước mới kèm ảnh chụp công tơ lên hệ thống:
+            </p>
+            <ul class="text-muted small mb-0" style="line-height: 1.8;">
+                <li>Hệ thống tự động tính sản lượng tiêu thụ (chỉ số mới trừ chỉ số cũ) và tổng hợp thành hóa đơn chi tiết.</li>
+                <li>Người thuê kiểm tra ảnh chụp công tơ ngay trong chi tiết hóa đơn và quét mã <strong>VietQR</strong> để chuyển khoản chính xác số tiền.</li>
+                <li>Sau khi thanh toán, trạng thái hóa đơn được cập nhật minh bạch trong lịch sử giao dịch.</li>
+            </ul>
+        </article>
+
+        <article class="card p-4" id="repair">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+                <span class="badge bg-warning">Bước 4 · Yêu cầu sửa chữa &amp; Hỗ trợ</span>
+                <span class="text-muted small">Trong suốt thời gian ở</span>
+            </div>
+            <h2 class="h5 mb-2">Báo cáo sự cố thiết bị có theo dõi tiến độ</h2>
+            <p class="text-muted small mb-0" style="line-height: 1.75;">
+                Khi phát sinh hỏng hóc về điện, nước, điều hòa hoặc cơ sở vật chất, người thuê tạo yêu cầu sửa chữa kèm mức độ ưu tiên. Chủ trọ tiếp nhận và cập nhật tiến độ xử lý trực tiếp trên hệ thống; trường hợp quá hạn xử lý, Quản trị viên sẽ can thiệp hỗ trợ qua kênh Khiếu nại.
+            </p>
+        </article>
+    </div>
+
+    <aside class="ez-editorial-aside">
+        <h2 class="h6 mb-2">Mục lục nhanh</h2>
+        <div>
+            <a href="#booking" class="ez-plain-row">
+                <span>
+                    <strong>1. Đặt lịch xem phòng</strong>
+                    <small>Tìm kiếm &amp; hẹn giờ trực tiếp</small>
+                </span>
+                <span class="text-muted">↓</span>
+            </a>
+            <a href="#contract" class="ez-plain-row">
+                <span>
+                    <strong>2. Hợp đồng điện tử BM03</strong>
+                    <small>Ký kết &amp; lưu hồ sơ bàn giao</small>
+                </span>
+                <span class="text-muted">↓</span>
+            </a>
+            <a href="#billing" class="ez-plain-row">
+                <span>
+                    <strong>3. Điện nước &amp; VietQR</strong>
+                    <small>Đối soát công tơ hàng tháng</small>
+                </span>
+                <span class="text-muted">↓</span>
+            </a>
+            <a href="#repair" class="ez-plain-row">
+                <span>
+                    <strong>4. Yêu cầu sửa chữa</strong>
+                    <small>Báo cáo sự cố trong khi ở</small>
+                </span>
+                <span class="text-muted">↓</span>
+            </a>
+            <a asp-area="@searchArea" asp-controller="RentalPost" asp-action="Index" class="ez-plain-row">
+                <span>
+                    <strong>Bắt đầu tìm phòng ngay</strong>
+                    <small>Khám phá danh sách phòng trống</small>
+                </span>
+                <span class="text-muted">→</span>
+            </a>
+        </div>
+    </aside>
+</div>

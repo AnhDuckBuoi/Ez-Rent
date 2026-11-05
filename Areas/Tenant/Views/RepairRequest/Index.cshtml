@@ -6,21 +6,56 @@
     ViewData["Title"] = "Yêu cầu sửa chữa";
     ViewData["Description"] = "Theo dõi sự cố, phản hồi của chủ nhà và lịch sử xử lý.";
 }
-<div class="rental-list-actions"><a asp-action="Create" asp-route-roomId="@Model.Input.RoomId" class="rental-button primary">Gửi yêu cầu sửa chữa</a></div>
 <div asp-validation-summary="All" class="rental-validation" role="alert"></div>
 @if (Model.Input.RoomId.HasValue)
-{ <p class="rental-filter-context">Đang xem yêu cầu tại một phòng. <a asp-action="Index">Xem mọi phòng</a></p> }
+{
+    <div class="rental-filter-context">
+        <span>Đang xem yêu cầu tại một phòng đang thuê.</span>
+        <a asp-action="Index">Xem mọi phòng →</a>
+    </div>
+}
 <form asp-action="Index" method="get" class="rental-filter">
-    @if (Model.Input.RoomId.HasValue) { <input type="hidden" name="RoomId" value="@Model.Input.RoomId" /> }
-    <div><label for="Status">Trạng thái yêu cầu</label><select id="Status" name="Status">
-        <option value="">Tất cả trạng thái</option>
-        @foreach (var status in Enum.GetValues<RepairRequestStatus>())
-        { <option value="@((int)status)" selected="@(Model.Input.Status == status)">@TenantRentalPresentation.RepairLabel(status)</option> }
-    </select></div>
+    @if (Model.Input.RoomId.HasValue)
+    {
+        <input type="hidden" name="RoomId" value="@Model.Input.RoomId" />
+    }
+    <div class="ez-rental-filter-group">
+        <label for="Status">Trạng thái yêu cầu</label>
+        <select id="Status" name="Status">
+            <option value="">Tất cả trạng thái</option>
+            @foreach (var status in Enum.GetValues<RepairRequestStatus>())
+            {
+                <option value="@((int)status)" selected="@(Model.Input.Status == status)">@TenantRentalPresentation.RepairLabel(status)</option>
+            }
+        </select>
+    </div>
     <button class="rental-button secondary" type="submit">Áp dụng</button>
-    <span>@Model.Total yêu cầu</span>
+    <span class="ez-rental-count-pill">@Model.Total yêu cầu</span>
+    <a asp-action="Create" asp-route-roomId="@Model.Input.RoomId" class="rental-button primary ez-rental-filter-cta">+ Gửi yêu cầu sửa chữa</a>
 </form>
+
 @if (Model.Items.Count == 0)
-{ <section class="rental-empty"><h2>Chưa có yêu cầu phù hợp</h2><p>Khi gặp sự cố tại phòng đang thuê, bạn có thể gửi yêu cầu để chủ nhà theo dõi và xử lý.</p></section> }
-@foreach (var repair in Model.Items) { @await Html.PartialAsync("_RentalRepairRow", repair) }
+{
+    <section class="rental-empty">
+        <div class="ez-rental-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+            </svg>
+        </div>
+        <h2>Chưa có yêu cầu phù hợp</h2>
+        <p>Khi gặp sự cố tại phòng đang thuê, bạn có thể gửi yêu cầu để chủ nhà theo dõi và xử lý.</p>
+        <div class="rental-actions">
+            <a asp-action="Create" asp-route-roomId="@Model.Input.RoomId" class="rental-button primary">Gửi yêu cầu sửa chữa</a>
+        </div>
+    </section>
+}
+else
+{
+    <div class="ez-rental-stack">
+        @foreach (var repair in Model.Items)
+        {
+            @await Html.PartialAsync("_RentalRepairRow", repair)
+        }
+    </div>
+}
 @await Html.PartialAsync("_TenantPagination", new TenantPaginationModel(Model.Input.Page, Model.TotalPages, page => Url.Action("Index", new { Page = page, Status = (int?)Model.Input.Status, Model.Input.RoomId }), "Phân trang yêu cầu sửa chữa"))

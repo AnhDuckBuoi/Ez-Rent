@@ -6,149 +6,152 @@
     ViewData["Title"] = "Khiếu nại sửa chữa";
 }
 
-<h1>Khiếu nại sửa chữa</h1>
+<partial name="_AdminMenu" />
+
+<div class="ez-page-header mb-4">
+    <div>
+        <div class="ez-eyebrow">Hỗ trợ & Bảo trì</div>
+        <h1 class="ez-page-title">Khiếu nại sửa chữa</h1>
+        <p class="ez-page-subtitle">Theo dõi và xử lý các yêu cầu sửa chữa, bảo trì phòng trọ từ người thuê.</p>
+    </div>
+</div>
 
 <div id="alertContainer">
     <partial name="_StatusMessage" />
 </div>
 
-@* ============================================================ *@
-@*  FILTER STATUS                                                *@
-@* ============================================================ *@
-<ul class="nav nav-pills mb-3">
+<ul class="nav nav-pills mb-3 gap-1">
     <li class="nav-item">
         <a class="nav-link @(ViewBag.StatusFilter == null ? "active" : "")"
            asp-action="Index">Tất cả</a>
     </li>
     <li class="nav-item">
         <a class="nav-link @(ViewBag.StatusFilter == "Pending" ? "active" : "")"
-           asp-action="Index" asp-route-status="Pending">⏳ Chờ xử lý</a>
+           asp-action="Index" asp-route-status="Pending">Chờ xử lý</a>
     </li>
     <li class="nav-item">
         <a class="nav-link @(ViewBag.StatusFilter == "InProgress" ? "active" : "")"
-           asp-action="Index" asp-route-status="InProgress">🔧 Đang xử lý</a>
+           asp-action="Index" asp-route-status="InProgress">Đang xử lý</a>
     </li>
     <li class="nav-item">
         <a class="nav-link @(ViewBag.StatusFilter == "Resolved" ? "active" : "")"
-           asp-action="Index" asp-route-status="Resolved">✅ Đã giải quyết</a>
+           asp-action="Index" asp-route-status="Resolved">Đã giải quyết</a>
     </li>
     <li class="nav-item">
         <a class="nav-link @(ViewBag.StatusFilter == "Cancelled" ? "active" : "")"
-           asp-action="Index" asp-route-status="Cancelled">❌ Đã hủy</a>
+           asp-action="Index" asp-route-status="Cancelled">Đã hủy</a>
     </li>
 </ul>
 
-<p class="text-muted">
-    Tổng <strong>@Model.TotalItems</strong> khiếu nại —
+<p class="text-muted small mb-3">
+    Tổng <strong>@Model.TotalItems</strong> khiếu nại ·
     Trang <strong>@Model.PageIndex</strong> / <strong>@Model.TotalPages</strong>
 </p>
 
-<table class="table table-hover align-middle">
-    <thead class="table-light">
-        <tr>
-            <th>Phòng</th>
-            <th>Người gửi</th>
-            <th>Loại sự cố</th>
-            <th>Ưu tiên</th>
-            <th>Trạng thái</th>
-            <th>Ngày gửi</th>
-            <th style="width:280px">Thao tác</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr id="repair-row-@item.RepairRequestId" data-id="@item.RepairRequestId">
-                <td class="text-truncate" style="max-width:200px;">
-                    @item.RentalPost?.Address
-                </td>
-                <td>@item.Tenant?.FullName</td>
-                <td>@item.ProblemType</td>
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>Phòng</th>
+                    <th>Người gửi</th>
+                    <th>Loại sự cố</th>
+                    <th>Ưu tiên</th>
+                    <th>Trạng thái</th>
+                    <th>Ngày gửi</th>
+                    <th style="width:280px">Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr id="repair-row-@item.RepairRequestId" data-id="@item.RepairRequestId">
+                        <td class="text-truncate" style="max-width:200px;">
+                            @item.RentalPost?.Address
+                        </td>
+                        <td>@item.Tenant?.FullName</td>
+                        <td>@item.ProblemType</td>
 
-                @* ===== PRIORITY ===== *@
-                <td class="priority-cell">
-                    @switch (item.Priority)
-                    {
-                        case RepairPriority.Low:
-                            <span class="badge bg-secondary">Thấp</span>
-                            break;
-                        case RepairPriority.Medium:
-                            <span class="badge bg-info text-dark">Trung bình</span>
-                            break;
-                        case RepairPriority.High:
-                            <span class="badge bg-warning text-dark">Cao</span>
-                            break;
-                        case RepairPriority.Urgent:
-                            <span class="badge bg-danger">Khẩn cấp</span>
-                            break;
-                    }
-                </td>
+                        <td class="priority-cell">
+                            @switch (item.Priority)
+                            {
+                                case RepairPriority.Low:
+                                    <span class="badge bg-secondary">Thấp</span>
+                                    break;
+                                case RepairPriority.Medium:
+                                    <span class="badge bg-info text-dark">Trung bình</span>
+                                    break;
+                                case RepairPriority.High:
+                                    <span class="badge bg-warning text-dark">Cao</span>
+                                    break;
+                                case RepairPriority.Urgent:
+                                    <span class="badge bg-danger">Khẩn cấp</span>
+                                    break;
+                            }
+                        </td>
 
-                @* ===== STATUS ===== *@
-                <td class="status-cell">
-                    @switch (item.Status)
-                    {
-                        case RepairRequestStatus.Pending:
-                            <span class="badge bg-warning text-dark">⏳ Chờ xử lý</span>
-                            break;
-                        case RepairRequestStatus.InProgress:
-                            <span class="badge bg-info text-dark">🔧 Đang xử lý</span>
-                            break;
-                        case RepairRequestStatus.Resolved:
-                            <span class="badge bg-success">✅ Đã giải quyết</span>
-                            break;
-                        case RepairRequestStatus.Cancelled:
-                            <span class="badge bg-secondary">❌ Đã hủy</span>
-                            break;
-                    }
-                </td>
+                        <td class="status-cell">
+                            @switch (item.Status)
+                            {
+                                case RepairRequestStatus.Pending:
+                                    <span class="badge bg-warning text-dark">Chờ xử lý</span>
+                                    break;
+                                case RepairRequestStatus.InProgress:
+                                    <span class="badge bg-info text-dark">Đang xử lý</span>
+                                    break;
+                                case RepairRequestStatus.Resolved:
+                                    <span class="badge bg-success">Đã giải quyết</span>
+                                    break;
+                                case RepairRequestStatus.Cancelled:
+                                    <span class="badge bg-secondary">Đã hủy</span>
+                                    break;
+                            }
+                        </td>
 
-                <td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
 
-                @* ===== ACTIONS ===== *@
-                <td class="action-cell">
-                    <a asp-action="Details" asp-route-id="@item.RepairRequestId"
-                       class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                        <td class="action-cell">
+                            <a asp-action="Details" asp-route-id="@item.RepairRequestId"
+                               class="btn btn-sm btn-outline-primary">Chi tiết</a>
 
-                    @if (item.Status == RepairRequestStatus.Pending)
-                    {
-                        <button type="button" class="btn btn-sm btn-info btn-action"
-                                data-id="@item.RepairRequestId"
-                                data-action="InProgress">
-                            🔧 Bắt đầu
-                        </button>
+                            @if (item.Status == RepairRequestStatus.Pending)
+                            {
+                                <button type="button" class="btn btn-sm btn-info btn-action"
+                                        data-id="@item.RepairRequestId"
+                                        data-action="InProgress">
+                                    Bắt đầu
+                                </button>
 
-                        <button type="button" class="btn btn-sm btn-success btn-resolve"
-                                data-id="@item.RepairRequestId">
-                            ✅ Xử lý
-                        </button>
+                                <button type="button" class="btn btn-sm btn-success btn-resolve"
+                                        data-id="@item.RepairRequestId">
+                                    Xử lý
+                                </button>
 
-                        <button type="button" class="btn btn-sm btn-outline-danger btn-cancel"
-                                data-id="@item.RepairRequestId">
-                            ❌ Hủy
-                        </button>
-                    }
-                    else if (item.Status == RepairRequestStatus.InProgress)
-                    {
-                        <button type="button" class="btn btn-sm btn-success btn-resolve"
-                                data-id="@item.RepairRequestId">
-                            ✅ Xử lý
-                        </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-cancel"
+                                        data-id="@item.RepairRequestId">
+                                    Hủy
+                                </button>
+                            }
+                            else if (item.Status == RepairRequestStatus.InProgress)
+                            {
+                                <button type="button" class="btn btn-sm btn-success btn-resolve"
+                                        data-id="@item.RepairRequestId">
+                                    Xử lý
+                                </button>
 
-                        <button type="button" class="btn btn-sm btn-outline-danger btn-cancel"
-                                data-id="@item.RepairRequestId">
-                            ❌ Hủy
-                        </button>
-                    }
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+                                <button type="button" class="btn btn-sm btn-outline-danger btn-cancel"
+                                        data-id="@item.RepairRequestId">
+                                    Hủy
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
 
-@* ============================================================ *@
-@*  PAGINATION                                                   *@
-@* ============================================================ *@
 @{
     var routeValues = new Dictionary<string, string?>
     {
@@ -156,16 +159,15 @@
     };
 }
 
-@await Html.PartialAsync("_Pagination", PaginationInfo.From(
-    Model,
-    action: "Index",
-    controller: "Support",
-    area: "Admin",
-    routeValues: routeValues))
+<div class="mt-3">
+    @await Html.PartialAsync("_Pagination", PaginationInfo.From(
+        Model,
+        action: "Index",
+        controller: "Support",
+        area: "Admin",
+        routeValues: routeValues))
+</div>
 
-@* ============================================================ *@
-@*  MODAL RESOLVE                                                *@
-@* ============================================================ *@
 <div class="modal fade" id="resolveModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -189,9 +191,6 @@
     </div>
 </div>
 
-@* ============================================================ *@
-@*  MODAL CANCEL                                                 *@
-@* ============================================================ *@
 <div class="modal fade" id="cancelModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -215,7 +214,6 @@
     </div>
 </div>
 
-@* Form ẩn — chứa AntiForgeryToken cho AJAX *@
 <form id="afForm" style="display:none">
     @Html.AntiForgeryToken()
 </form>
@@ -224,13 +222,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
 
-            // ================= Token =================
             const afInput = document.querySelector('#afForm input[name="__RequestVerificationToken"]');
             const AF_TOKEN = afInput ? afInput.value : '';
 
             const alertContainer = document.getElementById('alertContainer');
 
-            // ================= Alert =================
             function showAlert(message, type = 'warning') {
                 const html = `
                     <div class="alert alert-${type} alert-dismissible fade show" role="alert">
@@ -245,7 +241,6 @@
                 }, 4000);
             }
 
-            // ================= POST helper =================
             async function postAction(url, params = {}) {
                 const body = new URLSearchParams({
                     __RequestVerificationToken: AF_TOKEN,
@@ -262,17 +257,16 @@
                 return await res.json();
             }
 
-            // ================= UPDATE DOM =================
             function renderStatusBadge(status) {
                 switch (status) {
                     case 'Pending':
-                        return '<span class="badge bg-warning text-dark">⏳ Chờ xử lý</span>';
+                        return '<span class="badge bg-warning text-dark">Chờ xử lý</span>';
                     case 'InProgress':
-                        return '<span class="badge bg-info text-dark">🔧 Đang xử lý</span>';
+                        return '<span class="badge bg-info text-dark">Đang xử lý</span>';
                     case 'Resolved':
-                        return '<span class="badge bg-success">✅ Đã giải quyết</span>';
+                        return '<span class="badge bg-success">Đã giải quyết</span>';
                     case 'Cancelled':
-                        return '<span class="badge bg-secondary">❌ Đã hủy</span>';
+                        return '<span class="badge bg-secondary">Đã hủy</span>';
                     default:
                         return status;
                 }
@@ -285,20 +279,20 @@
                     return `
                         ${details}
                         <button type="button" class="btn btn-sm btn-info btn-action"
-                                data-id="${id}" data-action="InProgress">🔧 Bắt đầu</button>
+                                data-id="${id}" data-action="InProgress">Bắt đầu</button>
                         <button type="button" class="btn btn-sm btn-success btn-resolve"
-                                data-id="${id}">✅ Xử lý</button>
+                                data-id="${id}">Xử lý</button>
                         <button type="button" class="btn btn-sm btn-outline-danger btn-cancel"
-                                data-id="${id}">❌ Hủy</button>`;
+                                data-id="${id}">Hủy</button>`;
                 }
 
                 if (status === 'InProgress') {
                     return `
                         ${details}
                         <button type="button" class="btn btn-sm btn-success btn-resolve"
-                                data-id="${id}">✅ Xử lý</button>
+                                data-id="${id}">Xử lý</button>
                         <button type="button" class="btn btn-sm btn-outline-danger btn-cancel"
-                                data-id="${id}">❌ Hủy</button>`;
+                                data-id="${id}">Hủy</button>`;
                 }
 
                 return details;
@@ -308,23 +302,18 @@
                 const row = document.getElementById(`repair-row-${id}`);
                 if (!row) return;
 
-                // Cập nhật badge status
                 row.querySelector('.status-cell').innerHTML = renderStatusBadge(newStatus);
-
-                // Cập nhật nút action
                 row.querySelector('.action-cell').innerHTML = renderActions(id, newStatus);
 
-                // Gắn lại event cho các nút mới
                 bindRowEvents();
             }
 
-            // ================= IN PROGRESS =================
             async function doInProgress(id, btn) {
                 if (!confirm('Chuyển khiếu nại sang trạng thái Đang xử lý?')) return;
 
                 btn.disabled = true;
                 const originalHtml = btn.innerHTML;
-                btn.innerHTML = '⏳...';
+                btn.innerHTML = 'Đang xử lý...';
 
                 try {
                     const data = await postAction(`/Admin/Support/InProgress/${id}`);
@@ -345,7 +334,6 @@
                 }
             }
 
-            // ================= RESOLVE (mở modal) =================
             function openResolveModal(id) {
                 document.getElementById('resolveId').value = id;
                 document.getElementById('resolveNote').value = '';
@@ -363,7 +351,7 @@
 
                 const btn = document.getElementById('btnConfirmResolve');
                 btn.disabled = true;
-                btn.innerHTML = '⏳ Đang xử lý...';
+                btn.innerHTML = 'Đang xử lý...';
 
                 try {
                     const data = await postAction(`/Admin/Support/Resolve/${id}`, { note });
@@ -384,7 +372,6 @@
                 }
             }
 
-            // ================= CANCEL (mở modal) =================
             function openCancelModal(id) {
                 document.getElementById('cancelId').value = id;
                 document.getElementById('cancelNote').value = '';
@@ -402,7 +389,7 @@
 
                 const btn = document.getElementById('btnConfirmCancel');
                 btn.disabled = true;
-                btn.innerHTML = '⏳ Đang xử lý...';
+                btn.innerHTML = 'Đang xử lý...';
 
                 try {
                     const data = await postAction(`/Admin/Support/Cancel/${id}`, { note });
@@ -423,7 +410,6 @@
                 }
             }
 
-            // ================= BIND EVENTS (gọi lại sau khi update DOM) =================
             function bindRowEvents() {
                 document.querySelectorAll('.btn-action').forEach(function (btn) {
                     if (btn.dataset.bound) return;
@@ -450,10 +436,8 @@
                 });
             }
 
-            // Bind lần đầu
             bindRowEvents();
 
-            // ================= Modal confirm buttons =================
             document.getElementById('btnConfirmResolve')?.addEventListener('click', submitResolve);
             document.getElementById('btnConfirmCancel')?.addEventListener('click', submitCancel);
         });

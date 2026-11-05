@@ -3,7 +3,7 @@
     ViewData["Title"] = "Tài khoản chủ trọ";
 }
 <partial name="_LandlordMenu" />
-<h2 class="mb-1">👤 Tài khoản của bạn</h2>
+<h2 class="mb-1">Tài khoản của bạn</h2>
 <p class="text-muted">Họ tên, số điện thoại và thông tin pháp lý hiện trên hợp đồng, hóa đơn và trang liên hệ với người thuê.</p>
 <div class="row g-3">
     <div class="col-lg-8">
@@ -17,7 +17,7 @@
                 <input asp-for="Profile.PhoneNumber" type="tel" class="form-control" autocomplete="tel" /><span asp-validation-for="Profile.PhoneNumber" class="text-danger small"></span></div>
             <div class="col-12 small">Email đăng nhập: <strong>@Model.Email</strong> @LandlordUi.Badge(Model.EmailConfirmed ? new StatusLabel("Đã xác thực", "success") : new StatusLabel("Chưa xác thực", "warning"))
                 · <a asp-area="Identity" asp-page="/Account/Manage/Email">Đổi email / gửi lại thư xác thực</a></div>
-            <div class="col-12"><button class="btn btn-primary" type="submit">💾 Lưu thông tin</button></div>
+            <div class="col-12"><button class="btn btn-primary" type="submit">Lưu thông tin</button></div>
         </div></form>
 
         <form method="post" asp-action="Legal" class="card border-0 shadow-sm mb-3" id="legal"><div class="card-body row g-3">
@@ -40,7 +40,7 @@
                 <input asp-for="Legal.DocumentIssuedAt" class="form-control" /><span asp-validation-for="Legal.DocumentIssuedAt" class="text-danger small"></span></div>
             <div class="col-12"><label asp-for="Legal.PermanentAddress" class="form-label"></label>
                 <input asp-for="Legal.PermanentAddress" class="form-control" /><span asp-validation-for="Legal.PermanentAddress" class="text-danger small"></span></div>
-            <div class="col-12"><button class="btn btn-primary" type="submit">💾 Lưu thông tin pháp lý</button></div>
+            <div class="col-12"><button class="btn btn-primary" type="submit">Lưu thông tin pháp lý</button></div>
         </div></form>
 
         <form method="post" asp-action="Password" class="card border-0 shadow-sm"><div class="card-body row g-3">
@@ -54,7 +54,7 @@
                     <input asp-for="Password.NewPassword" class="form-control" autocomplete="new-password" /><span asp-validation-for="Password.NewPassword" class="text-danger small"></span></div>
                 <div class="col-md-6"><label asp-for="Password.ConfirmPassword" class="form-label"></label>
                     <input asp-for="Password.ConfirmPassword" class="form-control" autocomplete="new-password" /><span asp-validation-for="Password.ConfirmPassword" class="text-danger small"></span></div>
-                <div class="col-12"><button class="btn btn-outline-primary" type="submit">🔑 Đổi mật khẩu</button></div>
+                <div class="col-12"><button class="btn btn-outline-primary" type="submit">Đổi mật khẩu</button></div>
             }
             else { <div class="col-12 alert alert-info mb-0">Tài khoản đăng nhập bằng Google chưa có mật khẩu. <a asp-area="Identity" asp-page="/Account/Manage/SetPassword">Đặt mật khẩu</a>.</div> }
         </div></form>
@@ -67,7 +67,7 @@
                 <label class="form-label small" for="avatar-file">Ảnh JPG/PNG tối đa 2 MB</label>
                 <input class="form-control" id="avatar-file" type="file" name="file" accept="image/jpeg,image/png" required data-ll-preview="#avatar-preview" data-ll-max-image-mb="2" />
                 <div id="avatar-preview" class="ll-previews"></div>
-                <button class="btn btn-sm btn-outline-primary mt-2" type="submit">⬆️ Tải ảnh lên</button>
+                <button class="btn btn-sm btn-outline-primary mt-2" type="submit">⬆Tải ảnh lên</button>
             </form>
             @if (Model.AvatarUrl != null)
             {

@@ -4,8 +4,27 @@
     ViewData["Title"] = "Nội dung thông báo";
     ViewData["NotificationsPage"] = true;
 }
-<a asp-action="Index" class="back-link">Tất cả thông báo</a>
-<article class="notification-detail"><h1>@Model.Title</h1><p class="story-meta">@Model.CreatedLabel · Giờ Việt Nam · @(Model.IsRead ? "Đã đọc" : "Chưa đọc")</p><p class="notification-content">@Model.Content</p>
-    @if (Model.CanOpenTarget || !Model.IsRead) { <form asp-action="Open" asp-route-id="@Model.Id" method="post"><button class="button primary" type="submit">@(Model.CanOpenTarget ? "Mở nội dung liên quan" : "Đánh dấu đã đọc")</button></form> }
-    @if (!Model.CanOpenTarget) { <p class="home-empty">Thông báo này không có liên kết khả dụng. Bạn vẫn có thể đọc nội dung tại đây.</p> }
-</article>
+<div class="home-page ez-notification-page">
+    <a asp-action="Index" class="back-link">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Tất cả thông báo</span>
+    </a>
+    <article class="notification-detail ez-bento-panel">
+        <h1>@Model.Title</h1>
+        <p class="story-meta">@Model.CreatedLabel · Giờ Việt Nam · @(Model.IsRead ? "Đã đọc" : "Chưa đọc")</p>
+        <p class="notification-content">@Model.Content</p>
+        @if (Model.CanOpenTarget || !Model.IsRead)
+        {
+            <form asp-action="Open" asp-route-id="@Model.Id" method="post">
+                <button class="button primary" type="submit">@(Model.CanOpenTarget ? "Mở nội dung liên quan" : "Đánh dấu đã đọc")</button>
+            </form>
+        }
+        @if (!Model.CanOpenTarget)
+        {
+            <p class="home-empty">Thông báo này không có liên kết khả dụng. Bạn vẫn có thể đọc nội dung tại đây.</p>
+        }
+    </article>
+</div>

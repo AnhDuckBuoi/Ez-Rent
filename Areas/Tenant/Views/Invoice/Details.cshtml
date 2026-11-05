@@ -5,28 +5,46 @@
     Layout = "_Layout";
     ViewData["Title"] = $"Hóa đơn kỳ {TenantRentalPresentation.Period(invoice.BillingPeriod)}";
     ViewData["Description"] = invoice.RentalContract.RentalPost.Title;
-    var reading = invoice.MeterReading;
 }
-<a asp-action="Index" asp-route-ContractId="@invoice.RentalContractId" class="rental-back">Quay lại danh sách hóa đơn</a>
+<a asp-action="Index" asp-route-ContractId="@invoice.RentalContractId" class="rental-back">← Quay lại danh sách hóa đơn</a>
 <div class="rental-detail-grid">
     <section class="rental-panel">
-        <div class="rental-section-heading"><h2>Chi tiết khoản thu</h2><span class="rental-status @TenantRentalPresentation.Tone(invoice.PaymentStatus)">@TenantRentalPresentation.PaymentLabel(invoice.PaymentStatus)</span></div>
+        <div class="rental-section-heading">
+            <h2>Chi tiết khoản thu</h2>
+            <span class="rental-status @TenantRentalPresentation.Tone(invoice.PaymentStatus)">@TenantRentalPresentation.PaymentLabel(invoice.PaymentStatus)</span>
+        </div>
         <dl class="rental-detail-facts">
             <div><dt>Mã hóa đơn</dt><dd>#@invoice.InvoiceId</dd></div>
+            <div><dt>Phòng áp dụng</dt><dd>@invoice.RentalContract.RentalPost.Title</dd></div>
             <div><dt>Ngày lập</dt><dd>@TenantRentalPresentation.Date(invoice.IssueDate)</dd></div>
             <div><dt>Hạn thanh toán</dt><dd>@TenantRentalPresentation.Date(invoice.DueDate)</dd></div>
-            @if (invoice.PaidAt.HasValue) { <div><dt>Ghi nhận thanh toán</dt><dd>@TenantRentalPresentation.Date(invoice.PaidAt.Value)</dd></div> }
+            @if (invoice.PaidAt.HasValue)
+            {
+                <div><dt>Ghi nhận thanh toán</dt><dd class="is-accent">@TenantRentalPresentation.Date(invoice.PaidAt.Value)</dd></div>
+            }
         </dl>
-        <dl class="rental-charges">
-            <div><dt>Tiền phòng</dt><dd>@TenantRentalPresentation.Money(invoice.RoomRentAmount)</dd></div>
-            <div><dt>Tiền điện <small>@TenantRentalPresentation.Number(invoice.ElectricUsage) kWh</small></dt><dd>@TenantRentalPresentation.Money(invoice.ElectricAmount)</dd></div>
-            <div><dt>Tiền nước <small>@TenantRentalPresentation.Number(invoice.WaterUsage) m³</small></dt><dd>@TenantRentalPresentation.Money(invoice.WaterAmount)</dd></div>
-            <div><dt>Phí dịch vụ</dt><dd>@TenantRentalPresentation.Money(invoice.ServiceFeeAmount)</dd></div>
-            <div><dt>Điều chỉnh</dt><dd>@TenantRentalPresentation.Money(invoice.AdjustmentAmount)</dd></div>
-            <div class="rental-charge-total"><dt>Tổng tiền</dt><dd>@TenantRentalPresentation.Money(invoice.TotalAmount)</dd></div>
-        </dl>
-        @if (!string.IsNullOrWhiteSpace(invoice.Note)) { <h3>Ghi chú hóa đơn</h3><p class="rental-prose">@invoice.Note</p> }
+
+        <div class="ez-rental-receipt-box">
+            <h3 class="ez-rental-receipt-title">Bảng kê chi phí kỳ @TenantRentalPresentation.Period(invoice.BillingPeriod)</h3>
+            <dl class="rental-charges">
+                <div><dt>Tiền phòng</dt><dd>@TenantRentalPresentation.Money(invoice.RoomRentAmount)</dd></div>
+                <div><dt>Tiền điện <small>Tiêu thụ: @TenantRentalPresentation.Number(invoice.ElectricUsage) kWh</small></dt><dd>@TenantRentalPresentation.Money(invoice.ElectricAmount)</dd></div>
+                <div><dt>Tiền nước <small>Tiêu thụ: @TenantRentalPresentation.Number(invoice.WaterUsage) m³</small></dt><dd>@TenantRentalPresentation.Money(invoice.WaterAmount)</dd></div>
+                <div><dt>Phí dịch vụ</dt><dd>@TenantRentalPresentation.Money(invoice.ServiceFeeAmount)</dd></div>
+                <div><dt>Điều chỉnh</dt><dd>@TenantRentalPresentation.Money(invoice.AdjustmentAmount)</dd></div>
+                <div class="rental-charge-total"><dt>Tổng tiền thanh toán</dt><dd>@TenantRentalPresentation.Money(invoice.TotalAmount)</dd></div>
+            </dl>
+        </div>
+
+        @if (!string.IsNullOrWhiteSpace(invoice.Note))
+        {
+            <h3>Ghi chú hóa đơn</h3>
+            <div class="ez-rental-prose-box">
+                <p class="rental-prose">@invoice.Note</p>
+            </div>
+        }
         <p class="rental-note">Liên hệ chủ nhà nếu bạn cần đối chiếu khoản thu hoặc thời hạn thanh toán.</p>
     </section>
+
     @await Html.PartialAsync("_InvoiceMeterEvidence", Model)
 </div>

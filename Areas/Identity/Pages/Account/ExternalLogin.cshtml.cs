@@ -46,44 +46,23 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
             _emailSender = emailSender;
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public string ProviderDisplayName { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public string ReturnUrl { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [TempData]
         public string ErrorMessage { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public class InputModel
         {
-            /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
-            /// </summary>
-            [Required]
-            [EmailAddress]
+            [Display(Name = "Vai trò")]
+            public string Role { get; set; } = RegisterModel.RoleTenant;
+
+            [Required(ErrorMessage = "Email không được để trống")]
+            [EmailAddress(ErrorMessage = "Địa chỉ email không hợp lệ")]
             public string Email { get; set; }
         }
 
@@ -117,7 +96,7 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
             if (result.Succeeded)
             {
                 // ============================================================
-                // 🔥 CẬP NHẬT FullName + AvatarUrl NẾU CÒN TRỐNG
+                // CẬP NHẬT FullName + AvatarUrl NẾU CÒN TRỐNG
                 // ============================================================
                 var existingUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
                 if (existingUser != null)
@@ -147,8 +126,6 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
                         }
                     }
 
-                    
-
                     if (needUpdate)
                         await _userManager.UpdateAsync(existingUser);
                 }
@@ -165,19 +142,22 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
                 // If the user does not have an account, then ask the user to create an account.
                 ReturnUrl = returnUrl;
                 ProviderDisplayName = info.ProviderDisplayName;
-                if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
+                Input = new InputModel
                 {
-                    Input = new InputModel
-                    {
-                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
-                    };
-                }
+                    Role = RegisterModel.RoleTenant,
+                    Email = info.Principal.HasClaim(c => c.Type == ClaimTypes.Email)
+                        ? info.Principal.FindFirstValue(ClaimTypes.Email)
+                        : null
+                };
                 return Page();
             }
         }
 
         public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
         {
+            var hasExplicitReturnUrl = !string.IsNullOrWhiteSpace(returnUrl)
+                && returnUrl != "/"
+                && returnUrl != "~/";
             returnUrl = returnUrl ?? Url.Content("~/");
             // Get the information about the user from the external login provider
             var info = await _signInManager.GetExternalLoginInfoAsync();
@@ -187,12 +167,18 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
+            Input ??= new InputModel();
+            if (!RegisterModel.TryNormalizeSelfRegisterRole(Input.Role, out var selectedRole))
+            {
+                ModelState.AddModelError($"{nameof(Input)}.{nameof(Input.Role)}", "Vai trò đăng ký không hợp lệ.");
+            }
+
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
 
                 // ============================================================
-                // 🔥 GÁN FullName + AvatarUrl + Status TỪ GOOGLE
+                // GÁN FullName + AvatarUrl + Status TỪ GOOGLE
                 // ============================================================
                 var googleName = GetGoogleName(info.Principal);
                 if (string.IsNullOrWhiteSpace(googleName))
@@ -206,8 +192,8 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
                 user.Status = EZ_Rent.Models.Enums.UserStatus.Active;
                 user.CreatedAt = DateTime.UtcNow;
 
-                _logger.LogInformation("Tạo user mới từ Google: Email = {Email}, FullName = {FullName}",
-                    Input.Email, googleName);
+                _logger.LogInformation("Tạo user mới từ Google: Email = {Email}, FullName = {FullName}, Role = {Role}",
+                    Input.Email, googleName, selectedRole);
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -215,13 +201,16 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {
-                    // 🔥 Gán role mặc định "Tenant" (bỏ comment nếu muốn)
-                    await _userManager.AddToRoleAsync(user, "Tenant");
+                    await _userManager.AddToRoleAsync(user, selectedRole);
 
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
                         _logger.LogInformation("User created an account using {Name} provider.", info.LoginProvider);
+
+                        var targetRedirect = (selectedRole == RegisterModel.RoleLandlord && !hasExplicitReturnUrl)
+                            ? Url.Content("~/Landlord/Overview")
+                            : returnUrl;
 
                         var userId = await _userManager.GetUserIdAsync(user);
                         var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -242,7 +231,7 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
                         }
 
                         await _signInManager.SignInAsync(user, isPersistent: false, info.LoginProvider);
-                        return LocalRedirect(returnUrl);
+                        return LocalRedirect(targetRedirect);
                     }
                 }
                 foreach (var error in result.Errors)
@@ -257,18 +246,15 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
         }
 
         // ============================================================
-        // 🔥 HÀM LẤY TÊN TỪ GOOGLE (4 cấp fallback)
+        // HÀM LẤY TÊN TỪ GOOGLE (4 cấp fallback)
         // ============================================================
         private static string GetGoogleName(ClaimsPrincipal principal)
         {
-            // 1. Chuẩn: ClaimTypes.Name = "Nguyễn Văn A"
             var name = principal.FindFirstValue(ClaimTypes.Name);
 
-            // 2. Fallback: claim "name" thuần
             if (string.IsNullOrWhiteSpace(name))
                 name = principal.FindFirstValue("name");
 
-            // 3. Ghép Surname + GivenName
             if (string.IsNullOrWhiteSpace(name))
             {
                 var given = principal.FindFirstValue(ClaimTypes.GivenName);
@@ -278,7 +264,6 @@ namespace EZ_Rent.Areas.Identity.Pages.Account
                     name = $"{surname} {given}".Trim();
             }
 
-            // 4. Fallback cuối: email
             if (string.IsNullOrWhiteSpace(name))
                 name = principal.FindFirstValue(ClaimTypes.Email);
 

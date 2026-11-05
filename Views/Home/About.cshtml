@@ -1,0 +1,112 @@
+@{
+    ViewData["Title"] = "Về chúng tôi";
+    var searchArea = User.IsInRole("Tenant") ? "Tenant" : "";
+}
+
+<section class="ez-discovery-intro">
+    <div>
+        <p class="eyebrow">GIỚI THIỆU NỀN TẢNG</p>
+        <h1>Về EZ-Rent</h1>
+        <p>Nền tảng kết nối và quản lý thuê phòng trọ minh bạch dành cho người thuê, chủ nhà và quản trị viên.</p>
+    </div>
+    <div class="ez-discovery-stats">
+        <div class="ez-discovery-stat">
+            <strong class="num">100%</strong>
+            <span>Tin đăng qua kiểm duyệt</span>
+        </div>
+        <div class="ez-discovery-stat">
+            <strong class="num">BM03</strong>
+            <span>Chuẩn hợp đồng điện tử</span>
+        </div>
+        <div class="ez-discovery-stat">
+            <strong class="num">VietQR</strong>
+            <span>Đối soát hóa đơn tự động</span>
+        </div>
+    </div>
+</section>
+
+<div class="ez-editorial-layout" style="margin-top: 24px; padding-top: 24px;">
+    <div>
+        <article class="card overflow-hidden mb-4">
+            <img src="~/images/brand/city-ong.png" alt="Không gian EZ-Rent" style="width: 100%; aspect-ratio: 16 / 8.5; object-fit: cover; border-bottom: 1px solid var(--ez-line);" />
+            <div class="p-4">
+                <p class="eyebrow mb-1">SỨ MỆNH CỦA CHÚNG TÔI</p>
+                <h2 class="h4 mb-2">Xóa bỏ thông tin mập mờ trong hành trình tìm và thuê trọ</h2>
+                <p class="text-muted small mb-0" style="line-height: 1.8;">
+                    EZ-Rent được phát triển bởi nhóm <strong>WNC.G07</strong> với mục tiêu giải quyết những bất cập phổ biến khi đi thuê trọ: tin ảo, phí dịch vụ phát sinh không báo trước, tranh chấp chỉ số điện nước và hợp đồng giấy dễ thất lạc. Trên EZ-Rent, toàn bộ vòng đời thuê phòng từ lúc tìm kiếm, đặt lịch hẹn, ký hợp đồng đến thanh toán hóa đơn hàng tháng đều được số hóa minh bạch.
+                </p>
+            </div>
+        </article>
+
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="card p-3 h-100">
+                    <p class="eyebrow mb-1">NGƯỜI THUÊ</p>
+                    <h3 class="h6 mb-2">Chủ động tìm kiếm &amp; theo dõi chi phí</h3>
+                    <p class="text-muted small mb-0" style="line-height: 1.7;">
+                        Tra cứu phòng theo khu vực và ngân sách, đặt lịch xem phòng theo khung giờ mở cửa, xem hợp đồng số kèm ảnh công tơ điện nước và thanh toán qua mã VietQR.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 h-100">
+                    <p class="eyebrow mb-1">CHỦ TRỌ</p>
+                    <h3 class="h6 mb-2">Vận hành phòng trọ tập trung</h3>
+                    <p class="text-muted small mb-0" style="line-height: 1.7;">
+                        Quản lý trạng thái phòng trống, xác nhận lịch hẹn khách xem, lập hợp đồng mẫu BM03, ghi chỉ số điện nước định kỳ và theo dõi công nợ theo từng kỳ thu.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card p-3 h-100">
+                    <p class="eyebrow mb-1">QUẢN TRỊ VIÊN</p>
+                    <h3 class="h6 mb-2">Kiểm duyệt &amp; bảo vệ cộng đồng</h3>
+                    <p class="text-muted small mb-0" style="line-height: 1.7;">
+                        Rà soát từng tin đăng trước khi hiển thị công khai, yêu cầu chỉnh sửa các thông tin chưa rõ ràng và hỗ trợ giải quyết khiếu nại sửa chữa giữa hai bên.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside class="ez-editorial-aside">
+        <h2 class="h6 mb-2">Khám phá thêm</h2>
+        <div>
+            <a asp-area="@searchArea" asp-controller="RentalPost" asp-action="Index" class="ez-plain-row">
+                <span>
+                    <strong>Tìm phòng đang trống</strong>
+                    <small>Xem danh sách phòng đã duyệt</small>
+                </span>
+                <span class="text-muted">→</span>
+            </a>
+            <a asp-controller="Home" asp-action="Guide" class="ez-plain-row">
+                <span>
+                    <strong>Cẩm nang thuê phòng</strong>
+                    <small>Hướng dẫn từ A-Z cho người mới</small>
+                </span>
+                <span class="text-muted">→</span>
+            </a>
+            <a asp-controller="Home" asp-action="Help" class="ez-plain-row">
+                <span>
+                    <strong>Trung tâm trợ giúp</strong>
+                    <small>Các câu hỏi thường gặp (FAQ)</small>
+                </span>
+                <span class="text-muted">→</span>
+            </a>
+            <a asp-controller="Home" asp-action="Terms" class="ez-plain-row">
+                <span>
+                    <strong>Điều khoản sử dụng</strong>
+                    <small>Quy chế hoạt động nền tảng</small>
+                </span>
+                <span class="text-muted">→</span>
+            </a>
+            <a asp-controller="Home" asp-action="Privacy" class="ez-plain-row">
+                <span>
+                    <strong>Chính sách bảo mật</strong>
+                    <small>Cam kết bảo vệ dữ liệu cá nhân</small>
+                </span>
+                <span class="text-muted">→</span>
+            </a>
+        </div>
+    </aside>
+</div>

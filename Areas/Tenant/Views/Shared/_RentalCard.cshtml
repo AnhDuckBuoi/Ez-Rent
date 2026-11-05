@@ -1,26 +1,114 @@
 @using System.Globalization
 @using EZ_Rent.Areas.Tenant.Services
+@using EZ_Rent.Helpers
 @model EZ_Rent.Areas.Tenant.ViewModels.RentalCardModel
-<article class="rental-card" data-post-id="@Model.RentalPostId">
-    <div class="card-photo">
+@{
+    var culture = CultureInfo.GetCultureInfo("vi-VN");
+    var resolvedPhoto = Model.IsAvailable
+        ? RoomPhotoHelper.ResolveUrl(Model.ImageUrl, Model.RentalPostId, Model.RoomType)
+        : "/images/room-placeholder.svg";
+}
+<article class="rental-card ez-home-card ez-discover-card" data-post-id="@Model.RentalPostId">
+    <div class="ez-home-card-media ez-discover-card-media">
         @if (Model.IsAvailable)
         {
-            <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Details" asp-route-id="@Model.RentalPostId" asp-route-returnUrl="@Model.ReturnUrl" aria-label="Xem @Model.Title"><img src="@Model.ImageUrl" alt="@Model.Title" loading="lazy" data-fallback="/images/room-placeholder.svg" /></a>
+            <a asp-area="Tenant"
+               asp-controller="RentalPost"
+               asp-action="Details"
+               asp-route-id="@Model.RentalPostId"
+               asp-route-returnUrl="@Model.ReturnUrl"
+               class="ez-discover-media-link"
+               aria-label="Xem @Model.Title">
+                <img src="@resolvedPhoto" alt="@Model.Title" loading="lazy" data-fallback="/images/room-placeholder.svg" />
+            </a>
         }
-        else { <img src="/images/room-placeholder.svg" alt="Tin không còn khả dụng" /> }
-        <form asp-area="Tenant" asp-controller="Favorite" asp-action="Set" method="post" class="favorite-form card-favorite" data-favorite-form>
-            <input type="hidden" name="RentalPostId" value="@Model.RentalPostId" /><input type="hidden" name="Saved" value="@((!Model.IsSaved).ToString().ToLowerInvariant())" /><input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
-            <button type="submit" class="heart @(Model.IsSaved ? "is-saved" : "")" aria-pressed="@Model.IsSaved.ToString().ToLowerInvariant()" aria-label="@(Model.IsSaved ? "Bỏ lưu " : "Lưu ")@Model.Title"><span data-heart aria-hidden="true">@(Model.IsSaved ? "♥" : "♡")</span></button>
+        else
+        {
+            <img src="/images/room-placeholder.svg" alt="Tin không còn khả dụng" />
+        }
+
+        <span class="ez-home-card-type">
+            @(Model.IsAvailable ? RentalPresentation.RoomTypeName(Model.RoomType) : "Không còn khả dụng")
+        </span>
+
+        @if (Model.IsAvailable)
+        {
+            <span class="ez-home-card-status ez-discover-status-bottom">Còn trống</span>
+        }
+
+        <form asp-area="Tenant"
+              asp-controller="Favorite"
+              asp-action="Set"
+              method="post"
+              class="favorite-form card-favorite ez-card-fav-form"
+              data-favorite-form>
+            <input type="hidden" name="RentalPostId" value="@Model.RentalPostId" />
+            <input type="hidden" name="Saved" value="@((!Model.IsSaved).ToString().ToLowerInvariant())" />
+            <input type="hidden" name="ReturnUrl" value="@Model.ReturnUrl" />
+            <button type="submit"
+                    class="heart ez-card-fav-btn @(Model.IsSaved ? "is-saved" : "")"
+                    aria-pressed="@Model.IsSaved.ToString().ToLowerInvariant()"
+                    aria-label="@(Model.IsSaved ? "Bỏ lưu " : "Lưu ")@Model.Title">
+                <span data-heart class="ez-heart-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                    </svg>
+                </span>
+                <span class="ez-card-fav-status" data-card-fav-status aria-hidden="true"></span>
+            </button>
         </form>
-        <span class="room-badge">@(Model.IsAvailable ? RentalPresentation.RoomTypeName(Model.RoomType) : "Không còn khả dụng")</span>
     </div>
-    <div class="card-copy">
+
+    <div class="ez-home-card-body">
         @if (Model.IsAvailable)
         {
-            <div class="card-price"><strong>@Model.Price.ToString("N0", CultureInfo.GetCultureInfo("vi-VN")) đ</strong><span>/ tháng</span></div>
-            <h3><a asp-area="Tenant" asp-controller="RentalPost" asp-action="Details" asp-route-id="@Model.RentalPostId" asp-route-returnUrl="@Model.ReturnUrl">@Model.Title</a></h3>
-            <p class="card-address">@Model.Address</p><div class="card-meta"><span>@Model.Area.ToString("0.##", CultureInfo.GetCultureInfo("vi-VN")) m²</span><span class="available-dot">Còn trống</span></div>
+            <div class="ez-home-card-loc" title="@Model.Address">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+                <span>@Model.Address</span>
+            </div>
+
+            <h3 class="ez-home-card-title">
+                <a asp-area="Tenant"
+                   asp-controller="RentalPost"
+                   asp-action="Details"
+                   asp-route-id="@Model.RentalPostId"
+                   asp-route-returnUrl="@Model.ReturnUrl">
+                    @Model.Title
+                </a>
+            </h3>
+
+            <div class="ez-home-specs">
+                <span class="ez-home-spec-chip">@Model.Area.ToString("0.##", culture) m²</span>
+                <span class="ez-home-spec-chip">Đặt lịch trực tuyến</span>
+            </div>
+
+            <div class="ez-home-card-foot">
+                <div class="ez-home-price">
+                    <strong>@Model.Price.ToString("N0", culture) đ</strong>
+                    <span>/ tháng</span>
+                </div>
+                <a asp-area="Tenant"
+                   asp-controller="RentalPost"
+                   asp-action="Details"
+                   asp-route-id="@Model.RentalPostId"
+                   asp-route-returnUrl="@Model.ReturnUrl"
+                   class="ez-home-arrow"
+                   aria-label="Mở phòng @Model.Title"
+                   title="Xem chi tiết">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </a>
+            </div>
         }
-        else { <h3>Tin không còn khả dụng</h3><p class="card-address">@Model.Address</p> }
+        else
+        {
+            <h3 class="ez-home-card-title">Tin không còn khả dụng</h3>
+            <p class="ez-discover-unavail-note">@Model.Address</p>
+        }
     </div>
 </article>

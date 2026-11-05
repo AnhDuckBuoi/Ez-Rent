@@ -1,5 +1,31 @@
 @model bool
-<nav class="account-tabs" aria-label="Cài đặt tài khoản">
-    <a asp-action="Index" aria-current="@(!Model ? "page" : null)">Thông tin cá nhân</a>
-    <a asp-action="Security" aria-current="@(Model ? "page" : null)">Bảo mật & đăng nhập</a>
+<nav class="account-tabs ez-account-tabs" aria-label="Cài đặt tài khoản">
+    <a asp-area="Tenant" asp-controller="Account" asp-action="Index" class="ez-nav-pill @(!Model ? "active" : "")" aria-current="@(!Model ? "page" : null)">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <span>Thông tin cá nhân</span>
+    </a>
+    <a asp-area="Tenant" asp-controller="Account" asp-action="Security" class="ez-nav-pill @(Model ? "active" : "")" aria-current="@(Model ? "page" : null)">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <span>Bảo mật &amp; đăng nhập</span>
+    </a>
+    <a asp-area="Tenant" asp-controller="Support" asp-action="Create" class="ez-nav-pill">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <span>Hỗ trợ &amp; phản ánh</span>
+    </a>
+    <a asp-area="Identity" asp-page="/Account/Manage/Index" class="ez-nav-pill">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        <span>Cài đặt nâng cao (Identity)</span>
+    </a>
 </nav>

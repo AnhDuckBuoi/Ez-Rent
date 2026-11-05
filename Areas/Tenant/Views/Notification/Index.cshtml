@@ -4,21 +4,54 @@
     ViewData["Title"] = "Thông báo của bạn";
     ViewData["NotificationsPage"] = true;
 }
-<a asp-controller="Dashboard" asp-action="Index" class="back-link">Quay lại Trang chủ</a>
-<div class="home-heading"><div><h1>Thông báo của bạn</h1><p>@Model.UnreadCount thông báo chưa đọc · Giờ Việt Nam</p></div>
-    @if (Model.UnreadCount > 0) { <form asp-action="ReadAll" method="post"><button type="submit" class="button">Đánh dấu tất cả đã đọc</button></form> }
+<div class="home-page ez-notification-page">
+    <a asp-controller="Dashboard" asp-action="Index" class="back-link">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="19" y1="12" x2="5" y2="12"></line>
+            <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        <span>Quay lại Trang chủ</span>
+    </a>
+    <div class="home-heading">
+        <div>
+            <p class="ez-home-kicker">HỘP THƯ HỆ THỐNG</p>
+            <h1>Thông báo của bạn</h1>
+            <p>@Model.UnreadCount thông báo chưa đọc · Giờ Việt Nam</p>
+        </div>
+        @if (Model.UnreadCount > 0)
+        {
+            <form asp-action="ReadAll" method="post">
+                <button type="submit" class="button primary">
+                    <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Đánh dấu tất cả đã đọc</span>
+                </button>
+            </form>
+        }
+    </div>
+    @if (Model.InvalidPage)
+    {
+        <div class="empty-state" role="alert">
+            <h2>Không thể mở trang thông báo</h2>
+            <p>Số trang phải là số nguyên dương.</p>
+            <a asp-action="Index" class="button">Xem tất cả thông báo</a>
+        </div>
+    }
+    else if (Model.Total == 0)
+    {
+        <div class="empty-state">
+            <h2>Bạn chưa có thông báo</h2>
+            <p>Khi có thông báo mới từ hệ thống, bạn có thể xem lại tại đây.</p>
+            <a asp-controller="Dashboard" asp-action="Index" class="button">Về Trang chủ</a>
+        </div>
+    }
+    else
+    {
+        <div class="notification-list-page ez-bento-panel">
+            @await Html.PartialAsync("_HomeNotices", Model.Items)
+        </div>
+        @await Html.PartialAsync("_TenantPagination", new EZ_Rent.Areas.Tenant.ViewModels.TenantPaginationModel(
+            Model.Page, Model.TotalPages, page => Url.Action("Index", new { page }), "Trang thông báo"))
+    }
 </div>
-@if (Model.InvalidPage)
-{
-    <div class="empty-state" role="alert"><h2>Không thể mở trang thông báo</h2><p>Số trang phải là số nguyên dương.</p><a asp-action="Index" class="button">Xem tất cả thông báo</a></div>
-}
-else if (Model.Total == 0)
-{
-    <div class="empty-state"><h2>Bạn chưa có thông báo</h2><p>Khi có thông báo mới từ hệ thống, bạn có thể xem lại tại đây.</p><a asp-controller="Dashboard" asp-action="Index" class="button">Về Trang chủ</a></div>
-}
-else
-{
-    <div class="notification-list-page">@await Html.PartialAsync("_HomeNotices", Model.Items)</div>
-    @await Html.PartialAsync("_TenantPagination", new EZ_Rent.Areas.Tenant.ViewModels.TenantPaginationModel(
-        Model.Page, Model.TotalPages, page => Url.Action("Index", new { page }), "Trang thông báo"))
-}

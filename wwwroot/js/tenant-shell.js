@@ -18,6 +18,10 @@
             region.replaceChildren(notice);
             // Keep the same above-content placement as Admin, including for AJAX actions.
             if (region.getBoundingClientRect().bottom < 0) region.scrollIntoView({ block: 'start' });
+        },
+        clear() {
+            if (!region) return;
+            region.querySelectorAll('.tenant-feedback:not(.is-error)').forEach(n => n.remove());
         }
     };
     region?.addEventListener('click', event => {

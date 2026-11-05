@@ -1,26 +1,34 @@
 @{
-    ViewData["Title"] = "Create Role";
+    ViewData["Title"] = "Tạo Role mới";
 }
 
-<h1>Create Role</h1>
+<partial name="_AdminMenu" />
 
-<form asp-action="Create" method="post">
-
-    <div asp-validation-summary="ModelOnly"
-         class="text-danger"></div>
-
-    <div class="mb-3">
-        <label class="form-label">Role Name</label>
-        <input name="roleName"
-               class="form-control" />
+<div class="ez-page-header mb-4">
+    <div>
+        <span class="ez-eyebrow">Phân quyền hệ thống</span>
+        <h1 class="ez-page-title">Tạo Role mới</h1>
     </div>
+</div>
 
-    <button type="submit" class="btn btn-primary">
-        Create
-    </button>
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-    <a asp-action="Index" class="btn btn-secondary">
-        Back
-    </a>
+                    <div class="mb-3">
+                        <label class="form-label">Tên Role</label>
+                        <input name="roleName" class="form-control" placeholder="Ví dụ: Moderator" required />
+                    </div>
 
-</form>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Tạo Role</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary">← Quay lại</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

@@ -6,31 +6,55 @@
     ViewData["Description"] = Model.RentalPost.Title;
     var image = RentalPresentation.SafeMediaUrl(Model.ImageUrl);
 }
-<a asp-action="Index" class="rental-back">Quay lại danh sách yêu cầu</a>
+<a asp-action="Index" class="rental-back">← Quay lại danh sách yêu cầu</a>
 <div class="rental-detail-grid">
     <section class="rental-panel">
-        <div class="rental-section-heading"><h2>@Model.ProblemType</h2><span class="rental-status @TenantRentalPresentation.Tone(Model.Status)">@TenantRentalPresentation.RepairLabel(Model.Status)</span></div>
+        <div class="rental-section-heading">
+            <h2>@Model.ProblemType</h2>
+            <span class="rental-status @TenantRentalPresentation.Tone(Model.Status)">@TenantRentalPresentation.RepairLabel(Model.Status)</span>
+        </div>
         <dl class="rental-detail-facts">
             <div><dt>Phòng</dt><dd>@Model.RentalPost.Title</dd></div>
             <div><dt>Mức độ ưu tiên</dt><dd>@TenantRentalPresentation.PriorityLabel(Model.Priority)</dd></div>
             <div><dt>Gửi lúc</dt><dd>@TenantRentalPresentation.SentAt(Model.CreatedAt) · Giờ Việt Nam</dd></div>
-            @if (Model.UpdatedAt.HasValue) { <div><dt>Cập nhật gần nhất</dt><dd>@TenantRentalPresentation.SentAt(Model.UpdatedAt.Value)</dd></div> }
-            @if (Model.ResolvedAt.HasValue) { <div><dt>Hoàn tất lúc</dt><dd>@TenantRentalPresentation.SentAt(Model.ResolvedAt.Value)</dd></div> }
+            @if (Model.UpdatedAt.HasValue)
+            {
+                <div><dt>Cập nhật gần nhất</dt><dd>@TenantRentalPresentation.SentAt(Model.UpdatedAt.Value)</dd></div>
+            }
+            @if (Model.ResolvedAt.HasValue)
+            {
+                <div><dt>Hoàn tất lúc</dt><dd class="is-accent">@TenantRentalPresentation.SentAt(Model.ResolvedAt.Value)</dd></div>
+            }
         </dl>
-        <h3>Mô tả sự cố</h3><p class="rental-prose">@Model.Description</p>
+        <h3>Mô tả sự cố</h3>
+        <div class="ez-rental-prose-box">
+            <p class="rental-prose">@Model.Description</p>
+        </div>
         @if (image != null)
-        { <figure class="rental-evidence"><img src="@image" alt="Ảnh sự cố bạn cung cấp" width="640" height="420" loading="lazy" data-rental-image /><figcaption>Ảnh đính kèm yêu cầu</figcaption></figure> }
+        {
+            <figure class="rental-evidence">
+                <img src="@image" alt="Ảnh sự cố bạn cung cấp" width="640" height="420" loading="lazy" data-rental-image />
+                <figcaption>Ảnh đính kèm yêu cầu</figcaption>
+            </figure>
+        }
     </section>
-    <aside class="rental-panel">
+
+    <aside class="rental-panel ez-rental-sticky-aside">
         <h2>Phản hồi từ chủ nhà</h2>
-        <p class="rental-prose">@(string.IsNullOrWhiteSpace(Model.ResolutionNote) ? "Chưa có phản hồi được lưu. Bạn có thể quay lại theo dõi trạng thái yêu cầu." : Model.ResolutionNote)</p>
+        <div class="ez-rental-prose-box">
+            <p class="rental-prose">@(string.IsNullOrWhiteSpace(Model.ResolutionNote) ? "Chưa có phản hồi được lưu. Bạn có thể quay lại theo dõi trạng thái yêu cầu." : Model.ResolutionNote)</p>
+        </div>
         @if (TenantRentalPresentation.CanChange(Model))
         {
-            <p class="rental-note">Bạn có thể sửa hoặc hủy khi yêu cầu còn chờ xử lý.</p>
-            <a asp-action="Edit" asp-route-id="@Model.RepairRequestId" class="rental-button secondary">Sửa yêu cầu</a>
-            <a asp-action="Delete" asp-route-id="@Model.RepairRequestId" class="rental-button quiet-danger">Hủy yêu cầu</a>
+            <p class="rental-note">Bạn có thể sửa hoặc hủy khi yêu cầu còn ở trạng thái Chờ xử lý.</p>
+            <div class="ez-rental-aside-actions">
+                <a asp-action="Edit" asp-route-id="@Model.RepairRequestId" class="rental-button secondary">Sửa yêu cầu</a>
+                <a asp-action="Delete" asp-route-id="@Model.RepairRequestId" class="rental-button quiet-danger">Hủy yêu cầu</a>
+            </div>
         }
         else
-        { <p class="rental-note">Yêu cầu đã chuyển trạng thái nên không thể sửa hoặc hủy.</p> }
+        {
+            <p class="rental-note">Yêu cầu đã chuyển trạng thái nên không thể sửa hoặc hủy.</p>
+        }
     </aside>
 </div>

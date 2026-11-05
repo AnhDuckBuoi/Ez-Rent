@@ -1,15 +1,43 @@
-@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
+@using System.Security.Claims
+@using Microsoft.EntityFrameworkCore
 @using EZ_Rent.Areas.Tenant.ViewModels
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment HostEnvironment
+@inject EZ_Rent.Data.AppDbContext Db
 @{
-    var tenant = ViewContext.RouteData.Values["area"]?.ToString() == "Tenant";
+    var area = ViewContext.RouteData.Values["area"]?.ToString() ?? "";
+    var tenant = area == "Tenant";
+    var landlord = area == "Landlord";
+    var admin = area == "Admin";
     var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
     var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    var page = ViewContext.RouteData.Values["page"]?.ToString() ?? "";
     var chat = (tenant && controller == "Dashboard" && action == "Messages")
-        || (!tenant && ViewContext.RouteData.Values["area"]?.ToString() == "Landlord" && controller == "Messages")
-        || (!tenant && ViewContext.RouteData.Values["area"] == null && controller == "Chat");
+        || (landlord && controller == "Messages")
+        || (string.IsNullOrEmpty(area) && controller == "Chat");
     var rental = tenant && controller is "MyRoom" or "Contract" or "Invoice" or "RepairRequest";
     var discovery = tenant && controller is "RentalPost" or "Favorite" or "ViewingAppointment" or "ViewingBooking";
     var surfaceClass = chat ? "main tenant-chat" : "discovery-main home-page";
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var isTenantRole = isAuthenticated && User.IsInRole("Tenant");
+    var isLandlordRole = isAuthenticated && User.IsInRole("Landlord");
+    var isAdminRole = isAuthenticated && User.IsInRole("Admin");
+
+    var unreadHeaderCount = 0;
+    if (isTenantRole)
+    {
+        if (ViewData["UnreadNotifications"] is int cachedUnread)
+        {
+            unreadHeaderCount = cachedUnread;
+        }
+        else
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (!string.IsNullOrEmpty(currentUserId))
+            {
+                unreadHeaderCount = await Db.Notifications.CountAsync(n => n.UserId == currentUserId && !n.IsRead);
+            }
+        }
+    }
 }
 
 <!DOCTYPE html>
@@ -19,6 +47,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - EZ-Rent</title>
+    <link rel="icon" type="image/png" href="~/favicon.png" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/EZ_Rent.styles.css" asp-append-version="true" />
@@ -41,220 +70,343 @@
 
 <body class="@(tenant ? "tenant-app" : chat ? "landlord-chat-app" : null)">
     @if (HostEnvironment.EnvironmentName == "Demo") { <div class="alert alert-info text-center rounded-0 py-1 mb-0 small">Bản demo dùng dataset của nhóm · Dữ liệu thử riêng</div> }
-    <!-- ================= HEADER ================= -->
-    <header id="shared-header" class="@(tenant || chat ? "sticky-top" : null)">
-        <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
+    <!-- ================= HEADER (3-ZONE SYMMETRICAL CENTERED NAV) ================= -->
+    <header id="shared-header" class="sticky-top">
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="container-fluid navbar-container">
 
-                <!-- ===== Logo ===== -->
-                <a class="navbar-brand fw-bold" asp-area="@(User.IsInRole("Tenant") ? "Tenant" : "")" asp-controller="@(User.IsInRole("Tenant") ? "Dashboard" : "Home")" asp-action="Index">
-                    🏠 EZ-Rent
+                <!-- ===== Left: Brand Logo ===== -->
+                <a class="navbar-brand ez-brand"
+                   asp-area="@(isTenantRole ? "Tenant" : isAdminRole ? "Admin" : "")"
+                   asp-controller="@(isTenantRole ? "Dashboard" : isAdminRole ? "Dashboard" : "Home")"
+                   asp-action="Index">
+                    <img src="~/images/brand/logo-icon.png" alt="EZ-Rent Logo" class="ez-brand-logo" />
+                    <span class="ez-brand-wordmark"><span class="ez-brand-ez">ez</span><span class="ez-brand-rent">rent</span></span>
+                    @if (isAdminRole)
+                    {
+                        <span class="badge bg-danger-subtle text-danger border border-danger-subtle ms-1" style="font-size: 10px; font-weight: 700; letter-spacing: 0.5px; vertical-align: middle;">ADMIN</span>
+                    }
                 </a>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                        data-bs-target=".navbar-collapse">
+                        data-bs-target=".navbar-collapse" aria-label="Mở menu điều hướng">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
+                <!-- ===== Center Nav + Right Tools ===== -->
+                <div class="navbar-collapse collapse ez-header-right">
 
-                    <!-- ================= MAIN MENU ================= -->
-                    <ul class="navbar-nav flex-grow-1">
-
-                        <!-- Trang chủ -->
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="@(User.IsInRole("Tenant") ? "Tenant" : "")" asp-controller="@(User.IsInRole("Tenant") ? "Dashboard" : "Home")" asp-action="Index">
-                                Trang chủ
-                            </a>
-                        </li>
-
-                        <!-- Tìm phòng -->
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" aria-current="@(tenant && controller is "RentalPost" or "ViewingBooking" ? "page" : null)" asp-area="@(User.IsInRole("Tenant") ? "Tenant" : "")" asp-controller="RentalPost" asp-action="Index">
-                                🔍 Tìm phòng
-                            </a>
-                        </li>
-
-                        @if (User.Identity?.IsAuthenticated == true)
+                    <ul class="navbar-nav ez-header-nav">
+                        @if (isTenantRole)
                         {
-                            <!-- ============================================ -->
-                            <!-- DROPDOWN TENANT                              -->
-                            <!-- ============================================ -->
-                            @if (User.IsInRole("Tenant"))
-                            {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-dark" href="#" role="button"
-                                       data-bs-toggle="dropdown">
-                                        🏡 Người thuê
-                                    </a>
-                                    @await Html.PartialAsync("~/Areas/Tenant/Views/Shared/_TenantSharedMenu.cshtml")
-                                </li>
-                            }
-
-                            <!-- ============================================ -->
-                            <!-- DROPDOWN LANDLORD                            -->
-                            <!-- ============================================ -->
-                            @if (User.IsInRole("Landlord"))
-                            {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-dark" href="#" role="button"
-                                       data-bs-toggle="dropdown">
-                                        🏠 Chủ trọ
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" asp-area="" asp-controller="Chat" asp-action="Index">💬 Tin nhắn</a></li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Landlord" asp-controller="Dashboard"
-                                               asp-action="Index">
-                                                📊 Dashboard
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <hr class="dropdown-divider" />
-                                        </li>
-
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Landlord" asp-controller="Post"
-                                               asp-action="Index">
-                                                🏘️ Quản lý phòng
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Landlord" asp-controller="RoomImage"
-                                               asp-action="Index">
-                                                🖼️ Ảnh / Video phòng
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Landlord" asp-controller="Service"
-                                               asp-action="Index">
-                                                🧾 Phí dịch vụ
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Landlord" asp-controller="ViewingAppointment"
-                                               asp-action="Index">
-                                                📅 Lịch xem phòng
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Landlord" asp-controller="Contract"
-                                               asp-action="Index">
-                                                📄 Hợp đồng
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Landlord" asp-controller="MeterReading"
-                                               asp-action="Index">
-                                                ⚡ Điện nước
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Landlord" asp-controller="Invoice"
-                                               asp-action="Index">
-                                                💰 Hóa đơn
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Landlord" asp-controller="RepairRequest"
-                                               asp-action="Index">
-                                                🔧 Yêu cầu sửa chữa
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            }
-
-                            <!-- ============================================ -->
-                            <!-- DROPDOWN ADMIN                               -->
-                            <!-- ============================================ -->
-                            @if (User.IsInRole("Admin"))
-                            {
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle text-dark" href="#" role="button"
-                                       data-bs-toggle="dropdown">
-                                        🛡️ Quản trị
-                                    </a>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a class="dropdown-item" asp-area="" asp-controller="Chat"
-                                               asp-action="Index">
-                                                💬 Tin nhắn
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard"
-                                               asp-action="Index">
-                                                📊 Dashboard
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <hr class="dropdown-divider" />
-                                        </li>
-
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Admin" asp-controller="Post" asp-action="Index">
-                                                📝 Kiểm duyệt tin đăng
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Admin" asp-controller="UserManager"
-                                               asp-action="Index">
-                                                👥 Quản lý người dùng
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Admin" asp-controller="RoleManager"
-                                               asp-action="Index">
-                                                🎭 Quản lý vai trò
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Admin" asp-controller="Support"
-                                               asp-action="Index">
-                                                💬 Hỗ trợ / Phản ánh
-                                            </a>
-                                        </li>
-
-                                        <li>
-                                            <hr class="dropdown-divider" />
-                                        </li>
-                                        <li>
-                                            <a class="dropdown-item" asp-area="Admin" asp-controller="DbManage"
-                                               asp-action="Index">
-                                                🗄️ Quản lý CSDL
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                            }
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   aria-current="@(tenant && controller == "Dashboard" && action == "Index" ? "page" : null)"
+                                   asp-area="Tenant"
+                                   asp-controller="Dashboard"
+                                   asp-action="Index">
+                                    Trang chủ
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   aria-current="@(tenant && controller is "RentalPost" or "ViewingBooking" or "ViewingAppointment" ? "page" : null)"
+                                   asp-area="Tenant"
+                                   asp-controller="RentalPost"
+                                   asp-action="Index">
+                                    Tìm phòng
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   aria-current="@(chat ? "page" : null)"
+                                   asp-area=""
+                                   asp-controller="Chat"
+                                   asp-action="Index">
+                                    Tin nhắn
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   aria-current="@(rental ? "page" : null)"
+                                   asp-area="Tenant"
+                                   asp-controller="MyRoom"
+                                   asp-action="Index">
+                                    Phòng đang ở
+                                </a>
+                            </li>
                         }
-                    </ul>
-
-                    <!-- ================= ACCOUNT ================= -->
-                    <div class="d-flex align-items-center">
-
-                        @if (User.Identity?.IsAuthenticated == true)
+                        else if (isLandlordRole)
                         {
-                            <a asp-area="Identity" asp-page="/Account/Manage/Index"
-                               class="navbar-text me-3 text-decoration-none">
-                                👤 @User.Identity.Name
-                            </a>
-
-                            <form asp-area="Identity" asp-page="/Account/Logout" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-outline-danger btn-sm">
-                                    🚪 Đăng xuất
-                                </button>
-                            </form>
+                            <!-- MENU CHỦ TRỌ: dàn ra theo nhóm, mục liên quan nằm chung một chỗ -->
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle @(landlord && controller is "Overview" or "Repairs" or "Support" ? "active" : null)" href="#" role="button" data-bs-toggle="dropdown">
+                                    Tổng quan
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Overview" asp-action="Index">Bảng tổng quan</a></li>
+                                    <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Repairs" asp-action="Index">Yêu cầu sửa chữa</a></li>
+                                    <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Support" asp-action="Index">Hỗ trợ từ quản trị viên</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle @(landlord && controller is "Rooms" or "RoomMedia" or "Viewings" or "ViewingHours" ? "active" : null)" href="#" role="button" data-bs-toggle="dropdown">
+                                    Phòng trọ
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Rooms" asp-action="Index">Danh sách phòng</a></li>
+                                    <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Rooms" asp-action="Create">Đăng tin mới</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Viewings" asp-action="Index">Lịch xem phòng</a></li>
+                                    <li><a class="dropdown-item" asp-area="Landlord" asp-controller="ViewingHours" asp-action="Index">Khung giờ nhận khách</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle @(landlord && controller is "Contracts" or "ContractDocuments" or "MeterReadings" or "Invoices" or "InvoicePayments" or "PaymentSettings" ? "active" : null)" href="#" role="button" data-bs-toggle="dropdown">
+                                    Hợp đồng
+                                </a>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Contracts" asp-action="Index">Hợp đồng</a></li>
+                                    <li><a class="dropdown-item" asp-area="Landlord" asp-controller="MeterReadings" asp-action="Index">Điện, nước</a></li>
+                                    <li><a class="dropdown-item" asp-area="Landlord" asp-controller="Invoices" asp-action="Index">Hóa đơn</a></li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li><a class="dropdown-item" asp-area="Landlord" asp-controller="PaymentSettings" asp-action="Index">Tài khoản nhận tiền</a></li>
+                                </ul>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(landlord && controller == "Account" ? "active" : null)" asp-area="Landlord" asp-controller="Account" asp-action="Index">Tài khoản</a>
+                            </li>
+                        }
+                        else if (isAdminRole)
+                        {
+                            <!-- MENU ADMIN: DẠNG TAB PHẲNG TRỰC QUAN -->
+                            <li class="nav-item">
+                                <a class="nav-link @(admin && controller == "Dashboard" ? "active" : null)"
+                                   aria-current="@(admin && controller == "Dashboard" ? "page" : null)"
+                                   asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                                    Tổng quan
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(admin && controller == "Post" ? "active" : null)"
+                                   aria-current="@(admin && controller == "Post" ? "page" : null)"
+                                   asp-area="Admin" asp-controller="Post" asp-action="Index">
+                                    Duyệt tin đăng
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(admin && controller == "UserManager" ? "active" : null)"
+                                   aria-current="@(admin && controller == "UserManager" ? "page" : null)"
+                                   asp-area="Admin" asp-controller="UserManager" asp-action="Index">
+                                    Người dùng
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(admin && controller == "RoleManager" ? "active" : null)"
+                                   aria-current="@(admin && controller == "RoleManager" ? "page" : null)"
+                                   asp-area="Admin" asp-controller="RoleManager" asp-action="Index">
+                                    Phân quyền
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(admin && controller == "Support" ? "active" : null)"
+                                   aria-current="@(admin && controller == "Support" ? "page" : null)"
+                                   asp-area="Admin" asp-controller="Support" asp-action="Index">
+                                    Khiếu nại
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link @(admin && controller == "DbManage" ? "active" : null)"
+                                   aria-current="@(admin && controller == "DbManage" ? "page" : null)"
+                                   asp-area="Admin" asp-controller="DbManage" asp-action="Index">
+                                    Cơ sở dữ liệu
+                                </a>
+                            </li>
                         }
                         else
                         {
-                            <a class="btn btn-outline-primary btn-sm me-2" asp-area="Identity" asp-page="/Account/Login">
-                                🔑 Đăng nhập
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   aria-current="@(string.IsNullOrEmpty(area) && controller == "Home" && action == "Index" ? "page" : null)"
+                                   asp-area=""
+                                   asp-controller="Home"
+                                   asp-action="Index">
+                                    Trang chủ
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   aria-current="@(string.IsNullOrEmpty(area) && controller == "RentalPost" ? "page" : null)"
+                                   asp-area=""
+                                   asp-controller="RentalPost"
+                                   asp-action="Index">
+                                    Tìm phòng
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   aria-current="@(string.IsNullOrEmpty(area) && controller == "Home" && action == "Guide" ? "page" : null)"
+                                   asp-area=""
+                                   asp-controller="Home"
+                                   asp-action="Guide">
+                                    Cẩm nang
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link"
+                                   aria-current="@(string.IsNullOrEmpty(area) && controller == "Home" && action == "About" ? "page" : null)"
+                                   asp-area=""
+                                   asp-controller="Home"
+                                   asp-action="About">
+                                    Về chúng tôi
+                                </a>
+                            </li>
+                        }
+                    </ul>
+
+                    <!-- ================= RIGHT: USER TOOLS / PILL CTA ================= -->
+                    <div class="ez-header-tools">
+                        @if (isAuthenticated)
+                        {
+                            @if (isTenantRole)
+                            {
+                                <a asp-area="Tenant"
+                                   asp-controller="Favorite"
+                                   asp-action="Index"
+                                   class="ez-account-icon-btn @(tenant && controller == "Favorite" ? "is-active" : null)"
+                                   aria-current="@(tenant && controller == "Favorite" ? "page" : null)"
+                                   title="Phòng yêu thích"
+                                   aria-label="Phòng yêu thích">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                    </svg>
+                                </a>
+
+                                <a asp-area="Tenant"
+                                   asp-controller="Notification"
+                                   asp-action="Index"
+                                   class="ez-account-icon-btn @(tenant && controller == "Notification" ? "is-active" : null)"
+                                   aria-current="@(tenant && controller == "Notification" ? "page" : null)"
+                                   title="Thông báo"
+                                   aria-label="Thông báo, @unreadHeaderCount chưa đọc">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                                    </svg>
+                                    @if (unreadHeaderCount > 0)
+                                    {
+                                        <span class="ez-header-bell-badge" aria-hidden="true">@(unreadHeaderCount > 99 ? "99+" : unreadHeaderCount.ToString())</span>
+                                    }
+                                </a>
+                            }
+                            else if (isLandlordRole)
+                            {
+                                <a asp-area="Landlord"
+                                   asp-controller="Rooms"
+                                   asp-action="Create"
+                                   class="ez-header-pill-cta ez-header-pill-sm">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                    <span>Đăng phòng</span>
+                                </a>
+                            }
+                            else if (isAdminRole)
+                            {
+                                <a asp-area=""
+                                   asp-controller="Home"
+                                   asp-action="Index"
+                                   class="ez-header-pill-cta ez-header-pill-sm text-decoration-none"
+                                   title="Xem giao diện web của người thuê và khách"
+                                   target="_blank">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                        <polyline points="15 3 21 3 21 9"></polyline>
+                                        <line x1="10" y1="14" x2="21" y2="3"></line>
+                                    </svg>
+                                    <span>Xem web ↗</span>
+                                </a>
+                            }
+
+                            <!-- BENTO USER DROPDOWN: DÙNG CHUNG CHO CẢ 3 VAI TRÒ (TENANT, LANDLORD, ADMIN) -->
+                            <div class="dropdown ez-user-dropdown">
+                                <button class="ez-account-icon-btn @(area == "Identity" && page.StartsWith("/Account/Manage") ? "is-active" : null)"
+                                        type="button"
+                                        id="ezUserDropdownMenu"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false"
+                                        title="@User.Identity!.Name"
+                                        aria-label="Tài khoản của tôi">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                        <path d="M5 21v-3a7 7 0 0 1 14 0v3M16 6a4 4 0 1 1-8 0 4 4 0 0 1 8 0" />
+                                    </svg>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end ez-user-dropdown-menu" aria-labelledby="ezUserDropdownMenu">
+                                    <li class="ez-user-dropdown-header">
+                                        <div class="ez-user-dropdown-name">@User.Identity!.Name</div>
+                                        <div class="ez-user-dropdown-role">@(isTenantRole ? "Người thuê" : isLandlordRole ? "Chủ trọ" : "Quản trị viên")</div>
+                                    </li>
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <a class="dropdown-item ez-user-dropdown-item @(area == "Identity" && page == "/Account/Manage/Index" ? "active" : null)"
+                                           asp-area="Identity" asp-page="/Account/Manage/Index">
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                            <span>Hồ sơ tài khoản</span>
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item ez-user-dropdown-item @(area == "Identity" && page == "/Account/Manage/ChangePassword" ? "active" : null)"
+                                           asp-area="Identity" asp-page="/Account/Manage/ChangePassword">
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                                            </svg>
+                                            <span>Đổi mật khẩu</span>
+                                        </a>
+                                    </li>
+                                    @if (isTenantRole)
+                                    {
+                                        <li>
+                                            <a class="dropdown-item ez-user-dropdown-item @(tenant && controller == "Support" ? "active" : null)"
+                                               asp-area="Tenant" asp-controller="Support" asp-action="Create">
+                                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <circle cx="12" cy="12" r="10"></circle>
+                                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                                </svg>
+                                                <span>Hỗ trợ &amp; phản ánh</span>
+                                            </a>
+                                        </li>
+                                    }
+                                    <li><hr class="dropdown-divider" /></li>
+                                    <li>
+                                        <form asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })" method="post" class="m-0">
+                                            <button type="submit" class="dropdown-item ez-user-dropdown-item ez-user-logout-item">
+                                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                                    <polyline points="16 17 21 12 16 7"></polyline>
+                                                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                                                </svg>
+                                                <span>Đăng xuất</span>
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                            <span class="d-none">@Html.AntiForgeryToken()</span>
+                        }
+                        else
+                        {
+                            <a class="ez-header-signin-link" asp-area="Identity" asp-page="/Account/Login">
+                                Đăng nhập
                             </a>
 
-                            <a class="btn btn-primary btn-sm" asp-area="Identity" asp-page="/Account/Register">
-                                📝 Đăng ký
+                            <a class="ez-header-pill-cta" asp-area="Identity" asp-page="/Account/Register">
+                                Đăng ký
                             </a>
                         }
                     </div>
@@ -265,7 +417,7 @@
     </header>
 
     <!-- ================= MAIN ================= -->
-    <div class="@(tenant || chat ? "container-fluid tenant-container" : "container")">
+    <div class="@(tenant || chat ? "container-fluid tenant-container" : "ez-app-container")">
         <main id="main" role="main" class="pb-3 @(tenant ? "tenant-surface " + surfaceClass : chat ? "landlord-chat-surface" : "")">
             @if (tenant) { @await Html.PartialAsync("~/Areas/Tenant/Views/Shared/_TenantFeedback.cshtml") }
             @if (rental) { @await Html.PartialAsync("~/Areas/Tenant/Views/Shared/_TenantRentalNavigation.cshtml") }
@@ -274,10 +426,98 @@
     </div>
 
     <!-- ================= FOOTER ================= -->
-    <footer class="border-top footer text-muted">
-        <div class="container text-center py-3">
-            &copy; 2026 - EZ-Rent - Nhóm WNC.G07
-            | <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="footer ez-footer">
+        <div class="ez-footer-inner">
+            <!-- TIER 1: BRAND + SEARCH BAR -->
+            <div class="ez-footer-top">
+                <a class="ez-footer-brand" asp-area="@(isTenantRole ? "Tenant" : "")" asp-controller="@(isTenantRole ? "Dashboard" : "Home")" asp-action="Index">
+                    <span class="ez-brand-wordmark" style="font-size: 22px;"><span class="ez-brand-ez">ez</span><span class="ez-brand-rent">rent</span></span>
+                </a>
+
+                <form class="ez-footer-search" asp-area="@(isTenantRole ? "Tenant" : "")" asp-controller="RentalPost" asp-action="Index" method="get">
+                    <span class="ez-footer-search-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        </svg>
+                    </span>
+                    <input type="text" name="Keyword" placeholder="Nhập khu vực, đường phố hoặc tên phòng cần tìm..." aria-label="Tìm nhanh phòng trọ" />
+                    <button type="submit">Tìm kiếm</button>
+                </form>
+            </div>
+
+            <!-- TIER 2: 4 COLUMNS -->
+            <div class="ez-footer-columns">
+                <div class="ez-footer-col">
+                    <h6>Khám phá phòng trọ</h6>
+                    <ul class="ez-footer-links">
+                        <li><a asp-area="@(isTenantRole ? "Tenant" : "")" asp-controller="RentalPost" asp-action="Index">Tìm phòng đang trống</a></li>
+                        <li><a asp-area="" asp-controller="RentalPost" asp-action="Index" asp-route-City="Hà Nội">Phòng trọ tại Hà Nội</a></li>
+                        <li><a asp-area="" asp-controller="RentalPost" asp-action="Index" asp-route-City="TP. Hồ Chí Minh">Phòng trọ tại TP. Hồ Chí Minh</a></li>
+                        <li><a asp-area="" asp-controller="RentalPost" asp-action="Index" asp-route-City="Đà Nẵng">Phòng trọ tại Đà Nẵng</a></li>
+                    </ul>
+                </div>
+
+                <div class="ez-footer-col">
+                    <h6>Dịch vụ &amp; Tiện ích</h6>
+                    <ul class="ez-footer-links">
+                        <li><a asp-area="" asp-controller="Home" asp-action="Guide" asp-fragment="booking">Đặt lịch hẹn xem phòng</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Guide" asp-fragment="contract">Hợp đồng điện tử chuẩn BM03</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Guide" asp-fragment="billing">Đối soát điện nước &amp; VietQR</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Guide" asp-fragment="repair">Báo cáo &amp; theo dõi sửa chữa</a></li>
+                    </ul>
+                </div>
+
+                <div class="ez-footer-col">
+                    <h6>Hỗ trợ &amp; Chính sách</h6>
+                    <ul class="ez-footer-links">
+                        <li><a asp-area="" asp-controller="Home" asp-action="Guide">Cẩm nang thuê phòng</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Help">Trung tâm trợ giúp (FAQ)</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Terms">Điều khoản sử dụng</a></li>
+                        <li><a asp-area="" asp-controller="Home" asp-action="Privacy">Chính sách bảo mật</a></li>
+                    </ul>
+                </div>
+
+                <div class="ez-footer-col">
+                    <h6>Kết nối với chúng tôi</h6>
+                    <p class="ez-footer-join-label">Theo dõi EZ-Rent</p>
+                    <div class="ez-footer-socials">
+                        <a href="https://www.facebook.com/otungduong.90944/" target="_blank" rel="noopener noreferrer" class="ez-footer-social-link" aria-label="Facebook" title="Facebook">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M15.12 5.32H17V2.14A26.11 26.11 0 0 0 14.26 2c-2.72 0-4.58 1.66-4.58 4.7v2.62H6.61v3.56h3.07V22h3.68v-9.12h3.06l.46-3.56h-3.52V6.65c0-1.05.29-1.73 1.76-1.73Z"/>
+                            </svg>
+                        </a>
+                        <a href="https://www.instagram.com/dt.duong05_/" target="_blank" rel="noopener noreferrer" class="ez-footer-social-link" aria-label="Instagram" title="Instagram">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8 1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5 5 5 0 0 1-5 5 5 5 0 0 1-5-5 5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3Z"/>
+                            </svg>
+                        </a>
+                        <a href="https://www.linkedin.com/login/vi" target="_blank" rel="noopener noreferrer" class="ez-footer-social-link" aria-label="LinkedIn" title="LinkedIn">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.88 8.56a1.68 1.68 0 0 0 1.68-1.68c0-.93-.75-1.69-1.68-1.69a1.69 1.69 0 0 0-1.69 1.69c0 .93.76 1.68 1.69 1.68m1.39 9.94v-8.37H5.5v8.37h2.77Z"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="small text-muted">
+                        Hotline: <strong class="num text-dark">1900 6868</strong><br />
+                        Email: <strong class="text-dark">support@ezrent.vn</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TIER 3: COPYRIGHT + BOTTOM NAV -->
+            <div class="ez-footer-bottom">
+                <div>
+                    EZ-Rent &copy; 2026. Bảo lưu mọi quyền · Nhóm WNC.G07.
+                </div>
+                <nav class="ez-footer-bottom-nav" aria-label="Liên kết chân trang">
+                    <a asp-area="@(isTenantRole ? "Tenant" : "")" asp-controller="@(isTenantRole ? "Dashboard" : "Home")" asp-action="Index">Trang chủ</a>
+                    <a asp-area="@(isTenantRole ? "Tenant" : "")" asp-controller="RentalPost" asp-action="Index">Dịch vụ tìm phòng</a>
+                    <a asp-area="" asp-controller="Home" asp-action="Guide">Cẩm nang</a>
+                    <a asp-area="" asp-controller="Home" asp-action="Help">Trung tâm trợ giúp</a>
+                    <a asp-area="" asp-controller="Home" asp-action="About">Về chúng tôi</a>
+                </nav>
+            </div>
         </div>
     </footer>
 

@@ -1,0 +1,36 @@
+@{
+    var controller = ViewContext.RouteData.Values["controller"] as string ?? "";
+    string Active(params string[] names) => names.Contains(controller, StringComparer.OrdinalIgnoreCase) ? "active" : "";
+    string? Current(params string[] names) => names.Contains(controller, StringComparer.OrdinalIgnoreCase) ? "page" : null;
+}
+<link rel="stylesheet" href="~/css/landlord.css" asp-append-version="true" />
+<nav class="ll-menu nav nav-pills flex-nowrap overflow-auto gap-1 mb-4 no-print" aria-label="Chức năng quản trị">
+    <a class="nav-link @Active("Dashboard")" aria-current="@Current("Dashboard")" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+        <span>Tổng quan</span>
+    </a>
+    <a class="nav-link @Active("Post")" aria-current="@Current("Post")" asp-area="Admin" asp-controller="Post" asp-action="Index">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+        <span>Kiểm duyệt tin đăng</span>
+    </a>
+    <a class="nav-link @Active("UserManager")" aria-current="@Current("UserManager")" asp-area="Admin" asp-controller="UserManager" asp-action="Index">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <span>Người dùng</span>
+    </a>
+    <a class="nav-link @Active("RoleManager")" aria-current="@Current("RoleManager")" asp-area="Admin" asp-controller="RoleManager" asp-action="Index">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <span>Vai trò</span>
+    </a>
+    <a class="nav-link @Active("Support")" aria-current="@Current("Support")" asp-area="Admin" asp-controller="Support" asp-action="Index">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"></path></svg>
+        <span>Khiếu nại sửa chữa</span>
+    </a>
+    <a class="nav-link @Active("Chat")" aria-current="@Current("Chat")" asp-area="" asp-controller="Chat" asp-action="Index">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+        <span>Hộp thư Chat</span>
+    </a>
+    <a class="nav-link @Active("DbManage")" aria-current="@Current("DbManage")" asp-area="Admin" asp-controller="DbManage" asp-action="Index">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>
+        <span>Cơ sở dữ liệu</span>
+    </a>
+</nav>

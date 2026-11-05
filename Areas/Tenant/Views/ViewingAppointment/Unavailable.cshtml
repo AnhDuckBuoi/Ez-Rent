@@ -1,2 +1,21 @@
-@{ Layout = "_Layout"; ViewData["Title"] = "Không tìm thấy lịch hẹn"; ViewData["AppointmentsPage"] = true; }
-<section class="empty-state"><span class="empty-symbol" aria-hidden="true">▦</span><h1>Không tìm thấy lịch hẹn</h1><p>Lịch hẹn không tồn tại hoặc bạn không có quyền xem. Hãy kiểm tra lại trong danh sách của mình.</p><a asp-action="Index" class="button primary">Lịch hẹn của tôi</a></section>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Không tìm thấy lịch hẹn";
+    ViewData["AppointmentsPage"] = true;
+}
+
+<div class="ez-appt-shell">
+    <section class="ez-appt-empty">
+        <div class="ez-appt-empty-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+        </div>
+        <h1>Không tìm thấy lịch hẹn</h1>
+        <p>Lịch hẹn không tồn tại hoặc bạn không có quyền truy cập. Hãy kiểm tra lại trong danh sách lịch hẹn của mình.</p>
+        <a asp-action="Index" class="ez-discover-submit">Lịch hẹn của tôi</a>
+    </section>
+</div>

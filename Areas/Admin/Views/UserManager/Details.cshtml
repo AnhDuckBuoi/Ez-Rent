@@ -11,17 +11,21 @@
         : "?";
 }
 
-<h1>👤 Chi tiết người dùng</h1>
+<partial name="_AdminMenu" />
 
-<div class="row">
+<div class="ez-page-header mb-4">
+    <div>
+        <span class="ez-eyebrow">Quản lý tài khoản</span>
+        <h1 class="ez-page-title">Chi tiết người dùng</h1>
+    </div>
+</div>
+
+<div class="row g-4">
     <div class="col-md-4">
-        <div class="card shadow-sm">
+        <div class="card">
             <div class="card-body text-center">
-                @* ⭐ Avatar chữ cái đầu *@
                 <div class="rounded-circle mb-3 d-inline-flex align-items-center justify-content-center"
-                     style="width:120px; height:120px;
-                            background: linear-gradient(135deg, #667eea, #764ba2);
-                            color:white; font-size:48px; font-weight:bold;">
+                     style="width:100px; height:100px; background: var(--ez-soft); color: var(--ez-blue); font-size:40px; font-weight:700;">
                     @initial
                 </div>
 
@@ -30,30 +34,30 @@
 
                 @if (isLocked)
                 {
-                    <span class="badge bg-danger fs-6">🔒 Đã khóa</span>
+                    <span class="badge bg-danger">Đã khóa</span>
                 }
                 else
                 {
-                    <span class="badge bg-success fs-6">✅ Hoạt động</span>
+                    <span class="badge bg-success">Hoạt động</span>
                 }
             </div>
         </div>
     </div>
 
     <div class="col-md-8">
-        <div class="card shadow-sm">
+        <div class="card">
             <div class="card-header">
-                <strong>📋 Thông tin chi tiết</strong>
+                <strong>Thông tin chi tiết</strong>
             </div>
             <div class="card-body">
                 <dl class="row mb-0">
-                    <dt class="col-sm-3">Họ và tên</dt>
+                    <dt class="col-sm-3 text-muted">Họ và tên</dt>
                     <dd class="col-sm-9">@Model.FullName</dd>
 
-                    <dt class="col-sm-3">Username</dt>
+                    <dt class="col-sm-3 text-muted">Username</dt>
                     <dd class="col-sm-9"><code>@Model.UserName</code></dd>
 
-                    <dt class="col-sm-3">Email</dt>
+                    <dt class="col-sm-3 text-muted">Email</dt>
                     <dd class="col-sm-9">
                         <a href="mailto:@Model.Email">@Model.Email</a>
                         @if (Model.EmailConfirmed)
@@ -68,17 +72,17 @@
 
                     @if (!string.IsNullOrEmpty(Model.PhoneNumber))
                     {
-                        <dt class="col-sm-3">Số điện thoại</dt>
+                        <dt class="col-sm-3 text-muted">Số điện thoại</dt>
                         <dd class="col-sm-9">@Model.PhoneNumber</dd>
                     }
 
-                    <dt class="col-sm-3">Vai trò</dt>
+                    <dt class="col-sm-3 text-muted">Vai trò</dt>
                     <dd class="col-sm-9">
                         @if (ViewBag.CurrentRoles != null)
                         {
                             @foreach (var role in (IEnumerable<string>)ViewBag.CurrentRoles)
                             {
-                                <span class="badge bg-info text-dark me-1">@role</span>
+                                <span class="badge bg-info me-1">@role</span>
                             }
                         }
                         else
@@ -87,31 +91,31 @@
                         }
                     </dd>
 
-                    <dt class="col-sm-3">Trạng thái</dt>
+                    <dt class="col-sm-3 text-muted">Trạng thái</dt>
                     <dd class="col-sm-9">
                         @if (isLocked)
                         {
-                            <span class="badge bg-danger">🔒 Đã khóa</span>
+                            <span class="badge bg-danger">Đã khóa</span>
                         }
                         else
                         {
-                            <span class="badge bg-success">✅ Hoạt động</span>
+                            <span class="badge bg-success">Hoạt động</span>
                         }
                     </dd>
 
-                    <dt class="col-sm-3">Ngày tham gia</dt>
-                    <dd class="col-sm-9">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</dd>
+                    <dt class="col-sm-3 text-muted">Ngày tham gia</dt>
+                    <dd class="col-sm-9 num">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</dd>
 
                     @if (Model.UpdatedAt.HasValue)
                     {
-                        <dt class="col-sm-3">Cập nhật gần nhất</dt>
-                        <dd class="col-sm-9">@Model.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm")</dd>
+                        <dt class="col-sm-3 text-muted">Cập nhật gần nhất</dt>
+                        <dd class="col-sm-9 num">@Model.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm")</dd>
                     }
 
                     @if (Model.LockoutEnd.HasValue && Model.LockoutEnd.Value > DateTimeOffset.Now)
                     {
-                        <dt class="col-sm-3">Khóa đến</dt>
-                        <dd class="col-sm-9 text-danger">
+                        <dt class="col-sm-3 text-muted">Khóa đến</dt>
+                        <dd class="col-sm-9 text-danger num">
                             @Model.LockoutEnd.Value.ToString("dd/MM/yyyy HH:mm")
                         </dd>
                     }
@@ -120,7 +124,7 @@
         </div>
 
         <div class="mt-3 d-flex gap-2">
-            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">✏️ Sửa</a>
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Chỉnh sửa</a>
             <a asp-action="Index" class="btn btn-outline-secondary">← Quay lại danh sách</a>
         </div>
     </div>

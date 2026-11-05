@@ -1,50 +1,151 @@
+@using System.Globalization
 @using EZ_Rent.Areas.Tenant.ViewModels
 @model AppointmentListModel
-@{ Layout = "_Layout"; ViewData["Title"] = "Lịch hẹn của tôi"; ViewData["AppointmentsPage"] = true; }
-<section class="discovery-intro appointment-intro">
-    <p class="eyebrow">HÀNH TRÌNH TÌM NHÀ</p>
-    <h1>Lịch hẹn của tôi</h1>
-    <p>Theo dõi yêu cầu và phản hồi của chủ nhà, chuẩn bị cho lần xem phòng tiếp theo.</p>
-</section>
-<nav class="appointment-filters" aria-label="Lọc trạng thái lịch hẹn">
-    <a asp-action="Index" class="@(!Model.Input.Status.HasValue ? "selected" : "")" aria-current="@(!Model.Input.Status.HasValue ? "page" : null)">Tất cả <span>@Model.Total</span></a>
-    @foreach (var status in Enum.GetValues<ViewingAppointmentStatus>())
-    {
-        <a asp-action="Index" asp-route-Status="@((int)status)" class="@(Model.Input.Status == status ? "selected" : "")" aria-current="@(Model.Input.Status == status ? "page" : null)">@AppointmentModel.Label(status) <span>@Model.Counts.GetValueOrDefault(status)</span></a>
-    }
-</nav>
-@if (!ViewData.ModelState.IsValid)
-{
-    <div class="notice error" role="alert"><h2>Không thể lọc lịch hẹn</h2><div asp-validation-summary="All"></div><a asp-action="Index" class="button">Xem tất cả lịch hẹn</a></div>
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Lịch hẹn của tôi";
+    ViewData["AppointmentsPage"] = true;
+    var money = CultureInfo.GetCultureInfo("vi-VN");
 }
-else if (Model.Items.Count == 0)
-{
-    <section class="empty-state">
-        <span class="empty-symbol" aria-hidden="true">▦</span>
-        <h2>@(Model.Input.Status.HasValue ? "Chưa có lịch ở trạng thái này" : "Bạn chưa có lịch xem phòng")</h2>
-        <p>@(Model.Input.Status.HasValue ? "Thử xem tất cả để tìm các yêu cầu khác của bạn." : "Những yêu cầu xem phòng của bạn sẽ xuất hiện tại đây.")</p>
-        @if (Model.Input.Status.HasValue) { <a asp-action="Index" class="button primary">Xem tất cả lịch hẹn</a> }
-        else { <a asp-controller="RentalPost" asp-action="Index" class="button primary">Khám phá phòng</a> }
+
+<div class="ez-appt-shell">
+    <section class="discovery-intro appointment-intro ez-discovery-head mb-4">
+        <div>
+            <p class="ez-home-kicker">HÀNH TRÌNH TÌM NHÀ</p>
+            <h1 class="ez-discover-title">Lịch hẹn xem phòng của tôi</h1>
+            <p class="ez-home-subhead">Theo dõi các yêu cầu đã gửi, phản hồi của chủ nhà và chuẩn bị cho buổi hẹn tiếp theo.</p>
+        </div>
+        <a asp-area="Tenant" asp-controller="RentalPost" asp-action="Index" class="ez-context-pill-btn">
+            @await Html.PartialAsync("_HomeIcon", "search")
+            <span>Khám phá thêm phòng</span>
+        </a>
     </section>
-}
-else
-{
-    <div class="appointment-list-heading"><h2>@Model.FilteredTotal lịch hẹn</h2><p>Ưu tiên lịch chờ và đã xác nhận</p></div>
-    <div class="appointment-list">
-    @foreach (var item in Model.Items)
+
+    <nav class="appointment-filters ez-appt-filter-bar" aria-label="Lọc trạng thái lịch hẹn">
+        <a asp-action="Index"
+           class="ez-appt-filter-pill @(!Model.Input.Status.HasValue ? "selected" : "")"
+           aria-current="@(!Model.Input.Status.HasValue ? "page" : null)">Tất cả <span>@Model.Total</span></a>
+        @foreach (var status in Enum.GetValues<ViewingAppointmentStatus>())
+        {
+            <a asp-action="Index"
+               asp-route-Status="@((int)status)"
+               class="ez-appt-filter-pill @(Model.Input.Status == status ? "selected" : "")"
+               aria-current="@(Model.Input.Status == status ? "page" : null)">@AppointmentModel.Label(status) <span>@Model.Counts.GetValueOrDefault(status)</span></a>
+        }
+    </nav>
+
+    @if (!ViewData.ModelState.IsValid)
     {
-        <article class="appointment-card" data-appointment-id="@item.Id">
-            <div class="appointment-card-top"><span class="appointment-status @item.StatusClass">@item.StatusLabel</span><span class="muted small">Lịch #@item.Id</span></div>
-            <h3><a asp-action="Details" asp-route-id="@item.Id">@item.Title</a></h3>
-            <p class="appointment-address">@item.Address</p>
-            <div class="appointment-time"><span aria-hidden="true">▦</span><div><strong>@item.TimeLabel</strong><span>@item.DateLabel</span></div></div>
-            @if (item.Status == ViewingAppointmentStatus.Pending) { <p class="appointment-hint">Chờ chủ nhà xác nhận trước khi đến xem.</p> }
-            @if (!string.IsNullOrWhiteSpace(item.LandlordNote)) { <p class="appointment-reply">Có phản hồi từ chủ nhà</p> }
-            <a asp-action="Details" asp-route-id="@item.Id" class="appointment-detail-link">Xem chi tiết <span aria-hidden="true">→</span></a>
-        </article>
+        <div class="ez-appt-error-card" role="alert">
+            <h2>Không thể lọc lịch hẹn</h2>
+            <div asp-validation-summary="All"></div>
+            <a asp-action="Index" class="ez-booking-btn-secondary mt-2">Xem tất cả lịch hẹn</a>
+        </div>
     }
-    </div>
-    @await Html.PartialAsync("_TenantPagination", new TenantPaginationModel(
-        Model.Input.Page, Model.TotalPages,
-        page => Url.Action("Index", new { Status = (int?)Model.Input.Status, Page = page }), "Trang lịch hẹn"))
-}
+    else if (Model.Items.Count == 0)
+    {
+        <section class="ez-appt-empty">
+            <div class="ez-appt-empty-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+            </div>
+            <h2>@(Model.Input.Status.HasValue ? "Chưa có lịch ở trạng thái này" : "Bạn chưa có lịch xem phòng")</h2>
+            <p>@(Model.Input.Status.HasValue ? "Thử chọn mục Tất cả để xem các yêu cầu hẹn xem phòng khác của bạn." : "Những yêu cầu hẹn đến xem phòng trực tiếp của bạn sẽ được quản lý tại đây.")</p>
+            @if (Model.Input.Status.HasValue)
+            {
+                <a asp-action="Index" class="ez-discover-submit">Xem tất cả lịch hẹn</a>
+            }
+            else
+            {
+                <a asp-controller="RentalPost" asp-action="Index" class="ez-discover-submit">Khám phá phòng</a>
+            }
+        </section>
+    }
+    else
+    {
+        <div class="ez-home-section-head mt-2 mb-3">
+            <div>
+                <p class="ez-home-kicker">DANH SÁCH YÊU CẦU</p>
+                <h2 class="ez-home-heading">@Model.FilteredTotal lịch hẹn <span class="ez-discover-total">· Ưu tiên lịch chờ và đã xác nhận</span></h2>
+            </div>
+        </div>
+
+        <div class="appointment-list ez-appt-grid">
+            @foreach (var item in Model.Items)
+            {
+                <article class="appointment-card ez-appt-card" data-appointment-id="@item.Id">
+                    <div class="ez-appt-card-head">
+                        <span class="appointment-status ez-appt-badge @item.StatusClass">@item.StatusLabel</span>
+                        <span class="ez-appt-id">Mã lịch #@item.Id</span>
+                    </div>
+
+                    <div class="ez-appt-room-row">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="ez-appt-thumb" aria-label="Chi tiết lịch hẹn #@item.Id">
+                            <img src="@item.ImageUrl" alt="@item.Title" loading="lazy" data-fallback="/images/room-placeholder.svg" />
+                        </a>
+                        <div class="ez-appt-room-copy">
+                            <h3><a asp-action="Details" asp-route-id="@item.Id">@item.Title</a></h3>
+                            <p class="ez-appt-addr">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                                <span>@item.Address</span>
+                            </p>
+                            @if (item.PostAvailable && item.Price.HasValue)
+                            {
+                                <p class="ez-appt-price">
+                                    <strong>@item.Price.Value.ToString("N0", money) đ</strong><span>/tháng</span>
+                                    @if (item.Area.HasValue)
+                                    {
+                                        <span class="ez-appt-dot">·</span><span>@item.Area.Value.ToString("0.##", money) m²</span>
+                                    }
+                                </p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="ez-appt-schedule-strip">
+                        <div class="ez-appt-date-chip">
+                            <span>@item.MonthLabel</span>
+                            <strong>@item.DayNumber</strong>
+                        </div>
+                        <div class="ez-appt-time-meta">
+                            <strong>@item.TimeLabel <span>· Giờ Việt Nam</span></strong>
+                            <span>@item.DateLabel</span>
+                        </div>
+                    </div>
+
+                    @if (item.Status == ViewingAppointmentStatus.Pending || !string.IsNullOrWhiteSpace(item.LandlordNote))
+                    {
+                        <div class="ez-appt-signals">
+                            @if (item.Status == ViewingAppointmentStatus.Pending)
+                            {
+                                <span class="ez-appt-signal is-amber">Chờ chủ nhà xác nhận trước khi đến xem</span>
+                            }
+                            @if (!string.IsNullOrWhiteSpace(item.LandlordNote))
+                            {
+                                <span class="ez-appt-signal is-blue">Có phản hồi mới từ chủ nhà</span>
+                            }
+                        </div>
+                    }
+
+                    <div class="ez-appt-card-foot">
+                        <a asp-action="Details" asp-route-id="@item.Id" class="ez-appt-detail-btn">
+                            <span>Xem chi tiết lịch hẹn</span>
+                            <span aria-hidden="true">→</span>
+                        </a>
+                    </div>
+                </article>
+            }
+        </div>
+
+        @await Html.PartialAsync("_TenantPagination", new TenantPaginationModel(
+            Model.Input.Page, Model.TotalPages,
+            page => Url.Action("Index", new { Status = (int?)Model.Input.Status, Page = page }), "Trang lịch hẹn"))
+    }
+</div>

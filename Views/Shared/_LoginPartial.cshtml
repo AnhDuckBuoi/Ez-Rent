@@ -13,7 +13,6 @@
         ? user.FullName.Trim().First().ToString().ToUpper()
         : "?";
 
-    // ⭐ Chỉ dùng avatar local — tránh ảnh external gây lag
     var avatarUrl = (!string.IsNullOrEmpty(user?.AvatarUrl)
                      && user.AvatarUrl.StartsWith("/uploads/"))
         ? user.AvatarUrl
@@ -27,20 +26,17 @@
             <a class="nav-link dropdown-toggle d-flex align-items-center gap-2"
                href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
 
-                @* ⭐ Avatar — chỉ dùng ảnh local *@
                 @if (avatarUrl != null)
                 {
                     <img src="@avatarUrl"
                          class="rounded-circle"
                          width="32" height="32"
-                         style="object-fit:cover;border:2px solid #667eea;" />
+                         style="object-fit:cover;border:2px solid var(--ez-blue, #356797);" />
                 }
                 else
                 {
                     <div class="rounded-circle d-flex align-items-center justify-content-center"
-                         style="width:32px;height:32px;
-                                background: linear-gradient(135deg, #667eea, #764ba2);
-                                color:white;font-size:14px;font-weight:bold;">
+                         style="width:32px;height:32px;background:var(--ez-blue, #356797);color:white;font-size:13px;font-weight:700;">
                         @initial
                     </div>
                 }
@@ -49,76 +45,70 @@
             </a>
 
             <ul class="dropdown-menu dropdown-menu-end shadow">
-                @* Hồ sơ *@
                 <li>
                     <a class="dropdown-item"
                        asp-area="Identity"
                        asp-page="/Account/Manage/Index">
-                        👤 Hồ sơ cá nhân
+                        Hồ sơ cá nhân
                     </a>
                 </li>
 
-                @* Landlord: Tin đăng *@
                 @if (User.IsInRole("Landlord"))
                 {
                     <li>
                         <a class="dropdown-item"
                            asp-controller="My" asp-action="Posts" asp-area="">
-                            📝 Tin đăng của tôi
+                            Tin đăng của tôi
                         </a>
                     </li>
                 }
 
-                @* Tenant + Landlord: Hợp đồng, Hóa đơn *@
                 @if (User.IsInRole("Tenant") || User.IsInRole("Landlord"))
                 {
                     <li>
                         <a class="dropdown-item"
                            asp-controller="My" asp-action="Contracts" asp-area="">
-                            📄 Hợp đồng của tôi
+                            Hợp đồng của tôi
                         </a>
                     </li>
                     <li>
                         <a class="dropdown-item"
                            asp-controller="My" asp-action="Invoices" asp-area="">
-                            💰 Hóa đơn của tôi
+                            Hóa đơn của tôi
                         </a>
                     </li>
                 }
 
-                @* Tenant: Yêu thích *@
                 @if (User.IsInRole("Tenant"))
                 {
                     <li>
                         <a class="dropdown-item"
                            asp-area="Tenant" asp-controller="Favorite" asp-action="Index">
-                            ❤️ Phòng yêu thích
+                            Phòng yêu thích
                         </a>
                     </li>
                 }
 
-                @* Admin: Quản trị *@
                 @if (User.IsInRole("Admin"))
                 {
                     <li><hr class="dropdown-divider" /></li>
                     <li>
                         <a class="dropdown-item text-primary fw-bold"
                            asp-area="Admin" asp-controller="Home" asp-action="Index">
-                            🔧 Trang quản trị
+                            Trang quản trị
                         </a>
                     </li>
                 }
 
                 <li><hr class="dropdown-divider" /></li>
 
-                @* Logout *@
                 <li>
                     <form class="form-inline"
                           asp-area="Identity"
                           asp-page="/Account/Logout"
                           asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
                         <button type="submit" class="dropdown-item text-danger">
-                            🚪 Đăng xuất
+                            Đăng xuất
                         </button>
                     </form>
                 </li>

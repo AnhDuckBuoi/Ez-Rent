@@ -105,12 +105,12 @@
         <a class="btn btn-outline-secondary" href="@(creating ? Url.Action("Index") : Url.Action("Details", new { id = Model.Id }))">Hủy</a>
         @if (creating)
         {
-            <button class="btn btn-outline-primary" type="submit" name="intent" value="draft">💾 Lưu nháp</button>
-            <button class="btn btn-primary" type="submit" name="intent" value="send">📤 Xác nhận và gửi người thuê</button>
+            <button class="btn btn-outline-primary" type="submit" name="intent" value="draft">Lưu nháp</button>
+            <button class="btn btn-primary" type="submit" name="intent" value="send">Xác nhận và gửi người thuê</button>
         }
         else
         {
-            <button class="btn btn-primary" type="submit">💾 Lưu bản nháp</button>
+            <button class="btn btn-primary" type="submit">Lưu bản nháp</button>
         }
     </div>
 </form>

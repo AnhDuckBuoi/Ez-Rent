@@ -5,14 +5,14 @@
 <partial name="_LandlordMenu" />
 <nav aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a asp-action="Index" asp-route-period="@Model.Period">Điện, nước</a></li><li class="breadcrumb-item"><a asp-action="History" asp-route-id="@Model.RoomId">Lịch sử</a></li><li class="breadcrumb-item active" aria-current="page">@VietnamTime.PeriodLabel(Model.Period)</li></ol></nav>
 <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-3">
-    <div><h2 class="mb-0">📋 Phiếu chỉ số @VietnamTime.PeriodLabel(Model.Period).ToLowerInvariant()</h2>
+    <div><h2 class="mb-0">Phiếu chỉ số @VietnamTime.PeriodLabel(Model.Period).ToLowerInvariant()</h2>
         <small class="text-muted">Phiếu số @Model.Id · @Model.RoomTitle · ghi lúc @VietnamTime.Stamp(Model.ReadingDate) bởi @Model.RecordedBy</small></div>
     <div class="d-flex gap-2">
-        @if (Model.InvoiceId.HasValue) { <a class="btn btn-outline-primary" asp-controller="Invoices" asp-action="Details" asp-route-id="@Model.InvoiceId">🧾 Hóa đơn số @Model.InvoiceId</a> }
+        @if (Model.InvoiceId.HasValue) { <a class="btn btn-outline-primary" asp-controller="Invoices" asp-action="Details" asp-route-id="@Model.InvoiceId">Hóa đơn số @Model.InvoiceId</a> }
         else
         {
-            <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">✏️ Sửa chỉ số</a>
-            <a class="btn btn-primary" asp-controller="Invoices" asp-action="Create" asp-route-period="@Model.Period">🧾 Lập hóa đơn</a>
+            <a class="btn btn-outline-secondary" asp-action="Edit" asp-route-id="@Model.Id">Sửa chỉ số</a>
+            <a class="btn btn-primary" asp-controller="Invoices" asp-action="Create" asp-route-period="@Model.Period">Lập hóa đơn</a>
         }
     </div>
 </div>
@@ -24,7 +24,7 @@
     <div class="col-lg-8">
         <div class="row g-3">
             <div class="col-md-6"><div class="card border-0 shadow-sm h-100"><div class="card-body">
-                <h5 class="card-title">⚡ Điện</h5>
+                <h5 class="card-title">Điện</h5>
                 <dl class="row small mb-2"><dt class="col-6">Kỳ trước</dt><dd class="col-6 num">@MeterInput.Show(Model.PrevElectric)</dd>
                     <dt class="col-6">Kỳ này</dt><dd class="col-6 num">@MeterInput.Show(Model.CurrElectric)</dd>
                     <dt class="col-6">Tiêu thụ</dt><dd class="col-6 num fw-bold">@DisplayFormat.Number(Model.ElectricUsage) kWh</dd></dl>
@@ -32,7 +32,7 @@
                 else { <div class="alert alert-secondary small mb-0">Không có ảnh công tơ.</div> }
             </div></div></div>
             <div class="col-md-6"><div class="card border-0 shadow-sm h-100"><div class="card-body">
-                <h5 class="card-title">💧 Nước</h5>
+                <h5 class="card-title">Nước</h5>
                 <dl class="row small mb-2"><dt class="col-6">Kỳ trước</dt><dd class="col-6 num">@MeterInput.Show(Model.PrevWater)</dd>
                     <dt class="col-6">Kỳ này</dt><dd class="col-6 num">@MeterInput.Show(Model.CurrWater)</dd>
                     <dt class="col-6">Tiêu thụ</dt><dd class="col-6 num fw-bold">@DisplayFormat.Number(Model.WaterUsage) m³</dd></dl>
@@ -57,7 +57,7 @@
         @if (!Model.InvoiceId.HasValue && Model.IsLatest)
         {
             <form method="post" asp-action="Delete" asp-route-id="@Model.Id" data-ll-confirm="Xóa phiếu chỉ số này?">
-                <button class="btn btn-outline-danger w-100" type="submit">🗑 Xóa phiếu chỉ số</button>
+                <button class="btn btn-outline-danger w-100" type="submit">Xóa phiếu chỉ số</button>
             </form>
         }
     </div>

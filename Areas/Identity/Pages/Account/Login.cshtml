@@ -1,83 +1,161 @@
-﻿@page
+@page
 @model LoginModel
 
 @{
-    ViewData["Title"] = "Log in";
+    Layout = "/Views/Shared/_AuthLayout.cshtml";
+    ViewData["Title"] = "Đăng nhập";
+    var oauthError = Request.Query["error"].ToString();
 }
 
-<h1>@ViewData["Title"]</h1>
-<div class="row">
-    <div class="col-md-4">
-        <section>
+<div class="ez-sign-layout">
+    <!-- LEFT: FULL-BLEED CITYSCAPE PHOTO -->
+    <section class="ez-sign-photo" aria-label="Hình ảnh đô thị EZ-Rent">
+        <img src="~/images/auth/city-login.jpg" alt="Không gian sống đô thị lúc hoàng hôn" class="ez-sign-photo-img" />
+        <div class="ez-sign-photo-caption">
+            Không gian sống đô thị · <a asp-area="" asp-controller="RentalPost" asp-action="Index">Khám phá phòng trống</a>
+        </div>
+    </section>
+
+    <!-- RIGHT: SIGN-IN SIDEBAR -->
+    <section class="ez-sign-panel">
+        <div class="ez-sign-top">
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="ez-sign-brand" title="Về trang chủ EZ-Rent">
+                <img src="~/images/brand/logo-icon.png" alt="EZ-Rent Logo" class="ez-sign-brand-logo" />
+                <span class="ez-brand-wordmark" style="font-size: 20px;">
+                    <span class="ez-brand-ez">ez</span><span class="ez-brand-rent">rent</span>
+                </span>
+            </a>
+
+            <h1 class="ez-sign-title">Chào mừng bạn quay lại</h1>
+
+            @if (oauthError == "cancelled")
+            {
+                <div class="alert alert-warning small py-2 mb-3">
+                    Bạn đã hủy phiên đăng nhập bằng Google. Vui lòng thử lại hoặc đăng nhập bằng email.
+                </div>
+            }
+            else if (oauthError == "failed")
+            {
+                <div class="alert alert-danger small py-2 mb-3">
+                    Không thể kết nối với Google lúc này. Vui lòng kiểm tra cấu hình Google OAuth hoặc đăng nhập bằng email.
+                </div>
+            }
+
             <form id="account" method="post">
-                <h2>Use a local account to log in.</h2>
-                <hr />
-                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                    <label asp-for="Input.Email" class="form-label">Email</label>
-                    <span asp-validation-for="Input.Email" class="text-danger"></span>
-                </div>
-                <div class="form-floating mb-3">
-                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
-                    <label asp-for="Input.Password" class="form-label">Password</label>
-                    <span asp-validation-for="Input.Password" class="text-danger"></span>
-                </div>
-                <div class="checkbox mb-3">
-                    <label asp-for="Input.RememberMe" class="form-label">
-                        <input class="form-check-input" asp-for="Input.RememberMe" />
-                        @Html.DisplayNameFor(m => m.Input.RememberMe)
-                    </label>
-                </div>
-                <div>
-                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
-                </div>
-                <div>
-                    <p>
-                        <a id="forgot-password" asp-page="./ForgotPassword">Forgot your password?</a>
-                    </p>
-                    <p>
-                        <a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Register as a new user</a>
-                    </p>
-                    <p>
-                        <a id="resend-confirmation" asp-page="./ResendEmailConfirmation">Resend email confirmation</a>
-                    </p>
-                </div>
-            </form>
-        </section>
-    </div>
-    <div class="col-md-6 col-md-offset-2">
-        <section>
-            <h3>Use another service to log in.</h3>
-            <hr />
-            @{
-                if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                {
-                    <div>
-                        <p>
-                            There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                            about setting up this ASP.NET application to support logging in via external services</a>.
-                        </p>
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3" role="alert"></div>
+
+                <div class="ez-sign-field">
+                    <label asp-for="Input.Email" class="ez-sign-label">Email đăng nhập</label>
+                    <div class="ez-sign-input-wrap">
+                        <input asp-for="Input.Email"
+                               class="ez-sign-input"
+                               autocomplete="username"
+                               aria-required="true"
+                               placeholder="Nhập địa chỉ email" />
                     </div>
+                    <span asp-validation-for="Input.Email" class="text-danger small d-block mt-1"></span>
+                </div>
+
+                <div class="ez-sign-field">
+                    <label asp-for="Input.Password" class="ez-sign-label">Mật khẩu</label>
+                    <div class="ez-sign-input-wrap">
+                        <input asp-for="Input.Password"
+                               id="login-password-input"
+                               class="ez-sign-input has-toggle"
+                               autocomplete="current-password"
+                               aria-required="true"
+                               placeholder="Nhập mật khẩu" />
+                        <button type="button"
+                                class="ez-pw-toggle"
+                                data-pw-toggle="login-password-input"
+                                aria-label="Hiện hoặc ẩn mật khẩu"
+                                title="Hiện / ẩn mật khẩu">
+                            <svg class="pw-eye-open" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                            <svg class="pw-eye-closed d-none" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 19c-7 0-11-7-11-7a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 7 11 7a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                                <line x1="1" y1="1" x2="23" y2="23"></line>
+                            </svg>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Input.Password" class="text-danger small d-block mt-1"></span>
+                </div>
+
+                <div class="ez-sign-options">
+                    <label class="ez-switch">
+                        <input asp-for="Input.RememberMe" />
+                        <span class="ez-switch-track" aria-hidden="true"></span>
+                        <span class="ez-switch-text">Ghi nhớ đăng nhập</span>
+                    </label>
+                    <a id="forgot-password" asp-page="./ForgotPassword" class="ez-sign-forgot">Quên mật khẩu?</a>
+                </div>
+
+                <button id="login-submit" type="submit" class="ez-sign-submit">
+                    Đăng nhập
+                </button>
+            </form>
+
+            <hr class="ez-sign-hr" />
+
+            <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                @if ((Model.ExternalLogins?.Count ?? 0) > 0)
+                {
+                    @foreach (var provider in Model.ExternalLogins!)
+                    {
+                        <button type="submit" class="ez-sign-google" name="provider" value="@provider.Name" title="Đăng nhập bằng tài khoản @provider.DisplayName">
+                            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+                                <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                                <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                                <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                                <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                            </svg>
+                            <span>Hoặc đăng nhập bằng @provider.DisplayName</span>
+                        </button>
+                    }
                 }
                 else
                 {
-                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                        <div>
-                            <p>
-                                @foreach (var provider in Model.ExternalLogins!)
-                                {
-                                    <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                }
-                            </p>
-                        </div>
-                    </form>
+                    <button type="submit" class="ez-sign-google" name="provider" value="Google" title="Đăng nhập bằng tài khoản Google">
+                        <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+                            <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/>
+                            <path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 15.108 18.961 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/>
+                            <path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238A11.91 11.91 0 0 1 24 36c-5.202 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/>
+                            <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/>
+                        </svg>
+                        <span>Hoặc đăng nhập bằng Google</span>
+                    </button>
                 }
-            }
-        </section>
-    </div>
+            </form>
+
+            <p class="ez-sign-prompt">
+                Chưa có tài khoản?<a asp-page="./Register" asp-route-returnUrl="@Model.ReturnUrl">Đăng ký ngay</a>
+            </p>
+        </div>
+
+        <footer class="ez-sign-footer">
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="ez-sign-footer-brand">
+                <img src="~/images/brand/logo-icon.png" alt="" />
+                <span>@@ezrent.vn</span>
+            </a>
+            <span>&copy; EZ-Rent 2026</span>
+        </footer>
+    </section>
 </div>
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    <script>
+        document.querySelectorAll('[data-pw-toggle]').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                var target = document.getElementById(btn.getAttribute('data-pw-toggle'));
+                if (!target) return;
+                var show = target.type === 'password';
+                target.type = show ? 'text' : 'password';
+                btn.querySelector('.pw-eye-open')?.classList.toggle('d-none', show);
+                btn.querySelector('.pw-eye-closed')?.classList.toggle('d-none', !show);
+            });
+        });
+    </script>
 }

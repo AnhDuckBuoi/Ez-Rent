@@ -1,31 +1,93 @@
-﻿@page
+@page
 @model ExternalLoginModel
 @{
-    ViewData["Title"] = "Register";
+    Layout = "/Views/Shared/_AuthLayout.cshtml";
+    ViewData["Title"] = "Liên kết tài khoản";
 }
 
-<h1>@ViewData["Title"]</h1>
-<h2 id="external-login-title">Associate your @Model.ProviderDisplayName account.</h2>
-<hr />
+<div class="ez-sign-layout">
+    <!-- LEFT: FULL-BLEED CITYSCAPE PHOTO -->
+    <section class="ez-sign-photo" aria-label="Hình ảnh đô thị EZ-Rent">
+        <img src="~/images/auth/city-login.jpg" alt="Không gian sống đô thị lúc hoàng hôn" class="ez-sign-photo-img" />
+        <div class="ez-sign-photo-caption">
+            Không gian sống đô thị · <a asp-area="" asp-controller="RentalPost" asp-action="Index">Khám phá phòng trống</a>
+        </div>
+    </section>
 
-<p id="external-login-description" class="text-info">
-    You've successfully authenticated with <strong>@Model.ProviderDisplayName</strong>.
-    Please enter an email address for this site below and click the Register button to finish
-    logging in.
-</p>
+    <!-- RIGHT: EXTERNAL LOGIN CONFIRMATION SIDEBAR -->
+    <section class="ez-sign-panel">
+        <div class="ez-sign-top">
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="ez-sign-brand" title="Về trang chủ EZ-Rent">
+                <img src="~/images/brand/logo-icon.png" alt="EZ-Rent Logo" class="ez-sign-brand-logo" />
+                <span class="ez-brand-wordmark" style="font-size: 20px;">
+                    <span class="ez-brand-ez">ez</span><span class="ez-brand-rent">rent</span>
+                </span>
+            </a>
 
-<div class="row">
-    <div class="col-md-4">
-        <form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="email" placeholder="Please enter your email."/>
-                <label asp-for="Input.Email" class="form-label"></label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
+            <h1 id="external-login-title" class="ez-sign-title">Liên kết tài khoản @Model.ProviderDisplayName</h1>
+
+            <div id="external-login-description" class="ez-sign-status-box is-success">
+                <svg class="ez-sign-status-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                <div>
+                    Bạn đã xác thực thành công qua <strong>@Model.ProviderDisplayName</strong>. Vui lòng chọn vai trò và xác nhận email bên dưới để hoàn tất đăng nhập vào EZ-Rent.
+                </div>
             </div>
-            <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-        </form>
-    </div>
+
+            <form asp-page-handler="Confirmation" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger small mb-3" role="alert"></div>
+
+                <div class="mb-3">
+                    <div class="ez-role-switch" role="radiogroup" aria-label="Chọn vai trò sử dụng">
+                        <label class="ez-role-option" for="ext-role-landlord">
+                            <input type="radio"
+                                   asp-for="Input.Role"
+                                   id="ext-role-landlord"
+                                   value="@RegisterModel.RoleLandlord" />
+                            <span class="ez-role-pill">Tôi là Chủ trọ</span>
+                        </label>
+                        <label class="ez-role-option" for="ext-role-tenant">
+                            <input type="radio"
+                                   asp-for="Input.Role"
+                                   id="ext-role-tenant"
+                                   value="@RegisterModel.RoleTenant" />
+                            <span class="ez-role-pill">Tôi là Người thuê</span>
+                        </label>
+                    </div>
+                    <span asp-validation-for="Input.Role" class="text-danger small d-block"></span>
+                </div>
+
+                <div class="ez-sign-field mb-4">
+                    <label asp-for="Input.Email" class="ez-sign-label">Email đăng nhập</label>
+                    <div class="ez-sign-input-wrap">
+                        <input asp-for="Input.Email"
+                               class="ez-sign-input"
+                               autocomplete="email"
+                               placeholder="Nhập địa chỉ email của bạn" />
+                    </div>
+                    <span asp-validation-for="Input.Email" class="text-danger small d-block mt-1"></span>
+                </div>
+
+                <button type="submit" class="ez-sign-submit">
+                    Hoàn tất đăng nhập
+                </button>
+            </form>
+
+            <p class="ez-sign-prompt">
+                Muốn dùng tài khoản khác?<a asp-page="./Login" asp-route-returnUrl="@Model.ReturnUrl">Quay lại đăng nhập</a>
+            </p>
+        </div>
+
+        <footer class="ez-sign-footer">
+            <a asp-area="" asp-controller="Home" asp-action="Index" class="ez-sign-footer-brand">
+                <img src="~/images/brand/logo-icon.png" alt="" />
+                <span>@@ezrent.vn</span>
+            </a>
+            <span>&copy; EZ-Rent 2026</span>
+        </footer>
+    </section>
 </div>
 
 @section Scripts {
