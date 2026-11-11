@@ -3405,13 +3405,31 @@ body.ez-auth-body {
     gap: 26px;
 }
 
-@media (min-width: 992px) {
+@media (min-width: 992px) and (max-width: 1279.98px) {
+    #shared-header .ez-header-right {
+        gap: 14px;
+    }
+    #shared-header .ez-header-nav {
+        position: static;
+        transform: none;
+        margin: 0 auto;
+        gap: 12px;
+        flex-wrap: nowrap;
+    }
+    #shared-header .ez-header-nav .nav-link {
+        padding: 6px 8px;
+        font-size: 13.5px;
+    }
+}
+
+@media (min-width: 1280px) {
     #shared-header .ez-header-nav {
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
         margin: 0;
         z-index: 5;
+        gap: 20px;
     }
 }
 
@@ -3639,23 +3657,97 @@ body.ez-auth-body {
 }
 
 @media (max-width: 991.98px) {
+    #shared-header .navbar-container {
+        padding: 8px 16px;
+    }
+    #shared-header .navbar-collapse {
+        background: #ffffff;
+        border-radius: 18px;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.12), 0 2px 6px rgba(15, 23, 42, 0.04);
+        padding: 16px;
+        margin-top: 10px;
+        border: 1px solid #e2e8f0;
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+    }
     #shared-header .ez-header-right {
-        padding-top: 14px;
-        padding-bottom: 8px;
+        padding-top: 4px;
+        padding-bottom: 4px;
         align-items: stretch;
+        gap: 12px;
     }
     #shared-header .ez-header-nav {
-        align-items: flex-start;
-        gap: 4px;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 5px;
         margin-left: 0;
-        margin-bottom: 12px;
+        margin-bottom: 14px;
+    }
+    #shared-header .ez-header-nav .nav-item {
+        width: 100%;
+    }
+    #shared-header .ez-header-nav .nav-link {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-size: 14.5px;
+        font-weight: 600;
+        color: #334155 !important;
+        background: #f8fafc;
+        min-height: 44px;
+        transition: all 0.16s ease;
+    }
+    #shared-header .ez-header-nav .nav-link:hover,
+    #shared-header .ez-header-nav .nav-link:focus {
+        background: #f1f5f9;
+        color: #007aff !important;
+    }
+    #shared-header .ez-header-nav .nav-link.active,
+    #shared-header .ez-header-nav .nav-link[aria-current="page"] {
+        background: #eff6ff;
+        color: #007aff !important;
+        font-weight: 700;
+        border: 1px solid #bfdbfe;
     }
     #shared-header .ez-header-nav .nav-link[aria-current="page"]::after {
         display: none;
     }
+    #shared-header .ez-header-nav .dropdown-menu {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.05);
+        margin-top: 4px;
+        margin-bottom: 6px;
+        padding: 6px;
+        background: #ffffff;
+    }
+    #shared-header .ez-header-nav .dropdown-item {
+        padding: 9px 12px;
+        border-radius: 8px;
+        font-size: 13.5px;
+        font-weight: 550;
+        min-height: 40px;
+        display: flex;
+        align-items: center;
+    }
     .ez-header-tools {
-        padding-top: 10px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding-top: 12px;
         border-top: 1px solid #edf1f6;
+        gap: 10px;
+    }
+    .ez-header-tools .ez-header-pill-cta {
+        flex: 1;
+        text-align: center;
+        justify-content: center;
     }
 }
 
